@@ -105,7 +105,7 @@ function makeHtmlNodeLocation(p5Node: IP5TagNode, context: ParseHtmlContext): IH
 				: {
 						start: loc.endTag.startOffset,
 						end: loc.endTag.endOffset
-				  }
+					}
 	};
 }
 

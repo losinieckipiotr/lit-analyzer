@@ -54,7 +54,7 @@ const rule: RuleModule = {
 										htmlAttr
 									}
 								]
-						  })
+							})
 			});
 		}
 	}

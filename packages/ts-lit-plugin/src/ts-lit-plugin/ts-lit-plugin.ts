@@ -35,7 +35,10 @@ export class TsLitPlugin {
 		return this.prevLangService.getProgram()!;
 	}
 
-	constructor(private prevLangService: LanguageService, public readonly context: LitPluginContext) {}
+	constructor(
+		private prevLangService: LanguageService,
+		public readonly context: LitPluginContext
+	) {}
 
 	// All methods in this file use ...args because these methods should override
 	// the methods on prevLangService, but that object may come from a future
