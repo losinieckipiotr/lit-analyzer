@@ -26,6 +26,7 @@ export function init({ typescript }: { typescript: typeof ts }): tsServer.server
 	 * This function is used to print debug info once
 	 * Yes, it's a self destructing function!
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	let printDebugOnce: Function | undefined = () => {
 		if (logger.level >= LitAnalyzerLoggerLevel.DEBUG) {
 			logger.debug(`Lit Analyzer: ${VERSION}`);

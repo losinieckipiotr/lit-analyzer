@@ -172,7 +172,9 @@ export function makeConfig(userOptions: Partial<LitAnalyzerConfig> = {}): LitAna
 		logging: userOptions.logging || "off",
 		cwd: userOptions.cwd || process.cwd(),
 		format: {
-			disable: userOptions.format != null ? userOptions.format.disable : undefined || false // always disable formating for now
+			// always disable formating for now
+			// eslint-disable-next-line no-constant-binary-expression
+			disable: userOptions.format != null ? userOptions.format.disable : undefined || false
 		},
 		dontSuggestConfigChanges: userOptions.dontSuggestConfigChanges || false,
 		dontShowSuggestions: userOptions.dontShowSuggestions || getDeprecatedOption(userOptions, "skipSuggestions") || false,

@@ -56,6 +56,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	synchronizeConfig(api);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function synchronizeConfig(api: { configurePlugin: Function }) {
 	api.configurePlugin(tsLitPluginId, getConfig());
 }

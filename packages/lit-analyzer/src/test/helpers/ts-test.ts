@@ -39,6 +39,7 @@ function getTsModuleNameWithKind(kind: TsModuleKind | undefined): string {
  * @param kind
  */
 function getTsModuleWithKind(kind: TsModuleKind | undefined): typeof tsModule {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	return require(getTsModuleNameWithKind(kind));
 }
 
