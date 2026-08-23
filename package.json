@@ -86,6 +86,13 @@
 			],
 			"command": "prettier --check \"packages/*/src/**/*.ts\""
 		},
+		"prettier:write": {
+			"files": [
+				"packages/*/src/**/*.ts",
+				"prettier.config.js"
+			],
+			"command": "prettier --write \"packages/*/src/**/*.ts\""
+		},
 		"package": {
 			"dependencies": [
 				"./packages/vscode-lit-plugin:package"
