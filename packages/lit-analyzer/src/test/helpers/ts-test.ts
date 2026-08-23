@@ -9,7 +9,10 @@ const TS_MODULES_ALL = ["current", "5.2"] as const;
 
 type TsModuleKind = (typeof TS_MODULES_ALL)[number];
 
-const TS_MODULES_DEFAULT: TsModuleKind[] = ["current", "5.2"];
+const TS_MODULES_DEFAULT: TsModuleKind[] = [
+	"current"
+	// "5.2"
+];
 
 /**
  * Returns the name of the module to require for a specific ts module kind
