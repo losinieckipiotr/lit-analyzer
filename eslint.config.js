@@ -60,7 +60,7 @@ export default defineConfig([
 		},
 		languageOptions: {
 			globals: {
-				...globals.es2021,
+				...globals.es2022,
 				...globals.node
 			}
 		}
