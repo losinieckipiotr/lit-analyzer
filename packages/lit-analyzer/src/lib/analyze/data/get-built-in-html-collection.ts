@@ -1,10 +1,17 @@
 import { SimpleType } from "ts-simple-type";
 import { HTMLDataV1 } from "vscode-html-languageservice";
 import htmlDataJson from "@vscode/web-custom-data/data/browsers.html-data.json";
-import { HtmlAttr, HtmlDataCollection } from "../parse/parse-html-data/html-tag.js";
+import {
+	HtmlAttr,
+	HtmlDataCollection
+} from "../parse/parse-html-data/html-tag.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { lazy } from "../util/general-util.js";
-import { EXTRA_HTML5_EVENTS, hasTypeForAttrName, html5TagAttrType } from "./extra-html-data.js";
+import {
+	EXTRA_HTML5_EVENTS,
+	hasTypeForAttrName,
+	html5TagAttrType
+} from "./extra-html-data.js";
 
 export function getBuiltInHtmlCollection(): HtmlDataCollection {
 	const vscodeHtmlData = htmlDataJson as HTMLDataV1;
@@ -92,7 +99,9 @@ export function getBuiltInHtmlCollection(): HtmlDataCollection {
 	// Add missing global attributes
 	globalAttributes.push(
 		// Combine data with extra html5 events because vscode-html-language-service hasn't included all events yet.
-		...EXTRA_HTML5_EVENTS.filter(evt => globalAttributes.some(existingEvt => existingEvt.name === evt.name)),
+		...EXTRA_HTML5_EVENTS.filter(evt =>
+			globalAttributes.some(existingEvt => existingEvt.name === evt.name)
+		),
 		{
 			name: "tabindex",
 			description: ""
@@ -213,11 +222,16 @@ The value must be a comma-separated list of part mappings:
 		tags: result.tags.map(tag => ({
 			...tag,
 			builtIn: true,
-			attributes: addMissingAttrTypes(tag.attributes.map(attr => ({ ...attr, builtIn: true })))
+			attributes: addMissingAttrTypes(
+				tag.attributes.map(attr => ({ ...attr, builtIn: true }))
+			)
 		})),
 		global: {
 			...result.global,
-			attributes: addMissingAttrTypes(result.global.attributes?.map(attr => ({ ...attr, builtIn: true })) || []),
+			attributes: addMissingAttrTypes(
+				result.global.attributes?.map(attr => ({ ...attr, builtIn: true })) ||
+					[]
+			),
 			events: result.global.events?.map(event => ({ ...event, builtIn: true }))
 		}
 	};

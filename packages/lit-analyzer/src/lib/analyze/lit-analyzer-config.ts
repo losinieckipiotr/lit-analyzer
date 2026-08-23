@@ -1,7 +1,8 @@
 import { HTMLDataV1 } from "vscode-html-languageservice";
 import { LitDiagnosticSeverity } from "./types/lit-diagnostic.js";
 
-export type LitAnalyzerRuleSeverity = "on" | "off" | "warn" | "warning" | "error" | 0 | 1 | 2 | true | false;
+export type LitAnalyzerRuleSeverity =
+	"on" | "off" | "warn" | "warning" | "error" | 0 | 1 | 2 | true | false;
 
 export type LitAnalyzerRuleId =
 	| "no-unknown-tag-name"
@@ -28,13 +29,18 @@ export type LitAnalyzerRuleId =
 	| "no-legacy-attribute"
 	| "no-missing-element-type-definition";
 
-export type LitAnalyzerRules = Partial<Record<LitAnalyzerRuleId, LitAnalyzerRuleSeverity | [LitAnalyzerRuleSeverity]>>;
+export type LitAnalyzerRules = Partial<
+	Record<LitAnalyzerRuleId, LitAnalyzerRuleSeverity | [LitAnalyzerRuleSeverity]>
+>;
 
 /**
  * The values of this map are tuples where 1st element is
  * non-strict severity and 2nd element is "strict" severity
  */
-const DEFAULT_RULES_SEVERITY: Record<LitAnalyzerRuleId, [LitAnalyzerRuleSeverity, LitAnalyzerRuleSeverity]> = {
+const DEFAULT_RULES_SEVERITY: Record<
+	LitAnalyzerRuleId,
+	[LitAnalyzerRuleSeverity, LitAnalyzerRuleSeverity]
+> = {
 	"no-unknown-tag-name": ["off", "warn"],
 	"no-missing-import": ["off", "warn"],
 	"no-unclosed-tag": ["warn", "error"],
@@ -61,7 +67,9 @@ const DEFAULT_RULES_SEVERITY: Record<LitAnalyzerRuleId, [LitAnalyzerRuleSeverity
 };
 
 // All rule names order alphabetically
-export const ALL_RULE_IDS = Object.keys(DEFAULT_RULES_SEVERITY).sort() as LitAnalyzerRuleId[];
+export const ALL_RULE_IDS = Object.keys(
+	DEFAULT_RULES_SEVERITY
+).sort() as LitAnalyzerRuleId[];
 
 // This map is based on alphabetic order, so it assumed that
 //   these rule codes are changed when new rules are added and
@@ -80,22 +88,34 @@ export function ruleIdCode(ruleId: LitAnalyzerRuleId): number {
 	return RULE_ID_CODE_MAP[ruleId];
 }
 
-export function ruleSeverity(rules: LitAnalyzerConfig | LitAnalyzerRules, ruleId: LitAnalyzerRuleId): LitAnalyzerRuleSeverity {
+export function ruleSeverity(
+	rules: LitAnalyzerConfig | LitAnalyzerRules,
+	ruleId: LitAnalyzerRuleId
+): LitAnalyzerRuleSeverity {
 	if ("rules" in rules) return ruleSeverity(rules.rules, ruleId);
 
 	const ruleConfig = rules[ruleId] || "off";
 	return Array.isArray(ruleConfig) ? ruleConfig[0] : ruleConfig;
 }
 
-export function isRuleDisabled(config: LitAnalyzerConfig, ruleId: LitAnalyzerRuleId): boolean {
+export function isRuleDisabled(
+	config: LitAnalyzerConfig,
+	ruleId: LitAnalyzerRuleId
+): boolean {
 	return ["off", 0, false].includes(ruleSeverity(config, ruleId));
 }
 
-export function isRuleEnabled(config: LitAnalyzerConfig, ruleId: LitAnalyzerRuleId): boolean {
+export function isRuleEnabled(
+	config: LitAnalyzerConfig,
+	ruleId: LitAnalyzerRuleId
+): boolean {
 	return !isRuleDisabled(config, ruleId);
 }
 
-export function litDiagnosticRuleSeverity(config: LitAnalyzerConfig, ruleId: LitAnalyzerRuleId): LitDiagnosticSeverity {
+export function litDiagnosticRuleSeverity(
+	config: LitAnalyzerConfig,
+	ruleId: LitAnalyzerRuleId
+): LitDiagnosticSeverity {
 	switch (ruleSeverity(config, ruleId)) {
 		case "off":
 		case false:
@@ -150,7 +170,9 @@ function expectNever(never: never) {
  * Parses a partial user configuration and returns a full options object with defaults.
  * @param userOptions
  */
-export function makeConfig(userOptions: Partial<LitAnalyzerConfig> = {}): LitAnalyzerConfig {
+export function makeConfig(
+	userOptions: Partial<LitAnalyzerConfig> = {}
+): LitAnalyzerConfig {
 	let securitySystem = userOptions.securitySystem || "off";
 	switch (securitySystem) {
 		case "off":
@@ -173,26 +195,43 @@ export function makeConfig(userOptions: Partial<LitAnalyzerConfig> = {}): LitAna
 		cwd: userOptions.cwd || process.cwd(),
 		format: {
 			// always disable formating for now
-			disable: (userOptions.format != null ? userOptions.format.disable : undefined) || false
+			disable:
+				(userOptions.format != null ? userOptions.format.disable : undefined) ||
+				false
 		},
 		dontSuggestConfigChanges: userOptions.dontSuggestConfigChanges || false,
-		dontShowSuggestions: userOptions.dontShowSuggestions || getDeprecatedOption(userOptions, "skipSuggestions") || false,
-		maxProjectImportDepth: parseImportDepth(userOptions.maxProjectImportDepth, Infinity),
-		maxNodeModuleImportDepth: parseImportDepth(userOptions.maxNodeModuleImportDepth, 1),
+		dontShowSuggestions:
+			userOptions.dontShowSuggestions ||
+			getDeprecatedOption(userOptions, "skipSuggestions") ||
+			false,
+		maxProjectImportDepth: parseImportDepth(
+			userOptions.maxProjectImportDepth,
+			Infinity
+		),
+		maxNodeModuleImportDepth: parseImportDepth(
+			userOptions.maxNodeModuleImportDepth,
+			1
+		),
 
 		// Template tags
 		htmlTemplateTags: userOptions.htmlTemplateTags || ["html", "raw"],
 		cssTemplateTags: userOptions.cssTemplateTags || ["css"],
 
 		// Global additions
-		globalTags: userOptions.globalTags || getDeprecatedOption(userOptions, "externalHtmlTagNames") || [],
+		globalTags:
+			userOptions.globalTags ||
+			getDeprecatedOption(userOptions, "externalHtmlTagNames") ||
+			[],
 		globalAttributes: userOptions.globalAttributes || [],
 		globalEvents: userOptions.globalEvents || [],
 		customHtmlData: userOptions.customHtmlData || []
 	};
 }
 
-function getDeprecatedOption<T>(userOptions: Partial<LitAnalyzerConfig>, name: string): T | undefined {
+function getDeprecatedOption<T>(
+	userOptions: Partial<LitAnalyzerConfig>,
+	name: string
+): T | undefined {
 	return (userOptions as Record<string, T>)[name];
 }
 
@@ -200,7 +239,9 @@ function getDeprecatedOption<T>(userOptions: Partial<LitAnalyzerConfig>, name: s
 	return userOptions.rules?.[name as never];
 }*/
 
-export function makeRules(userOptions: Partial<LitAnalyzerConfig>): LitAnalyzerRules {
+export function makeRules(
+	userOptions: Partial<LitAnalyzerConfig>
+): LitAnalyzerRules {
 	const mappedDeprecatedRules = getDeprecatedMappedRules(userOptions);
 	const defaultRules = getDefaultRules(userOptions);
 	const userRules = getUserRules(userOptions);
@@ -208,11 +249,15 @@ export function makeRules(userOptions: Partial<LitAnalyzerConfig>): LitAnalyzerR
 	return Object.assign({}, defaultRules, mappedDeprecatedRules, userRules);
 }
 
-function getUserRules(userOptions: Partial<LitAnalyzerConfig>): LitAnalyzerRules {
+function getUserRules(
+	userOptions: Partial<LitAnalyzerConfig>
+): LitAnalyzerRules {
 	return userOptions.rules || {};
 }
 
-function getDefaultRules(userOptions: Partial<LitAnalyzerConfig>): LitAnalyzerRules {
+function getDefaultRules(
+	userOptions: Partial<LitAnalyzerConfig>
+): LitAnalyzerRules {
 	const isStrict = userOptions.strict || false;
 
 	return ALL_RULE_IDS.reduce(
@@ -225,7 +270,9 @@ function getDefaultRules(userOptions: Partial<LitAnalyzerConfig>): LitAnalyzerRu
 	);
 }
 
-function getDeprecatedMappedRules(userOptions: Partial<LitAnalyzerConfig>): LitAnalyzerRules {
+function getDeprecatedMappedRules(
+	userOptions: Partial<LitAnalyzerConfig>
+): LitAnalyzerRules {
 	const mappedDeprecatedRules: LitAnalyzerRules = {};
 
 	if (getDeprecatedOption(userOptions, "skipMissingImports") === true) {
@@ -277,7 +324,10 @@ function getDeprecatedMappedRules(userOptions: Partial<LitAnalyzerConfig>): LitA
  * @param value
  * @param defaultValue
  */
-function parseImportDepth(value: number | undefined, defaultValue: number): number {
+function parseImportDepth(
+	value: number | undefined,
+	defaultValue: number
+): number {
 	if (value != null) {
 		return value < 0 ? Infinity : value;
 	} else {

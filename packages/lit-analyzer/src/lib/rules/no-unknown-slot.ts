@@ -1,7 +1,10 @@
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
-import { rangeFromHtmlNode, rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
+import {
+	rangeFromHtmlNode,
+	rangeFromHtmlNodeAttr
+} from "../analyze/util/range-util.js";
 
 /**
  * This rule checks validates the slot attribute
@@ -19,7 +22,9 @@ const rule: RuleModule = {
 
 		// Get available slot names from the parent node of this node, because this node defined what slots are available.
 		// Example: <my-element><input slot="footer" /></my-element>
-		const slots = htmlNode.parent && Array.from(htmlStore.getAllSlotsForTag(htmlNode.parent.tagName));
+		const slots =
+			htmlNode.parent &&
+			Array.from(htmlStore.getAllSlotsForTag(htmlNode.parent.tagName));
 
 		// Validate slots for this attribute if any slots have been defined on the parent element, else opt out.
 		if (slots == null || slots.length === 0) return;
@@ -30,7 +35,8 @@ const rule: RuleModule = {
 			// If it's not possible to use an unnamed slot, see if there is a "slot" attribute present.
 			const slotAttr = htmlNode.attributes.find(a => a.name === "slot");
 			if (slotAttr == null) {
-				const parentTagName = (htmlNode.parent && htmlNode.parent.tagName) || "";
+				const parentTagName =
+					(htmlNode.parent && htmlNode.parent.tagName) || "";
 				// The slot attribute is missing, and it's not possible to use an unnamed slot.
 
 				const validSlotNames = slots.map(s => s.name);
@@ -80,7 +86,9 @@ const rule: RuleModule = {
 		const slotName = assignment.value;
 
 		// Find which slots names are valid, and find if the slot name matches any of these.
-		const validSlots = Array.from(context.htmlStore.getAllSlotsForTag(parentHtmlTag.tagName));
+		const validSlots = Array.from(
+			context.htmlStore.getAllSlotsForTag(parentHtmlTag.tagName)
+		);
 		const matchingSlot = validSlots.find(slot => slot.name === slotName);
 
 		if (matchingSlot == null) {

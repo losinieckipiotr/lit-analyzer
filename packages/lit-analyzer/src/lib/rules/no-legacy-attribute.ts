@@ -19,7 +19,10 @@ const rule: RuleModule = {
 			return;
 		}
 
-		if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE && htmlAttr.kind !== HtmlNodeAttrKind.BOOLEAN_ATTRIBUTE) {
+		if (
+			htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE &&
+			htmlAttr.kind !== HtmlNodeAttrKind.BOOLEAN_ATTRIBUTE
+		) {
 			return;
 		}
 
@@ -52,7 +55,9 @@ const rule: RuleModule = {
 			context.report({
 				location: rangeFromHtmlNodeAttr(htmlAttr),
 				message: `Legacy Polymer binding syntax in attribute '${htmlAttr.name}'.`,
-				suggestion: "Legacy Polymer binding syntax is not supported in Lit." + ' Instead you should use JavaScript interpolation, e.g. "attr=${foo}".'
+				suggestion:
+					"Legacy Polymer binding syntax is not supported in Lit." +
+					' Instead you should use JavaScript interpolation, e.g. "attr=${foo}".'
 				//suggestedTarget
 			});
 		}

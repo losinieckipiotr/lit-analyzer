@@ -1,10 +1,10 @@
 /* eslint-disable import/extensions */
-import { defineConfig } from "eslint/config";
-import globals from "globals";
 import js from "@eslint/js";
-import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import importPlugin from "eslint-plugin-import";
+import { defineConfig } from "eslint/config";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
 	{
@@ -13,6 +13,8 @@ export default defineConfig([
 			"out",
 			"dist",
 			"dev",
+			".wireit",
+			"packages/*/.wireit",
 			"packages/*/lib",
 			"packages/*/out",
 			"packages/*/scripts",

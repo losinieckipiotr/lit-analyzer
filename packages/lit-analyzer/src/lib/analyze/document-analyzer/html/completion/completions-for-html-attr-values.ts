@@ -1,7 +1,10 @@
 import { isSimpleTypeLiteral, SimpleType } from "ts-simple-type";
 import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
 import { HtmlNodeAttrAssignmentKind } from "../../../types/html-node/html-node-attr-assignment-types.js";
-import { HtmlNodeAttr, HtmlNodeAttrKind } from "../../../types/html-node/html-node-attr-types.js";
+import {
+	HtmlNodeAttr,
+	HtmlNodeAttrKind
+} from "../../../types/html-node/html-node-attr-types.js";
 import { LitCompletion } from "../../../types/lit-completion.js";
 import { DocumentPositionContext } from "../../../util/get-position-context-in-document.js";
 
@@ -14,14 +17,20 @@ export function completionsForHtmlAttrValues(
 	if (htmlNodeAttr.kind === HtmlNodeAttrKind.EVENT_LISTENER) return [];
 
 	// Don't show completions inside assignments with expressions
-	if (htmlNodeAttr.assignment && htmlNodeAttr.assignment.kind === HtmlNodeAttrAssignmentKind.EXPRESSION) return [];
+	if (
+		htmlNodeAttr.assignment &&
+		htmlNodeAttr.assignment.kind === HtmlNodeAttrAssignmentKind.EXPRESSION
+	)
+		return [];
 
 	const htmlTagMember = htmlStore.getHtmlAttrTarget(htmlNodeAttr);
 	if (htmlTagMember == null) return [];
 
 	// Special case for handling slot attr as we need to look at its parent
 	if (htmlNodeAttr.name === "slot") {
-		const parentHtmlTag = htmlNodeAttr.htmlNode.parent && htmlStore.getHtmlTag(htmlNodeAttr.htmlNode.parent);
+		const parentHtmlTag =
+			htmlNodeAttr.htmlNode.parent &&
+			htmlStore.getHtmlTag(htmlNodeAttr.htmlNode.parent);
 		if (parentHtmlTag != null && parentHtmlTag.slots.length > 0) {
 			return parentHtmlTag.slots.map(
 				slot =>
@@ -50,7 +59,9 @@ export function completionsForHtmlAttrValues(
 function getOptionsFromType(type: SimpleType): string[] {
 	switch (type.kind) {
 		case "UNION":
-			return type.types.filter(isSimpleTypeLiteral).map(t => t.value.toString());
+			return type.types
+				.filter(isSimpleTypeLiteral)
+				.map(t => t.value.toString());
 		case "ENUM":
 			return type.types
 				.map(m => m.type)

@@ -11,7 +11,13 @@ import { documentRangeToSFRange } from "../../../util/range-util.js";
 export function completionsForHtmlNodes(
 	document: HtmlDocument,
 	intersectingClosestNode: HtmlNode | undefined,
-	{ offset, leftWord, rightWord, beforeWord, afterWord }: DocumentPositionContext,
+	{
+		offset,
+		leftWord,
+		rightWord,
+		beforeWord,
+		afterWord
+	}: DocumentPositionContext,
 	{ htmlStore }: LitAnalyzerContext
 ): LitCompletion[] {
 	const isClosingTag = beforeWord === "/";
@@ -20,7 +26,13 @@ export function completionsForHtmlNodes(
 	// For this case we only suggest closing the closest intersecting node: so 1 single suggestion.
 	// Example:   <my-element></|
 	// This doesn't handle:   <my-element></my-el|ement> , because in that case we would like to show all options to the user.
-	if (isClosingTag && leftWord === "" && rightWord === "" && afterWord !== ">" && intersectingClosestNode != null) {
+	if (
+		isClosingTag &&
+		leftWord === "" &&
+		rightWord === "" &&
+		afterWord !== ">" &&
+		intersectingClosestNode != null
+	) {
 		const insert = `</${intersectingClosestNode.tagName}>`;
 
 		return [
@@ -47,7 +59,9 @@ export function completionsForHtmlNodes(
 		const isBuiltIn = !isCustomElementTagName(htmlTag.tagName);
 		const hasDeclaration = htmlTag.declaration != null;
 
-		const insert = isClosingTag ? "</" + htmlTag.tagName + ">" : htmlTag.tagName;
+		const insert = isClosingTag
+			? "</" + htmlTag.tagName + ">"
+			: htmlTag.tagName;
 
 		return {
 			name: insert,
@@ -56,7 +70,10 @@ export function completionsForHtmlNodes(
 			importance: isBuiltIn ? "low" : hasDeclaration ? "high" : "medium",
 			range: documentRangeToSFRange(document, {
 				start: offset - leftWord.length - (isClosingTag ? 2 : 0),
-				end: offset + rightWord.length + (isClosingTag && afterWord === ">" ? 1 : 0)
+				end:
+					offset +
+					rightWord.length +
+					(isClosingTag && afterWord === ">" ? 1 : 0)
 			}),
 			documentation: lazy(() => documentationForHtmlTag(htmlTag))
 		} as LitCompletion;

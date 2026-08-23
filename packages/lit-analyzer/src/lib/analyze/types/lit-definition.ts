@@ -20,7 +20,8 @@ export interface LitDefinitionTargetRange {
 	name?: string;
 }
 
-export type LitDefinitionTarget = LitDefinitionTargetNode | LitDefinitionTargetRange;
+export type LitDefinitionTarget =
+	LitDefinitionTargetNode | LitDefinitionTargetRange;
 
 export interface LitDefinition {
 	fromRange: SourceFileRange;

@@ -1,18 +1,46 @@
-import { isSimpleType, SimpleType, SimpleTypeAny, toSimpleType } from "ts-simple-type";
+import {
+	isSimpleType,
+	SimpleType,
+	SimpleTypeAny,
+	toSimpleType
+} from "ts-simple-type";
 import { TypeChecker } from "typescript";
-import { AnalyzerResult, ComponentDeclaration, ComponentDefinition, ComponentFeatures } from "web-component-analyzer";
+import {
+	AnalyzerResult,
+	ComponentDeclaration,
+	ComponentDefinition,
+	ComponentFeatures
+} from "web-component-analyzer";
 import { lazy } from "../util/general-util.js";
-import { HtmlDataCollection, HtmlDataFeatures, HtmlTag } from "./parse-html-data/html-tag.js";
+import {
+	HtmlDataCollection,
+	HtmlDataFeatures,
+	HtmlTag
+} from "./parse-html-data/html-tag.js";
 
 export interface AnalyzeResultConversionOptions {
 	addDeclarationPropertiesAsAttributes?: boolean;
 	checker: TypeChecker;
 }
 
-export function convertAnalyzeResultToHtmlCollection(result: AnalyzerResult, options: AnalyzeResultConversionOptions): HtmlDataCollection {
-	const tags = result.componentDefinitions.map(definition => convertComponentDeclarationToHtmlTag(definition.declaration, definition, options));
+export function convertAnalyzeResultToHtmlCollection(
+	result: AnalyzerResult,
+	options: AnalyzeResultConversionOptions
+): HtmlDataCollection {
+	const tags = result.componentDefinitions.map(definition =>
+		convertComponentDeclarationToHtmlTag(
+			definition.declaration,
+			definition,
+			options
+		)
+	);
 
-	const global = result.globalFeatures == null ? {} : convertComponentFeaturesToHtml(result.globalFeatures, { checker: options.checker });
+	const global =
+		result.globalFeatures == null
+			? {}
+			: convertComponentFeaturesToHtml(result.globalFeatures, {
+					checker: options.checker
+				});
 
 	return {
 		tags,
@@ -23,11 +51,18 @@ export function convertAnalyzeResultToHtmlCollection(result: AnalyzerResult, opt
 export function convertComponentDeclarationToHtmlTag(
 	declaration: ComponentDeclaration | undefined,
 	definition: ComponentDefinition | undefined,
-	{ checker, addDeclarationPropertiesAsAttributes }: AnalyzeResultConversionOptions
+	{
+		checker,
+		addDeclarationPropertiesAsAttributes
+	}: AnalyzeResultConversionOptions
 ): HtmlTag {
 	const tagName = definition?.tagName ?? "";
 
-	const builtIn = definition == null || (declaration?.sourceFile || definition.sourceFile).fileName.endsWith("lib.dom.d.ts");
+	const builtIn =
+		definition == null ||
+		(declaration?.sourceFile || definition.sourceFile).fileName.endsWith(
+			"lib.dom.d.ts"
+		);
 
 	if (declaration == null) {
 		return {
@@ -47,12 +82,20 @@ export function convertComponentDeclarationToHtmlTag(
 		tagName,
 		builtIn,
 		description: declaration.jsDoc?.description,
-		...convertComponentFeaturesToHtml(declaration, { checker, builtIn, fromTagName: tagName })
+		...convertComponentFeaturesToHtml(declaration, {
+			checker,
+			builtIn,
+			fromTagName: tagName
+		})
 	};
 
 	if (addDeclarationPropertiesAsAttributes && !builtIn) {
 		for (const htmlProp of htmlTag.properties) {
-			if (htmlProp.declaration != null && htmlProp.declaration.attrName == null && htmlProp.declaration.node.getSourceFile().isDeclarationFile) {
+			if (
+				htmlProp.declaration != null &&
+				htmlProp.declaration.attrName == null &&
+				htmlProp.declaration.node.getSourceFile().isDeclarationFile
+			) {
 				htmlTag.attributes.push({
 					...htmlProp,
 					kind: "attribute"
@@ -66,7 +109,11 @@ export function convertComponentDeclarationToHtmlTag(
 
 export function convertComponentFeaturesToHtml(
 	features: ComponentFeatures,
-	{ checker, builtIn, fromTagName }: { checker: TypeChecker; builtIn?: boolean; fromTagName?: string }
+	{
+		checker,
+		builtIn,
+		fromTagName
+	}: { checker: TypeChecker; builtIn?: boolean; fromTagName?: string }
 ): HtmlDataFeatures {
 	const result: HtmlDataFeatures = {
 		attributes: [],

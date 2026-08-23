@@ -27,13 +27,22 @@ export function relativeFileName(fileName: string): string {
 	return fileName.replace(process.cwd(), ".");
 }
 
-export function markText(text: string, range: TextSpan, colorFunction: (str: string) => string = chalk.bgRedBright): string {
+export function markText(
+	text: string,
+	range: TextSpan,
+	colorFunction: (str: string) => string = chalk.bgRedBright
+): string {
 	return (
-		text.substring(0, range.start) + chalk.bold(colorFunction(text.substr(range.start, range.length))) + text.substring(range.start + range.length)
+		text.substring(0, range.start) +
+		chalk.bold(colorFunction(text.substr(range.start, range.length))) +
+		text.substring(range.start + range.length)
 	);
 }
 
-export function textPad(str: string, { width, fill, dir }: { width: number; fill?: string; dir?: "left" | "right" }): string {
+export function textPad(
+	str: string,
+	{ width, fill, dir }: { width: number; fill?: string; dir?: "left" | "right" }
+): string {
 	const padding = (fill || " ").repeat(Math.max(0, width - str.length));
 	return `${dir !== "right" ? padding : ""}${str}${dir === "right" ? padding : ""}`;
 }

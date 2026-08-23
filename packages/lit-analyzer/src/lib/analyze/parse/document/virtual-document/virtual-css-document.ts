@@ -2,7 +2,13 @@ import { Expression } from "typescript";
 import { VirtualAstDocument } from "./virtual-ast-document.js";
 
 export class VirtualAstCssDocument extends VirtualAstDocument {
-	protected substituteExpression(length: number, expression: Expression, prev: string, next: string | undefined, _index: number): string {
+	protected substituteExpression(
+		length: number,
+		expression: Expression,
+		prev: string,
+		next: string | undefined,
+		_index: number
+	): string {
 		const hasLeftColon = prev.match(/:[^;{]*\${$/) != null;
 		const hasRightColon = next != null && next.match(/^}\s*:\s+/) != null;
 		const hasRightSemicolon = next != null && next.match(/^}\s*;/) != null;
@@ -16,7 +22,10 @@ export class VirtualAstCssDocument extends VirtualAstDocument {
 		//     }
 		if (hasRightSemicolon && !hasLeftColon) {
 			const prefix = "$_:_";
-			return `${prefix}${"_".repeat(Math.max(0, length - prefix.length))}`.slice(0, length);
+			return `${prefix}${"_".repeat(Math.max(0, length - prefix.length))}`.slice(
+				0,
+				length
+			);
 		}
 
 		// If there is "%" to the right of this substitution, replace with a number, because the parser expects a number unit

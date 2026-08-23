@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { dashToCamelCase } from "./util.js";
 
-export type CliArguments = { _: string[] } & Record<string, number | string | boolean>;
+export type CliArguments = { _: string[] } & Record<
+	string,
+	number | string | boolean
+>;
 
 /**
  * Parses CLI arguments.

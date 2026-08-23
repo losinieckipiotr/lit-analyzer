@@ -26,7 +26,6 @@
 		"template"
 	],
 	"scripts": {
-		"postinstall": "npm run bootstrap",
 		"postpublish": "echo \"🎉 Published successfully! You can now publish the vscode extension seperately by running 'cd packages/vscode-lit-plugin && npm run publish'\"",
 		"dev": "cd dev && TSS_DEBUG=5999 code . --disable-extension runem.lit-plugin",
 		"dev:logs": "touch dev/lit-plugin.log && tail -f dev/lit-plugin.log",

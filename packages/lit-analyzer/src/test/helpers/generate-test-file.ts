@@ -1,6 +1,12 @@
 import { TestFile } from "./compile-files.js";
 
-export function makeElement({ properties, slots }: { properties?: string[]; slots?: string[] }): TestFile {
+export function makeElement({
+	properties,
+	slots
+}: {
+	properties?: string[];
+	slots?: string[];
+}): TestFile {
 	return {
 		fileName: "my-element.ts",
 		text: `

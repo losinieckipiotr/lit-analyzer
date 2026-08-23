@@ -20,6 +20,8 @@ export type IP5CommentNode = DefaultTreeAdapterTypes.CommentNode;
 export type IP5TagNode = DefaultTreeAdapterTypes.Element;
 export type P5Node = DefaultTreeAdapterTypes.ChildNode;
 
-export function getSourceLocation(node: P5Node): IP5BaseSourceCodeLocation | null | undefined {
+export function getSourceLocation(
+	node: P5Node
+): IP5BaseSourceCodeLocation | null | undefined {
 	return node.sourceCodeLocation;
 }

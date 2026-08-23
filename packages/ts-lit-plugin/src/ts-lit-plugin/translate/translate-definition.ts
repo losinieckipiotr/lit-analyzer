@@ -3,7 +3,9 @@ import { DefinitionInfo, DefinitionInfoAndBoundSpan } from "typescript";
 import { tsModule } from "../../ts-module.js";
 import { translateRange } from "./translate-range.js";
 
-export function translateDefinition(definition: LitDefinition): DefinitionInfoAndBoundSpan {
+export function translateDefinition(
+	definition: LitDefinition
+): DefinitionInfoAndBoundSpan {
 	return {
 		definitions: definition.targets.map(translateDefinitionInfo),
 		textSpan: translateRange(definition.fromRange)
@@ -29,7 +31,8 @@ function translateDefinitionInfo(target: LitDefinitionTarget): DefinitionInfo {
 			targetStart = node.getStart();
 			targetEnd = node.getEnd();
 			targetFileName = node.getSourceFile().fileName;
-			targetName = target.name || (tsModule.ts.isIdentifier(node) ? node.getText() : "");
+			targetName =
+				target.name || (tsModule.ts.isIdentifier(node) ? node.getText() : "");
 			break;
 		}
 	}

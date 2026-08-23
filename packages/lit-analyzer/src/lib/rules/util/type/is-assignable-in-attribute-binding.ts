@@ -1,8 +1,19 @@
-import { isAssignableToType as _isAssignableToType, SimpleType, SimpleTypeComparisonOptions, typeToString } from "ts-simple-type";
-import { HtmlNodeAttrAssignment, HtmlNodeAttrAssignmentKind } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
+import {
+	isAssignableToType as _isAssignableToType,
+	SimpleType,
+	SimpleTypeComparisonOptions,
+	typeToString
+} from "ts-simple-type";
+import {
+	HtmlNodeAttrAssignment,
+	HtmlNodeAttrAssignmentKind
+} from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
-import { documentRangeToSFRange, rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
+import {
+	documentRangeToSFRange,
+	rangeFromHtmlNodeAttr
+} from "../../../analyze/util/range-util.js";
 import { isPrimitiveArrayType } from "../../../analyze/util/type-util.js";
 import { isLitDirective } from "../directive/is-lit-directive.js";
 import { isAssignableBindingUnderSecuritySystem } from "./is-assignable-binding-under-security-system.js";
@@ -34,7 +45,11 @@ export function isAssignableInAttributeBinding(
 			// For everything else, we may need to apply a different type comparison
 			// for some security-sensitive built in attributes and properties (like
 			// <script src>).
-			const securitySystemResult = isAssignableBindingUnderSecuritySystem(htmlAttr, { typeA, typeB }, context);
+			const securitySystemResult = isAssignableBindingUnderSecuritySystem(
+				htmlAttr,
+				{ typeA, typeB },
+				context
+			);
 			if (securitySystemResult !== undefined) {
 				// The security diagnostics take precedence here,
 				// and we should not do any more checking.
@@ -42,12 +57,20 @@ export function isAssignableInAttributeBinding(
 			}
 		}
 
-		const primitiveArrayTypeResult = isAssignableInPrimitiveArray(assignment, { typeA, typeB }, context);
+		const primitiveArrayTypeResult = isAssignableInPrimitiveArray(
+			assignment,
+			{ typeA, typeB },
+			context
+		);
 		if (primitiveArrayTypeResult !== undefined) {
 			return primitiveArrayTypeResult;
 		}
 
-		if (!isAssignableToType({ typeA, typeB }, context, { isAssignable: isAssignableToTypeWithStringCoercion })) {
+		if (
+			!isAssignableToType({ typeA, typeB }, context, {
+				isAssignable: isAssignableToTypeWithStringCoercion
+			})
+		) {
 			context.report({
 				location: rangeFromHtmlNodeAttr(htmlAttr),
 				message: `Type '${typeToString(typeB)}' is not assignable to '${typeToString(typeA)}'`
@@ -109,7 +132,13 @@ export function isAssignableToTypeWithStringCoercion(
 
 			// Take into account that the empty string is is equal to true
 			if (typeB.value.length === 0) {
-				if (_isAssignableToType(typeA, { kind: "BOOLEAN_LITERAL", value: true }, safeOptions)) {
+				if (
+					_isAssignableToType(
+						typeA,
+						{ kind: "BOOLEAN_LITERAL", value: true },
+						safeOptions
+					)
+				) {
 					return true;
 				}
 			}
@@ -208,7 +237,10 @@ export function isAssignableInPrimitiveArray(
 	context: RuleModuleContext
 ): boolean | undefined {
 	// Only check "STRING" and "EXPRESSION" for now
-	if (assignment.kind !== HtmlNodeAttrAssignmentKind.STRING && assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION) {
+	if (
+		assignment.kind !== HtmlNodeAttrAssignmentKind.STRING &&
+		assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION
+	) {
 		return undefined;
 	}
 
@@ -226,7 +258,11 @@ export function isAssignableInPrimitiveArray(
 			if (value.match(/\s+/) == null && value !== "") {
 				// Make sure that the the value is assignable to the union
 				if (
-					!isAssignableToType({ typeA, typeB: { kind: "STRING_LITERAL", value } }, context, { isAssignable: isAssignableToTypeWithStringCoercion })
+					!isAssignableToType(
+						{ typeA, typeB: { kind: "STRING_LITERAL", value } },
+						context,
+						{ isAssignable: isAssignableToTypeWithStringCoercion }
+					)
 				) {
 					valuesNotAssignable.push(value);
 

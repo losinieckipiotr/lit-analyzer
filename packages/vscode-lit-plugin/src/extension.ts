@@ -1,7 +1,7 @@
 import { ALL_RULE_IDS, LitAnalyzerConfig } from "lit-analyzer";
 import { join } from "path";
-import { ColorProvider } from "./color-provider.js";
 import * as vscode from "vscode";
+import { ColorProvider } from "./color-provider.js";
 
 const tsLitPluginId = "ts-lit-plugin";
 const typeScriptExtensionId = "vscode.typescript-language-features";
@@ -13,7 +13,9 @@ let defaultAnalyzeGlob = "src";
 
 const colorProvider = new ColorProvider();
 
-export async function activate(context: vscode.ExtensionContext): Promise<void> {
+export async function activate(
+	context: vscode.ExtensionContext
+): Promise<void> {
 	const extension = vscode.extensions.getExtension(typeScriptExtensionId);
 	if (!extension) {
 		return;
@@ -32,7 +34,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	// Subscribe to configuration change
 	vscode.workspace.onDidChangeConfiguration(
 		e => {
-			if (e.affectsConfiguration(configurationSection) || e.affectsConfiguration(configurationExperimentalHtmlSection)) {
+			if (
+				e.affectsConfiguration(configurationSection) ||
+				e.affectsConfiguration(configurationExperimentalHtmlSection)
+			) {
 				synchronizeConfig(api);
 			}
 		},
@@ -41,7 +46,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	);
 
 	// Subscribe to the analyze command
-	context.subscriptions.push(vscode.commands.registerCommand(analyzeCommandId, handleAnalyzeCommand));
+	context.subscriptions.push(
+		vscode.commands.registerCommand(analyzeCommandId, handleAnalyzeCommand)
+	);
 
 	// Register a color provider
 	const registration = vscode.languages.registerColorProvider(
@@ -141,11 +148,19 @@ function getConfig(): Partial<LitAnalyzerConfig> {
 	});
 
 	// Experimental values from vscode
-	const experimental = vscode.workspace.getConfiguration(configurationExperimentalHtmlSection, null);
+	const experimental = vscode.workspace.getConfiguration(
+		configurationExperimentalHtmlSection,
+		null
+	);
 	withConfigValue(experimental, "customData", value => {
 		// Merge value from vscode with "lit-plugin.customHtmlData"
-		const filePaths = (Array.isArray(value) ? value : [value]).map(path => (typeof path === "string" ? toWorkspacePath(path) : path));
-		outConfig.customHtmlData = outConfig.customHtmlData == null ? filePaths : filePaths.concat(outConfig.customHtmlData as []);
+		const filePaths = (Array.isArray(value) ? value : [value]).map(path =>
+			typeof path === "string" ? toWorkspacePath(path) : path
+		);
+		outConfig.customHtmlData =
+			outConfig.customHtmlData == null
+				? filePaths
+				: filePaths.concat(outConfig.customHtmlData as []);
 	});
 
 	// Apply rules
@@ -162,8 +177,12 @@ function getConfig(): Partial<LitAnalyzerConfig> {
 	return outConfig;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function withConfigValue(config: vscode.WorkspaceConfiguration, key: string, withValue: (value: any) => void): void {
+function withConfigValue(
+	config: vscode.WorkspaceConfiguration,
+	key: string,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	withValue: (value: any) => void
+): void {
 	const configSetting = config.inspect(key);
 	if (!configSetting) {
 		return;
@@ -195,7 +214,8 @@ function toWorkspacePath(path: string): string {
 }
 
 function getCwd(): string {
-	const folder = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
+	const folder =
+		vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
 	return (folder && folder.uri.path) || process.cwd();
 }
 

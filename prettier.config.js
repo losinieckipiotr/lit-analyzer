@@ -1,9 +1,11 @@
-module.exports = {
-	useTabs: true,
-	tabWidth: 2,
-	singleQuote: false,
-	printWidth: 150,
-	bracketSpacing: true,
+/**
+ * @see https://prettier.io/docs/configuration
+ * @type {import("prettier").Config}
+ */
+const config = {
 	arrowParens: "avoid",
-	trailingComma: "none"
+	trailingComma: "none",
+	endOfLine: "auto"
 };
+
+export default config;

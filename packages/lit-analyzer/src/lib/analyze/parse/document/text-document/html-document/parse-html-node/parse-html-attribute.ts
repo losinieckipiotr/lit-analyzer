@@ -10,7 +10,11 @@ import {
 	IHtmlNodeAttrSourceCodeLocation
 } from "../../../../../types/html-node/html-node-attr-types.js";
 import { parseLitAttrName } from "../../../../../util/general-util.js";
-import { getSourceLocation, IP5NodeAttr, IP5TagNode } from "../parse-html-p5/parse-html-types.js";
+import {
+	getSourceLocation,
+	IP5NodeAttr,
+	IP5TagNode
+} from "../parse-html-p5/parse-html-types.js";
 import { parseHtmlAttrAssignment } from "./parse-html-attr-assignment.js";
 import { ParseHtmlAttrContext } from "./parse-html-attr-context.js";
 
@@ -19,7 +23,10 @@ import { ParseHtmlAttrContext } from "./parse-html-attr-context.js";
  * @param p5Node
  * @param context
  */
-export function parseHtmlNodeAttrs(p5Node: IP5TagNode, context: ParseHtmlAttrContext): HtmlNodeAttr[] {
+export function parseHtmlNodeAttrs(
+	p5Node: IP5TagNode,
+	context: ParseHtmlAttrContext
+): HtmlNodeAttr[] {
 	return p5Node.attrs
 		.map(htmlAttr =>
 			parseHtmlNodeAttr(p5Node, htmlAttr, {
@@ -36,7 +43,11 @@ export function parseHtmlNodeAttrs(p5Node: IP5TagNode, context: ParseHtmlAttrCon
  * @param p5Attr
  * @param context
  */
-export function parseHtmlNodeAttr(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, context: ParseHtmlAttrContext): HtmlNodeAttr | undefined {
+export function parseHtmlNodeAttr(
+	p5Node: IP5TagNode,
+	p5Attr: IP5NodeAttr,
+	context: ParseHtmlAttrContext
+): HtmlNodeAttr | undefined {
 	const { htmlNode } = context;
 	const { name, modifier } = parseLitAttrName(p5Attr.name);
 
@@ -55,7 +66,12 @@ export function parseHtmlNodeAttr(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, conte
 
 	const htmlAttr = parseHtmlAttrBase(htmlAttrBase);
 
-	htmlAttr.assignment = parseHtmlAttrAssignment(p5Node, p5Attr, htmlAttr, context);
+	htmlAttr.assignment = parseHtmlAttrAssignment(
+		p5Node,
+		p5Attr,
+		htmlAttr,
+		context
+	);
 
 	return htmlAttr;
 }
@@ -66,7 +82,11 @@ export function parseHtmlNodeAttr(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, conte
  * @param p5Attr
  * @param context
  */
-function makeHtmlAttrLocation(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, context: ParseHtmlAttrContext): IHtmlNodeAttrSourceCodeLocation | undefined {
+function makeHtmlAttrLocation(
+	p5Node: IP5TagNode,
+	p5Attr: IP5NodeAttr,
+	context: ParseHtmlAttrContext
+): IHtmlNodeAttrSourceCodeLocation | undefined {
 	const { name, modifier } = parseLitAttrName(p5Attr.name);
 
 	const sourceLocation = getSourceLocation(p5Node);
@@ -77,8 +97,11 @@ function makeHtmlAttrLocation(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, context: 
 	// Explicitly call "toLowerCase()" because of inconsistencies in parse5.
 	// Parse5 lowercases source code location attr keys but doesnt lowercase the attr name when it comes to svg.
 	// It would be correct not to lowercase the attr names because svg is case sensitive
-	const sourceCodeLocationName = `${p5Attr.prefix || ""}${(p5Attr.prefix && ":") || ""}${p5Attr.name}`.toLowerCase();
-	const htmlAttrLocation = (sourceLocation.startTag!.attrs || {})[sourceCodeLocationName];
+	const sourceCodeLocationName =
+		`${p5Attr.prefix || ""}${(p5Attr.prefix && ":") || ""}${p5Attr.name}`.toLowerCase();
+	const htmlAttrLocation = (sourceLocation.startTag!.attrs || {})[
+		sourceCodeLocationName
+	];
 	const start = htmlAttrLocation.startOffset;
 	const end = htmlAttrLocation.endOffset;
 	return {

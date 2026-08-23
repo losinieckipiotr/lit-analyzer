@@ -10,7 +10,9 @@ export function removeUndefinedFromType(type: SimpleType): SimpleType {
 		case "UNION":
 			return {
 				...type,
-				types: type.types.filter(t => !isAssignableToSimpleTypeKind(t, "UNDEFINED"))
+				types: type.types.filter(
+					t => !isAssignableToSimpleTypeKind(t, "UNDEFINED")
+				)
 			};
 	}
 

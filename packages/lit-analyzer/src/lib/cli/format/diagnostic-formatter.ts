@@ -11,6 +11,13 @@ export interface AnalysisStats {
 }
 
 export interface DiagnosticFormatter {
-	report(stats: AnalysisStats, config: LitAnalyzerCliConfig): string | undefined;
-	diagnosticTextForFile(file: SourceFile, diagnostics: LitDiagnostic[], config: LitAnalyzerCliConfig): string | undefined;
+	report(
+		stats: AnalysisStats,
+		config: LitAnalyzerCliConfig
+	): string | undefined;
+	diagnosticTextForFile(
+		file: SourceFile,
+		diagnostics: LitDiagnostic[],
+		config: LitAnalyzerCliConfig
+	): string | undefined;
 }

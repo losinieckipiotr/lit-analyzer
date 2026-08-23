@@ -13,8 +13,13 @@ export interface FindBestMatchOptions<T> {
  * @param elements
  * @param options
  */
-export function findBestMatch<T extends string | object>(find: string, elements: T[], options: FindBestMatchOptions<T>): T | undefined {
-	options.caseSensitive = "caseSensitive" in options ? options.caseSensitive : false;
+export function findBestMatch<T extends string | object>(
+	find: string,
+	elements: T[],
+	options: FindBestMatchOptions<T>
+): T | undefined {
+	options.caseSensitive =
+		"caseSensitive" in options ? options.caseSensitive : false;
 	options.threshold = "threshold" in options ? options.threshold : 0.5;
 
 	return (
@@ -31,8 +36,15 @@ export function findBestMatch<T extends string | object>(find: string, elements:
 export function findBestStringMatch(
 	find: string,
 	elements: string[],
-	{ caseSensitive = true, threshold = 0.5 }: Omit<FindBestMatchOptions<string>, "matchKey"> = {}
+	{
+		caseSensitive = true,
+		threshold = 0.5
+	}: Omit<FindBestMatchOptions<string>, "matchKey"> = {}
 ): string | undefined {
 	const matches = didYouMean(find, elements, { caseSensitive, threshold });
-	return typeof matches === "string" ? matches : Array.isArray(matches) ? matches[0] : undefined;
+	return typeof matches === "string"
+		? matches
+		: Array.isArray(matches)
+			? matches[0]
+			: undefined;
 }

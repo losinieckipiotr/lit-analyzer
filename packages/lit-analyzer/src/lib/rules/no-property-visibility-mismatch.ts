@@ -1,17 +1,26 @@
 import { Identifier, ObjectLiteralExpression } from "typescript";
 import { ComponentMember } from "web-component-analyzer";
-import { RuleFixAction, RuleFixActionChangeRange } from "../analyze/types/rule/rule-fix-action.js";
+import {
+	RuleFixAction,
+	RuleFixActionChangeRange
+} from "../analyze/types/rule/rule-fix-action.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { RuleModuleContext } from "../analyze/types/rule/rule-module-context.js";
 import { findChild, getNodeIdentifier } from "../analyze/util/ast-util.js";
-import { makeSourceFileRange, rangeFromNode } from "../analyze/util/range-util.js";
+import {
+	makeSourceFileRange,
+	rangeFromNode
+} from "../analyze/util/range-util.js";
 
 /**
  * Returns the identifier of the decorator used on the member if any
  * @param member
  * @param context
  */
-const getDecoratorIdentifier = (member: ComponentMember, context: RuleModuleContext): Identifier | undefined => {
+const getDecoratorIdentifier = (
+	member: ComponentMember,
+	context: RuleModuleContext
+): Identifier | undefined => {
 	const decorator = member.meta?.node?.decorator;
 
 	if (decorator == null) {
@@ -38,7 +47,10 @@ const rule: RuleModule = {
 
 		// Get the decorator of the property if any
 		const decoratorIdentifier = getDecoratorIdentifier(member, context);
-		if (decoratorIdentifier == null || decoratorIdentifier.getSourceFile() !== context.file) {
+		if (
+			decoratorIdentifier == null ||
+			decoratorIdentifier.getSourceFile() !== context.file
+		) {
 			return;
 		}
 
@@ -48,7 +60,10 @@ const rule: RuleModule = {
 		const hasPropertyDecorator = decoratorName === "property";
 
 		// Handle cases where @internalProperty decorator is used, but the property is public
-		if (hasInternalDecorator && (member.visibility === "public" || member.visibility == null)) {
+		if (
+			hasInternalDecorator &&
+			(member.visibility === "public" || member.visibility == null)
+		) {
 			const inJsFile = context.file.fileName.endsWith(".js");
 
 			context.report({
@@ -60,7 +75,8 @@ const rule: RuleModule = {
 						}
 					: {
 							// We are in Typescript context. Add "protected" or "private" keyword
-							fixMessage: "Change the property access to 'private' or 'protected'?",
+							fixMessage:
+								"Change the property access to 'private' or 'protected'?",
 							fix: () => {
 								// Make sure we operate on a property declaration
 								const propertyDeclaration = member.node;
@@ -73,7 +89,10 @@ const rule: RuleModule = {
 								const modifiers = ["protected", "private"];
 
 								// Get the public modifier if any. If one exists, we want to change that one.
-								const publicModifier = propertyDeclaration.modifiers?.find(modifier => modifier.kind === context.ts.SyntaxKind.PublicKeyword);
+								const publicModifier = propertyDeclaration.modifiers?.find(
+									modifier =>
+										modifier.kind === context.ts.SyntaxKind.PublicKeyword
+								);
 
 								if (publicModifier != null) {
 									// Return actions that can replace the modifier
@@ -134,14 +153,21 @@ const rule: RuleModule = {
 					];
 
 					// Find the object literal node (the config of the "@property" decorator)
-					const objectLiteralNode = findChild<ObjectLiteralExpression>(decoratorIdentifier.parent, node =>
-						context.ts.isObjectLiteralExpression(node)
+					const objectLiteralNode = findChild<ObjectLiteralExpression>(
+						decoratorIdentifier.parent,
+						node => context.ts.isObjectLiteralExpression(node)
 					);
 
 					if (objectLiteralNode != null) {
 						// Remove the configuration if the config doesn't have any shared properties with the "internalProperty" config
 						const internalPropertyConfigProperties = ["hasChanged"];
-						if (!objectLiteralNode.properties?.some(propertyNode => internalPropertyConfigProperties.includes(propertyNode.name?.getText() || ""))) {
+						if (
+							!objectLiteralNode.properties?.some(propertyNode =>
+								internalPropertyConfigProperties.includes(
+									propertyNode.name?.getText() || ""
+								)
+							)
+						) {
 							actions.push({
 								kind: "changeRange",
 								range: rangeFromNode(objectLiteralNode),

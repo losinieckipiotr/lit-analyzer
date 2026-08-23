@@ -34,6 +34,10 @@ export function arrayDefined<T>(array: (T | undefined)[]): T[] {
  * @param splitter
  * @param finalSplitter
  */
-export function joinArray(items: string[], splitter = ", ", finalSplitter = "or"): string {
+export function joinArray(
+	items: string[],
+	splitter = ", ",
+	finalSplitter = "or"
+): string {
 	return items.join(splitter).replace(/, ([^,]*)$/, ` ${finalSplitter} $1`);
 }

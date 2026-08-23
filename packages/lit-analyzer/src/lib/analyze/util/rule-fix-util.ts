@@ -1,11 +1,20 @@
-import { InterfaceDeclaration, ModuleDeclaration, SourceFile } from "typescript";
+import {
+	InterfaceDeclaration,
+	ModuleDeclaration,
+	SourceFile
+} from "typescript";
 import { tsModule } from "../ts-module.js";
 import { LitCodeFix } from "../types/lit-code-fix.js";
 import { LitCodeFixAction } from "../types/lit-code-fix-action.js";
 import { RuleFix } from "../types/rule/rule-fix.js";
 import { RuleFixAction } from "../types/rule/rule-fix-action.js";
 import { arrayFlat } from "./array-util.js";
-import { documentRangeToSFRange, makeSourceFileRange, rangeFromHtmlNodeAttr, rangeFromNode } from "./range-util.js";
+import {
+	documentRangeToSFRange,
+	makeSourceFileRange,
+	rangeFromHtmlNodeAttr,
+	rangeFromNode
+} from "./range-util.js";
 
 export function converRuleFixToLitCodeFix(codeFix: RuleFix): LitCodeFix {
 	return {
@@ -140,7 +149,9 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
 			const MODULE_PART = `\n\ndeclare global {${DECLARATION_PART}\n}`;
 
 			const existingModuleDeclaration = action.file.statements?.find(
-				(statement): statement is ModuleDeclaration => tsModule.ts.isModuleDeclaration(statement) && statement.name.text === "global"
+				(statement): statement is ModuleDeclaration =>
+					tsModule.ts.isModuleDeclaration(statement) &&
+					statement.name.text === "global"
 			);
 
 			const existingModuleBody = existingModuleDeclaration?.body;
@@ -158,12 +169,17 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
 				];
 			}
 
-			if (existingModuleBody == null || !tsModule.ts.isModuleBlock(existingModuleBody)) {
+			if (
+				existingModuleBody == null ||
+				!tsModule.ts.isModuleBlock(existingModuleBody)
+			) {
 				return [];
 			}
 
 			const existingDeclaration = existingModuleBody.statements?.find(
-				(statement): statement is InterfaceDeclaration => tsModule.ts.isInterfaceDeclaration(statement) && statement.name.text === action.name
+				(statement): statement is InterfaceDeclaration =>
+					tsModule.ts.isInterfaceDeclaration(statement) &&
+					statement.name.text === action.name
 			);
 
 			// If there is no existing declaration with "action.name", add a new declaration inside the module block

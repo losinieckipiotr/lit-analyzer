@@ -1,4 +1,10 @@
-import { DefaultLitAnalyzerContext, LitAnalyzer, LitAnalyzerConfig, LitAnalyzerContext, makeConfig } from "lit-analyzer";
+import {
+	DefaultLitAnalyzerContext,
+	LitAnalyzer,
+	LitAnalyzerConfig,
+	LitAnalyzerContext,
+	makeConfig
+} from "lit-analyzer";
 import ts, { Diagnostic } from "typescript";
 import { translateDiagnostics } from "./ts-lit-plugin/translate/translate-diagnostics.js";
 
@@ -33,7 +39,11 @@ export class Plugin implements DiagnosticPlugin {
 	getDiagnostics(sourceFile: ts.SourceFile): Diagnostic[] {
 		const litDiagnostics = this.analyzer.getDiagnosticsInFile(sourceFile);
 
-		const diagnostics = translateDiagnostics(litDiagnostics, sourceFile, this.context);
+		const diagnostics = translateDiagnostics(
+			litDiagnostics,
+			sourceFile,
+			this.context
+		);
 		for (const diagnostic of diagnostics) {
 			if (diagnostic.category === ts.DiagnosticCategory.Warning) {
 				// In bazel something is either an error that breaks the build, or

@@ -35,11 +35,17 @@ const DEFAULT_MARKDOWN_TABLE_OPTIONS: MarkdownTableOptions = {
  * @param rows
  * @param options
  */
-export function markdownTable(rows: string[][], options: Partial<MarkdownTableOptions> = {}): string {
+export function markdownTable(
+	rows: string[][],
+	options: Partial<MarkdownTableOptions> = {}
+): string {
 	// Constants for pretty printing the markdown tables
-	const MIN_CELL_WIDTH = options.minCellWidth || DEFAULT_MARKDOWN_TABLE_OPTIONS.minCellWidth;
-	const MAX_CELL_WIDTH = options.maxCellWidth || DEFAULT_MARKDOWN_TABLE_OPTIONS.maxCellWidth;
-	const CELL_PADDING = options.cellPadding || DEFAULT_MARKDOWN_TABLE_OPTIONS.cellPadding;
+	const MIN_CELL_WIDTH =
+		options.minCellWidth || DEFAULT_MARKDOWN_TABLE_OPTIONS.minCellWidth;
+	const MAX_CELL_WIDTH =
+		options.maxCellWidth || DEFAULT_MARKDOWN_TABLE_OPTIONS.maxCellWidth;
+	const CELL_PADDING =
+		options.cellPadding || DEFAULT_MARKDOWN_TABLE_OPTIONS.cellPadding;
 
 	// Count the number of columns
 	let columnCount = Math.max(...rows.map(r => r.length));
@@ -48,7 +54,11 @@ export function markdownTable(rows: string[][], options: Partial<MarkdownTableOp
 		// Create a boolean array where each entry tells if a column is used or not (excluding the header)
 		const emptyColumns = Array(columnCount)
 			.fill(false)
-			.map((b, i) => i !== 0 && rows.slice(1).find(r => r[i] != null && r[i].length > 0) == null);
+			.map(
+				(b, i) =>
+					i !== 0 &&
+					rows.slice(1).find(r => r[i] != null && r[i].length > 0) == null
+			);
 
 		// Remove unused columns if necessary
 		if (emptyColumns.includes(true)) {
@@ -67,7 +77,13 @@ export function markdownTable(rows: string[][], options: Partial<MarkdownTableOp
 	// This is done by taking the largest width of all cells in each column.
 	const columnWidths = Array(columnCount)
 		.fill(0)
-		.map((c, i) => Math.min(MAX_CELL_WIDTH, Math.max(MIN_CELL_WIDTH, ...rows.map(r => (r[i] || "").length)) + CELL_PADDING * 2));
+		.map((c, i) =>
+			Math.min(
+				MAX_CELL_WIDTH,
+				Math.max(MIN_CELL_WIDTH, ...rows.map(r => (r[i] || "").length)) +
+					CELL_PADDING * 2
+			)
+		);
 
 	// Build up the table
 	return `
@@ -75,7 +91,10 @@ export function markdownTable(rows: string[][], options: Partial<MarkdownTableOp
 |${columnWidths.map(c => "-".repeat(c)).join("|")}|
 ${rows
 	.slice(1)
-	.map(r => `|${r.map((r, i) => fillWidth(r, columnWidths[i], CELL_PADDING)).join("|")}|`)
+	.map(
+		r =>
+			`|${r.map((r, i) => fillWidth(r, columnWidths[i], CELL_PADDING)).join("|")}|`
+	)
 	.join("\n")}
 `;
 }
@@ -103,5 +122,9 @@ function markdownEscapeTableCell(text: string): string {
  * @param paddingStart
  */
 function fillWidth(text: string, width: number, paddingStart: number): string {
-	return " ".repeat(paddingStart) + text + " ".repeat(Math.max(1, width - text.length - paddingStart));
+	return (
+		" ".repeat(paddingStart) +
+		text +
+		" ".repeat(Math.max(1, width - text.length - paddingStart))
+	);
 }

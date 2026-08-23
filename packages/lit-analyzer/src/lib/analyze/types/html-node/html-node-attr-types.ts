@@ -44,7 +44,11 @@ export interface IHtmlNodeAttr extends IHtmlNodeAttrBase {
 	modifier: undefined;
 }
 
-export type HtmlNodeAttr = IHtmlNodeAttrEventListener | IHtmlNodeAttrProp | IHtmlNodeAttr | IHtmlNodeBooleanAttribute;
+export type HtmlNodeAttr =
+	| IHtmlNodeAttrEventListener
+	| IHtmlNodeAttrProp
+	| IHtmlNodeAttr
+	| IHtmlNodeBooleanAttribute;
 
 export function isHTMLAttr(obj: object): obj is IHtmlNodeAttrBase {
 	return "name" in obj && "location" in obj && "htmlNode" in obj;

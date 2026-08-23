@@ -8,14 +8,23 @@ import {
 	toSimpleType
 } from "ts-simple-type";
 import { Expression, Type, TypeChecker } from "typescript";
-import { HtmlNodeAttrAssignment, HtmlNodeAttrAssignmentKind } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
+import {
+	HtmlNodeAttrAssignment,
+	HtmlNodeAttrAssignmentKind
+} from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { getDirective } from "../directive/get-directive.js";
 
-const cache = new WeakMap<HtmlNodeAttrAssignment, { typeA: SimpleType; typeB: SimpleType }>();
+const cache = new WeakMap<
+	HtmlNodeAttrAssignment,
+	{ typeA: SimpleType; typeB: SimpleType }
+>();
 
-export function extractBindingTypes(assignment: HtmlNodeAttrAssignment, context: RuleModuleContext): { typeA: SimpleType; typeB: SimpleType } {
+export function extractBindingTypes(
+	assignment: HtmlNodeAttrAssignment,
+	context: RuleModuleContext
+): { typeA: SimpleType; typeB: SimpleType } {
 	if (cache.has(assignment)) {
 		return cache.get(assignment)!;
 	}
@@ -33,15 +42,22 @@ export function extractBindingTypes(assignment: HtmlNodeAttrAssignment, context:
 
 	// Convert typeB to SimpleType
 	let typeB = (() => {
-		const type = isSimpleType(typeBInferred) ? typeBInferred : toSimpleType(typeBInferred, checker);
+		const type = isSimpleType(typeBInferred)
+			? typeBInferred
+			: toSimpleType(typeBInferred, checker);
 		return shouldRelaxTypeB ? relaxType(type) : type;
 	})();
 
 	// Find a corresponding target for this attribute
-	const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(assignment.htmlAttr);
+	const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(
+		assignment.htmlAttr
+	);
 	//if (htmlAttrTarget == null) return [];
 
-	const typeA = htmlAttrTarget == null ? ({ kind: "ANY" } as SimpleType) : htmlAttrTarget.getType();
+	const typeA =
+		htmlAttrTarget == null
+			? ({ kind: "ANY" } as SimpleType)
+			: htmlAttrTarget.getType();
 
 	// Handle directives
 	const directive = getDirective(assignment, context);
@@ -57,12 +73,21 @@ export function extractBindingTypes(assignment: HtmlNodeAttrAssignment, context:
 	return result;
 }
 
-export function inferTypeFromAssignment(assignment: HtmlNodeAttrAssignment, checker: TypeChecker): SimpleType | Type {
+export function inferTypeFromAssignment(
+	assignment: HtmlNodeAttrAssignment,
+	checker: TypeChecker
+): SimpleType | Type {
 	switch (assignment.kind) {
 		case HtmlNodeAttrAssignmentKind.STRING:
-			return { kind: "STRING_LITERAL", value: assignment.value } as SimpleTypeStringLiteral;
+			return {
+				kind: "STRING_LITERAL",
+				value: assignment.value
+			} as SimpleTypeStringLiteral;
 		case HtmlNodeAttrAssignmentKind.BOOLEAN:
-			return { kind: "BOOLEAN_LITERAL", value: true } as SimpleTypeBooleanLiteral;
+			return {
+				kind: "BOOLEAN_LITERAL",
+				value: true
+			} as SimpleTypeBooleanLiteral;
 		case HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION:
 			return checker.getTypeAtLocation(assignment.expression);
 		case HtmlNodeAttrAssignmentKind.EXPRESSION:
@@ -71,7 +96,9 @@ export function inferTypeFromAssignment(assignment: HtmlNodeAttrAssignment, chec
 			// Event bindings always looks at the first expression
 			// Therefore, return the type of the first expression
 			if (assignment.htmlAttr.kind === HtmlNodeAttrKind.EVENT_LISTENER) {
-				const expression = assignment.values.find((val): val is Expression => typeof val !== "string");
+				const expression = assignment.values.find(
+					(val): val is Expression => typeof val !== "string"
+				);
 
 				if (expression != null) {
 					return checker.getTypeAtLocation(expression);

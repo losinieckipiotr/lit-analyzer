@@ -1,15 +1,29 @@
 import { SimpleType, SimpleTypeStringLiteral } from "ts-simple-type";
-import { HTMLDataV1, IAttributeData, ITagData, IValueData, IValueSet } from "vscode-html-languageservice";
+import {
+	HTMLDataV1,
+	IAttributeData,
+	ITagData,
+	IValueData,
+	IValueSet
+} from "vscode-html-languageservice";
 import { MarkupContent } from "vscode-languageserver-types";
 import { lazy } from "../../util/general-util.js";
-import { HtmlAttr, HtmlDataCollection, HtmlEvent, HtmlTag } from "./html-tag.js";
+import {
+	HtmlAttr,
+	HtmlDataCollection,
+	HtmlEvent,
+	HtmlTag
+} from "./html-tag.js";
 
 export interface ParseVscodeHtmlDataConfig {
 	builtIn?: boolean;
 	typeMap?: Map<string, SimpleType>;
 }
 
-export function parseVscodeHtmlData(data: HTMLDataV1, config: ParseVscodeHtmlDataConfig = {}): HtmlDataCollection {
+export function parseVscodeHtmlData(
+	data: HTMLDataV1,
+	config: ParseVscodeHtmlDataConfig = {}
+): HtmlDataCollection {
 	switch (data.version) {
 		case 1:
 		case 1.1:
@@ -17,7 +31,10 @@ export function parseVscodeHtmlData(data: HTMLDataV1, config: ParseVscodeHtmlDat
 	}
 }
 
-function parseVscodeDataV1(data: HTMLDataV1, config: ParseVscodeHtmlDataConfig): HtmlDataCollection {
+function parseVscodeDataV1(
+	data: HTMLDataV1,
+	config: ParseVscodeHtmlDataConfig
+): HtmlDataCollection {
 	const valueSetTypeMap = valueSetsToTypeMap(data.valueSets || []);
 	valueSetTypeMap.set("v", { kind: "BOOLEAN" });
 
@@ -33,12 +50,19 @@ function parseVscodeDataV1(data: HTMLDataV1, config: ParseVscodeHtmlDataConfig):
 		typeMap: valueSetTypeMap
 	};
 
-	const globalAttributes = (data.globalAttributes || []).map(tagDataAttr => tagDataToHtmlTagAttr(tagDataAttr, newConfig));
+	const globalAttributes = (data.globalAttributes || []).map(tagDataAttr =>
+		tagDataToHtmlTagAttr(tagDataAttr, newConfig)
+	);
 
-	const globalEvents = attrsToEvents(globalAttributes).map(evt => ({ ...evt, global: true }));
+	const globalEvents = attrsToEvents(globalAttributes).map(evt => ({
+		...evt,
+		global: true
+	}));
 
 	return {
-		tags: (data.tags || []).map(tagData => tagDataToHtmlTag(tagData, newConfig)),
+		tags: (data.tags || []).map(tagData =>
+			tagDataToHtmlTag(tagData, newConfig)
+		),
 		global: {
 			attributes: globalAttributes,
 			events: globalEvents
@@ -46,10 +70,15 @@ function parseVscodeDataV1(data: HTMLDataV1, config: ParseVscodeHtmlDataConfig):
 	};
 }
 
-function tagDataToHtmlTag(tagData: ITagData, config: ParseVscodeHtmlDataConfig): HtmlTag {
+function tagDataToHtmlTag(
+	tagData: ITagData,
+	config: ParseVscodeHtmlDataConfig
+): HtmlTag {
 	const { name, description } = tagData;
 
-	const attributes = tagData.attributes.map(tagDataAttr => tagDataToHtmlTagAttr(tagDataAttr, config, name));
+	const attributes = tagData.attributes.map(tagDataAttr =>
+		tagDataToHtmlTagAttr(tagDataAttr, config, name)
+	);
 
 	const events = attrsToEvents(attributes);
 
@@ -66,10 +95,19 @@ function tagDataToHtmlTag(tagData: ITagData, config: ParseVscodeHtmlDataConfig):
 	};
 }
 
-function tagDataToHtmlTagAttr(tagDataAttr: IAttributeData, config: ParseVscodeHtmlDataConfig, fromTagName?: string): HtmlAttr {
+function tagDataToHtmlTagAttr(
+	tagDataAttr: IAttributeData,
+	config: ParseVscodeHtmlDataConfig,
+	fromTagName?: string
+): HtmlAttr {
 	const { name, description, valueSet, values } = tagDataAttr;
 
-	const type = valueSet != null ? config.typeMap?.get(valueSet) : values != null ? attrValuesToUnion(values) : undefined;
+	const type =
+		valueSet != null
+			? config.typeMap?.get(valueSet)
+			: values != null
+				? attrValuesToUnion(values)
+				: undefined;
 
 	return {
 		kind: "attribute",
@@ -82,7 +120,13 @@ function tagDataToHtmlTagAttr(tagDataAttr: IAttributeData, config: ParseVscodeHt
 }
 
 function valueSetsToTypeMap(valueSets: IValueSet[]): Map<string, SimpleType> {
-	const entries = valueSets.map(valueSet => [valueSet.name, attrValuesToUnion(valueSet.values)] as [string, SimpleType]);
+	const entries = valueSets.map(
+		valueSet =>
+			[valueSet.name, attrValuesToUnion(valueSet.values)] as [
+				string,
+				SimpleType
+			]
+	);
 
 	return new Map(entries);
 }
@@ -100,7 +144,9 @@ function attrValuesToUnion(attrValues: IValueData[]): SimpleType {
 	};
 }
 
-function stringOrMarkupContentToString(str: string | MarkupContent | undefined): string | undefined {
+function stringOrMarkupContentToString(
+	str: string | MarkupContent | undefined
+): string | undefined {
 	if (str == null || typeof str === "string") {
 		return str;
 	}

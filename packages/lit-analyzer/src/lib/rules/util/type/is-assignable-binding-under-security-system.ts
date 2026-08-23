@@ -60,9 +60,15 @@ const closureGlobalOverrides: SecurityOverrideMap = {
 	style: ["SafeStyle", "string"]
 };
 
-function checkClosureSecurityAssignability(typeB: SimpleType, htmlAttr: HtmlNodeAttr, context: RuleModuleContext): boolean | undefined {
+function checkClosureSecurityAssignability(
+	typeB: SimpleType,
+	htmlAttr: HtmlNodeAttr,
+	context: RuleModuleContext
+): boolean | undefined {
 	const scopedOverride = closureScopedOverrides[htmlAttr.htmlNode.tagName];
-	const overriddenTypes = (scopedOverride && scopedOverride[htmlAttr.name]) || closureGlobalOverrides[htmlAttr.name];
+	const overriddenTypes =
+		(scopedOverride && scopedOverride[htmlAttr.name]) ||
+		closureGlobalOverrides[htmlAttr.name];
 	if (overriddenTypes === undefined) {
 		return undefined;
 	}
@@ -104,7 +110,10 @@ function normalizeTypeName(typeName: string) {
 	return match[1];
 }
 
-function matchesAtLeastOneNominalType(typeNames: string[], typeB: SimpleType): boolean {
+function matchesAtLeastOneNominalType(
+	typeNames: string[],
+	typeB: SimpleType
+): boolean {
 	// Check if typeB.name is in typeNames, either before or after normalization.
 	const typeBName = typeB.name;
 	if (typeBName !== undefined) {

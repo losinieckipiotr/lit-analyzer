@@ -1,5 +1,16 @@
-import { isAssignableToSimpleTypeKind, SimpleType, typeToString } from "ts-simple-type";
-import { ComponentCssPart, ComponentCssProperty, ComponentDeclaration, ComponentEvent, ComponentMember, ComponentSlot } from "web-component-analyzer";
+import {
+	isAssignableToSimpleTypeKind,
+	SimpleType,
+	typeToString
+} from "ts-simple-type";
+import {
+	ComponentCssPart,
+	ComponentCssProperty,
+	ComponentDeclaration,
+	ComponentEvent,
+	ComponentMember,
+	ComponentSlot
+} from "web-component-analyzer";
 import {
 	LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
 	LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -133,20 +144,38 @@ export interface DescriptionOptions {
 	markdown?: boolean;
 }
 
-function descriptionHeader(title: string, titleLevel = 0, { markdown }: DescriptionOptions) {
-	return markdown ? (titleLevel === 0 ? `**${title.trim()}**` : `${"#".repeat(titleLevel)} ${title}`) : title;
+function descriptionHeader(
+	title: string,
+	titleLevel = 0,
+	{ markdown }: DescriptionOptions
+) {
+	return markdown
+		? titleLevel === 0
+			? `**${title.trim()}**`
+			: `${"#".repeat(titleLevel)} ${title}`
+		: title;
 }
 
 function descriptionListItem(item: string, { markdown }: DescriptionOptions) {
 	return markdown ? ` * ${item.replace("\n", " ")}` : ` * ${item}`;
 }
 
-function descriptionList<T>(title: string, items: T[], toString: (item: T) => string, options: DescriptionOptions) {
-	const itemsDesc = items.map(item => descriptionListItem(toString(item), options)).join("\n");
+function descriptionList<T>(
+	title: string,
+	items: T[],
+	toString: (item: T) => string,
+	options: DescriptionOptions
+) {
+	const itemsDesc = items
+		.map(item => descriptionListItem(toString(item), options))
+		.join("\n");
 	return `${descriptionHeader(`${title}:`, 0, options)}\n${itemsDesc}`;
 }
 
-export function documentationForCssPart(cssPart: HtmlCssPart, options: DescriptionOptions = {}): string | undefined {
+export function documentationForCssPart(
+	cssPart: HtmlCssPart,
+	options: DescriptionOptions = {}
+): string | undefined {
 	const relatedText = (() => {
 		if ((cssPart.related?.length || 0) > 0) {
 			return `From multiple elements: ${cssPart.related!.map(p => `<${p.fromTagName}>`).join(", ")}`;
@@ -160,7 +189,10 @@ export function documentationForCssPart(cssPart: HtmlCssPart, options: Descripti
 	return iterableDefined([cssPart.description, relatedText]).join("\n\n");
 }
 
-export function documentationForCssProperty(cssProperty: HtmlCssProperty, options: DescriptionOptions = {}): string | undefined {
+export function documentationForCssProperty(
+	cssProperty: HtmlCssProperty,
+	options: DescriptionOptions = {}
+): string | undefined {
 	const relatedText = (() => {
 		if ((cssProperty.related?.length || 0) > 0) {
 			return `From multiple elements: ${cssProperty.related!.map(p => `<${p.fromTagName}>`).join(", ")}`;
@@ -171,10 +203,17 @@ export function documentationForCssProperty(cssProperty: HtmlCssProperty, option
 		return undefined;
 	})();
 
-	return iterableDefined([cssProperty.description, cssProperty.typeHint, relatedText]).join("\n\n");
+	return iterableDefined([
+		cssProperty.description,
+		cssProperty.typeHint,
+		relatedText
+	]).join("\n\n");
 }
 
-export function documentationForHtmlTag(htmlTag: HtmlTag, options: DescriptionOptions = {}): string | undefined {
+export function documentationForHtmlTag(
+	htmlTag: HtmlTag,
+	options: DescriptionOptions = {}
+): string | undefined {
 	let desc = htmlTag.description || "";
 
 	if (htmlTag.slots.length > 0) {
@@ -182,7 +221,8 @@ export function documentationForHtmlTag(htmlTag: HtmlTag, options: DescriptionOp
 		desc += `\n\n${descriptionList(
 			"Slots",
 			items,
-			slot => `${descriptionHeader(`@slot ${slot.name}`, 0, options)}${slot.description ? ` - ${slot.description}` : ""}`,
+			slot =>
+				`${descriptionHeader(`@slot ${slot.name}`, 0, options)}${slot.description ? ` - ${slot.description}` : ""}`,
 			options
 		)}`;
 	}
@@ -192,7 +232,8 @@ export function documentationForHtmlTag(htmlTag: HtmlTag, options: DescriptionOp
 		desc += `\n\n${descriptionList(
 			"Events",
 			items,
-			event => `${descriptionHeader(`@fires ${event.name}`, 0, options)}${event.description ? ` - ${event.description}` : ""}`,
+			event =>
+				`${descriptionHeader(`@fires ${event.name}`, 0, options)}${event.description ? ` - ${event.description}` : ""}`,
 			options
 		)}`;
 	}
@@ -200,17 +241,26 @@ export function documentationForHtmlTag(htmlTag: HtmlTag, options: DescriptionOp
 	return desc || undefined;
 }
 
-export function documentationForTarget(target: HtmlAttrTarget, options: DescriptionOptions & { modifier?: string } = {}): string | undefined {
+export function documentationForTarget(
+	target: HtmlAttrTarget,
+	options: DescriptionOptions & { modifier?: string } = {}
+): string | undefined {
 	const typeText = targetKindAndTypeText(target, options);
 	const documentation = descriptionForTarget(target, options);
 
 	return `${typeText}${documentation != null ? ` \n\n${documentation}` : ""}`;
 }
 
-export function descriptionForTarget(target: HtmlAttrTarget, options: DescriptionOptions = {}): string | undefined {
+export function descriptionForTarget(
+	target: HtmlAttrTarget,
+	options: DescriptionOptions = {}
+): string | undefined {
 	if (target.related != null && target.related.length > 1) {
 		const subDocumentation = (target.related as HtmlAttrTarget[])
-			.map(t => `${t.fromTagName ? `<${t.fromTagName}>: ` : "(global): "}${t.description || "[no documentation]"}`)
+			.map(
+				t =>
+					`${t.fromTagName ? `<${t.fromTagName}>: ` : "(global): "}${t.description || "[no documentation]"}`
+			)
 			.map((doc, i) => `${i + 1}. ${doc}`);
 		return `${descriptionHeader("Multiple declarations (best match first):", 0, options)}\n${subDocumentation.join("\n")}`;
 	}
@@ -218,7 +268,10 @@ export function descriptionForTarget(target: HtmlAttrTarget, options: Descriptio
 	return target.description;
 }
 
-export function targetKindAndTypeText(target: HtmlAttrTarget, options: DescriptionOptions & { modifier?: string } = {}): string {
+export function targetKindAndTypeText(
+	target: HtmlAttrTarget,
+	options: DescriptionOptions & { modifier?: string } = {}
+): string {
 	const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
 
 	if (isAssignableToSimpleTypeKind(target.getType(), "ANY")) {
@@ -271,7 +324,9 @@ export function mergeCssParts(cssParts: HtmlCssPart[]): HtmlCssPart[] {
 	return mergeFirstUnique(cssParts, cssPart => cssPart.name);
 }
 
-export function mergeCssProperties(cssProperties: HtmlCssProperty[]): HtmlCssProperty[] {
+export function mergeCssProperties(
+	cssProperties: HtmlCssProperty[]
+): HtmlCssProperty[] {
 	return mergeFirstUnique(cssProperties, cssProp => cssProp.name);
 }
 
@@ -286,8 +341,14 @@ export function mergeHtmlTags(tags: HtmlTag[]): HtmlTag[] {
 				global: tag.global || existingTag.global,
 				declaration: tag.declaration || existingTag.declaration,
 				description: tag.description || existingTag.description,
-				attributes: mergeHtmlAttrs([...tag.attributes, ...existingTag.attributes]),
-				properties: mergeHtmlProps([...tag.properties, ...existingTag.properties]),
+				attributes: mergeHtmlAttrs([
+					...tag.attributes,
+					...existingTag.attributes
+				]),
+				properties: mergeHtmlProps([
+					...tag.properties,
+					...existingTag.properties
+				]),
 				events: mergeHtmlEvents([...tag.events, ...existingTag.events]),
 				slots: mergeHtmlSlots([...tag.slots, ...existingTag.slots])
 			});

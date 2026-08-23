@@ -1,5 +1,8 @@
 import { LitAnalyzerConfig } from "../analyze/lit-analyzer-config.js";
-import { HtmlTag, litAttributeModifierForTarget } from "../analyze/parse/parse-html-data/html-tag.js";
+import {
+	HtmlTag,
+	litAttributeModifierForTarget
+} from "../analyze/parse/parse-html-data/html-tag.js";
 import { AnalyzerDefinitionStore } from "../analyze/store/analyzer-definition-store.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -24,7 +27,11 @@ const rule: RuleModule = {
 		if (htmlAttr.htmlNode.kind !== HtmlNodeKind.NODE) return;
 
 		// Only validate attribute bindings.
-		if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE && htmlAttr.kind !== HtmlNodeAttrKind.BOOLEAN_ATTRIBUTE) return;
+		if (
+			htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE &&
+			htmlAttr.kind !== HtmlNodeAttrKind.BOOLEAN_ATTRIBUTE
+		)
+			return;
 
 		// Report a diagnostic if the target is unknown
 		const htmlAttrTarget = htmlStore.getHtmlAttrTarget(htmlAttr);
@@ -37,19 +44,34 @@ const rule: RuleModule = {
 			if (htmlAttr.name.startsWith("data-")) return;
 
 			// Ignore element expressions
-			if (htmlAttr.assignment?.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION) return;
+			if (
+				htmlAttr.assignment?.kind ===
+				HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION
+			)
+				return;
 
 			// Get suggested target
 			const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
-			const suggestedModifier = suggestedTarget == null ? undefined : litAttributeModifierForTarget(suggestedTarget);
-			const suggestedMemberName = suggestedTarget == null ? undefined : suggestedTarget.name;
+			const suggestedModifier =
+				suggestedTarget == null
+					? undefined
+					: litAttributeModifierForTarget(suggestedTarget);
+			const suggestedMemberName =
+				suggestedTarget == null ? undefined : suggestedTarget.name;
 
-			const suggestion = getSuggestionText({ config, htmlTag, definitionStore });
+			const suggestion = getSuggestionText({
+				config,
+				htmlTag,
+				definitionStore
+			});
 
 			context.report({
 				location: rangeFromHtmlNodeAttr(htmlAttr),
 				message: `Unknown attribute '${htmlAttr.name}'.`,
-				fixMessage: suggestedMemberName == null ? undefined : `Did you mean '${suggestedModifier}${suggestedMemberName}'?`,
+				fixMessage:
+					suggestedMemberName == null
+						? undefined
+						: `Did you mean '${suggestedModifier}${suggestedMemberName}'?`,
 				suggestion,
 				fix: () =>
 					[
@@ -113,7 +135,9 @@ function getSuggestionText({
 
 	const tagHasDeclaration = htmlTag.declaration != null;
 	const tagIsBuiltIn = htmlTag.builtIn || false;
-	const tagIsFromLibrary = definitionStore.getDefinitionForTagName(htmlTag.tagName)?.sourceFile?.isDeclarationFile || false;
+	const tagIsFromLibrary =
+		definitionStore.getDefinitionForTagName(htmlTag.tagName)?.sourceFile
+			?.isDeclarationFile || false;
 
 	return tagIsBuiltIn
 		? `This is a built in tag. Please consider using a 'data-*' attribute, adding the attribute to 'globalAttributes' or disabling the 'no-unknown-attribute' rule.`

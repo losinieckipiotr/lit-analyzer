@@ -36,12 +36,20 @@ export interface AnalyzerHtmlStore {
 	getAllEventsForTag(htmlNode: HtmlNode | string): Iterable<HtmlEvent>;
 	getAllSlotsForTag(htmlNode: HtmlNode | string): Iterable<HtmlSlot>;
 	getAllCssPartsForTag(htmlNode: HtmlNode | string): Iterable<HtmlCssPart>;
-	getAllCssPropertiesForTag(htmlNode: HtmlNode | string): Iterable<HtmlCssProperty>;
+	getAllCssPropertiesForTag(
+		htmlNode: HtmlNode | string
+	): Iterable<HtmlCssProperty>;
 
 	getHtmlAttrTarget(htmlNodeAttr: IHtmlNodeAttrProp): HtmlProp | undefined;
-	getHtmlAttrTarget(htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute): HtmlAttr | undefined;
-	getHtmlAttrTarget(htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute | IHtmlNodeAttrProp): HtmlMember | undefined;
-	getHtmlAttrTarget(htmlNodeAttr: IHtmlNodeAttrEventListener): HtmlEvent | undefined;
+	getHtmlAttrTarget(
+		htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute
+	): HtmlAttr | undefined;
+	getHtmlAttrTarget(
+		htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute | IHtmlNodeAttrProp
+	): HtmlMember | undefined;
+	getHtmlAttrTarget(
+		htmlNodeAttr: IHtmlNodeAttrEventListener
+	): HtmlEvent | undefined;
 	getHtmlAttrTarget(htmlNodeAttr: HtmlNodeAttr): HtmlAttrTarget | undefined;
 	getHtmlAttrTarget(htmlNodeAttr: HtmlNodeAttr): HtmlAttrTarget | undefined;
 }

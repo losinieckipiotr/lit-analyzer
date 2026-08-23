@@ -1,5 +1,10 @@
 import { SourceFile } from "typescript";
-import { AnalyzerResult, ComponentDeclaration, ComponentDefinition, visitAllHeritageClauses } from "web-component-analyzer";
+import {
+	AnalyzerResult,
+	ComponentDeclaration,
+	ComponentDefinition,
+	visitAllHeritageClauses
+} from "web-component-analyzer";
 import { getDeclarationsInFile } from "../../util/component-util.js";
 import { AnalyzerDefinitionStore } from "../analyzer-definition-store.js";
 
@@ -7,7 +12,10 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
 	private analysisResultForFile = new Map<string, AnalyzerResult>();
 	private definitionForTagName = new Map<string, ComponentDefinition>();
 
-	private intersectingDefinitionsForFile = new Map<string, Set<ComponentDefinition>>();
+	private intersectingDefinitionsForFile = new Map<
+		string,
+		Set<ComponentDefinition>
+	>();
 
 	absorbAnalysisResult(sourceFile: SourceFile, result: AnalyzerResult): void {
 		this.analysisResultForFile.set(sourceFile.fileName, result);
@@ -15,17 +23,29 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
 		result.componentDefinitions.forEach(definition => {
 			this.definitionForTagName.set(definition.tagName, definition);
 
-			addToSetInMap(this.intersectingDefinitionsForFile, definition.sourceFile.fileName, definition);
+			addToSetInMap(
+				this.intersectingDefinitionsForFile,
+				definition.sourceFile.fileName,
+				definition
+			);
 
 			if (definition.declaration == null) {
 				return;
 			}
 
-			addToSetInMap(this.intersectingDefinitionsForFile, definition.declaration?.sourceFile.fileName, definition);
+			addToSetInMap(
+				this.intersectingDefinitionsForFile,
+				definition.declaration?.sourceFile.fileName,
+				definition
+			);
 
 			visitAllHeritageClauses(definition.declaration, clause => {
 				if (clause.declaration != null) {
-					addToSetInMap(this.intersectingDefinitionsForFile, clause.declaration.sourceFile.fileName, definition);
+					addToSetInMap(
+						this.intersectingDefinitionsForFile,
+						clause.declaration.sourceFile.fileName,
+						definition
+					);
 				}
 			});
 		});
@@ -38,17 +58,23 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
 		result.componentDefinitions.forEach(definition => {
 			this.definitionForTagName.delete(definition.tagName);
 
-			this.intersectingDefinitionsForFile.get(definition.sourceFile.fileName)?.delete(definition);
+			this.intersectingDefinitionsForFile
+				.get(definition.sourceFile.fileName)
+				?.delete(definition);
 
 			if (definition.declaration == null) {
 				return;
 			}
 
-			this.intersectingDefinitionsForFile.get(definition.declaration?.sourceFile.fileName)?.delete(definition);
+			this.intersectingDefinitionsForFile
+				.get(definition.declaration?.sourceFile.fileName)
+				?.delete(definition);
 
 			visitAllHeritageClauses(definition.declaration, clause => {
 				if (clause.declaration != null) {
-					this.intersectingDefinitionsForFile.get(clause.declaration.sourceFile.fileName)?.delete(definition);
+					this.intersectingDefinitionsForFile
+						.get(clause.declaration.sourceFile.fileName)
+						?.delete(definition);
 				}
 			});
 		});
@@ -60,14 +86,22 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
 		return this.analysisResultForFile.get(sourceFile.fileName);
 	}
 
-	getDefinitionsWithDeclarationInFile(sourceFile: SourceFile): ComponentDefinition[] {
-		return Array.from(this.intersectingDefinitionsForFile.get(sourceFile.fileName) || []);
+	getDefinitionsWithDeclarationInFile(
+		sourceFile: SourceFile
+	): ComponentDefinition[] {
+		return Array.from(
+			this.intersectingDefinitionsForFile.get(sourceFile.fileName) || []
+		);
 	}
 
-	getComponentDeclarationsInFile(sourceFile: SourceFile): ComponentDeclaration[] {
+	getComponentDeclarationsInFile(
+		sourceFile: SourceFile
+	): ComponentDeclaration[] {
 		const declarations = new Set<ComponentDeclaration>();
 
-		for (const definition of this.intersectingDefinitionsForFile.get(sourceFile.fileName) || []) {
+		for (const definition of this.intersectingDefinitionsForFile.get(
+			sourceFile.fileName
+		) || []) {
 			for (const declaration of getDeclarationsInFile(definition, sourceFile)) {
 				declarations.add(declaration);
 			}

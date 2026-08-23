@@ -12,7 +12,8 @@ const rule: RuleModule = {
 		priority: "low"
 	},
 	visitHtmlNode(htmlNode, context) {
-		const { htmlStore, config, definitionStore, dependencyStore, file } = context;
+		const { htmlStore, config, definitionStore, dependencyStore, file } =
+			context;
 
 		// Return if the html tag doesn't exists or if the html tag doesn't have a declaration
 		const htmlTag = htmlStore.getHtmlTag(htmlNode);
@@ -24,20 +25,30 @@ const rule: RuleModule = {
 
 		// Don't continue if this tag name doesn't have a definition.
 		// If the html tag doesn't have a definition we won't know how to import it.
-		const definition = definitionStore.getDefinitionForTagName(htmlNode.tagName);
+		const definition = definitionStore.getDefinitionForTagName(
+			htmlNode.tagName
+		);
 		if (definition == null) return;
 
 		// Check if the tag name has been imported in the file of the template.
-		const isDefinitionImported = dependencyStore.hasTagNameBeenImported(file.fileName, htmlNode.tagName);
+		const isDefinitionImported = dependencyStore.hasTagNameBeenImported(
+			file.fileName,
+			htmlNode.tagName
+		);
 
 		// Report diagnostic if the html tag hasn't been imported.
 		if (!isDefinitionImported) {
 			context.report({
 				location: rangeFromHtmlNode(htmlNode),
 				message: `Missing import for <${htmlNode.tagName}>`,
-				suggestion: config.dontSuggestConfigChanges ? undefined : `You can disable this check by disabling the 'no-missing-import' rule.`,
+				suggestion: config.dontSuggestConfigChanges
+					? undefined
+					: `You can disable this check by disabling the 'no-missing-import' rule.`,
 				fix: () => {
-					const importPath = getRelativePathForImport(file.fileName, definition.sourceFile.fileName);
+					const importPath = getRelativePathForImport(
+						file.fileName,
+						definition.sourceFile.fileName
+					);
 
 					return {
 						message: `Import <${definition.tagName}> from module "${importPath}"`,
@@ -63,7 +74,10 @@ export default rule;
  * @param fromFileName
  * @param toFileName
  */
-function getRelativePathForImport(fromFileName: string, toFileName: string): string {
+function getRelativePathForImport(
+	fromFileName: string,
+	toFileName: string
+): string {
 	const path = posix.relative(dirname(fromFileName), dirname(toFileName));
 	const filenameWithoutExt = basename(toFileName).replace(/\.[^/.]+$/, "");
 	const prefix = path.startsWith("../") ? "" : "./";

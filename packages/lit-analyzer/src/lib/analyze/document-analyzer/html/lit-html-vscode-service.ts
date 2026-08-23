@@ -5,12 +5,20 @@ import { textPartsToRanges } from "../../parse/document/virtual-document/virtual
 import { LitClosingTagInfo } from "../../types/lit-closing-tag-info.js";
 import { LitFormatEdit } from "../../types/lit-format-edit.js";
 import { DocumentOffset } from "../../types/range.js";
-import { documentRangeToSFRange, makeDocumentRange } from "../../util/range-util.js";
+import {
+	documentRangeToSFRange,
+	makeDocumentRange
+} from "../../util/range-util.js";
 
 const htmlService = vscode.getLanguageService();
 
 function makeVscTextDocument(htmlDocument: HtmlDocument): vscode.TextDocument {
-	return vscode.TextDocument.create("untitled://embedded.html", "html", 1, htmlDocument.virtualDocument.text);
+	return vscode.TextDocument.create(
+		"untitled://embedded.html",
+		"html",
+		1,
+		htmlDocument.virtualDocument.text
+	);
 }
 
 function makeVscHtmlDocument(vscTextDocument: vscode.TextDocument) {
@@ -18,12 +26,19 @@ function makeVscHtmlDocument(vscTextDocument: vscode.TextDocument) {
 }
 
 export class LitHtmlVscodeService {
-	getClosingTagAtOffset(document: HtmlDocument, offset: DocumentOffset): LitClosingTagInfo | undefined {
+	getClosingTagAtOffset(
+		document: HtmlDocument,
+		offset: DocumentOffset
+	): LitClosingTagInfo | undefined {
 		const vscTextDocument = makeVscTextDocument(document);
 		const vscHtmlDocument = makeVscHtmlDocument(vscTextDocument);
 		const htmlLSPosition = vscTextDocument.positionAt(offset);
 
-		const tagComplete = htmlService.doTagComplete(vscTextDocument, htmlLSPosition, vscHtmlDocument);
+		const tagComplete = htmlService.doTagComplete(
+			vscTextDocument,
+			htmlLSPosition,
+			vscHtmlDocument
+		);
 		if (tagComplete == null) return;
 
 		// Html returns completions with snippet placeholders. Strip these out.
@@ -32,17 +47,31 @@ export class LitHtmlVscodeService {
 		};
 	}
 
-	format(document: HtmlDocument, settings: ts.FormatCodeSettings): LitFormatEdit[] {
+	format(
+		document: HtmlDocument,
+		settings: ts.FormatCodeSettings
+	): LitFormatEdit[] {
 		const parts = document.virtualDocument.getPartsAtDocumentRange(
 			makeDocumentRange({
 				start: 0,
-				end: document.virtualDocument.location.end - document.virtualDocument.location.start
+				end:
+					document.virtualDocument.location.end -
+					document.virtualDocument.location.start
 			})
 		);
 
 		const ranges = textPartsToRanges(parts);
-		const originalHtml = parts.map(p => (typeof p === "string" ? p : `[#${"#".repeat(p.getText().length)}]`)).join("");
-		const vscTextDocument = vscode.TextDocument.create("untitled://embedded.html", "html", 1, originalHtml);
+		const originalHtml = parts
+			.map(p =>
+				typeof p === "string" ? p : `[#${"#".repeat(p.getText().length)}]`
+			)
+			.join("");
+		const vscTextDocument = vscode.TextDocument.create(
+			"untitled://embedded.html",
+			"html",
+			1,
+			originalHtml
+		);
 
 		const edits = htmlService.format(vscTextDocument, undefined, {
 			tabSize: settings.tabSize,

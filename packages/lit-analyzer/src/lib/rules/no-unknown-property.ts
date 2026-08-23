@@ -1,5 +1,8 @@
 import { LitAnalyzerConfig } from "../analyze/lit-analyzer-config.js";
-import { HtmlTag, litAttributeModifierForTarget } from "../analyze/parse/parse-html-data/html-tag.js";
+import {
+	HtmlTag,
+	litAttributeModifierForTarget
+} from "../analyze/parse/parse-html-data/html-tag.js";
 import { AnalyzerDefinitionStore } from "../analyze/store/analyzer-definition-store.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { HtmlNodeKind } from "../analyze/types/html-node/html-node-types.js";
@@ -35,15 +38,26 @@ const rule: RuleModule = {
 
 			// Get suggested target because the name could be a typo.
 			const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
-			const suggestedModifier = suggestedTarget == null ? undefined : litAttributeModifierForTarget(suggestedTarget);
-			const suggestedMemberName = suggestedTarget == null ? undefined : suggestedTarget.name;
+			const suggestedModifier =
+				suggestedTarget == null
+					? undefined
+					: litAttributeModifierForTarget(suggestedTarget);
+			const suggestedMemberName =
+				suggestedTarget == null ? undefined : suggestedTarget.name;
 
-			const suggestion = getSuggestionText({ config, definitionStore, htmlTag });
+			const suggestion = getSuggestionText({
+				config,
+				definitionStore,
+				htmlTag
+			});
 
 			context.report({
 				location: rangeFromHtmlNodeAttr(htmlAttr),
 				message: `Unknown property '${htmlAttr.name}'.`,
-				fixMessage: suggestedMemberName == null ? undefined : `Did you mean '${suggestedModifier}${suggestedMemberName}'?`,
+				fixMessage:
+					suggestedMemberName == null
+						? undefined
+						: `Did you mean '${suggestedModifier}${suggestedMemberName}'?`,
 				suggestion,
 				fix:
 					suggestedMemberName == null
@@ -96,7 +110,9 @@ function getSuggestionText({
 	const tagHasDeclaration = htmlTag.declaration != null;
 	const tagIsBuiltIn = htmlTag.builtIn || false;
 	const tagIsFromLibrary =
-		iterableFirst(definitionStore.getDefinitionForTagName(htmlTag.tagName)?.identifierNodes)?.getSourceFile().isDeclarationFile || false;
+		iterableFirst(
+			definitionStore.getDefinitionForTagName(htmlTag.tagName)?.identifierNodes
+		)?.getSourceFile().isDeclarationFile || false;
 
 	return tagIsBuiltIn
 		? `This is a built in tag. Please consider disabling the 'no-unknown-property' rule.`

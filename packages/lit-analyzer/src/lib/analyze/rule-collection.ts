@@ -1,11 +1,17 @@
-import { ComponentDeclaration, ComponentDefinition } from "web-component-analyzer";
+import {
+	ComponentDeclaration,
+	ComponentDefinition
+} from "web-component-analyzer";
 import { isRuleEnabled, LitAnalyzerRuleId } from "./lit-analyzer-config.js";
 import { LitAnalyzerContext } from "./lit-analyzer-context.js";
 import { HtmlDocument } from "./parse/document/text-document/html-document/html-document.js";
 import { HtmlNodeAttr } from "./types/html-node/html-node-attr-types.js";
 import { HtmlNode, HtmlNodeKind } from "./types/html-node/html-node-types.js";
 import { RuleDiagnostic } from "./types/rule/rule-diagnostic.js";
-import { RuleModule, RuleModuleImplementation } from "./types/rule/rule-module.js";
+import {
+	RuleModule,
+	RuleModuleImplementation
+} from "./types/rule/rule-module.js";
 import { RuleModuleContext } from "./types/rule/rule-module-context.js";
 
 export interface ReportedRuleDiagnostic {
@@ -20,18 +26,31 @@ export class RuleCollection {
 		this.rules.push(...rule);
 
 		// Sort rules by most important first
-		this.rules.sort((ruleA, ruleB) => (getPriorityValue(ruleA) > getPriorityValue(ruleB) ? -1 : 1));
+		this.rules.sort((ruleA, ruleB) =>
+			getPriorityValue(ruleA) > getPriorityValue(ruleB) ? -1 : 1
+		);
 	}
 
 	private invokeRules<VisitFunctionName extends keyof RuleModuleImplementation>(
 		functionName: VisitFunctionName,
-		parameter: Parameters<NonNullable<RuleModuleImplementation[VisitFunctionName]>>[0],
+		parameter: Parameters<
+			NonNullable<RuleModuleImplementation[VisitFunctionName]>
+		>[0],
 		report: (diagnostic: ReportedRuleDiagnostic) => void,
 		baseContext: LitAnalyzerContext
 	): void {
 		let shouldBreak = false;
 
-		const { config, htmlStore, program, definitionStore, dependencyStore, documentStore, logger, ts } = baseContext;
+		const {
+			config,
+			htmlStore,
+			program,
+			definitionStore,
+			dependencyStore,
+			documentStore,
+			logger,
+			ts
+		} = baseContext;
 
 		let currentRuleId: LitAnalyzerRuleId | undefined = undefined;
 
@@ -73,35 +92,59 @@ export class RuleCollection {
 		}
 	}
 
-	getDiagnosticsFromDeclaration(declaration: ComponentDeclaration, baseContext: LitAnalyzerContext): ReportedRuleDiagnostic[] {
+	getDiagnosticsFromDeclaration(
+		declaration: ComponentDeclaration,
+		baseContext: LitAnalyzerContext
+	): ReportedRuleDiagnostic[] {
 		const file = baseContext.currentFile;
 
 		const diagnostics: ReportedRuleDiagnostic[] = [];
 
-		this.invokeRules("visitComponentDeclaration", declaration, d => diagnostics.push(d), baseContext);
+		this.invokeRules(
+			"visitComponentDeclaration",
+			declaration,
+			d => diagnostics.push(d),
+			baseContext
+		);
 
 		for (const member of declaration.members) {
 			if (member.node.getSourceFile() === file) {
-				this.invokeRules("visitComponentMember", member, d => diagnostics.push(d), baseContext);
+				this.invokeRules(
+					"visitComponentMember",
+					member,
+					d => diagnostics.push(d),
+					baseContext
+				);
 			}
 		}
 
 		return diagnostics;
 	}
 
-	getDiagnosticsFromDefinition(definition: ComponentDefinition, baseContext: LitAnalyzerContext): ReportedRuleDiagnostic[] {
+	getDiagnosticsFromDefinition(
+		definition: ComponentDefinition,
+		baseContext: LitAnalyzerContext
+	): ReportedRuleDiagnostic[] {
 		const file = baseContext.currentFile;
 
 		const diagnostics: ReportedRuleDiagnostic[] = [];
 
 		if (definition.sourceFile === file) {
-			this.invokeRules("visitComponentDefinition", definition, d => diagnostics.push(d), baseContext);
+			this.invokeRules(
+				"visitComponentDefinition",
+				definition,
+				d => diagnostics.push(d),
+				baseContext
+			);
 		}
 
 		return diagnostics;
 	}
 
-	getDiagnosticsFromDocument(htmlDocument: HtmlDocument, baseContext: LitAnalyzerContext): ReportedRuleDiagnostic[] {
+	getDiagnosticsFromDocument(
+		htmlDocument: HtmlDocument,
+		baseContext: LitAnalyzerContext
+	): ReportedRuleDiagnostic[] {
 		const diagnostics: ReportedRuleDiagnostic[] = [];
 
 		const iterateNodes = (nodes: HtmlNode[]) => {
@@ -111,14 +154,29 @@ export class RuleCollection {
 					continue;
 				}
 
-				this.invokeRules("visitHtmlNode", childNode, d => diagnostics.push(d), baseContext);
+				this.invokeRules(
+					"visitHtmlNode",
+					childNode,
+					d => diagnostics.push(d),
+					baseContext
+				);
 
 				const iterateAttrs = (attrs: HtmlNodeAttr[]) => {
 					for (const attr of attrs) {
-						this.invokeRules("visitHtmlAttribute", attr, d => diagnostics.push(d), baseContext);
+						this.invokeRules(
+							"visitHtmlAttribute",
+							attr,
+							d => diagnostics.push(d),
+							baseContext
+						);
 
 						if (attr.assignment != null) {
-							this.invokeRules("visitHtmlAssignment", attr.assignment, d => diagnostics.push(d), baseContext);
+							this.invokeRules(
+								"visitHtmlAssignment",
+								attr.assignment,
+								d => diagnostics.push(d),
+								baseContext
+							);
 						}
 					}
 				};

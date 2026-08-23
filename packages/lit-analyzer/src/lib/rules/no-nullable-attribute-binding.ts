@@ -25,7 +25,10 @@ const rule: RuleModule = {
 		const isAssignableToNull = isAssignableToSimpleTypeKind(typeB, "NULL");
 
 		// Test if removing "undefined" or "null" from typeB would work and suggest using "ifDefined".
-		if (isAssignableToNull || isAssignableToSimpleTypeKind(typeB, "UNDEFINED")) {
+		if (
+			isAssignableToNull ||
+			isAssignableToSimpleTypeKind(typeB, "UNDEFINED")
+		) {
 			context.report({
 				location: rangeFromHtmlNodeAttr(htmlAttr),
 				message: `This attribute binds the type '${typeToString(typeB)}' which can end up binding the string '${
@@ -34,7 +37,13 @@ const rule: RuleModule = {
 				fixMessage: "Use the 'ifDefined' directive?",
 				fix: () => ({
 					message: `Use the 'ifDefined' directive.`,
-					actions: [{ kind: "changeAssignment", assignment, newValue: `ifDefined(${assignment.expression.getText()})` }]
+					actions: [
+						{
+							kind: "changeAssignment",
+							assignment,
+							newValue: `ifDefined(${assignment.expression.getText()})`
+						}
+					]
 				})
 			});
 		}

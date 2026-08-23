@@ -1,7 +1,11 @@
 import { SourceFile } from "typescript";
 import { LitDiagnostic } from "../../analyze/types/lit-diagnostic.js";
 import { AnalysisStats, DiagnosticFormatter } from "./diagnostic-formatter.js";
-import { markdownHeader, markdownHighlight, markdownTable } from "./markdown-util.js";
+import {
+	markdownHeader,
+	markdownHighlight,
+	markdownTable
+} from "./markdown-util.js";
 import { relativeFileName } from "./util.js";
 
 export class MarkdownDiagnosticFormatter implements DiagnosticFormatter {
@@ -10,11 +14,20 @@ export class MarkdownDiagnosticFormatter implements DiagnosticFormatter {
 ${markdownHeader(2, "Summary")}
 ${markdownTable([
 	["Files analyzed", "Files with problems", "Problems", "Errors", "Warnings"],
-	[stats.totalFiles, stats.filesWithProblems, stats.diagnostics, stats.errors, stats.warnings].map(v => v.toString())
+	[
+		stats.totalFiles,
+		stats.filesWithProblems,
+		stats.diagnostics,
+		stats.errors,
+		stats.warnings
+	].map(v => v.toString())
 ])}`;
 	}
 
-	diagnosticTextForFile(file: SourceFile, diagnostics: LitDiagnostic[]): string | undefined {
+	diagnosticTextForFile(
+		file: SourceFile,
+		diagnostics: LitDiagnostic[]
+	): string | undefined {
 		if (diagnostics.length === 0) return undefined;
 
 		return `
@@ -23,11 +36,16 @@ ${markdownDiagnosticTable(file, diagnostics)}`;
 	}
 }
 
-function markdownDiagnosticTable(file: SourceFile, diagnostics: LitDiagnostic[]): string {
+function markdownDiagnosticTable(
+	file: SourceFile,
+	diagnostics: LitDiagnostic[]
+): string {
 	const headerRow: string[] = ["Line", "Column", "Type", "Rule", "Message"];
 
 	const rows: string[][] = diagnostics.map((diagnostic): string[] => {
-		const lineContext = file.getLineAndCharacterOfPosition(diagnostic.location.start);
+		const lineContext = file.getLineAndCharacterOfPosition(
+			diagnostic.location.start
+		);
 
 		return [
 			(lineContext.line + 1).toString(),

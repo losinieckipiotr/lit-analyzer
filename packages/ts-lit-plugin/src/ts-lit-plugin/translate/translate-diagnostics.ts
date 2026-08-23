@@ -1,8 +1,16 @@
 import { LitAnalyzerContext, LitDiagnostic } from "lit-analyzer";
-import { DiagnosticMessageChain, DiagnosticWithLocation, SourceFile } from "typescript";
+import {
+	DiagnosticMessageChain,
+	DiagnosticWithLocation,
+	SourceFile
+} from "typescript";
 import { translateRange } from "./translate-range.js";
 
-export function translateDiagnostics(reports: LitDiagnostic[], file: SourceFile, context: LitAnalyzerContext): DiagnosticWithLocation[] {
+export function translateDiagnostics(
+	reports: LitDiagnostic[],
+	file: SourceFile,
+	context: LitAnalyzerContext
+): DiagnosticWithLocation[] {
 	return reports.map(report => translateDiagnostic(report, file, context));
 }
 
@@ -14,10 +22,17 @@ function getMessageTextFromDiagnostic(diagnostic: LitDiagnostic): string {
 	return `${diagnostic.message}${diagnostic.fixMessage == null ? "" : ` ${diagnostic.fixMessage}`}`;
 }
 
-function translateDiagnostic(diagnostic: LitDiagnostic, file: SourceFile, context: LitAnalyzerContext): DiagnosticWithLocation {
+function translateDiagnostic(
+	diagnostic: LitDiagnostic,
+	file: SourceFile,
+	context: LitAnalyzerContext
+): DiagnosticWithLocation {
 	const span = translateRange(diagnostic.location);
 
-	const category = diagnostic.severity === "error" ? context.ts.DiagnosticCategory.Error : context.ts.DiagnosticCategory.Warning;
+	const category =
+		diagnostic.severity === "error"
+			? context.ts.DiagnosticCategory.Error
+			: context.ts.DiagnosticCategory.Warning;
 	const code = diagnostic.code ?? 0;
 	const messageText: string | DiagnosticMessageChain =
 		!context.config.dontShowSuggestions && diagnostic.suggestion
@@ -35,7 +50,10 @@ function translateDiagnostic(diagnostic: LitDiagnostic, file: SourceFile, contex
 				}
 			: getMessageTextFromDiagnostic(diagnostic);
 
-	if (Number(context.ts.versionMajorMinor) < 3.6 && typeof messageText !== "string") {
+	if (
+		Number(context.ts.versionMajorMinor) < 3.6 &&
+		typeof messageText !== "string"
+	) {
 		// The format of DiagnosticMessageChain#next changed in 3.6 to be an array.
 		// This check for backwards compatibility
 		if (messageText.next != null && Array.isArray(messageText.next)) {
@@ -50,6 +68,7 @@ function translateDiagnostic(diagnostic: LitDiagnostic, file: SourceFile, contex
 		messageText,
 		category,
 		code,
-		source: diagnostic.source == null ? undefined : `lit-plugin(${diagnostic.source})`
+		source:
+			diagnostic.source == null ? undefined : `lit-plugin(${diagnostic.source})`
 	};
 }

@@ -1,7 +1,10 @@
 import { Program, SourceFile } from "typescript";
 import { DefaultLitAnalyzerContext } from "../../lib/analyze/default-lit-analyzer-context.js";
 import { LitAnalyzer } from "../../lib/analyze/lit-analyzer.js";
-import { LitAnalyzerConfig, makeConfig } from "../../lib/analyze/lit-analyzer-config.js";
+import {
+	LitAnalyzerConfig,
+	makeConfig
+} from "../../lib/analyze/lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lib/analyze/lit-analyzer-context.js";
 import { LitDiagnostic } from "../../lib/analyze/types/lit-diagnostic.js";
 import { compileFiles, TestFile } from "./compile-files.js";
@@ -18,7 +21,12 @@ import { LitIndexEntry } from "../../lib/analyze/document-analyzer/html/lit-html
 export function prepareAnalyzer(
 	inputFiles: TestFile[] | TestFile,
 	config: Partial<LitAnalyzerConfig> = {}
-): { analyzer: LitAnalyzer; program: Program; sourceFile: SourceFile; context: LitAnalyzerContext } {
+): {
+	analyzer: LitAnalyzer;
+	program: Program;
+	sourceFile: SourceFile;
+	context: LitAnalyzerContext;
+} {
 	const { program, sourceFile } = compileFiles(inputFiles);
 
 	const context = new DefaultLitAnalyzerContext({
@@ -85,7 +93,11 @@ export function getCodeFixesAtRange(
 export function getIndexEntries(
 	inputFiles: TestFile[] | TestFile,
 	config: Partial<LitAnalyzerConfig> = {}
-): { indexEntries: IterableIterator<LitIndexEntry>; program: Program; sourceFile: SourceFile } {
+): {
+	indexEntries: IterableIterator<LitIndexEntry>;
+	program: Program;
+	sourceFile: SourceFile;
+} {
 	const { analyzer, sourceFile, program } = prepareAnalyzer(inputFiles, config);
 
 	return {

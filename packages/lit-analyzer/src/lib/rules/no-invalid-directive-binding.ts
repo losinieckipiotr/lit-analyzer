@@ -47,7 +47,10 @@ const rule: RuleModule = {
 						case HtmlNodeAttrKind.ATTRIBUTE: {
 							// Make sure that only strings are passed in when using the live directive in attribute bindings
 							const typeB = directive.actualType?.();
-							if (typeB != null && !isAssignableToType({ kind: "STRING" }, typeB)) {
+							if (
+								typeB != null &&
+								!isAssignableToType({ kind: "STRING" }, typeB)
+							) {
 								context.report({
 									location: rangeFromHtmlNodeAttr(htmlAttr),
 									message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`
@@ -68,7 +71,10 @@ const rule: RuleModule = {
 
 				case "classMap":
 					// Report error if "classMap" is not being used on the "class" attribute.
-					if (htmlAttr.name !== "class" || htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) {
+					if (
+						htmlAttr.name !== "class" ||
+						htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE
+					) {
 						context.report({
 							location: rangeFromHtmlNodeAttr(htmlAttr),
 							message: `The 'classMap' directive can only be used in an attribute binding for the 'class' attribute`
@@ -78,7 +84,10 @@ const rule: RuleModule = {
 
 				case "styleMap":
 					// Report error if "styleMap" is not being used on the "style" attribute.
-					if (htmlAttr.name !== "style" || htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) {
+					if (
+						htmlAttr.name !== "style" ||
+						htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE
+					) {
 						context.report({
 							location: rangeFromHtmlNodeAttr(htmlAttr),
 							message: `The 'styleMap' directive can only be used in an attribute binding for the 'style' attribute`

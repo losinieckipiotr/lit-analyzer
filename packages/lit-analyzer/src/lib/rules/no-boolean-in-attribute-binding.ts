@@ -32,9 +32,16 @@ const rule: RuleModule = {
 
 		// Check that typeB is not of any|unknown type and typeB is assignable to boolean.
 		// Report a diagnostic if typeB is assignable to boolean type because this would result in binding the boolean coerced to string.
-		if (!isAssignableToSimpleTypeKind(typeB, ["ANY", "UNKNOWN"]) && isAssignableToType({ typeA: { kind: "BOOLEAN" }, typeB }, context)) {
+		if (
+			!isAssignableToSimpleTypeKind(typeB, ["ANY", "UNKNOWN"]) &&
+			isAssignableToType({ typeA: { kind: "BOOLEAN" }, typeB }, context)
+		) {
 			// Don't emit error if typeB is assignable to typeA with string coercion.
-			if (isAssignableToType({ typeA, typeB }, context, { isAssignable: isAssignableToTypeWithStringCoercion })) {
+			if (
+				isAssignableToType({ typeA, typeB }, context, {
+					isAssignable: isAssignableToTypeWithStringCoercion
+				})
+			) {
 				return;
 			}
 

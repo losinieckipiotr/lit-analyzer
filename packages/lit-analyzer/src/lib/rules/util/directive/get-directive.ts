@@ -1,6 +1,9 @@
 import { SimpleType, toSimpleType } from "ts-simple-type";
 import { Expression } from "typescript";
-import { HtmlNodeAttrAssignment, HtmlNodeAttrAssignmentKind } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
+import {
+	HtmlNodeAttrAssignment,
+	HtmlNodeAttrAssignmentKind
+} from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { lazy } from "../../../analyze/util/general-util.js";
 import { removeUndefinedFromType } from "../type/remove-undefined-from-type.js";
@@ -30,7 +33,10 @@ interface Directive {
 	args: Expression[];
 }
 
-export function getDirective(assignment: HtmlNodeAttrAssignment, context: RuleModuleContext): Directive | undefined {
+export function getDirective(
+	assignment: HtmlNodeAttrAssignment,
+	context: RuleModuleContext
+): Directive | undefined {
 	const { ts, program } = context;
 	const checker = program.getTypeChecker();
 
@@ -38,7 +44,8 @@ export function getDirective(assignment: HtmlNodeAttrAssignment, context: RuleMo
 
 	// Type check lit-html directives
 	if (ts.isCallExpression(assignment.expression)) {
-		const functionName = assignment.expression.expression.getText() as BuiltInDirectiveKind | string;
+		const functionName = assignment.expression.expression.getText() as
+			BuiltInDirectiveKind | string;
 		const args = Array.from(assignment.expression.arguments);
 
 		switch (functionName) {
@@ -48,7 +55,10 @@ export function getDirective(assignment: HtmlNodeAttrAssignment, context: RuleMo
 				// This new type becomes the actual type of the expression
 				const actualType = lazy(() => {
 					if (args.length >= 1) {
-						const returnType = toSimpleType(checker.getTypeAtLocation(args[0]), checker);
+						const returnType = toSimpleType(
+							checker.getTypeAtLocation(args[0]),
+							checker
+						);
 						return removeUndefinedFromType(returnType);
 					}
 
@@ -85,8 +95,14 @@ export function getDirective(assignment: HtmlNodeAttrAssignment, context: RuleMo
 				// The return type of the function becomes the actual type of the expression
 				const actualType = lazy(() => {
 					if (args.length >= 2) {
-						let returnFunctionType = toSimpleType(checker.getTypeAtLocation(args[1]), checker);
-						if ("call" in returnFunctionType && returnFunctionType.call != null) {
+						let returnFunctionType = toSimpleType(
+							checker.getTypeAtLocation(args[1]),
+							checker
+						);
+						if (
+							"call" in returnFunctionType &&
+							returnFunctionType.call != null
+						) {
 							returnFunctionType = returnFunctionType.call;
 						}
 
@@ -128,14 +144,19 @@ export function getDirective(assignment: HtmlNodeAttrAssignment, context: RuleMo
 			default:
 				// Grab the type of the expression and get a SimpleType
 				if (assignment.kind === HtmlNodeAttrAssignmentKind.EXPRESSION) {
-					const typeB = toSimpleType(checker.getTypeAtLocation(assignment.expression), checker);
+					const typeB = toSimpleType(
+						checker.getTypeAtLocation(assignment.expression),
+						checker
+					);
 
 					if (isLitDirective(typeB)) {
 						// Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
 						// Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>
 						// Read more: https://github.com/Polymer/lit-html/pull/1151
 						const actualType =
-							typeB.kind === "GENERIC_ARGUMENTS" && typeB.target.name === "DirectiveFn" && typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
+							typeB.kind === "GENERIC_ARGUMENTS" &&
+							typeB.target.name === "DirectiveFn" &&
+							typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
 								? () => typeB.typeArguments[0]
 								: undefined;
 

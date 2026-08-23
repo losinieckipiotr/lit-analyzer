@@ -22,9 +22,12 @@ export class LitCssDocumentAnalyzer {
 		name: string,
 		context: LitAnalyzerContext
 	): LitCompletionDetails | undefined {
-		const completionWithName = this.completionsCache.find(completion => completion.name === name);
+		const completionWithName = this.completionsCache.find(
+			completion => completion.name === name
+		);
 
-		if (completionWithName == null || completionWithName.documentation == null) return undefined;
+		if (completionWithName == null || completionWithName.documentation == null)
+			return undefined;
 
 		const primaryInfo = completionWithName.documentation();
 		if (primaryInfo == null) return undefined;
@@ -36,20 +39,39 @@ export class LitCssDocumentAnalyzer {
 		};
 	}
 
-	getCompletionsAtOffset(document: CssDocument, offset: DocumentOffset, context: LitAnalyzerContext): LitCompletion[] {
-		this.completionsCache = this.vscodeCssService.getCompletions(document, offset, context);
+	getCompletionsAtOffset(
+		document: CssDocument,
+		offset: DocumentOffset,
+		context: LitAnalyzerContext
+	): LitCompletion[] {
+		this.completionsCache = this.vscodeCssService.getCompletions(
+			document,
+			offset,
+			context
+		);
 		return this.completionsCache;
 	}
 
-	getQuickInfoAtOffset(document: CssDocument, offset: DocumentOffset, context: LitAnalyzerContext): LitQuickInfo | undefined {
+	getQuickInfoAtOffset(
+		document: CssDocument,
+		offset: DocumentOffset,
+		context: LitAnalyzerContext
+	): LitQuickInfo | undefined {
 		return this.vscodeCssService.getQuickInfo(document, offset, context);
 	}
 
-	getDiagnostics(document: CssDocument, context: LitAnalyzerContext): LitDiagnostic[] {
+	getDiagnostics(
+		document: CssDocument,
+		context: LitAnalyzerContext
+	): LitDiagnostic[] {
 		return this.vscodeCssService.getDiagnostics(document, context);
 	}
 
-	getDefinitionAtOffset(document: CssDocument, offset: DocumentOffset, context: LitAnalyzerContext): LitDefinition | undefined {
+	getDefinitionAtOffset(
+		document: CssDocument,
+		offset: DocumentOffset,
+		context: LitAnalyzerContext
+	): LitDefinition | undefined {
 		const positionContext = getPositionContextInDocument(document, offset);
 		const word = positionContext.word;
 
@@ -60,7 +82,11 @@ export class LitCssDocumentAnalyzer {
 		if (word.startsWith("-")) {
 			for (const cssProp of context.htmlStore.getAllCssPropertiesForTag("")) {
 				if (cssProp.name === word) {
-					const nodes = iterableDefined((cssProp.related != null ? cssProp.related : [cssProp]).map(p => p.declaration?.declaration?.node));
+					const nodes = iterableDefined(
+						(cssProp.related != null ? cssProp.related : [cssProp]).map(
+							p => p.declaration?.declaration?.node
+						)
+					);
 					if (nodes.length === 0) {
 						return;
 					}

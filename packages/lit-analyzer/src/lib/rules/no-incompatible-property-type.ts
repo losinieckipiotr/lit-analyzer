@@ -1,4 +1,11 @@
-import { isAssignableToSimpleTypeKind, isSimpleType, SimpleType, SimpleTypeKind, toSimpleType, typeToString } from "ts-simple-type";
+import {
+	isAssignableToSimpleTypeKind,
+	isSimpleType,
+	SimpleType,
+	SimpleTypeKind,
+	toSimpleType,
+	typeToString
+} from "ts-simple-type";
 import { Node } from "typescript";
 import { LitElementPropertyConfig } from "web-component-analyzer";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -13,19 +20,31 @@ const rule: RuleModule = {
 		priority: "low"
 	},
 	visitComponentMember(member, context) {
-		if (member.kind !== "property" || member.modifiers?.has("static") || member.meta == null) return;
+		if (
+			member.kind !== "property" ||
+			member.modifiers?.has("static") ||
+			member.meta == null
+		)
+			return;
 
-		if ((member.meta.node?.type ?? member.node)?.getSourceFile() !== context.file) return;
+		if (
+			(member.meta.node?.type ?? member.node)?.getSourceFile() !== context.file
+		)
+			return;
 
 		// Grab the type and fallback to "any"
 		const type = member.type?.() || { kind: "ANY" };
 
 		return validateLitPropertyConfig(
-			member.meta.node?.type || member.meta.node?.decorator?.expression || member.node,
+			member.meta.node?.type ||
+				member.meta.node?.decorator?.expression ||
+				member.node,
 			member.meta,
 			{
 				propName: member.propName,
-				simplePropType: isSimpleType(type) ? type : toSimpleType(type, context.program.getTypeChecker())
+				simplePropType: isSimpleType(type)
+					? type
+					: toSimpleType(type, context.program.getTypeChecker())
 			},
 			context
 		);
@@ -72,15 +91,27 @@ function prepareSimpleAssignabilityTester(simpleType: SimpleType): {
 		const result = (() => {
 			switch (simpleTypeKind) {
 				case "STRING":
-					return isAssignableToSimpleTypeKind(simpleType, ["STRING", "STRING_LITERAL"]);
+					return isAssignableToSimpleTypeKind(simpleType, [
+						"STRING",
+						"STRING_LITERAL"
+					]);
 				case "NUMBER":
-					return isAssignableToSimpleTypeKind(simpleType, ["NUMBER", "NUMBER_LITERAL"]);
+					return isAssignableToSimpleTypeKind(simpleType, [
+						"NUMBER",
+						"NUMBER_LITERAL"
+					]);
 				case "BOOLEAN":
-					return isAssignableToSimpleTypeKind(simpleType, ["BOOLEAN", "BOOLEAN_LITERAL"]);
+					return isAssignableToSimpleTypeKind(simpleType, [
+						"BOOLEAN",
+						"BOOLEAN_LITERAL"
+					]);
 				case "ARRAY":
 					return isAssignableToSimpleTypeKind(simpleType, ["ARRAY", "TUPLE"]);
 				case "OBJECT":
-					return isAssignableToSimpleTypeKind(simpleType, ["OBJECT", "INTERFACE"]);
+					return isAssignableToSimpleTypeKind(simpleType, [
+						"OBJECT",
+						"INTERFACE"
+					]);
 				case "ANY":
 					return isAssignableToSimpleTypeKind(simpleType, "ANY");
 				default:
@@ -95,7 +126,16 @@ function prepareSimpleAssignabilityTester(simpleType: SimpleType): {
 
 	// Collect type kinds that can be used in as "type" in the @property decorator
 	const acceptedTypeKinds = lazy(() => {
-		return (["STRING", "NUMBER", "BOOLEAN", "ARRAY", "OBJECT", "ANY"] as SimpleTypeKind[])
+		return (
+			[
+				"STRING",
+				"NUMBER",
+				"BOOLEAN",
+				"ARRAY",
+				"OBJECT",
+				"ANY"
+			] as SimpleTypeKind[]
+		)
 			.filter(kind => kind !== "ANY")
 			.filter(kind => isAssignableTo(kind));
 	});
@@ -115,7 +155,10 @@ function prepareSimpleAssignabilityTester(simpleType: SimpleType): {
 function validateLitPropertyConfig(
 	node: Node,
 	litConfig: LitElementPropertyConfig,
-	{ propName, simplePropType }: { propName: string; simplePropType: SimpleType },
+	{
+		propName,
+		simplePropType
+	}: { propName: string; simplePropType: SimpleType },
 	context: RuleModuleContext
 ) {
 	// Check if "type" is one of the built in default type converter hint
@@ -123,17 +166,25 @@ function validateLitPropertyConfig(
 		context.report({
 			location: rangeFromNode(node),
 			message: `'${litConfig.type}' is not a valid type for the default converter.`,
-			fixMessage: litConfig.attribute !== false ? "Have you considered '{attribute: false}' instead?" : "Have you considered removing 'type'?"
+			fixMessage:
+				litConfig.attribute !== false
+					? "Have you considered '{attribute: false}' instead?"
+					: "Have you considered removing 'type'?"
 		});
 	}
 
 	// Don't continue if we don't know the property type (eg if we are in a js file)
 	// Don't continue if this property has a custom converter (because then we don't know how the value will be converted)
-	if (simplePropType == null || litConfig.hasConverter || typeof litConfig.type === "string") {
+	if (
+		simplePropType == null ||
+		litConfig.hasConverter ||
+		typeof litConfig.type === "string"
+	) {
 		return;
 	}
 
-	const { acceptedTypeKinds, isAssignableTo } = prepareSimpleAssignabilityTester(simplePropType);
+	const { acceptedTypeKinds, isAssignableTo } =
+		prepareSimpleAssignabilityTester(simplePropType);
 
 	// Test the @property type against the actual type if a type has been provided
 	if (litConfig.type != null) {
@@ -181,8 +232,12 @@ function validateLitPropertyConfig(
 			// Suggest types to use and include "{attribute: false}" if the @property type is ARRAY or OBJECT
 			const acceptedTypeText = joinArray(
 				[
-					...acceptedTypeKinds().map(kind => `'{type: ${toLitPropertyTypeString(kind)}}'`),
-					...(isAssignableTo("ARRAY") || isAssignableTo("OBJECT") ? ["'{attribute: false}'"] : [])
+					...acceptedTypeKinds().map(
+						kind => `'{type: ${toLitPropertyTypeString(kind)}}'`
+					),
+					...(isAssignableTo("ARRAY") || isAssignableTo("OBJECT")
+						? ["'{attribute: false}'"]
+						: [])
 				],
 				", ",
 				"or"

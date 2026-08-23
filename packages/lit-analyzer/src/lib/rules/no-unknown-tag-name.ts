@@ -38,7 +38,10 @@ const rule: RuleModule = {
 			context.report({
 				location: rangeFromHtmlNode(htmlNode),
 				message: `Unknown tag <${htmlNode.tagName}>.`,
-				fixMessage: suggestedName == null ? undefined : `Did you mean <${suggestedName}>?`,
+				fixMessage:
+					suggestedName == null
+						? undefined
+						: `Did you mean <${suggestedName}>?`,
 				suggestion,
 				fix:
 					suggestedName == null

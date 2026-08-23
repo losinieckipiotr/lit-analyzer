@@ -3,7 +3,10 @@ import { dirname } from "path";
 import * as tsModule from "typescript";
 import { setTypescriptModule } from "../../lib/analyze/ts-module.js";
 
-type TestFunction = (title: string, implementation: ImplementationFn<unknown[]>) => void;
+type TestFunction = (
+	title: string,
+	implementation: ImplementationFn<unknown[]>
+) => void;
 
 const TS_MODULES_ALL = ["current", "5.2"] as const;
 
@@ -88,7 +91,12 @@ export function getCurrentTsModuleDirectory(): string {
  * @param title
  * @param cb
  */
-function setupTest(testFunction: TestFunction, tsModuleKind: TsModuleKind | undefined, title: string, cb: ImplementationFn<unknown[]>) {
+function setupTest(
+	testFunction: TestFunction,
+	tsModuleKind: TsModuleKind | undefined,
+	title: string,
+	cb: ImplementationFn<unknown[]>
+) {
 	// Generate title based on the ts module
 	const version = getTsModuleWithKind(tsModuleKind).version;
 	const titleWithModule = `[ts${version}] ${title}`;
@@ -120,7 +128,10 @@ function setupTest(testFunction: TestFunction, tsModuleKind: TsModuleKind | unde
  * @param cb
  */
 function setupTests(
-	testFunction: (title: string, implementation: ImplementationFn<unknown[]>) => void,
+	testFunction: (
+		title: string,
+		implementation: ImplementationFn<unknown[]>
+	) => void,
 	title: string,
 	cb: ImplementationFn<unknown[]>
 ) {
@@ -129,7 +140,9 @@ function setupTests(
 		const currentTsModuleKind = getCurrentTsModuleKind();
 
 		// Default to running all ts modules if TS_MODULE is not set
-		return currentTsModuleKind != null ? [currentTsModuleKind] : TS_MODULES_DEFAULT;
+		return currentTsModuleKind != null
+			? [currentTsModuleKind]
+			: TS_MODULES_DEFAULT;
 	})();
 
 	// Set up tests for each ts module

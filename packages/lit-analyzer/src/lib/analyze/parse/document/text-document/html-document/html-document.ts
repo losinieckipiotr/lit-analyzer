@@ -13,10 +13,15 @@ export class HtmlDocument extends TextDocument {
 		super(virtualDocument);
 	}
 
-	htmlAttrAreaAtOffset(offset: DocumentOffset | DocumentRange): HtmlNode | undefined {
+	htmlAttrAreaAtOffset(
+		offset: DocumentOffset | DocumentRange
+	): HtmlNode | undefined {
 		return this.mapFindOne(node => {
 			const offsetNum = typeof offset === "number" ? offset : offset.end;
-			if (offsetNum > node.location.name.end && intersects(offset, node.location.startTag)) {
+			if (
+				offsetNum > node.location.name.end &&
+				intersects(offset, node.location.startTag)
+			) {
 				// Check if the position intersects any attributes. Break if so.
 				for (const htmlAttr of node.attributes) {
 					if (intersects(offset, htmlAttr.location)) {
@@ -30,23 +35,36 @@ export class HtmlDocument extends TextDocument {
 		});
 	}
 
-	htmlAttrAssignmentAtOffset(offset: DocumentOffset | DocumentRange): HtmlNodeAttr | undefined {
+	htmlAttrAssignmentAtOffset(
+		offset: DocumentOffset | DocumentRange
+	): HtmlNodeAttr | undefined {
 		return this.findAttr(attr =>
-			attr.assignment != null && attr.assignment.location != null ? intersects(offset, attr.assignment.location) : false
+			attr.assignment != null && attr.assignment.location != null
+				? intersects(offset, attr.assignment.location)
+				: false
 		);
 	}
 
-	htmlAttrNameAtOffset(offset: DocumentOffset | DocumentRange): HtmlNodeAttr | undefined {
+	htmlAttrNameAtOffset(
+		offset: DocumentOffset | DocumentRange
+	): HtmlNodeAttr | undefined {
 		return this.findAttr(attr => intersects(offset, attr.location.name));
 	}
 
-	htmlNodeNameAtOffset(offset: DocumentOffset | DocumentRange): HtmlNode | undefined {
+	htmlNodeNameAtOffset(
+		offset: DocumentOffset | DocumentRange
+	): HtmlNode | undefined {
 		return this.findNode(
-			node => intersects(offset, node.location.name) || (node.location.endTag != null && intersects(offset, node.location.endTag))
+			node =>
+				intersects(offset, node.location.name) ||
+				(node.location.endTag != null &&
+					intersects(offset, node.location.endTag))
 		);
 	}
 
-	htmlNodeOrAttrAtOffset(offset: DocumentOffset | DocumentRange): HtmlNode | HtmlNodeAttr | undefined {
+	htmlNodeOrAttrAtOffset(
+		offset: DocumentOffset | DocumentRange
+	): HtmlNode | HtmlNodeAttr | undefined {
 		const htmlNode = this.htmlNodeNameAtOffset(offset);
 		if (htmlNode != null) return htmlNode;
 
@@ -69,7 +87,10 @@ export class HtmlDocument extends TextDocument {
 				// Break as soon as we find a node that starts AFTER the offset.
 				// The closestNode would now be the previous found node.
 				return true;
-			} else if (node.location.endTag == null || offset < node.location.endTag.end) {
+			} else if (
+				node.location.endTag == null ||
+				offset < node.location.endTag.end
+			) {
 				// Save closest node if the node doesn't have an end tag of the node ends AFTER the offset.
 				closestNode = node;
 			}

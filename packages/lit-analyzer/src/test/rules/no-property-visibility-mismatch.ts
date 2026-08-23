@@ -3,13 +3,20 @@ import { hasDiagnostic, hasNoDiagnostics } from "../helpers/assert.js";
 import { tsTest } from "../helpers/ts-test.js";
 import { TestFile } from "../helpers/compile-files.js";
 
-function makeTestElement({ properties }: { properties?: Array<{ visibility: string; name: string; internal: boolean }> }): TestFile {
+function makeTestElement({
+	properties
+}: {
+	properties?: Array<{ visibility: string; name: string; internal: boolean }>;
+}): TestFile {
 	return {
 		fileName: "my-element.ts",
 		text: `
 		class MyElement extends HTMElement {
 			${(properties || [])
-				.map(({ name, visibility, internal }) => `@${internal ? "internalProperty" : "property"}() ${visibility} ${name}: any;`)
+				.map(
+					({ name, visibility, internal }) =>
+						`@${internal ? "internalProperty" : "property"}() ${visibility} ${name}: any;`
+				)
 				.join("\n")}
 		};
 		customElements.define("my-element", MyElement);

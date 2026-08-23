@@ -14,10 +14,14 @@ import {
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { lazy } from "../util/general-util.js";
 
-export function getUserConfigHtmlCollection(config: LitAnalyzerConfig): HtmlDataCollection {
+export function getUserConfigHtmlCollection(
+	config: LitAnalyzerConfig
+): HtmlDataCollection {
 	const collection = (() => {
 		let collection: HtmlDataCollection = { tags: [], global: {} };
-		for (const customHtmlData of Array.isArray(config.customHtmlData) ? config.customHtmlData : [config.customHtmlData]) {
+		for (const customHtmlData of Array.isArray(config.customHtmlData)
+			? config.customHtmlData
+			: [config.customHtmlData]) {
 			try {
 				const data: HTMLDataV1 =
 					typeof customHtmlData === "string" && existsSync(customHtmlData)
@@ -27,8 +31,14 @@ export function getUserConfigHtmlCollection(config: LitAnalyzerConfig): HtmlData
 				collection = {
 					tags: mergeHtmlTags([...collection.tags, ...parsedCollection.tags]),
 					global: {
-						attributes: mergeHtmlAttrs([...(collection.global.attributes || []), ...(parsedCollection.global.attributes || [])]),
-						events: mergeHtmlEvents([...(collection.global.events || []), ...(parsedCollection.global.events || [])])
+						attributes: mergeHtmlAttrs([
+							...(collection.global.attributes || []),
+							...(parsedCollection.global.attributes || [])
+						]),
+						events: mergeHtmlEvents([
+							...(collection.global.events || []),
+							...(parsedCollection.global.events || [])
+						])
 					}
 				};
 			} catch (e) {

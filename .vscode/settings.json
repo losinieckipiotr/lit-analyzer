@@ -1,10 +1,13 @@
 {
-	"js/ts.tsdk.path": "node_modules/typescript/lib",
-	"editor.wordWrapColumn": 100,
+	// "js/ts.tsdk.path": "node_modules/typescript/lib",
+	"editor.wordWrapColumn": 80,
 	"editor.rulers": [
 		{
-			"column": 100
+			"column": 80
 		}
 	],
-	"editor.formatOnSave": true
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always"
+	}
 }

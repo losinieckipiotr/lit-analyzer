@@ -1,6 +1,6 @@
 import * as tsModule from "typescript";
-import tsServerModule from "typescript/lib/tsserverlibrary.js";
 import { Node, Program, SourceFile } from "typescript";
+import tsServerModule from "typescript/lib/tsserverlibrary.js";
 
 interface IVisitDependenciesContext {
 	program: Program;
@@ -20,7 +20,10 @@ interface IVisitDependenciesContext {
  * @param sourceFile
  * @param context
  */
-export function visitIndirectImportsFromSourceFile(sourceFile: SourceFile, context: IVisitDependenciesContext): void {
+export function visitIndirectImportsFromSourceFile(
+	sourceFile: SourceFile,
+	context: IVisitDependenciesContext
+): void {
 	const currentDepth = context.depth ?? 0;
 
 	// Emit a visit. If this file has been seen already, the function will return false, and traversal will stop
@@ -28,12 +31,16 @@ export function visitIndirectImportsFromSourceFile(sourceFile: SourceFile, conte
 		return;
 	}
 
-	const inExternal = context.program.isSourceFileFromExternalLibrary(sourceFile);
+	const inExternal =
+		context.program.isSourceFileFromExternalLibrary(sourceFile);
 
 	// Check if we have traversed too deep
 	if (inExternal && currentDepth >= (context.maxExternalDepth ?? Infinity)) {
 		return;
-	} else if (!inExternal && currentDepth >= (context.maxInternalDepth ?? Infinity)) {
+	} else if (
+		!inExternal &&
+		currentDepth >= (context.maxInternalDepth ?? Infinity)
+	) {
 		return;
 	}
 
@@ -106,12 +113,22 @@ export function visitIndirectImportsFromSourceFile(sourceFile: SourceFile, conte
  * @param node
  * @param context
  */
-function visitDirectImports(node: Node, context: IVisitDependenciesContext): void {
+function visitDirectImports(
+	node: Node,
+	context: IVisitDependenciesContext
+): void {
 	if (node == null) return;
 
 	// Handle top level imports/exports: (import "..."), (import { ... } from "..."), (export * from "...")
-	if ((context.ts.isImportDeclaration(node) && !node.importClause?.isTypeOnly) || (context.ts.isExportDeclaration(node) && !node.isTypeOnly)) {
-		if (node.moduleSpecifier != null && context.ts.isStringLiteral(node.moduleSpecifier) && context.ts.isSourceFile(node.parent)) {
+	if (
+		(context.ts.isImportDeclaration(node) && !node.importClause?.isTypeOnly) ||
+		(context.ts.isExportDeclaration(node) && !node.isTypeOnly)
+	) {
+		if (
+			node.moduleSpecifier != null &&
+			context.ts.isStringLiteral(node.moduleSpecifier) &&
+			context.ts.isSourceFile(node.parent)
+		) {
 			// Potentially ignore all imports/exports with named imports/exports because importing an interface would not
 			//    necessarily result in the custom element being defined. An even better solution would be to ignore all
 			//    import declarations with only interface-like/type-alias imports.
@@ -124,9 +141,15 @@ function visitDirectImports(node: Node, context: IVisitDependenciesContext): voi
 	}
 
 	// Handle async imports (await import(...))
-	else if (context.ts.isCallExpression(node) && node.expression.kind === context.ts.SyntaxKind.ImportKeyword) {
+	else if (
+		context.ts.isCallExpression(node) &&
+		node.expression.kind === context.ts.SyntaxKind.ImportKeyword
+	) {
 		const moduleSpecifier = node.arguments[0];
-		if (moduleSpecifier != null && context.ts.isStringLiteralLike(moduleSpecifier)) {
+		if (
+			moduleSpecifier != null &&
+			context.ts.isStringLiteralLike(moduleSpecifier)
+		) {
 			emitDirectModuleImportWithName(moduleSpecifier.text, node, context);
 		}
 	}
@@ -144,29 +167,66 @@ interface MaybeModernProgram extends tsModule.Program {
  * @param node
  * @param context
  */
-function emitDirectModuleImportWithName(moduleSpecifier: string, node: Node, context: IVisitDependenciesContext) {
+function emitDirectModuleImportWithName(
+	moduleSpecifier: string,
+	node: Node,
+	context: IVisitDependenciesContext
+) {
 	const fromSourceFile = node.getSourceFile();
 
 	// Resolve the imported string
 	let result: tsModule.ResolvedModuleWithFailedLookupLocations | undefined;
 
-	if (context.project && "getResolvedModuleWithFailedLookupLocationsFromCache" in context.project) {
+	if (
+		context.project &&
+		"getResolvedModuleWithFailedLookupLocationsFromCache" in context.project
+	) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		result = (context.project as any).getResolvedModuleWithFailedLookupLocationsFromCache(moduleSpecifier, fromSourceFile.fileName);
-	} else if ("getResolvedModuleWithFailedLookupLocationsFromCache" in context.program) {
+		const { project } = context as { project: any };
+		result = project.getResolvedModuleWithFailedLookupLocationsFromCache(
+			moduleSpecifier,
+			fromSourceFile.fileName
+		);
+	} else if (
+		"getResolvedModuleWithFailedLookupLocationsFromCache" in context.program
+	) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		result = (context.program as any)["getResolvedModuleWithFailedLookupLocationsFromCache"](moduleSpecifier, fromSourceFile.fileName);
+		const { program } = context as { program: any };
+		result = program["getResolvedModuleWithFailedLookupLocationsFromCache"](
+			moduleSpecifier,
+			fromSourceFile.fileName
+		);
 	} else {
-		const cache = (context.program as MaybeModernProgram).getModuleResolutionCache?.();
-		let mode: tsModule.ModuleKind.CommonJS | tsModule.ModuleKind.ESNext | undefined = undefined;
-		if (context.ts.isImportDeclaration(node) || context.ts.isExportDeclaration(node)) {
-			if (node.moduleSpecifier != null && context.ts.isStringLiteral(node.moduleSpecifier) && context.ts.isSourceFile(node.parent)) {
-				mode = tsModule.getModeForUsageLocation(fromSourceFile, node.moduleSpecifier, context.program.getCompilerOptions());
+		const cache = (
+			context.program as MaybeModernProgram
+		).getModuleResolutionCache?.();
+		let mode:
+			tsModule.ModuleKind.CommonJS | tsModule.ModuleKind.ESNext | undefined =
+			undefined;
+		if (
+			context.ts.isImportDeclaration(node) ||
+			context.ts.isExportDeclaration(node)
+		) {
+			if (
+				node.moduleSpecifier != null &&
+				context.ts.isStringLiteral(node.moduleSpecifier) &&
+				context.ts.isSourceFile(node.parent)
+			) {
+				mode = tsModule.getModeForUsageLocation(
+					fromSourceFile,
+					node.moduleSpecifier,
+					context.program.getCompilerOptions()
+				);
 			}
 		}
 
 		if (cache != null) {
-			result = context.ts.resolveModuleNameFromCache(moduleSpecifier, node.getSourceFile().fileName, cache, mode);
+			result = context.ts.resolveModuleNameFromCache(
+				moduleSpecifier,
+				node.getSourceFile().fileName,
+				cache,
+				mode
+			);
 		}
 		if (result == null) {
 			// Result could not be found from the cache, try and resolve module without using the
@@ -182,7 +242,9 @@ function emitDirectModuleImportWithName(moduleSpecifier: string, node: Node, con
 
 	if (result?.resolvedModule?.resolvedFileName != null) {
 		const resolvedModule = result.resolvedModule;
-		const sourceFile = context.program.getSourceFile(resolvedModule.resolvedFileName);
+		const sourceFile = context.program.getSourceFile(
+			resolvedModule.resolvedFileName
+		);
 		if (sourceFile != null) {
 			context.emitDirectImport?.(sourceFile);
 		}
@@ -195,10 +257,15 @@ function emitDirectModuleImportWithName(moduleSpecifier: string, node: Node, con
  * @param sourceFile
  * @param ts
  */
-export function isFacadeModule(sourceFile: SourceFile, ts: typeof tsModule): boolean {
+export function isFacadeModule(
+	sourceFile: SourceFile,
+	ts: typeof tsModule
+): boolean {
 	const statements = sourceFile.statements;
 	const isFacade = statements.every(statement => {
-		return ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement);
+		return (
+			ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)
+		);
 	});
 	return isFacade;
 }

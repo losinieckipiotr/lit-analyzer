@@ -1,11 +1,20 @@
 import { Expression, Node, TaggedTemplateExpression } from "typescript";
 import { tsModule } from "../../../ts-module.js";
-import { DocumentOffset, DocumentRange, Range, SourceFilePosition, SourceFileRange } from "../../../types/range.js";
+import {
+	DocumentOffset,
+	DocumentRange,
+	Range,
+	SourceFilePosition,
+	SourceFileRange
+} from "../../../types/range.js";
 import { intersects, makeSourceFileRange } from "../../../util/range-util.js";
 import { VirtualDocument } from "./virtual-document.js";
 
 function getPartLength(part: Node): number {
-	const end = part.parent && tsModule.ts.isTemplateSpan(part.parent) ? part.parent.literal.getStart() : part.getEnd();
+	const end =
+		part.parent && tsModule.ts.isTemplateSpan(part.parent)
+			? part.parent.literal.getStart()
+			: part.getEnd();
 	return end - part.getFullStart();
 }
 
@@ -25,12 +34,21 @@ export class VirtualAstDocument implements VirtualDocument {
 				const isLastPart = i >= this.parts.length - 1;
 
 				if (typeof part === "string") {
-					str += part.substring(i === 0 ? 0 : 1, part.length - (isLastPart ? 0 : 2));
+					str += part.substring(
+						i === 0 ? 0 : 1,
+						part.length - (isLastPart ? 0 : 2)
+					);
 					prevPart = part;
 				} else {
 					const length = getPartLength(part) + 3;
 					const expressionIndex = (i - 1) / 2;
-					const substitution = this.substituteExpression(length, part, prevPart, this.parts[i + 1] as string, expressionIndex);
+					const substitution = this.substituteExpression(
+						length,
+						part,
+						prevPart,
+						this.parts[i + 1] as string,
+						expressionIndex
+					);
 					str += substitution;
 				}
 			});
@@ -65,7 +83,8 @@ export class VirtualAstDocument implements VirtualDocument {
 				};
 
 				if (
-					(range.start < literalPartRange.start && range.end > literalPartRange.end) ||
+					(range.start < literalPartRange.start &&
+						range.end > literalPartRange.end) ||
 					intersects(range.start + 1, literalPartRange) ||
 					intersects(range.end - 1, literalPartRange)
 				) {
@@ -100,24 +119,39 @@ export class VirtualAstDocument implements VirtualDocument {
 		return this.location.start + offset;
 	}
 
-	constructor(parts: (Expression | string)[], location: SourceFileRange, fileName: string);
+	constructor(
+		parts: (Expression | string)[],
+		location: SourceFileRange,
+		fileName: string
+	);
 	constructor(astNode: TaggedTemplateExpression);
-	constructor(astNodeOrParts: TaggedTemplateExpression | (Expression | string)[], location?: SourceFileRange, fileName?: string) {
+	constructor(
+		astNodeOrParts: TaggedTemplateExpression | (Expression | string)[],
+		location?: SourceFileRange,
+		fileName?: string
+	) {
 		if (Array.isArray(astNodeOrParts)) {
 			this.parts = astNodeOrParts.map((p, i) =>
-				typeof p === "string" ? `${i !== 0 ? "}" : ""}${p}${i !== astNodeOrParts.length - 1 ? "${" : ""}` : p
+				typeof p === "string"
+					? `${i !== 0 ? "}" : ""}${p}${i !== astNodeOrParts.length - 1 ? "${" : ""}`
+					: p
 			);
 			this.location = location!;
 			this.fileName = fileName!;
 		} else {
-			const { expressionParts, literalParts } = getPartsFromTaggedTemplate(astNodeOrParts);
+			const { expressionParts, literalParts } =
+				getPartsFromTaggedTemplate(astNodeOrParts);
 
 			// Text contains both the ` of the template string and ${  +  }.
 			// Strip these chars and make it possible to substitute even ${ and }!
 			this.parts = [];
 			literalParts.forEach((p, i) => {
 				const expressionPart = expressionParts[i];
-				this.parts.push(p.getText().slice(i === 0 ? 1 : 0, expressionPart == null ? -1 : undefined));
+				this.parts.push(
+					p
+						.getText()
+						.slice(i === 0 ? 1 : 0, expressionPart == null ? -1 : undefined)
+				);
 				if (expressionPart != null) this.parts.push(expressionPart);
 			});
 
@@ -130,9 +164,17 @@ export class VirtualAstDocument implements VirtualDocument {
 		}
 	}
 
-	protected substituteExpression(length: number, expression: Expression, prev: string, next: string | undefined, index: number): string {
+	protected substituteExpression(
+		length: number,
+		expression: Expression,
+		prev: string,
+		next: string | undefined,
+		index: number
+	): string {
 		if (length < 4) {
-			throw new Error("Internal error: unexpected expression length: " + length);
+			throw new Error(
+				"Internal error: unexpected expression length: " + length
+			);
 		}
 		const indexString = index.toString(36);
 		if (indexString.length > length - 2) {
@@ -157,7 +199,10 @@ export class VirtualAstDocument implements VirtualDocument {
 	}
 }
 
-function getPartsFromTaggedTemplate(astNode: TaggedTemplateExpression): { expressionParts: Expression[]; literalParts: Node[] } {
+function getPartsFromTaggedTemplate(astNode: TaggedTemplateExpression): {
+	expressionParts: Expression[];
+	literalParts: Node[];
+} {
 	const expressionParts: Expression[] = [];
 	const literalParts: Node[] = [];
 

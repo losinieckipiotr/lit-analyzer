@@ -1,4 +1,9 @@
-import { isAssignableToSimpleTypeKind, SimpleType, typeToString, validateType } from "ts-simple-type";
+import {
+	isAssignableToSimpleTypeKind,
+	SimpleType,
+	typeToString,
+	validateType
+} from "ts-simple-type";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
@@ -43,7 +48,11 @@ function isTypeBindableToEventListener(type: SimpleType): boolean {
 	}
 
 	// Callable types can be used in the binding
-	if (isAssignableToSimpleTypeKind(type, ["FUNCTION", "METHOD", "UNKNOWN"], { matchAny: true })) {
+	if (
+		isAssignableToSimpleTypeKind(type, ["FUNCTION", "METHOD", "UNKNOWN"], {
+			matchAny: true
+		})
+	) {
 		return true;
 	}
 
@@ -53,7 +62,10 @@ function isTypeBindableToEventListener(type: SimpleType): boolean {
 			case "OBJECT":
 			case "INTERFACE": {
 				// The "handleEvent" property must be present
-				const handleEventFunction = simpleType.members != null ? simpleType.members.find(m => m.name === "handleEvent") : undefined;
+				const handleEventFunction =
+					simpleType.members != null
+						? simpleType.members.find(m => m.name === "handleEvent")
+						: undefined;
 
 				// The "handleEvent" property must be callable
 				if (handleEventFunction != null) {

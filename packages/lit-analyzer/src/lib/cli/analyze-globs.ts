@@ -13,8 +13,14 @@ const DEFAULT_DIR_GLOB = "**/*.{js,jsx,ts,tsx}";
 export interface AnalyzeGlobsContext {
 	didExpandGlobs?(filePaths: string[]): void;
 	willAnalyzeFiles?(filePaths: string[]): void;
-	didFindTypescriptDiagnostics?(diagnostics: readonly Diagnostic[], options: { program: Program }): void;
-	analyzeSourceFile?(file: SourceFile, options: { program: Program }): void | boolean;
+	didFindTypescriptDiagnostics?(
+		diagnostics: readonly Diagnostic[],
+		options: { program: Program }
+	): void;
+	analyzeSourceFile?(
+		file: SourceFile,
+		options: { program: Program }
+	): void | boolean;
 }
 
 /**
@@ -23,7 +29,11 @@ export interface AnalyzeGlobsContext {
  * @param config
  * @param context
  */
-export async function analyzeGlobs(globs: string[], config: LitAnalyzerCliConfig, context: AnalyzeGlobsContext = {}): Promise<CompileResult> {
+export async function analyzeGlobs(
+	globs: string[],
+	config: LitAnalyzerCliConfig,
+	context: AnalyzeGlobsContext = {}
+): Promise<CompileResult> {
 	// Expand the globs
 	const filePaths = await expandGlobs(globs);
 

@@ -1,9 +1,15 @@
 import { HtmlAttrTarget } from "../parse/parse-html-data/html-tag.js";
 import { AnalyzerHtmlStore } from "../store/analyzer-html-store.js";
-import { HtmlNodeAttr, HtmlNodeAttrKind } from "../types/html-node/html-node-attr-types.js";
+import {
+	HtmlNodeAttr,
+	HtmlNodeAttrKind
+} from "../types/html-node/html-node-attr-types.js";
 import { findBestMatch } from "./find-best-match.js";
 
-export function suggestTargetForHtmlAttr(htmlNodeAttr: HtmlNodeAttr, htmlStore: AnalyzerHtmlStore): HtmlAttrTarget | undefined {
+export function suggestTargetForHtmlAttr(
+	htmlNodeAttr: HtmlNodeAttr,
+	htmlStore: AnalyzerHtmlStore
+): HtmlAttrTarget | undefined {
 	const properties = htmlStore.getAllPropertiesForTag(htmlNodeAttr.htmlNode);
 	const attributes = htmlStore.getAllAttributesForTag(htmlNodeAttr.htmlNode);
 	const events = htmlStore.getAllEventsForTag(htmlNodeAttr.htmlNode);
@@ -19,7 +25,10 @@ export function suggestTargetForHtmlAttr(htmlNodeAttr: HtmlNodeAttr, htmlStore: 
 	}
 }
 
-function findSuggestedTarget(name: string, tests: Iterable<HtmlAttrTarget>[]): HtmlAttrTarget | undefined {
+function findSuggestedTarget(
+	name: string,
+	tests: Iterable<HtmlAttrTarget>[]
+): HtmlAttrTarget | undefined {
 	for (const test of tests) {
 		let items = [...test];
 
@@ -30,10 +39,15 @@ function findSuggestedTarget(name: string, tests: Iterable<HtmlAttrTarget>[]): H
 		} else if (name.startsWith("aria")) {
 			items = items.filter(item => item.name.startsWith("aria"));
 		} else {
-			items = items.filter(item => !item.name.startsWith("on") && !item.name.startsWith("aria"));
+			items = items.filter(
+				item => !item.name.startsWith("on") && !item.name.startsWith("aria")
+			);
 		}
 
-		const match = findBestMatch(name, items, { matchKey: "name", caseSensitive: false });
+		const match = findBestMatch(name, items, {
+			matchKey: "name",
+			caseSensitive: false
+		});
 		if (match != null) {
 			return match;
 		}

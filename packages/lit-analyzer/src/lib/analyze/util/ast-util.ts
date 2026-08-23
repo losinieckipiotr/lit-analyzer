@@ -8,12 +8,18 @@ import { intersects } from "./range-util.js";
  * @param node
  * @param test
  */
-export function findParent<T = Node>(node: Node | undefined, test: (node: Node) => boolean): T | undefined {
+export function findParent<T = Node>(
+	node: Node | undefined,
+	test: (node: Node) => boolean
+): T | undefined {
 	if (node == null) return;
 	return test(node) ? (node as unknown as T) : findParent(node.parent, test);
 }
 
-export function findChild<T = Node>(node: Node | undefined, test: (node: Node) => boolean): T | undefined {
+export function findChild<T = Node>(
+	node: Node | undefined,
+	test: (node: Node) => boolean
+): T | undefined {
 	if (!node) return;
 	if (test(node)) return node as unknown as T;
 	return node.forEachChild(child => findChild(child, test));
@@ -24,7 +30,10 @@ export function findChild<T = Node>(node: Node | undefined, test: (node: Node) =
  * @param node
  * @param position
  */
-export function getNodeAtPosition(node: Node, position: number | Range): Node | undefined {
+export function getNodeAtPosition(
+	node: Node,
+	position: number | Range
+): Node | undefined {
 	if (!intersects(position, { start: node.pos, end: node.end })) {
 		return;
 	}
@@ -51,7 +60,11 @@ export function nodeIntersects(nodeA: Node, nodeB: Node): boolean {
  * @param pos
  * @param needle
  */
-export function leadingCommentsIncludes(text: string, pos: number, needle: string): boolean {
+export function leadingCommentsIncludes(
+	text: string,
+	pos: number,
+	needle: string
+): boolean {
 	// Get the leading comments to the position.
 	const leadingComments = tsModule.ts.getLeadingCommentRanges(text, pos);
 
@@ -72,7 +85,10 @@ export function leadingCommentsIncludes(text: string, pos: number, needle: strin
  * @param node
  * @param ts
  */
-export function getNodeIdentifier(node: Node, ts: typeof tsModule.ts): Identifier | undefined {
+export function getNodeIdentifier(
+	node: Node,
+	ts: typeof tsModule.ts
+): Identifier | undefined {
 	if (ts.isIdentifier(node)) {
 		return node;
 	} else if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {

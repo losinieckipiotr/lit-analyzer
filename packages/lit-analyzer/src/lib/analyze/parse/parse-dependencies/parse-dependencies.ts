@@ -15,7 +15,10 @@ const IMPORTED_SOURCE_FILES_CACHE = new WeakMap<SourceFile, Set<SourceFile>>();
  * @param sourceFile
  * @param context
  */
-export function parseDependencies(sourceFile: SourceFile, context: LitAnalyzerContext): ComponentDefinition[] {
+export function parseDependencies(
+	sourceFile: SourceFile,
+	context: LitAnalyzerContext
+): ComponentDefinition[] {
 	if (RESULT_CACHE.has(sourceFile)) {
 		let invalidate = false;
 
@@ -65,7 +68,10 @@ export function parseDependencies(sourceFile: SourceFile, context: LitAnalyzerCo
 export function parseAllIndirectImports(
 	sourceFile: SourceFile,
 	context: LitAnalyzerContext,
-	{ maxExternalDepth, maxInternalDepth }: { maxExternalDepth?: number; maxInternalDepth?: number } = {}
+	{
+		maxExternalDepth,
+		maxInternalDepth
+	}: { maxExternalDepth?: number; maxInternalDepth?: number } = {}
 ): Set<SourceFile> {
 	const importedSourceFiles = new Set<SourceFile>();
 
@@ -74,7 +80,8 @@ export function parseAllIndirectImports(
 		program: context.program,
 		ts: context.ts,
 		directImportCache: DIRECT_IMPORT_CACHE,
-		maxExternalDepth: maxExternalDepth ?? context.config.maxNodeModuleImportDepth,
+		maxExternalDepth:
+			maxExternalDepth ?? context.config.maxNodeModuleImportDepth,
 		maxInternalDepth: maxInternalDepth ?? context.config.maxProjectImportDepth,
 		emitIndirectImport(file: SourceFile): boolean {
 			if (importedSourceFiles.has(file)) {

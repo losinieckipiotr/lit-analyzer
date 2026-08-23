@@ -91,7 +91,12 @@ export class Logger extends DefaultLitAnalyzerLogger {
 			} catch {
 				// ignore
 			}
-			this.tsLogger?.msg(`[ts-lit-plugin] ${message}`, level === LitAnalyzerLoggerLevel.ERROR ? tsServer.server.Msg.Err : tsServer.server.Msg.Info);
+			this.tsLogger?.msg(
+				`[ts-lit-plugin] ${message}`,
+				level === LitAnalyzerLoggerLevel.ERROR
+					? tsServer.server.Msg.Err
+					: tsServer.server.Msg.Info
+			);
 		}
 	}
 

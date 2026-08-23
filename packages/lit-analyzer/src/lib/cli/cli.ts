@@ -1,4 +1,8 @@
-import { ALL_RULE_IDS, LitAnalyzerRuleId, LitAnalyzerRules } from "../analyze/lit-analyzer-config.js";
+import {
+	ALL_RULE_IDS,
+	LitAnalyzerRuleId,
+	LitAnalyzerRules
+} from "../analyze/lit-analyzer-config.js";
 import { analyzeCommand } from "./analyze-command.js";
 import { LitAnalyzerCliConfig } from "./lit-analyzer-cli-config.js";
 import { parseCliArguments } from "./parse-cli-arguments.js";

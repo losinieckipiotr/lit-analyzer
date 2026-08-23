@@ -1,4 +1,6 @@
-export function mapMerge<K, T>(...maps: (Map<K, T> | Map<K, T>[])[]): Map<K, T> {
+export function mapMerge<K, T>(
+	...maps: (Map<K, T> | Map<K, T>[])[]
+): Map<K, T> {
 	return new Map(
 		(function* () {
 			for (const map of maps) {
@@ -14,7 +16,10 @@ export function mapMerge<K, T>(...maps: (Map<K, T> | Map<K, T>[])[]): Map<K, T> 
 	);
 }
 
-export function mapMap<K, T, U>(map: Map<K, T>, callback: (key: K, val: T) => U): Map<K, U> {
+export function mapMap<K, T, U>(
+	map: Map<K, T>,
+	callback: (key: K, val: T) => U
+): Map<K, U> {
 	return new Map(
 		(function* () {
 			for (const [key, val] of map.entries()) {
@@ -24,7 +29,10 @@ export function mapMap<K, T, U>(map: Map<K, T>, callback: (key: K, val: T) => U)
 	);
 }
 
-export function arrayToMap<K, T>(array: T[], callback: (val: T) => K): Map<K, T> {
+export function arrayToMap<K, T>(
+	array: T[],
+	callback: (val: T) => K
+): Map<K, T> {
 	return new Map(
 		(function* () {
 			for (const val of array) {

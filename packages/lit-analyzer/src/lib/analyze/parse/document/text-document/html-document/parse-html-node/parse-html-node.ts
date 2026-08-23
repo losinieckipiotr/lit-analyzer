@@ -1,7 +1,16 @@
 import { TS_IGNORE_FLAG } from "../../../../../constants.js";
-import { HtmlNode, HtmlNodeKind, IHtmlNodeBase, IHtmlNodeSourceCodeLocation } from "../../../../../types/html-node/html-node-types.js";
+import {
+	HtmlNode,
+	HtmlNodeKind,
+	IHtmlNodeBase,
+	IHtmlNodeSourceCodeLocation
+} from "../../../../../types/html-node/html-node-types.js";
 import { isCommentNode, isTagNode } from "../parse-html-p5/parse-html.js";
-import { getSourceLocation, IP5TagNode, P5Node } from "../parse-html-p5/parse-html-types.js";
+import {
+	getSourceLocation,
+	IP5TagNode,
+	P5Node
+} from "../parse-html-p5/parse-html-types.js";
 import { parseHtmlNodeAttrs } from "./parse-html-attribute.js";
 import { ParseHtmlContext } from "./parse-html-context.js";
 
@@ -11,7 +20,11 @@ import { ParseHtmlContext } from "./parse-html-context.js";
  * @param parent
  * @param context
  */
-export function parseHtmlNodes(p5Nodes: P5Node[], parent: HtmlNode | undefined, context: ParseHtmlContext): HtmlNode[] {
+export function parseHtmlNodes(
+	p5Nodes: P5Node[],
+	parent: HtmlNode | undefined,
+	context: ParseHtmlContext
+): HtmlNode[] {
 	const htmlNodes: HtmlNode[] = [];
 	let ignoreNextNode = false;
 	for (const p5Node of p5Nodes) {
@@ -43,7 +56,11 @@ export function parseHtmlNodes(p5Nodes: P5Node[], parent: HtmlNode | undefined, 
  * @param parent
  * @param context
  */
-export function parseHtmlNode(p5Node: IP5TagNode, parent: HtmlNode | undefined, context: ParseHtmlContext): HtmlNode | undefined {
+export function parseHtmlNode(
+	p5Node: IP5TagNode,
+	parent: HtmlNode | undefined,
+	context: ParseHtmlContext
+): HtmlNode | undefined {
 	// `sourceCodeLocation` will be undefined if the element was implicitly created by the parser.
 	if (getSourceLocation(p5Node) == null) return undefined;
 
@@ -61,7 +78,11 @@ export function parseHtmlNode(p5Node: IP5TagNode, parent: HtmlNode | undefined, 
 
 	// Don't parse children of <style> and <svg> as of now
 	if (htmlNode.kind === HtmlNodeKind.NODE) {
-		htmlNode.children = parseHtmlNodes(p5Node.childNodes || [], htmlNode, context);
+		htmlNode.children = parseHtmlNodes(
+			p5Node.childNodes || [],
+			htmlNode,
+			context
+		);
 	}
 
 	htmlNode.attributes = parseHtmlNodeAttrs(p5Node, { ...context, htmlNode });
@@ -76,7 +97,9 @@ export function parseHtmlNode(p5Node: IP5TagNode, parent: HtmlNode | undefined, 
  */
 function isSelfClosed(p5Node: IP5TagNode, context: ParseHtmlContext) {
 	const isEmpty = p5Node.childNodes == null || p5Node.childNodes.length === 0;
-	const isSelfClosed = getSourceLocation(p5Node)!.startTag!.endOffset === getSourceLocation(p5Node)!.endOffset;
+	const isSelfClosed =
+		getSourceLocation(p5Node)!.startTag!.endOffset ===
+		getSourceLocation(p5Node)!.endOffset;
 	return isEmpty && isSelfClosed;
 }
 
@@ -85,7 +108,10 @@ function isSelfClosed(p5Node: IP5TagNode, context: ParseHtmlContext) {
  * @param p5Node
  * @param context
  */
-function makeHtmlNodeLocation(p5Node: IP5TagNode, context: ParseHtmlContext): IHtmlNodeSourceCodeLocation {
+function makeHtmlNodeLocation(
+	p5Node: IP5TagNode,
+	context: ParseHtmlContext
+): IHtmlNodeSourceCodeLocation {
 	const loc = getSourceLocation(p5Node)!;
 
 	return {

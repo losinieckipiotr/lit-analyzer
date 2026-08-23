@@ -21,7 +21,8 @@ const rule: RuleModule = {
 		if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
 
 		// Ignore element expressions
-		if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION) return;
+		if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION)
+			return;
 
 		const { typeA, typeB } = extractBindingTypes(assignment, context);
 
@@ -30,7 +31,13 @@ const rule: RuleModule = {
 
 		// Only primitive types should be allowed as "typeB"
 		if (!isAssignableToPrimitiveType(typeB)) {
-			if (isAssignableBindingUnderSecuritySystem(htmlAttr, { typeA, typeB }, context) !== undefined) {
+			if (
+				isAssignableBindingUnderSecuritySystem(
+					htmlAttr,
+					{ typeA, typeB },
+					context
+				) !== undefined
+			) {
 				// This is binding via a security sanitization system, let it do
 				// this check. Apparently complex values are OK to assign here.
 				return;

@@ -6,11 +6,15 @@ import { ParseHtmlContext } from "./parse-html-node/parse-html-context.js";
 import { parseHtmlNodes } from "./parse-html-node/parse-html-node.js";
 import { parseHtml } from "./parse-html-p5/parse-html.js";
 
-export function parseHtmlDocuments(nodes: TaggedTemplateExpression[]): HtmlDocument[] {
+export function parseHtmlDocuments(
+	nodes: TaggedTemplateExpression[]
+): HtmlDocument[] {
 	return nodes.map(parseHtmlDocument);
 }
 
-export function parseHtmlDocument(node: TaggedTemplateExpression): HtmlDocument {
+export function parseHtmlDocument(
+	node: TaggedTemplateExpression
+): HtmlDocument {
 	const virtualDocument = new VirtualAstHtmlDocument(node);
 	const html = virtualDocument.text;
 	const htmlAst = parseHtml(html);

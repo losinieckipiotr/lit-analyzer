@@ -1,6 +1,14 @@
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import { CompilerHost, CompilerOptions, ModuleKind, Program, ScriptKind, ScriptTarget, SourceFile } from "typescript";
+import {
+	CompilerHost,
+	CompilerOptions,
+	ModuleKind,
+	Program,
+	ScriptKind,
+	ScriptTarget,
+	SourceFile
+} from "typescript";
 import { getCurrentTsModule, getCurrentTsModuleDirectory } from "./ts-test.js";
 
 // tslint:disable:no-any
@@ -17,10 +25,15 @@ export type TestFile = ITestFile | string;
 /**
  * Compiles 'virtual' files with Typescript
  */
-export function compileFiles(inputFiles: TestFile[] | TestFile = []): { program: Program; sourceFile: SourceFile } {
+export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
+	program: Program;
+	sourceFile: SourceFile;
+} {
 	const ts = getCurrentTsModule();
 
-	const files: ITestFile[] = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
+	const files: ITestFile[] = (
+		Array.isArray(inputFiles) ? inputFiles : [inputFiles]
+	)
 		.map(file =>
 			typeof file === "string"
 				? {
@@ -30,7 +43,9 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): { program:
 					}
 				: {
 						...file,
-						fileName: file.fileName || `auto-generated-${Math.floor(Math.random() * 100000)}.ts`
+						fileName:
+							file.fileName ||
+							`auto-generated-${Math.floor(Math.random() * 100000)}.ts`
 					}
 		)
 		.map(file => ({ ...file, fileName: file.fileName }));
@@ -40,13 +55,17 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): { program:
 	const includeLib = true; //files.find(file => file.includeLib) != null;
 
 	const readFile = (fileName: string): string | undefined => {
-		const matchedFile = files.find(currentFile => currentFile.fileName === fileName);
+		const matchedFile = files.find(
+			currentFile => currentFile.fileName === fileName
+		);
 		if (matchedFile != null) {
 			return matchedFile.text;
 		}
 
 		if (includeLib) {
-			fileName = fileName.match(/[/\\]/) ? fileName : join(getCurrentTsModuleDirectory(), fileName);
+			fileName = fileName.match(/[/\\]/)
+				? fileName
+				: join(getCurrentTsModuleDirectory(), fileName);
 		}
 
 		if (existsSync(fileName)) {
@@ -71,11 +90,20 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): { program:
 		writeFile: () => {},
 		readFile,
 		fileExists,
-		getSourceFile(fileName: string, languageVersion: ScriptTarget): SourceFile | undefined {
+		getSourceFile(
+			fileName: string,
+			languageVersion: ScriptTarget
+		): SourceFile | undefined {
 			const sourceText = this.readFile(fileName);
 			if (sourceText == null) return undefined;
 
-			return ts.createSourceFile(fileName, sourceText, languageVersion, true, ScriptKind.TS);
+			return ts.createSourceFile(
+				fileName,
+				sourceText,
+				languageVersion,
+				true,
+				ScriptKind.TS
+			);
 		},
 
 		getCurrentDirectory() {
@@ -91,7 +119,9 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): { program:
 		},
 
 		getCanonicalFileName(fileName: string): string {
-			return this.useCaseSensitiveFileNames() ? fileName : fileName.toLowerCase();
+			return this.useCaseSensitiveFileNames()
+				? fileName
+				: fileName.toLowerCase();
 		},
 
 		getNewLine(): string {
@@ -105,19 +135,27 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): { program:
 
 	const program = ts.createProgram({
 		//rootNames: [...files.map(file => file.fileName!), "node_modules/typescript/lib/lib.dom.d.ts"],
-		rootNames: [...files.map(file => file.fileName!), ...(includeLib ? ["node_modules/typescript/lib/lib.dom.d.ts"] : [])],
+		rootNames: [
+			...files.map(file => file.fileName!),
+			...(includeLib ? ["node_modules/typescript/lib/lib.dom.d.ts"] : [])
+		],
 		//rootNames: files.map(file => file.fileName!),
 		options: compilerOptions,
 		host: compilerHost
 	});
 
 	// We need to overwrite this so the traversal of external modules can be tested.
-	program.isSourceFileFromExternalLibrary = (sourceFile: SourceFile): boolean => {
+	program.isSourceFileFromExternalLibrary = (
+		sourceFile: SourceFile
+	): boolean => {
 		const filename = sourceFile.fileName;
 		return filename.includes("node_modules");
 	};
 
-	const entrySourceFile = entryFile.fileName != null ? program.getSourceFile(entryFile.fileName)! : program.getSourceFiles()[0];
+	const entrySourceFile =
+		entryFile.fileName != null
+			? program.getSourceFile(entryFile.fileName)!
+			: program.getSourceFiles()[0];
 
 	return {
 		program,

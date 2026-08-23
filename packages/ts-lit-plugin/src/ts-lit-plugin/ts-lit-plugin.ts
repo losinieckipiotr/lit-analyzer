@@ -45,79 +45,123 @@ export class TsLitPlugin {
 	// version of TypeScript with more parameters, and we want to pass them
 	// through in that case.
 
-	getCompletionEntryDetails(...args: Parameters<LanguageService["getCompletionEntryDetails"]>): CompletionEntryDetails | undefined {
+	getCompletionEntryDetails(
+		...args: Parameters<LanguageService["getCompletionEntryDetails"]>
+	): CompletionEntryDetails | undefined {
 		const [fileName, position, name] = args;
 		const file = this.program.getSourceFile(fileName)!;
-		const result = this.litAnalyzer.getCompletionDetailsAtPosition(file, position, name);
-		return (result && translateCompletionDetails(result, this.context)) || this.prevLangService.getCompletionEntryDetails(...args);
+		const result = this.litAnalyzer.getCompletionDetailsAtPosition(
+			file,
+			position,
+			name
+		);
+		return (
+			(result && translateCompletionDetails(result, this.context)) ||
+			this.prevLangService.getCompletionEntryDetails(...args)
+		);
 	}
 
-	getCompletionsAtPosition(...args: Parameters<LanguageService["getCompletionsAtPosition"]>): CompletionInfo | undefined {
+	getCompletionsAtPosition(
+		...args: Parameters<LanguageService["getCompletionsAtPosition"]>
+	): CompletionInfo | undefined {
 		const [fileName, position] = args;
 		const file = this.program.getSourceFile(fileName)!;
 		const result = this.litAnalyzer.getCompletionsAtPosition(file, position);
-		return (result && translateCompletions(result)) || this.prevLangService.getCompletionsAtPosition(...args);
+		return (
+			(result && translateCompletions(result)) ||
+			this.prevLangService.getCompletionsAtPosition(...args)
+		);
 	}
 
-	getSemanticDiagnostics(...args: Parameters<LanguageService["getSemanticDiagnostics"]>): Diagnostic[] {
+	getSemanticDiagnostics(
+		...args: Parameters<LanguageService["getSemanticDiagnostics"]>
+	): Diagnostic[] {
 		const [fileName] = args;
 		const file = this.program.getSourceFile(fileName)!;
 
 		const result = this.litAnalyzer.getDiagnosticsInFile(file);
-		const prevResult = this.prevLangService.getSemanticDiagnostics(...args) || [];
+		const prevResult =
+			this.prevLangService.getSemanticDiagnostics(...args) || [];
 
 		return [...prevResult, ...translateDiagnostics(result, file, this.context)];
 	}
 
-	getDefinitionAndBoundSpan(...args: Parameters<LanguageService["getDefinitionAndBoundSpan"]>): DefinitionInfoAndBoundSpan | undefined {
+	getDefinitionAndBoundSpan(
+		...args: Parameters<LanguageService["getDefinitionAndBoundSpan"]>
+	): DefinitionInfoAndBoundSpan | undefined {
 		const [fileName, position] = args;
 		const file = this.program.getSourceFile(fileName)!;
 		const definition = this.litAnalyzer.getDefinitionAtPosition(file, position);
-		return (definition && translateDefinition(definition)) || this.prevLangService.getDefinitionAndBoundSpan(...args);
+		return (
+			(definition && translateDefinition(definition)) ||
+			this.prevLangService.getDefinitionAndBoundSpan(...args)
+		);
 	}
 
-	getCodeFixesAtPosition(...args: Parameters<LanguageService["getCodeFixesAtPosition"]>): readonly CodeFixAction[] {
+	getCodeFixesAtPosition(
+		...args: Parameters<LanguageService["getCodeFixesAtPosition"]>
+	): readonly CodeFixAction[] {
 		const [fileName, start, end] = args;
 		const file = this.program.getSourceFile(fileName)!;
 
-		const prevResult = this.prevLangService.getCodeFixesAtPosition(...args) || [];
-		const codeFixes = translateCodeFixes(this.litAnalyzer.getCodeFixesAtPositionRange(file, { start, end }), file);
+		const prevResult =
+			this.prevLangService.getCodeFixesAtPosition(...args) || [];
+		const codeFixes = translateCodeFixes(
+			this.litAnalyzer.getCodeFixesAtPositionRange(file, { start, end }),
+			file
+		);
 
 		return [...prevResult, ...codeFixes];
 	}
 
-	getQuickInfoAtPosition(...args: Parameters<LanguageService["getQuickInfoAtPosition"]>): QuickInfo | undefined {
+	getQuickInfoAtPosition(
+		...args: Parameters<LanguageService["getQuickInfoAtPosition"]>
+	): QuickInfo | undefined {
 		const [fileName, position] = args;
 		const file = this.program.getSourceFile(fileName)!;
 		const quickInfo = this.litAnalyzer.getQuickInfoAtPosition(file, position);
-		return (quickInfo && translateQuickInfo(quickInfo)) || this.prevLangService.getQuickInfoAtPosition(...args);
+		return (
+			(quickInfo && translateQuickInfo(quickInfo)) ||
+			this.prevLangService.getQuickInfoAtPosition(...args)
+		);
 	}
 
-	getOutliningSpans(...args: Parameters<LanguageService["getOutliningSpans"]>): OutliningSpan[] {
+	getOutliningSpans(
+		...args: Parameters<LanguageService["getOutliningSpans"]>
+	): OutliningSpan[] {
 		const [fileName] = args;
 		const file = this.program.getSourceFile(fileName)!;
 
 		const prev = this.prevLangService.getOutliningSpans(...args);
-		const outliningSpans = translateOutliningSpans(this.litAnalyzer.getOutliningSpansInFile(file));
+		const outliningSpans = translateOutliningSpans(
+			this.litAnalyzer.getOutliningSpansInFile(file)
+		);
 
 		return [...prev, ...outliningSpans];
 	}
 
-	getJsxClosingTagAtPosition(...args: Parameters<LanguageService["getJsxClosingTagAtPosition"]>): JsxClosingTagInfo | undefined {
+	getJsxClosingTagAtPosition(
+		...args: Parameters<LanguageService["getJsxClosingTagAtPosition"]>
+	): JsxClosingTagInfo | undefined {
 		const [fileName, position] = args;
 		const file = this.program.getSourceFile(fileName)!;
 		const result = this.litAnalyzer.getClosingTagAtPosition(file, position);
 		return result || this.prevLangService.getJsxClosingTagAtPosition(...args);
 	}
 
-	getSignatureHelpItems(...args: Parameters<LanguageService["getSignatureHelpItems"]>): SignatureHelpItems | undefined {
+	getSignatureHelpItems(
+		...args: Parameters<LanguageService["getSignatureHelpItems"]>
+	): SignatureHelpItems | undefined {
 		const result = this.prevLangService.getSignatureHelpItems(...args);
 
 		// Test if the signature is "html" or "css
 		// Don't return a signature if trying to show signature for the html/css tagged template literal
 		if (result != null && result.items.length === 1) {
 			const displayPart = result.items[0].prefixDisplayParts[0];
-			if (displayPart.kind === "aliasName" && (displayPart.text === "html" || displayPart.text === "css")) {
+			if (
+				displayPart.kind === "aliasName" &&
+				(displayPart.text === "html" || displayPart.text === "css")
+			) {
 				return undefined;
 			}
 		}
@@ -148,17 +192,19 @@ export class TsLitPlugin {
 		findInComments: boolean,
 		preferencesOrProvidePrefixAndSuffixTextForRename?: UserPreferences | boolean
 	): readonly RenameLocation[] | undefined {
-		const args = [fileName, position, findInStrings, findInComments, preferencesOrProvidePrefixAndSuffixTextForRename] as [
-			string,
-			number,
-			boolean,
-			boolean,
-			UserPreferences
-		];
+		const args = [
+			fileName,
+			position,
+			findInStrings,
+			findInComments,
+			preferencesOrProvidePrefixAndSuffixTextForRename
+		] as [string, number, boolean, boolean, UserPreferences];
 		const file = this.program.getSourceFile(fileName)!;
 
 		const prev = this.prevLangService.findRenameLocations(...args);
-		const renameLocations = translateRenameLocations(this.litAnalyzer.getRenameLocationsAtPosition(file, position));
+		const renameLocations = translateRenameLocations(
+			this.litAnalyzer.getRenameLocationsAtPosition(file, position)
+		);
 
 		if (prev == null) {
 			return renameLocations;
@@ -167,14 +213,21 @@ export class TsLitPlugin {
 		return [...prev, ...renameLocations];
 	}
 
-	getRenameInfo(...args: Parameters<LanguageService["getRenameInfo"]>): RenameInfo {
+	getRenameInfo(
+		...args: Parameters<LanguageService["getRenameInfo"]>
+	): RenameInfo {
 		const [fileName, position] = args;
 		const file = this.program.getSourceFile(fileName)!;
 		const result = this.litAnalyzer.getRenameInfoAtPosition(file, position);
-		return (result && translateRenameInfo(result)) || this.prevLangService.getRenameInfo(...args);
+		return (
+			(result && translateRenameInfo(result)) ||
+			this.prevLangService.getRenameInfo(...args)
+		);
 	}
 
-	getFormattingEditsForRange(...args: Parameters<LanguageService["getFormattingEditsForRange"]>): TextChange[] {
+	getFormattingEditsForRange(
+		...args: Parameters<LanguageService["getFormattingEditsForRange"]>
+	): TextChange[] {
 		const [fileName, , , settings] = args;
 		const prev = this.prevLangService.getFormattingEditsForRange(...args);
 		// Return previous result if we need to skip formatting.
@@ -183,7 +236,9 @@ export class TsLitPlugin {
 		}
 
 		const file = this.program.getSourceFile(fileName)!;
-		const edits = translateFormatEdits(this.litAnalyzer.getFormatEditsInFile(file, settings));
+		const edits = translateFormatEdits(
+			this.litAnalyzer.getFormatEditsInFile(file, settings)
+		);
 
 		return [...prev, ...edits];
 	}

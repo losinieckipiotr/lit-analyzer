@@ -10,7 +10,11 @@ export function isAssignableInPropertyBinding(
 	{ typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
 	context: RuleModuleContext
 ): boolean | undefined {
-	const securitySystemResult = isAssignableBindingUnderSecuritySystem(htmlAttr, { typeA, typeB }, context);
+	const securitySystemResult = isAssignableBindingUnderSecuritySystem(
+		htmlAttr,
+		{ typeA, typeB },
+		context
+	);
 	if (securitySystemResult !== undefined) {
 		// The security diagnostics take precedence here,
 		//   and we should not do any more checking.

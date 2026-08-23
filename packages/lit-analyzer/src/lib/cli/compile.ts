@@ -77,7 +77,10 @@ export function getCompilerOptions(): CompilerOptions {
 		};
 		// set module resolution to nodejs if it is classic
 		// but if the user has set it to something else, don't override it
-		if (!options.moduleResolution || options.moduleResolution === ModuleResolutionKind.Classic) {
+		if (
+			!options.moduleResolution ||
+			options.moduleResolution === ModuleResolutionKind.Classic
+		) {
 			options.moduleResolution = ModuleResolutionKind.NodeJs;
 		}
 		return options;
@@ -92,14 +95,24 @@ export function getCompilerOptions(): CompilerOptions {
  */
 export function resolveTsConfigCompilerOptions(): CompilerOptions | undefined {
 	// Find the nearest tsconfig.json file if possible
-	const tsConfigFilePath = findConfigFile(process.cwd(), existsSync, "tsconfig.json");
+	const tsConfigFilePath = findConfigFile(
+		process.cwd(),
+		existsSync,
+		"tsconfig.json"
+	);
 
 	if (tsConfigFilePath != null) {
 		// Read the tsconfig.json file
-		const parsedConfig = readConfigFile(tsConfigFilePath, path => readFileSync(path, "utf8"));
+		const parsedConfig = readConfigFile(tsConfigFilePath, path =>
+			readFileSync(path, "utf8")
+		);
 		if (parsedConfig != null && parsedConfig.config != null) {
 			// Parse the tsconfig.json file
-			const parsedJson = parseJsonConfigFileContent(parsedConfig.config, sys, process.cwd());
+			const parsedJson = parseJsonConfigFileContent(
+				parsedConfig.config,
+				sys,
+				process.cwd()
+			);
 			return parsedJson?.options;
 		}
 	}
@@ -110,13 +123,18 @@ export function resolveTsConfigCompilerOptions(): CompilerOptions | undefined {
 /**
  * Resolves the nearest tsconfig.json and returns the configuration seed within the plugins section for "ts-lit-plugin"
  */
-export function readLitAnalyzerConfigFromTsConfig(): Partial<LitAnalyzerConfig> | undefined {
+export function readLitAnalyzerConfigFromTsConfig():
+	Partial<LitAnalyzerConfig> | undefined {
 	const compilerOptions = resolveTsConfigCompilerOptions();
 
 	// Finds the plugin section
 	if (compilerOptions != null && "plugins" in compilerOptions) {
-		const plugins = compilerOptions.plugins as ({ name: string } & Partial<LitAnalyzerConfig>)[];
-		const tsLitPluginOptions = plugins.find(plugin => plugin.name === "ts-lit-plugin");
+		const plugins = compilerOptions.plugins as ({
+			name: string;
+		} & Partial<LitAnalyzerConfig>)[];
+		const tsLitPluginOptions = plugins.find(
+			plugin => plugin.name === "ts-lit-plugin"
+		);
 		if (tsLitPluginOptions != null) {
 			return tsLitPluginOptions;
 		}

@@ -1,8 +1,15 @@
 import { SourceFile, TaggedTemplateExpression } from "typescript";
-import { HtmlNodeKind, IHtmlNodeStyleTag } from "../../types/html-node/html-node-types.js";
+import {
+	HtmlNodeKind,
+	IHtmlNodeStyleTag
+} from "../../types/html-node/html-node-types.js";
 import { SourceFilePosition } from "../../types/range.js";
 import { arrayFlat } from "../../util/array-util.js";
-import { documentRangeToSFRange, intersects, makeDocumentRange } from "../../util/range-util.js";
+import {
+	documentRangeToSFRange,
+	intersects,
+	makeDocumentRange
+} from "../../util/range-util.js";
 import { findTaggedTemplates } from "../tagged-template/find-tagged-templates.js";
 import { CssDocument } from "./text-document/css-document/css-document.js";
 import { HtmlDocument } from "./text-document/html-document/html-document.js";
@@ -15,7 +22,10 @@ export interface ParseDocumentOptions {
 	htmlTags: string[];
 }
 
-export function parseDocumentsInSourceFile(sourceFile: SourceFile, options: ParseDocumentOptions): TextDocument[];
+export function parseDocumentsInSourceFile(
+	sourceFile: SourceFile,
+	options: ParseDocumentOptions
+): TextDocument[];
 export function parseDocumentsInSourceFile(
 	sourceFile: SourceFile,
 	options: ParseDocumentOptions,
@@ -28,7 +38,11 @@ export function parseDocumentsInSourceFile(
 ): TextDocument[] | TextDocument | undefined {
 	// Parse html tags in the relevant source file
 	const templateTags = [...options.cssTags, ...options.htmlTags];
-	const taggedTemplates = findTaggedTemplates(sourceFile, templateTags, position);
+	const taggedTemplates = findTaggedTemplates(
+		sourceFile,
+		templateTags,
+		position
+	);
 	let result: TextDocument[] | TextDocument | undefined = undefined;
 
 	if (taggedTemplates == null) {
@@ -45,7 +59,10 @@ export function parseDocumentsInSourceFile(
 		return arrayFlat(
 			result.map(document => {
 				const res = unpackHtmlDocument(document, position);
-				return [document, ...(res == null ? [] : Array.isArray(res) ? res : [res])];
+				return [
+					document,
+					...(res == null ? [] : Array.isArray(res) ? res : [res])
+				];
 			})
 		);
 	} else {
@@ -58,7 +75,10 @@ export function parseDocumentsInSourceFile(
 	return result;
 }
 
-function taggedTemplateToDocument(taggedTemplate: TaggedTemplateExpression, { cssTags }: ParseDocumentOptions): TextDocument {
+function taggedTemplateToDocument(
+	taggedTemplate: TaggedTemplateExpression,
+	{ cssTags }: ParseDocumentOptions
+): TextDocument {
 	const tag = taggedTemplate.tag.getText();
 	if (cssTags.includes(tag)) {
 		return new CssDocument(new VirtualAstCssDocument(taggedTemplate));
@@ -67,24 +87,42 @@ function taggedTemplateToDocument(taggedTemplate: TaggedTemplateExpression, { cs
 	}
 }
 
-function unpackHtmlDocument(textDocument: TextDocument, position: SourceFilePosition): TextDocument | undefined;
-function unpackHtmlDocument(textDocument: TextDocument, position?: SourceFilePosition): TextDocument | TextDocument[];
-function unpackHtmlDocument(textDocument: TextDocument, position?: SourceFilePosition): TextDocument[] | TextDocument | undefined {
+function unpackHtmlDocument(
+	textDocument: TextDocument,
+	position: SourceFilePosition
+): TextDocument | undefined;
+function unpackHtmlDocument(
+	textDocument: TextDocument,
+	position?: SourceFilePosition
+): TextDocument | TextDocument[];
+function unpackHtmlDocument(
+	textDocument: TextDocument,
+	position?: SourceFilePosition
+): TextDocument[] | TextDocument | undefined {
 	const documents: TextDocument[] = [];
 
 	if (textDocument instanceof HtmlDocument) {
 		for (const rootNode of textDocument.rootNodes) {
-			if (rootNode.kind === HtmlNodeKind.STYLE && rootNode.location.endTag != null) {
+			if (
+				rootNode.kind === HtmlNodeKind.STYLE &&
+				rootNode.location.endTag != null
+			) {
 				if (position == null) {
-					const nestedDocument = styleHtmlNodeToCssDocument(textDocument, rootNode);
+					const nestedDocument = styleHtmlNodeToCssDocument(
+						textDocument,
+						rootNode
+					);
 					if (nestedDocument != null) {
 						documents.push(nestedDocument);
 					}
 				} else if (
-					intersects(textDocument.virtualDocument.sfPositionToDocumentOffset(position), {
-						start: rootNode.location.startTag.end,
-						end: rootNode.location.endTag.start
-					})
+					intersects(
+						textDocument.virtualDocument.sfPositionToDocumentOffset(position),
+						{
+							start: rootNode.location.startTag.end,
+							end: rootNode.location.endTag.start
+						}
+					)
 				) {
 					return styleHtmlNodeToCssDocument(textDocument, rootNode);
 				}
@@ -97,7 +135,10 @@ function unpackHtmlDocument(textDocument: TextDocument, position?: SourceFilePos
 	return documents;
 }
 
-function styleHtmlNodeToCssDocument(htmlDocument: HtmlDocument, styleNode: IHtmlNodeStyleTag): CssDocument | undefined {
+function styleHtmlNodeToCssDocument(
+	htmlDocument: HtmlDocument,
+	styleNode: IHtmlNodeStyleTag
+): CssDocument | undefined {
 	if (styleNode.location.endTag == null) return undefined;
 
 	const cssDocumentParts = htmlDocument.virtualDocument.getPartsAtDocumentRange(

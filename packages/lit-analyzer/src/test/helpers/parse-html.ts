@@ -10,7 +10,9 @@ export function parseHtml(html: string): HtmlDocument {
 	return parseHtmlDocument(taggedTemplateExpression);
 }
 
-function findTaggedTemplateExpression(node: Node): TaggedTemplateExpression | undefined {
+function findTaggedTemplateExpression(
+	node: Node
+): TaggedTemplateExpression | undefined {
 	if (getCurrentTsModule().isTaggedTemplateExpression(node)) {
 		return node;
 	}

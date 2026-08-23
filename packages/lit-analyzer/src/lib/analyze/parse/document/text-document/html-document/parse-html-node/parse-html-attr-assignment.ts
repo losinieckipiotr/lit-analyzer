@@ -1,8 +1,15 @@
 import { Expression } from "typescript";
-import { HtmlNodeAttrAssignment, HtmlNodeAttrAssignmentKind } from "../../../../../types/html-node/html-node-attr-assignment-types.js";
+import {
+	HtmlNodeAttrAssignment,
+	HtmlNodeAttrAssignmentKind
+} from "../../../../../types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../../../../../types/html-node/html-node-attr-types.js";
 import { Range } from "../../../../../types/range.js";
-import { getSourceLocation, IP5NodeAttr, IP5TagNode } from "../parse-html-p5/parse-html-types.js";
+import {
+	getSourceLocation,
+	IP5NodeAttr,
+	IP5TagNode
+} from "../parse-html-p5/parse-html-types.js";
 import { ParseHtmlContext } from "./parse-html-context.js";
 
 /**
@@ -68,7 +75,12 @@ export function parseHtmlAttrAssignment(
 	}
 }
 
-function getAssignmentLocation(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, htmlAttr: HtmlNodeAttr, context: ParseHtmlContext): Range | undefined {
+function getAssignmentLocation(
+	p5Node: IP5TagNode,
+	p5Attr: IP5NodeAttr,
+	htmlAttr: HtmlNodeAttr,
+	context: ParseHtmlContext
+): Range | undefined {
 	const sourceLocation = getSourceLocation(p5Node);
 	if (sourceLocation == null) {
 		return undefined;
@@ -79,7 +91,10 @@ function getAssignmentLocation(p5Node: IP5TagNode, p5Attr: IP5NodeAttr, htmlAttr
 
 	const nameEndOffset = htmlAttr.location.name.end;
 
-	const htmlAfterName = context.html.substring(nameEndOffset, htmlAttrLocation.endOffset);
+	const htmlAfterName = context.html.substring(
+		nameEndOffset,
+		htmlAttrLocation.endOffset
+	);
 
 	const firstQuote = indexOfRegExp(htmlAfterName, /^([\s=]*)(['"])/);
 	const lastQuote = indexOfRegExp(htmlAfterName, /['"]\s*$/);

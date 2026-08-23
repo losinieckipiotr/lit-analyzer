@@ -1,5 +1,8 @@
 import { LitAnalyzerConfig } from "../analyze/lit-analyzer-config.js";
-import { HtmlTag, litAttributeModifierForTarget } from "../analyze/parse/parse-html-data/html-tag.js";
+import {
+	HtmlTag,
+	litAttributeModifierForTarget
+} from "../analyze/parse/parse-html-data/html-tag.js";
 import { AnalyzerDefinitionStore } from "../analyze/store/analyzer-definition-store.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { HtmlNodeKind } from "../analyze/types/html-node/html-node-types.js";
@@ -33,14 +36,24 @@ const rule: RuleModule = {
 
 			// Get suggested target
 			const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
-			const suggestedMemberName = (suggestedTarget && `${litAttributeModifierForTarget(suggestedTarget)}${suggestedTarget.name}`) || undefined;
+			const suggestedMemberName =
+				(suggestedTarget &&
+					`${litAttributeModifierForTarget(suggestedTarget)}${suggestedTarget.name}`) ||
+				undefined;
 
-			const suggestion = getSuggestionText({ config, definitionStore, htmlTag });
+			const suggestion = getSuggestionText({
+				config,
+				definitionStore,
+				htmlTag
+			});
 
 			context.report({
 				location: rangeFromHtmlNodeAttr(htmlAttr),
 				message: `Unknown event '${htmlAttr.name}'.`,
-				fixMessage: suggestedMemberName == null ? undefined : `Did you mean '${suggestedMemberName}'?`,
+				fixMessage:
+					suggestedMemberName == null
+						? undefined
+						: `Did you mean '${suggestedMemberName}'?`,
 				suggestion,
 				fix:
 					suggestedMemberName == null

@@ -13,7 +13,10 @@ const rule: RuleModule = {
 	},
 	visitComponentDefinition(definition, context) {
 		// Don't run this rule on non-typescript files and declaration files
-		if (context.file.isDeclarationFile || !context.file.fileName.endsWith(".ts")) {
+		if (
+			context.file.isDeclarationFile ||
+			!context.file.fileName.endsWith(".ts")
+		) {
 			return;
 		}
 
@@ -23,7 +26,10 @@ const rule: RuleModule = {
 			node =>
 				findParent(
 					node,
-					node => context.ts.isInterfaceDeclaration(node) && context.ts.isModuleBlock(node.parent) && node.name.getText() === "HTMLElementTagNameMap"
+					node =>
+						context.ts.isInterfaceDeclaration(node) &&
+						context.ts.isModuleBlock(node.parent) &&
+						node.name.getText() === "HTMLElementTagNameMap"
 				) != null
 		);
 
@@ -33,7 +39,10 @@ const rule: RuleModule = {
 		}
 
 		// Find the identifier node
-		const declarationIdentifier = definition.declaration != null ? getNodeIdentifier(definition.declaration.node, context.ts) : undefined;
+		const declarationIdentifier =
+			definition.declaration != null
+				? getNodeIdentifier(definition.declaration.node, context.ts)
+				: undefined;
 		if (declarationIdentifier == null) {
 			return;
 		}
@@ -53,7 +62,9 @@ const rule: RuleModule = {
 								kind: "extendGlobalDeclaration",
 								file: context.file,
 								name: "HTMLElementTagNameMap",
-								newMembers: [`"${definition.tagName}": ${declarationIdentifier.text}`]
+								newMembers: [
+									`"${definition.tagName}": ${declarationIdentifier.text}`
+								]
 							}
 						]
 					};

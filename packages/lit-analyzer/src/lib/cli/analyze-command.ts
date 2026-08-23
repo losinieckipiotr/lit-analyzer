@@ -3,14 +3,23 @@ import { appendFileSync, writeFileSync } from "fs";
 import { Program, SourceFile } from "typescript";
 import { DefaultLitAnalyzerContext } from "../analyze/default-lit-analyzer-context.js";
 import { LitAnalyzer } from "../analyze/lit-analyzer.js";
-import { LitAnalyzerConfig, makeConfig } from "../analyze/lit-analyzer-config.js";
+import {
+	LitAnalyzerConfig,
+	makeConfig
+} from "../analyze/lit-analyzer-config.js";
 import { analyzeGlobs } from "./analyze-globs.js";
 import { readLitAnalyzerConfigFromTsConfig } from "./compile.js";
 import { CodeDiagnosticFormatter } from "./format/code-diagnostic-formatter.js";
-import { AnalysisStats, DiagnosticFormatter } from "./format/diagnostic-formatter.js";
+import {
+	AnalysisStats,
+	DiagnosticFormatter
+} from "./format/diagnostic-formatter.js";
 import { ListDiagnosticFormatter } from "./format/list-diagnostic-formatter.js";
 import { MarkdownDiagnosticFormatter } from "./format/markdown-formatter.js";
-import { FormatterFormat, LitAnalyzerCliConfig } from "./lit-analyzer-cli-config.js";
+import {
+	FormatterFormat,
+	LitAnalyzerCliConfig
+} from "./lit-analyzer-cli-config.js";
 
 function printText(text: string, config: LitAnalyzerCliConfig) {
 	if (config.outFile != null) {
@@ -26,7 +35,10 @@ function printText(text: string, config: LitAnalyzerCliConfig) {
  * @param globs
  * @param cliConfig
  */
-export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliConfig): Promise<boolean> {
+export async function analyzeCommand(
+	globs: string[],
+	cliConfig: LitAnalyzerCliConfig
+): Promise<boolean> {
 	let program: Program | undefined = undefined;
 	const context = new DefaultLitAnalyzerContext({
 		getProgram() {
@@ -63,7 +75,13 @@ export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliC
 
 	const analyzer = new LitAnalyzer(context);
 
-	const stats: AnalysisStats = { errors: 0, warnings: 0, filesWithProblems: 0, totalFiles: 0, diagnostics: 0 };
+	const stats: AnalysisStats = {
+		errors: 0,
+		warnings: 0,
+		filesWithProblems: 0,
+		totalFiles: 0,
+		diagnostics: 0
+	};
 
 	const formatter = getFormatter(cliConfig.format || "code");
 
@@ -76,7 +94,9 @@ export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliC
 				console.log(`\n${chalk.red("  ✖ Couldn't find any files to analyze")}`);
 			} else {
 				// eslint-disable-next-line no-console
-				console.log(`Analyzing ${filePaths.length} file${filePaths.length === 1 ? "" : "s"}...`);
+				console.log(
+					`Analyzing ${filePaths.length} file${filePaths.length === 1 ? "" : "s"}...`
+				);
 			}
 		},
 		willAnalyzeFiles(filePaths: string[]): void {
@@ -85,7 +105,10 @@ export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliC
 				writeFileSync(cliConfig.outFile, "");
 			}
 		},
-		analyzeSourceFile(file: SourceFile, options: { program: Program }): void | boolean {
+		analyzeSourceFile(
+			file: SourceFile,
+			options: { program: Program }
+		): void | boolean {
 			program = options.program;
 
 			if (cliConfig.debug) {
@@ -102,10 +125,16 @@ export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliC
 			timeMap.set(file.fileName, time);
 
 			// Filter all diagnostics by "error" if "quiet" option is active
-			diagnostics = cliConfig.quiet ? diagnostics.filter(d => d.severity === "error") : diagnostics;
+			diagnostics = cliConfig.quiet
+				? diagnostics.filter(d => d.severity === "error")
+				: diagnostics;
 
 			// Print the diagnostic text based on the formatter
-			const fileDiagnosticsText = formatter.diagnosticTextForFile(file, diagnostics, cliConfig);
+			const fileDiagnosticsText = formatter.diagnosticTextForFile(
+				file,
+				diagnostics,
+				cliConfig
+			);
 			if (fileDiagnosticsText != null) {
 				printText(fileDiagnosticsText, cliConfig);
 			}
@@ -116,8 +145,14 @@ export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliC
 
 			// Add stats if there are more than 0 diagnostics
 			if (diagnostics.length > 0) {
-				stats.errors += diagnostics.reduce((sum, d) => (d.severity === "error" ? sum + 1 : sum), 0);
-				stats.warnings += diagnostics.reduce((sum, d) => (d.severity === "warning" ? sum + 1 : sum), 0);
+				stats.errors += diagnostics.reduce(
+					(sum, d) => (d.severity === "error" ? sum + 1 : sum),
+					0
+				);
+				stats.warnings += diagnostics.reduce(
+					(sum, d) => (d.severity === "warning" ? sum + 1 : sum),
+					0
+				);
 				stats.filesWithProblems += 1;
 
 				// Fail fast if "failFast" is true and the command is not successful
@@ -136,9 +171,15 @@ export async function analyzeCommand(globs: string[], cliConfig: LitAnalyzerCliC
 
 	// Print debugging
 	if (cliConfig.debug) {
-		const sortedTimeArray = Array.from(timeMap.entries()).sort(([, timeA], [, timeB]) => (timeA > timeB ? 1 : -1));
+		const sortedTimeArray = Array.from(timeMap.entries()).sort(
+			([, timeA], [, timeB]) => (timeA > timeB ? 1 : -1)
+		);
 		// eslint-disable-next-line no-console
-		console.log(sortedTimeArray.map(([fileName, time]) => `${fileName}: ${time}ms`).join("\n"));
+		console.log(
+			sortedTimeArray
+				.map(([fileName, time]) => `${fileName}: ${time}ms`)
+				.join("\n")
+		);
 	}
 
 	// Return if this command was successful or not
@@ -163,7 +204,10 @@ function getFormatter(format: FormatterFormat): DiagnosticFormatter {
  * @param stats
  * @param config
  */
-function isSuccessful(stats: AnalysisStats, config: LitAnalyzerCliConfig): boolean {
+function isSuccessful(
+	stats: AnalysisStats,
+	config: LitAnalyzerCliConfig
+): boolean {
 	const maxErrorCount = 0;
 	const maxWarningCount = config.maxWarnings != null ? config.maxWarnings : -1;
 
@@ -178,7 +222,9 @@ function isSuccessful(stats: AnalysisStats, config: LitAnalyzerCliConfig): boole
 	return true;
 }
 
-function readLitAnalyzerConfigFromCliConfig(cliConfig: LitAnalyzerCliConfig): Partial<LitAnalyzerConfig> {
+function readLitAnalyzerConfigFromCliConfig(
+	cliConfig: LitAnalyzerCliConfig
+): Partial<LitAnalyzerConfig> {
 	const config: Partial<LitAnalyzerConfig> = {};
 
 	config.rules = cliConfig.rules;

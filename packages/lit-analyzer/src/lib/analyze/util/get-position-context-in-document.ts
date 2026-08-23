@@ -16,7 +16,10 @@ export interface DocumentPositionContext {
  * @param document
  * @param offset
  */
-export function getPositionContextInDocument(document: TextDocument, offset: DocumentOffset): DocumentPositionContext {
+export function getPositionContextInDocument(
+	document: TextDocument,
+	offset: DocumentOffset
+): DocumentPositionContext {
 	const text = document.virtualDocument.text;
 
 	const stopChar = /[/=<>\s"${}():]/;

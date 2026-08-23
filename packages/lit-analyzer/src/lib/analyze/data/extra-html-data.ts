@@ -1,4 +1,8 @@
-import { SimpleType, SimpleTypeStringLiteral, SimpleTypeUnion } from "ts-simple-type";
+import {
+	SimpleType,
+	SimpleTypeStringLiteral,
+	SimpleTypeUnion
+} from "ts-simple-type";
 import { makePrimitiveArrayType } from "../util/type-util.js";
 
 const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {
@@ -239,22 +243,32 @@ const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {
 };
 
 export function hasTypeForAttrName(attrName: string): boolean {
-	return HTML_5_ATTR_TYPES[attrName] != null && HTML_5_ATTR_TYPES[attrName].length > 0;
+	return (
+		HTML_5_ATTR_TYPES[attrName] != null &&
+		HTML_5_ATTR_TYPES[attrName].length > 0
+	);
 }
 
 export function html5TagAttrType(attrName: string): SimpleType {
 	return stringToSimpleType(HTML_5_ATTR_TYPES[attrName] || "", attrName);
 }
 
-function stringToSimpleType(typeString: string | string[] | [string[]], name?: string): SimpleType {
+function stringToSimpleType(
+	typeString: string | string[] | [string[]],
+	name?: string
+): SimpleType {
 	if (Array.isArray(typeString)) {
 		if (Array.isArray(typeString[0])) {
-			return makePrimitiveArrayType(stringToSimpleType(typeString[0]) as SimpleTypeUnion);
+			return makePrimitiveArrayType(
+				stringToSimpleType(typeString[0]) as SimpleTypeUnion
+			);
 		}
 
 		return {
 			kind: "UNION",
-			types: (typeString as string[]).map(value => ({ kind: "STRING_LITERAL", value }) as SimpleTypeStringLiteral)
+			types: (typeString as string[]).map(
+				value => ({ kind: "STRING_LITERAL", value }) as SimpleTypeStringLiteral
+			)
 		};
 	}
 
@@ -299,7 +313,8 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "oncut",
-		description: "The text selection has been removed from the document and added to the clipboard."
+		description:
+			"The text selection has been removed from the document and added to the clipboard."
 	},
 	{
 		name: "ondragstart",
@@ -315,11 +330,13 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "onfullscreenchange",
-		description: "An element was turned to fullscreen mode or back to normal mode."
+		description:
+			"An element was turned to fullscreen mode or back to normal mode."
 	},
 	{
 		name: "onfullscreenerror",
-		description: "It was impossible to switch to fullscreen mode for technical reasons or because the permission was denied."
+		description:
+			"It was impossible to switch to fullscreen mode for technical reasons or because the permission was denied."
 	},
 	{
 		name: "ongotpointercapture",
@@ -335,11 +352,13 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "ononline",
-		description: "The browser has gained access to the network (but particular websites might be unreachable)."
+		description:
+			"The browser has gained access to the network (but particular websites might be unreachable)."
 	},
 	{
 		name: "onpaste",
-		description: "Data has been transferred from the system clipboard to the document."
+		description:
+			"Data has been transferred from the system clipboard to the document."
 	},
 	{
 		name: "onpointercancel",
@@ -363,7 +382,8 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "onpointerlockerror",
-		description: "It was impossible to lock the pointer for technical reasons or because the permission was denied."
+		description:
+			"It was impossible to lock the pointer for technical reasons or because the permission was denied."
 	},
 	{
 		name: "onpointermove",
@@ -371,7 +391,8 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "onpointerout",
-		description: "The pointing device moved out of hit-testing boundary or leaves detectable hover range."
+		description:
+			"The pointing device moved out of hit-testing boundary or leaves detectable hover range."
 	},
 	{
 		name: "onpointerover",
@@ -395,7 +416,8 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "ontouchcancel",
-		description: "A touch point has been disrupted in an implementation-specific manners (too many touch points for example)."
+		description:
+			"A touch point has been disrupted in an implementation-specific manners (too many touch points for example)."
 	},
 	{
 		name: "ontouchend",
@@ -415,6 +437,7 @@ export const EXTRA_HTML5_EVENTS = [
 	},
 	{
 		name: "onwheel",
-		description: "A wheel button of a pointing device is rotated in any direction."
+		description:
+			"A wheel button of a pointing device is rotated in any direction."
 	}
 ];

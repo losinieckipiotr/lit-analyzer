@@ -27,14 +27,20 @@ export function rangeFromNode(node: Node): SourceFileRange {
 	return makeSourceFileRange({ start: node.getStart(), end: node.getEnd() });
 }
 
-export function documentRangeToSFRange(document: TextDocument, range: DocumentRange | Range): SourceFileRange {
+export function documentRangeToSFRange(
+	document: TextDocument,
+	range: DocumentRange | Range
+): SourceFileRange {
 	return makeSourceFileRange({
 		start: document.virtualDocument.documentOffsetToSFPosition(range.start),
 		end: document.virtualDocument.documentOffsetToSFPosition(range.end)
 	});
 }
 
-export function sfRangeToDocumentRange(document: TextDocument, range: SourceFileRange | Range): DocumentRange {
+export function sfRangeToDocumentRange(
+	document: TextDocument,
+	range: SourceFileRange | Range
+): DocumentRange {
 	return makeDocumentRange({
 		start: document.virtualDocument.sfPositionToDocumentOffset(range.start),
 		end: document.virtualDocument.sfPositionToDocumentOffset(range.end)
@@ -49,7 +55,10 @@ export function sfRangeToDocumentRange(document: TextDocument, range: SourceFile
  */
 //export function intersects(position: SourceFilePosition | SourceFileRange, { start, end }: SourceFileRange): boolean;
 //export function intersects(position: DocumentOffset | DocumentRange, { start, end }: DocumentRange): boolean;
-export function intersects(position: number | Range, { start, end }: Range): boolean {
+export function intersects(
+	position: number | Range,
+	{ start, end }: Range
+): boolean {
 	if (typeof position === "number") {
 		return start <= position && position <= end;
 	} else {
