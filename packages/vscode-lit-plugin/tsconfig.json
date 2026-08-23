@@ -9,6 +9,7 @@
 		"lib": ["es2019"],
 		"sourceMap": true,
 		"rootDir": "src",
-		"tsBuildInfoFile": "./.tsbuildinfo"
+		"tsBuildInfoFile": "./.tsbuildinfo",
+		"types": ["mocha", "node"]
 	}
 }

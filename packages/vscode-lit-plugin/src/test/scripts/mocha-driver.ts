@@ -1,6 +1,6 @@
 import * as path from "path";
 import Mocha from "mocha";
-import glob from "glob";
+import * as glob from "glob";
 
 /**
  * Runs all tests in src/test that are named like *-test.ts with Mocha.

@@ -104,9 +104,9 @@
 		"lint-staged": "^10.2.10",
 		"nodemon": "^2.0.22",
 		"prettier": "^3.9.6",
-		"typescript": "^5.2.2",
+		"typescript": "5.9.3",
 		"typescript-eslint": "^8.66.0",
-		"wireit": "^0.9.5"
+		"wireit": "^0.10.0"
 	},
 	"husky": {
 		"hooks": {
