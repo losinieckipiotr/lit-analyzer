@@ -1,22 +1,22 @@
 import {
-	CompletionItemKind,
-	DiagnosticSeverity,
-	getCSSLanguageService,
-	getSCSSLanguageService,
-	IAtDirectiveData,
-	ICSSDataProvider,
-	IPropertyData,
-	IPseudoClassData,
-	IPseudoElementData,
-	TextDocument
+  CompletionItemKind,
+  DiagnosticSeverity,
+  getCSSLanguageService,
+  getSCSSLanguageService,
+  IAtDirectiveData,
+  ICSSDataProvider,
+  IPropertyData,
+  IPseudoClassData,
+  IPseudoElementData,
+  TextDocument
 } from "vscode-css-languageservice";
 import { isRuleDisabled } from "../../lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
 import { CssDocument } from "../../parse/document/text-document/css-document/css-document.js";
 import {
-	documentationForCssPart,
-	documentationForCssProperty,
-	documentationForHtmlTag
+  documentationForCssPart,
+  documentationForCssProperty,
+  documentationForHtmlTag
 } from "../../parse/parse-html-data/html-tag.js";
 import { AnalyzerHtmlStore } from "../../store/analyzer-html-store.js";
 import { LitCompletion } from "../../types/lit-completion.js";
@@ -26,317 +26,317 @@ import { LitTargetKind } from "../../types/lit-target-kind.js";
 import { DocumentOffset } from "../../types/range.js";
 import { lazy } from "../../util/general-util.js";
 import {
-	getPositionContextInDocument,
-	grabWordInDirection
+  getPositionContextInDocument,
+  grabWordInDirection
 } from "../../util/get-position-context-in-document.js";
 import { iterableFilter, iterableMap } from "../../util/iterable-util.js";
 import { documentRangeToSFRange } from "../../util/range-util.js";
 
 function makeVscTextDocument(cssDocument: CssDocument): TextDocument {
-	return TextDocument.create(
-		"untitled://embedded.css",
-		"css",
-		1,
-		cssDocument.virtualDocument.text
-	);
+  return TextDocument.create(
+    "untitled://embedded.css",
+    "css",
+    1,
+    cssDocument.virtualDocument.text
+  );
 }
 
 export class LitCssVscodeService {
-	private dataProvider = new LitVscodeCSSDataProvider();
+  private dataProvider = new LitVscodeCSSDataProvider();
 
-	private get cssService() {
-		return getCSSLanguageService({
-			customDataProviders: [this.dataProvider.provider]
-		});
-	}
+  private get cssService() {
+    return getCSSLanguageService({
+      customDataProviders: [this.dataProvider.provider]
+    });
+  }
 
-	private get scssService() {
-		return getSCSSLanguageService({
-			customDataProviders: [this.dataProvider.provider]
-		});
-	}
+  private get scssService() {
+    return getSCSSLanguageService({
+      customDataProviders: [this.dataProvider.provider]
+    });
+  }
 
-	getDiagnostics(
-		document: CssDocument,
-		context: LitAnalyzerContext
-	): LitDiagnostic[] {
-		if (isRuleDisabled(context.config, "no-invalid-css")) {
-			return [];
-		}
+  getDiagnostics(
+    document: CssDocument,
+    context: LitAnalyzerContext
+  ): LitDiagnostic[] {
+    if (isRuleDisabled(context.config, "no-invalid-css")) {
+      return [];
+    }
 
-		this.dataProvider.update(context.htmlStore);
+    this.dataProvider.update(context.htmlStore);
 
-		const vscTextDocument = makeVscTextDocument(document);
+    const vscTextDocument = makeVscTextDocument(document);
 
-		// Return nothing if this is a one liner css snippet.
-		// Example: css`100px`
-		if (!vscTextDocument.getText().includes("\n")) {
-			return [];
-		}
+    // Return nothing if this is a one liner css snippet.
+    // Example: css`100px`
+    if (!vscTextDocument.getText().includes("\n")) {
+      return [];
+    }
 
-		const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
-		const diagnostics = this.scssService.doValidation(
-			vscTextDocument,
-			vscStylesheet
-		);
+    const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
+    const diagnostics = this.scssService.doValidation(
+      vscTextDocument,
+      vscStylesheet
+    );
 
-		return diagnostics
-			.filter(
-				diagnostic =>
-					diagnostic.range.start.line !== 0 &&
-					diagnostic.range.start.line < vscTextDocument.lineCount - 1
-			)
-			.map(
-				diagnostic =>
-					({
-						severity:
-							diagnostic.severity === DiagnosticSeverity.Error
-								? "error"
-								: "warning",
-						source: "no-invalid-css",
-						location: documentRangeToSFRange(document, {
-							start: vscTextDocument.offsetAt(diagnostic.range.start),
-							end: vscTextDocument.offsetAt(diagnostic.range.end)
-						}),
-						message: diagnostic.message,
-						file: context.currentFile
-					}) as LitDiagnostic
-			);
-	}
+    return diagnostics
+      .filter(
+        diagnostic =>
+          diagnostic.range.start.line !== 0 &&
+          diagnostic.range.start.line < vscTextDocument.lineCount - 1
+      )
+      .map(
+        diagnostic =>
+          ({
+            severity:
+              diagnostic.severity === DiagnosticSeverity.Error
+                ? "error"
+                : "warning",
+            source: "no-invalid-css",
+            location: documentRangeToSFRange(document, {
+              start: vscTextDocument.offsetAt(diagnostic.range.start),
+              end: vscTextDocument.offsetAt(diagnostic.range.end)
+            }),
+            message: diagnostic.message,
+            file: context.currentFile
+          }) as LitDiagnostic
+      );
+  }
 
-	getQuickInfo(
-		document: CssDocument,
-		offset: DocumentOffset,
-		context: LitAnalyzerContext
-	): LitQuickInfo | undefined {
-		this.dataProvider.update(context.htmlStore);
+  getQuickInfo(
+    document: CssDocument,
+    offset: DocumentOffset,
+    context: LitAnalyzerContext
+  ): LitQuickInfo | undefined {
+    this.dataProvider.update(context.htmlStore);
 
-		const vscTextDocument = makeVscTextDocument(document);
-		const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
-		const vscPosition = vscTextDocument.positionAt(offset);
-		const hover = this.scssService.doHover(
-			vscTextDocument,
-			vscPosition,
-			vscStylesheet
-		);
-		if (hover == null || hover.range == null) return;
+    const vscTextDocument = makeVscTextDocument(document);
+    const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
+    const vscPosition = vscTextDocument.positionAt(offset);
+    const hover = this.scssService.doHover(
+      vscTextDocument,
+      vscPosition,
+      vscStylesheet
+    );
+    if (hover == null || hover.range == null) return;
 
-		const contents = Array.isArray(hover.contents)
-			? hover.contents
-			: [hover.contents];
-		let primaryInfo: string | undefined = undefined;
-		let secondaryInfo: string | undefined = undefined;
+    const contents = Array.isArray(hover.contents)
+      ? hover.contents
+      : [hover.contents];
+    let primaryInfo: string | undefined = undefined;
+    let secondaryInfo: string | undefined = undefined;
 
-		for (const content of contents) {
-			const text = typeof content === "string" ? content : content.value;
+    for (const content of contents) {
+      const text = typeof content === "string" ? content : content.value;
 
-			if (typeof content === "object" && "language" in content) {
-				if (content.language === "html") {
-					primaryInfo = `${primaryInfo == null ? "" : "\n\n"}${text}`;
-				}
-			} else {
-				secondaryInfo = text;
-			}
-		}
+      if (typeof content === "object" && "language" in content) {
+        if (content.language === "html") {
+          primaryInfo = `${primaryInfo == null ? "" : "\n\n"}${text}`;
+        }
+      } else {
+        secondaryInfo = text;
+      }
+    }
 
-		return {
-			primaryInfo: primaryInfo || "",
-			secondaryInfo,
-			range: documentRangeToSFRange(document, {
-				start: vscTextDocument.offsetAt(hover.range.start),
-				end: vscTextDocument.offsetAt(hover.range.end)
-			})
-		};
-	}
+    return {
+      primaryInfo: primaryInfo || "",
+      secondaryInfo,
+      range: documentRangeToSFRange(document, {
+        start: vscTextDocument.offsetAt(hover.range.start),
+        end: vscTextDocument.offsetAt(hover.range.end)
+      })
+    };
+  }
 
-	getCompletions(
-		document: CssDocument,
-		offset: DocumentOffset,
-		context: LitAnalyzerContext
-	): LitCompletion[] {
-		this.dataProvider.update(context.htmlStore);
+  getCompletions(
+    document: CssDocument,
+    offset: DocumentOffset,
+    context: LitAnalyzerContext
+  ): LitCompletion[] {
+    this.dataProvider.update(context.htmlStore);
 
-		const positionContext = getPositionContextInDocument(document, offset);
+    const positionContext = getPositionContextInDocument(document, offset);
 
-		// If there is ":" before the word, treat them like it's a part of the "leftWord", because ":" is a part of the name, but also a separator
-		if (positionContext.beforeWord === ":") {
-			positionContext.leftWord =
-				":" +
-				grabWordInDirection({
-					startOffset: offset - positionContext.leftWord.length - 1,
-					stopChar: /[^:]/,
-					direction: "left",
-					text: document.virtualDocument.text
-				}) +
-				positionContext.leftWord;
-		}
+    // If there is ":" before the word, treat them like it's a part of the "leftWord", because ":" is a part of the name, but also a separator
+    if (positionContext.beforeWord === ":") {
+      positionContext.leftWord =
+        ":" +
+        grabWordInDirection({
+          startOffset: offset - positionContext.leftWord.length - 1,
+          stopChar: /[^:]/,
+          direction: "left",
+          text: document.virtualDocument.text
+        }) +
+        positionContext.leftWord;
+    }
 
-		const range = documentRangeToSFRange(document, {
-			start: positionContext.offset - positionContext.leftWord.length,
-			end: positionContext.offset + positionContext.rightWord.length
-		});
+    const range = documentRangeToSFRange(document, {
+      start: positionContext.offset - positionContext.leftWord.length,
+      end: positionContext.offset + positionContext.rightWord.length
+    });
 
-		const vscTextDocument = makeVscTextDocument(document);
-		const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
-		const vscPosition = vscTextDocument.positionAt(offset);
-		const items = this.cssService.doComplete(
-			vscTextDocument,
-			vscPosition,
-			vscStylesheet
-		);
+    const vscTextDocument = makeVscTextDocument(document);
+    const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
+    const vscPosition = vscTextDocument.positionAt(offset);
+    const items = this.cssService.doComplete(
+      vscTextDocument,
+      vscPosition,
+      vscStylesheet
+    );
 
-		// Get all completions from vscode html language service
-		const completions = items.items.map(
-			i =>
-				({
-					kind:
-						i.kind == null ? "unknown" : translateCompletionItemKind(i.kind),
-					name: i.label,
-					insert: i.label, //replacePrefix(i.label, positionContext.leftWord),
-					kindModifiers:
-						i.kind === CompletionItemKind.Color ? "color" : undefined,
-					documentation: lazy(() =>
-						typeof i.documentation === "string" || i.documentation == null
-							? i.documentation
-							: i.documentation.value
-					),
-					sortText: i.sortText,
-					range
-				}) as LitCompletion
-		);
+    // Get all completions from vscode html language service
+    const completions = items.items.map(
+      i =>
+        ({
+          kind:
+            i.kind == null ? "unknown" : translateCompletionItemKind(i.kind),
+          name: i.label,
+          insert: i.label, //replacePrefix(i.label, positionContext.leftWord),
+          kindModifiers:
+            i.kind === CompletionItemKind.Color ? "color" : undefined,
+          documentation: lazy(() =>
+            typeof i.documentation === "string" || i.documentation == null
+              ? i.documentation
+              : i.documentation.value
+          ),
+          sortText: i.sortText,
+          range
+        }) as LitCompletion
+    );
 
-		// Add completions for css custom properties
-		for (const cssProp of context.htmlStore.getAllCssPropertiesForTag("")) {
-			if (completions.some(c => c.name === cssProp.name)) {
-				continue;
-			}
+    // Add completions for css custom properties
+    for (const cssProp of context.htmlStore.getAllCssPropertiesForTag("")) {
+      if (completions.some(c => c.name === cssProp.name)) {
+        continue;
+      }
 
-			completions.push({
-				kind: "variableElement",
-				name: cssProp.name,
-				insert: cssProp.name,
-				sortText: positionContext.leftWord.startsWith("-") ? "0" : "e_0",
-				documentation: lazy(() => documentationForCssProperty(cssProp)),
-				range
-			});
-		}
+      completions.push({
+        kind: "variableElement",
+        name: cssProp.name,
+        insert: cssProp.name,
+        sortText: positionContext.leftWord.startsWith("-") ? "0" : "e_0",
+        documentation: lazy(() => documentationForCssProperty(cssProp)),
+        range
+      });
+    }
 
-		if (positionContext.beforeWord === "(") {
-			// Get the name of the pseudo element
-			const pseudoElementName = grabWordInDirection({
-				startOffset: offset - positionContext.leftWord.length - 1,
-				stopChar: /[^-A-Za-z]/,
-				direction: "left",
-				text: document.virtualDocument.text
-			});
+    if (positionContext.beforeWord === "(") {
+      // Get the name of the pseudo element
+      const pseudoElementName = grabWordInDirection({
+        startOffset: offset - positionContext.leftWord.length - 1,
+        stopChar: /[^-A-Za-z]/,
+        direction: "left",
+        text: document.virtualDocument.text
+      });
 
-			// Add completions for css shadow parts
-			if (pseudoElementName === "part") {
-				for (const cssPart of context.htmlStore.getAllCssPartsForTag("")) {
-					completions.push({
-						kind: "variableElement",
-						name: cssPart.name,
-						insert: cssPart.name,
-						sortText: "0",
-						documentation: lazy(() => documentationForCssPart(cssPart)),
-						range
-					});
-				}
-			}
-		}
+      // Add completions for css shadow parts
+      if (pseudoElementName === "part") {
+        for (const cssPart of context.htmlStore.getAllCssPartsForTag("")) {
+          completions.push({
+            kind: "variableElement",
+            name: cssPart.name,
+            insert: cssPart.name,
+            sortText: "0",
+            documentation: lazy(() => documentationForCssPart(cssPart)),
+            range
+          });
+        }
+      }
+    }
 
-		return completions;
-	}
+    return completions;
+  }
 
-	private makeVscStylesheet(vscTextDocument: TextDocument) {
-		return this.scssService.parseStylesheet(vscTextDocument);
-	}
+  private makeVscStylesheet(vscTextDocument: TextDocument) {
+    return this.scssService.parseStylesheet(vscTextDocument);
+  }
 }
 
 function translateCompletionItemKind(kind: CompletionItemKind): LitTargetKind {
-	switch (kind) {
-		case CompletionItemKind.Method:
-			return "memberFunctionElement";
-		case CompletionItemKind.Function:
-			return "functionElement";
-		case CompletionItemKind.Constructor:
-			return "constructorImplementationElement";
-		case CompletionItemKind.Field:
-		case CompletionItemKind.Variable:
-			return "variableElement";
-		case CompletionItemKind.Class:
-			return "classElement";
-		case CompletionItemKind.Interface:
-			return "interfaceElement";
-		case CompletionItemKind.Module:
-			return "moduleElement";
-		case CompletionItemKind.Property:
-			return "memberVariableElement";
-		case CompletionItemKind.Unit:
-		case CompletionItemKind.Value:
-			return "constElement";
-		case CompletionItemKind.Enum:
-			return "enumElement";
-		case CompletionItemKind.Keyword:
-			return "keyword";
-		case CompletionItemKind.Color:
-			return "constElement";
-		case CompletionItemKind.Reference:
-			return "alias";
-		case CompletionItemKind.File:
-			return "moduleElement";
-		case CompletionItemKind.Snippet:
-		case CompletionItemKind.Text:
-		default:
-			return "unknown";
-	}
+  switch (kind) {
+    case CompletionItemKind.Method:
+      return "memberFunctionElement";
+    case CompletionItemKind.Function:
+      return "functionElement";
+    case CompletionItemKind.Constructor:
+      return "constructorImplementationElement";
+    case CompletionItemKind.Field:
+    case CompletionItemKind.Variable:
+      return "variableElement";
+    case CompletionItemKind.Class:
+      return "classElement";
+    case CompletionItemKind.Interface:
+      return "interfaceElement";
+    case CompletionItemKind.Module:
+      return "moduleElement";
+    case CompletionItemKind.Property:
+      return "memberVariableElement";
+    case CompletionItemKind.Unit:
+    case CompletionItemKind.Value:
+      return "constElement";
+    case CompletionItemKind.Enum:
+      return "enumElement";
+    case CompletionItemKind.Keyword:
+      return "keyword";
+    case CompletionItemKind.Color:
+      return "constElement";
+    case CompletionItemKind.Reference:
+      return "alias";
+    case CompletionItemKind.File:
+      return "moduleElement";
+    case CompletionItemKind.Snippet:
+    case CompletionItemKind.Text:
+    default:
+      return "unknown";
+  }
 }
 
 class LitVscodeCSSDataProvider {
-	private pseudoElementData: IPseudoElementData[] = [];
+  private pseudoElementData: IPseudoElementData[] = [];
 
-	private customDataProvider: ICSSDataProvider = (() => {
-		const provider = this;
+  private customDataProvider: ICSSDataProvider = (() => {
+    const provider = this;
 
-		return {
-			providePseudoElements(): IPseudoElementData[] {
-				return [
-					{
-						browsers: [],
-						description: `Unlike ::part, ::theme matches elements parts with that theme name, anywhere in the document.`,
-						name: "::theme",
-						status: "nonstandard"
-					}
-				];
-			},
-			provideAtDirectives(): IAtDirectiveData[] {
-				return [];
-			},
-			providePseudoClasses(): IPseudoClassData[] {
-				return provider.pseudoElementData;
-			},
-			provideProperties(): IPropertyData[] {
-				return [];
-			}
-		};
-	})();
+    return {
+      providePseudoElements(): IPseudoElementData[] {
+        return [
+          {
+            browsers: [],
+            description: `Unlike ::part, ::theme matches elements parts with that theme name, anywhere in the document.`,
+            name: "::theme",
+            status: "nonstandard"
+          }
+        ];
+      },
+      provideAtDirectives(): IAtDirectiveData[] {
+        return [];
+      },
+      providePseudoClasses(): IPseudoClassData[] {
+        return provider.pseudoElementData;
+      },
+      provideProperties(): IPropertyData[] {
+        return [];
+      }
+    };
+  })();
 
-	get provider(): ICSSDataProvider {
-		return this.customDataProvider;
-	}
+  get provider(): ICSSDataProvider {
+    return this.customDataProvider;
+  }
 
-	update(htmlStore: AnalyzerHtmlStore) {
-		this.pseudoElementData = Array.from(
-			iterableMap(
-				iterableFilter(htmlStore.getGlobalTags(), tag => !tag.builtIn),
-				tag =>
-					({
-						browsers: [],
-						description: documentationForHtmlTag(tag),
-						name: tag.tagName,
-						status: "standard"
-					}) as IPseudoElementData
-			)
-		);
-	}
+  update(htmlStore: AnalyzerHtmlStore) {
+    this.pseudoElementData = Array.from(
+      iterableMap(
+        iterableFilter(htmlStore.getGlobalTags(), tag => !tag.builtIn),
+        tag =>
+          ({
+            browsers: [],
+            description: documentationForHtmlTag(tag),
+            name: tag.tagName,
+            status: "standard"
+          }) as IPseudoElementData
+      )
+    );
+  }
 }

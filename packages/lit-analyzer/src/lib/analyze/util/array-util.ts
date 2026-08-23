@@ -4,20 +4,20 @@
  * @param items
  */
 export function arrayFlat<T>(items: (T[] | T)[]): T[] {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if ("flat" in (items as any)) {
-		return items.flat() as T[];
-	}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ("flat" in (items as any)) {
+    return items.flat() as T[];
+  }
 
-	const flattenArray: T[] = [];
-	for (const item of items) {
-		if (Array.isArray(item)) {
-			flattenArray.push(...item);
-		} else {
-			flattenArray.push(item);
-		}
-	}
-	return flattenArray;
+  const flattenArray: T[] = [];
+  for (const item of items) {
+    if (Array.isArray(item)) {
+      flattenArray.push(...item);
+    } else {
+      flattenArray.push(item);
+    }
+  }
+  return flattenArray;
 }
 
 /**
@@ -25,7 +25,7 @@ export function arrayFlat<T>(items: (T[] | T)[]): T[] {
  * @param array
  */
 export function arrayDefined<T>(array: (T | undefined)[]): T[] {
-	return array.filter((item): item is NonNullable<typeof item> => item != null);
+  return array.filter((item): item is NonNullable<typeof item> => item != null);
 }
 
 /**
@@ -35,9 +35,9 @@ export function arrayDefined<T>(array: (T | undefined)[]): T[] {
  * @param finalSplitter
  */
 export function joinArray(
-	items: string[],
-	splitter = ", ",
-	finalSplitter = "or"
+  items: string[],
+  splitter = ", ",
+  finalSplitter = "or"
 ): string {
-	return items.join(splitter).replace(/, ([^,]*)$/, ` ${finalSplitter} $1`);
+  return items.join(splitter).replace(/, ([^,]*)$/, ` ${finalSplitter} $1`);
 }

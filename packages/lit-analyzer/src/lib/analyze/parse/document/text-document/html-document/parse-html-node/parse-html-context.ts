@@ -3,7 +3,7 @@ import { Range } from "../../../../../types/range.js";
 import { HtmlDocument } from "../html-document.js";
 
 export interface ParseHtmlContext {
-	html: string;
-	document: HtmlDocument;
-	getPartsAtOffsetRange(range: Range): (string | Expression)[];
+  html: string;
+  document: HtmlDocument;
+  getPartsAtOffsetRange(range: Range): (string | Expression)[];
 }

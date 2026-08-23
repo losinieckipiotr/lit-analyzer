@@ -10,39 +10,39 @@ import { AnalyzerDocumentStore } from "./store/analyzer-document-store.js";
 import { AnalyzerHtmlStore } from "./store/analyzer-html-store.js";
 
 export interface LitAnalyzerContext {
-	readonly ts: typeof tsMod;
-	readonly program: Program;
-	readonly project: tsServer.server.Project | undefined;
-	readonly config: LitAnalyzerConfig;
+  readonly ts: typeof tsMod;
+  readonly program: Program;
+  readonly project: tsServer.server.Project | undefined;
+  readonly config: LitAnalyzerConfig;
 
-	// Stores
-	readonly htmlStore: AnalyzerHtmlStore;
-	readonly dependencyStore: AnalyzerDependencyStore;
-	readonly documentStore: AnalyzerDocumentStore;
-	readonly definitionStore: AnalyzerDefinitionStore;
+  // Stores
+  readonly htmlStore: AnalyzerHtmlStore;
+  readonly dependencyStore: AnalyzerDependencyStore;
+  readonly documentStore: AnalyzerDocumentStore;
+  readonly definitionStore: AnalyzerDefinitionStore;
 
-	readonly logger: LitAnalyzerLogger;
-	readonly rules: RuleCollection;
+  readonly logger: LitAnalyzerLogger;
+  readonly rules: RuleCollection;
 
-	readonly currentFile: SourceFile;
-	readonly currentRunningTime: number;
-	readonly isCancellationRequested: boolean;
+  readonly currentFile: SourceFile;
+  readonly currentRunningTime: number;
+  readonly isCancellationRequested: boolean;
 
-	updateConfig(config: LitAnalyzerConfig): void;
-	updateDependencies(file: SourceFile): void;
-	updateComponents(file: SourceFile): void;
+  updateConfig(config: LitAnalyzerConfig): void;
+  updateDependencies(file: SourceFile): void;
+  updateComponents(file: SourceFile): void;
 
-	setContextBase(contextBase: LitAnalyzerContextBaseOptions): void;
+  setContextBase(contextBase: LitAnalyzerContextBaseOptions): void;
 }
 
 export interface LitAnalyzerContextBaseOptions {
-	file: SourceFile | undefined;
-	timeout?: number;
-	throwOnCancellation?: boolean;
+  file: SourceFile | undefined;
+  timeout?: number;
+  throwOnCancellation?: boolean;
 }
 
 export interface LitPluginContextHandler {
-	ts?: typeof tsMod;
-	getProgram(): Program;
-	getProject?(): tsServer.server.Project;
+  ts?: typeof tsMod;
+  getProgram(): Program;
+  getProject?(): tsServer.server.Project;
 }

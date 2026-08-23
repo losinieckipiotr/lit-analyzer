@@ -6,28 +6,28 @@ import { SourceFilePosition } from "../../types/range.js";
 import { AnalyzerDocumentStore } from "../analyzer-document-store.js";
 
 export class DefaultAnalyzerDocumentStore implements AnalyzerDocumentStore {
-	getDocumentAtPosition(
-		sourceFile: SourceFile,
-		position: SourceFilePosition,
-		options: LitAnalyzerConfig
-	): TextDocument | undefined {
-		return parseDocumentsInSourceFile(
-			sourceFile,
-			{
-				htmlTags: options.htmlTemplateTags,
-				cssTags: options.cssTemplateTags
-			},
-			position
-		);
-	}
+  getDocumentAtPosition(
+    sourceFile: SourceFile,
+    position: SourceFilePosition,
+    options: LitAnalyzerConfig
+  ): TextDocument | undefined {
+    return parseDocumentsInSourceFile(
+      sourceFile,
+      {
+        htmlTags: options.htmlTemplateTags,
+        cssTags: options.cssTemplateTags
+      },
+      position
+    );
+  }
 
-	getDocumentsInFile(
-		sourceFile: SourceFile,
-		config: LitAnalyzerConfig
-	): TextDocument[] {
-		return parseDocumentsInSourceFile(sourceFile, {
-			htmlTags: config.htmlTemplateTags,
-			cssTags: config.cssTemplateTags
-		});
-	}
+  getDocumentsInFile(
+    sourceFile: SourceFile,
+    config: LitAnalyzerConfig
+  ): TextDocument[] {
+    return parseDocumentsInSourceFile(sourceFile, {
+      htmlTags: config.htmlTemplateTags,
+      cssTags: config.cssTemplateTags
+    });
+  }
 }

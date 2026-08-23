@@ -1,7 +1,7 @@
 import {
-	ALL_RULE_IDS,
-	LitAnalyzerRuleId,
-	LitAnalyzerRules
+  ALL_RULE_IDS,
+  LitAnalyzerRuleId,
+  LitAnalyzerRules
 } from "../analyze/lit-analyzer-config.js";
 import { analyzeCommand } from "./analyze-command.js";
 import { LitAnalyzerCliConfig } from "./lit-analyzer-cli-config.js";
@@ -11,40 +11,40 @@ import { camelToDashCase } from "./util.js";
 const DEFAULT_GLOB = "src/**/*.{js,jsx,ts,tsx}";
 
 const DEFAULT_CONFIG: LitAnalyzerCliConfig = {
-	noColor: false,
-	quiet: false,
-	maxWarnings: -1,
-	//debug: false,
-	help: false,
-	failFast: false,
-	format: "code",
-	//strict: false,
-	rules: {}
+  noColor: false,
+  quiet: false,
+  maxWarnings: -1,
+  //debug: false,
+  help: false,
+  failFast: false,
+  format: "code",
+  //strict: false,
+  rules: {}
 };
 
 /**
  * The main function of the cli.
  */
 export async function cli(): Promise<void> {
-	const { _: args, ...rest } = parseCliArguments(process.argv.slice(2));
-	const globs = args.length > 0 ? args : [DEFAULT_GLOB];
+  const { _: args, ...rest } = parseCliArguments(process.argv.slice(2));
+  const globs = args.length > 0 ? args : [DEFAULT_GLOB];
 
-	const config: LitAnalyzerCliConfig = { ...DEFAULT_CONFIG, ...rest };
+  const config: LitAnalyzerCliConfig = { ...DEFAULT_CONFIG, ...rest };
 
-	if (config.debug) {
-		// eslint-disable-next-line no-console
-		console.log("CLI Config", config);
-	}
+  if (config.debug) {
+    // eslint-disable-next-line no-console
+    console.log("CLI Config", config);
+  }
 
-	// Always convert "rules" to "dash case" because "rules" expects it.
-	config.rules = Object.entries(config.rules || {}).reduce((acc, [k, v]) => {
-		acc[camelToDashCase(k) as LitAnalyzerRuleId] = v;
-		return acc;
-	}, {} as LitAnalyzerRules);
+  // Always convert "rules" to "dash case" because "rules" expects it.
+  config.rules = Object.entries(config.rules || {}).reduce((acc, [k, v]) => {
+    acc[camelToDashCase(k) as LitAnalyzerRuleId] = v;
+    return acc;
+  }, {} as LitAnalyzerRules);
 
-	if (config.help) {
-		// eslint-disable-next-line no-console
-		console.log(`
+  if (config.help) {
+    // eslint-disable-next-line no-console
+    console.log(`
 
   Usage
     lit-analyzer [<file|directory|glob>]
@@ -70,9 +70,9 @@ export async function cli(): Promise<void> {
     lit-analyzer "src/**/*.{js,ts}"
     lit-analyzer my-element.js
 		`);
-		return;
-	}
+    return;
+  }
 
-	const success = await analyzeCommand(globs, config);
-	process.exit(success ? 0 : 1);
+  const success = await analyzeCommand(globs, config);
+  process.exit(success ? 0 : 1);
 }

@@ -9,54 +9,54 @@ import { completionsForHtmlAttrs } from "./completions-for-html-attrs.js";
 import { completionsForHtmlNodes } from "./completions-for-html-nodes.js";
 
 export function completionsAtOffset(
-	document: HtmlDocument,
-	offset: DocumentOffset,
-	context: LitAnalyzerContext
+  document: HtmlDocument,
+  offset: DocumentOffset,
+  context: LitAnalyzerContext
 ): LitCompletion[] {
-	const positionContext = getPositionContextInDocument(document, offset);
+  const positionContext = getPositionContextInDocument(document, offset);
 
-	const { beforeWord } = positionContext;
+  const { beforeWord } = positionContext;
 
-	// Get possible intersecting html attribute or attribute area.
-	const intersectingAttr = document.htmlAttrNameAtOffset(offset);
-	const intersectingAttrAreaNode = document.htmlAttrAreaAtOffset(offset);
-	const intersectingAttrAssignment =
-		document.htmlAttrAssignmentAtOffset(offset);
-	const intersectingClosestNode = document.htmlNodeClosestToOffset(offset);
+  // Get possible intersecting html attribute or attribute area.
+  const intersectingAttr = document.htmlAttrNameAtOffset(offset);
+  const intersectingAttrAreaNode = document.htmlAttrAreaAtOffset(offset);
+  const intersectingAttrAssignment =
+    document.htmlAttrAssignmentAtOffset(offset);
+  const intersectingClosestNode = document.htmlNodeClosestToOffset(offset);
 
-	// Get entries from the extensions
-	if (intersectingAttr != null) {
-		const entries = completionsForHtmlAttrs(
-			intersectingAttr.htmlNode,
-			positionContext,
-			context
-		);
+  // Get entries from the extensions
+  if (intersectingAttr != null) {
+    const entries = completionsForHtmlAttrs(
+      intersectingAttr.htmlNode,
+      positionContext,
+      context
+    );
 
-		// Make sure that every entry overwrites the entire attribute name.
-		return entries.map(entry => ({
-			...entry,
-			range: rangeFromHtmlNodeAttr(intersectingAttr)
-		}));
-	} else if (intersectingAttrAssignment != null) {
-		return completionsForHtmlAttrValues(
-			intersectingAttrAssignment,
-			positionContext,
-			context
-		);
-	} else if (intersectingAttrAreaNode != null) {
-		return completionsForHtmlAttrs(
-			intersectingAttrAreaNode,
-			positionContext,
-			context
-		);
-	} else if (beforeWord === "<" || beforeWord === "/") {
-		return completionsForHtmlNodes(
-			document,
-			intersectingClosestNode,
-			positionContext,
-			context
-		);
-	}
+    // Make sure that every entry overwrites the entire attribute name.
+    return entries.map(entry => ({
+      ...entry,
+      range: rangeFromHtmlNodeAttr(intersectingAttr)
+    }));
+  } else if (intersectingAttrAssignment != null) {
+    return completionsForHtmlAttrValues(
+      intersectingAttrAssignment,
+      positionContext,
+      context
+    );
+  } else if (intersectingAttrAreaNode != null) {
+    return completionsForHtmlAttrs(
+      intersectingAttrAreaNode,
+      positionContext,
+      context
+    );
+  } else if (beforeWord === "<" || beforeWord === "/") {
+    return completionsForHtmlNodes(
+      document,
+      intersectingClosestNode,
+      positionContext,
+      context
+    );
+  }
 
-	return [];
+  return [];
 }

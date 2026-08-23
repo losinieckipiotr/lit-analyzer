@@ -1,7 +1,7 @@
 import { LitAnalyzerConfig } from "../analyze/lit-analyzer-config.js";
 import {
-	HtmlTag,
-	litAttributeModifierForTarget
+  HtmlTag,
+  litAttributeModifierForTarget
 } from "../analyze/parse/parse-html-data/html-tag.js";
 import { AnalyzerDefinitionStore } from "../analyze/store/analyzer-definition-store.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -14,63 +14,63 @@ import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
  * This rule validates that only known events are used in event listener bindings.
  */
 const rule: RuleModule = {
-	id: "no-unknown-event",
-	meta: {
-		priority: "low"
-	},
-	visitHtmlAttribute(htmlAttr, context) {
-		const { htmlStore, config, definitionStore } = context;
+  id: "no-unknown-event",
+  meta: {
+    priority: "low"
+  },
+  visitHtmlAttribute(htmlAttr, context) {
+    const { htmlStore, config, definitionStore } = context;
 
-		// Ignore "style" and "svg" attrs because I don't yet have all data for them.
-		if (htmlAttr.htmlNode.kind !== HtmlNodeKind.NODE) return;
+    // Ignore "style" and "svg" attrs because I don't yet have all data for them.
+    if (htmlAttr.htmlNode.kind !== HtmlNodeKind.NODE) return;
 
-		// Only validate event listener bindings.
-		if (htmlAttr.kind !== HtmlNodeAttrKind.EVENT_LISTENER) return;
+    // Only validate event listener bindings.
+    if (htmlAttr.kind !== HtmlNodeAttrKind.EVENT_LISTENER) return;
 
-		// Report a diagnostic if the target is unknown
-		const htmlAttrTarget = htmlStore.getHtmlAttrTarget(htmlAttr);
-		if (htmlAttrTarget == null) {
-			// Don't report unknown properties on unknown tags
-			const htmlTag = htmlStore.getHtmlTag(htmlAttr.htmlNode);
-			if (htmlTag == null) return;
+    // Report a diagnostic if the target is unknown
+    const htmlAttrTarget = htmlStore.getHtmlAttrTarget(htmlAttr);
+    if (htmlAttrTarget == null) {
+      // Don't report unknown properties on unknown tags
+      const htmlTag = htmlStore.getHtmlTag(htmlAttr.htmlNode);
+      if (htmlTag == null) return;
 
-			// Get suggested target
-			const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
-			const suggestedMemberName =
-				(suggestedTarget &&
-					`${litAttributeModifierForTarget(suggestedTarget)}${suggestedTarget.name}`) ||
-				undefined;
+      // Get suggested target
+      const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
+      const suggestedMemberName =
+        (suggestedTarget &&
+          `${litAttributeModifierForTarget(suggestedTarget)}${suggestedTarget.name}`) ||
+        undefined;
 
-			const suggestion = getSuggestionText({
-				config,
-				definitionStore,
-				htmlTag
-			});
+      const suggestion = getSuggestionText({
+        config,
+        definitionStore,
+        htmlTag
+      });
 
-			context.report({
-				location: rangeFromHtmlNodeAttr(htmlAttr),
-				message: `Unknown event '${htmlAttr.name}'.`,
-				fixMessage:
-					suggestedMemberName == null
-						? undefined
-						: `Did you mean '${suggestedMemberName}'?`,
-				suggestion,
-				fix:
-					suggestedMemberName == null
-						? undefined
-						: () => ({
-								message: `Change event to '${suggestedMemberName}'`,
-								actions: [
-									{
-										kind: "changeAttributeName",
-										newName: suggestedMemberName,
-										htmlAttr
-									}
-								]
-							})
-			});
-		}
-	}
+      context.report({
+        location: rangeFromHtmlNodeAttr(htmlAttr),
+        message: `Unknown event '${htmlAttr.name}'.`,
+        fixMessage:
+          suggestedMemberName == null
+            ? undefined
+            : `Did you mean '${suggestedMemberName}'?`,
+        suggestion,
+        fix:
+          suggestedMemberName == null
+            ? undefined
+            : () => ({
+                message: `Change event to '${suggestedMemberName}'`,
+                actions: [
+                  {
+                    kind: "changeAttributeName",
+                    newName: suggestedMemberName,
+                    htmlAttr
+                  }
+                ]
+              })
+      });
+    }
+  }
 };
 
 export default rule;
@@ -82,17 +82,17 @@ export default rule;
  * @param htmlTag
  */
 function getSuggestionText({
-	config,
-	definitionStore,
-	htmlTag
+  config,
+  definitionStore,
+  htmlTag
 }: {
-	config: LitAnalyzerConfig;
-	definitionStore: AnalyzerDefinitionStore;
-	htmlTag: HtmlTag;
+  config: LitAnalyzerConfig;
+  definitionStore: AnalyzerDefinitionStore;
+  htmlTag: HtmlTag;
 }): string | undefined {
-	if (config.dontSuggestConfigChanges) {
-		return `Please consider adding '@fires ${htmlTag.tagName}' to the jsdoc on a component class`;
-	}
+  if (config.dontSuggestConfigChanges) {
+    return `Please consider adding '@fires ${htmlTag.tagName}' to the jsdoc on a component class`;
+  }
 
-	return `Please consider adding '@fires ${htmlTag.tagName}' to the jsdoc on a component class, adding it to 'globalEvents' or disabling the 'no-unknown-event' rule.`;
+  return `Please consider adding '@fires ${htmlTag.tagName}' to the jsdoc on a component class, adding it to 'globalEvents' or disabling the 'no-unknown-event' rule.`;
 }

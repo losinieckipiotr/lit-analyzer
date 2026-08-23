@@ -3,27 +3,27 @@ import { CompletionEntryDetails } from "typescript";
 import { LitPluginContext } from "../lit-plugin-context.js";
 
 export function translateCompletionDetails(
-	completionDetails: LitCompletionDetails,
-	context: LitPluginContext
+  completionDetails: LitCompletionDetails,
+  context: LitPluginContext
 ): CompletionEntryDetails {
-	return {
-		name: completionDetails.name,
-		kind: context.ts.ScriptElementKind.label,
-		kindModifiers: "",
-		displayParts: [
-			{
-				text: completionDetails.primaryInfo,
-				kind: "text"
-			}
-		],
-		documentation:
-			completionDetails.secondaryInfo == null
-				? []
-				: [
-						{
-							kind: "text",
-							text: completionDetails.secondaryInfo
-						}
-					]
-	};
+  return {
+    name: completionDetails.name,
+    kind: context.ts.ScriptElementKind.label,
+    kindModifiers: "",
+    displayParts: [
+      {
+        text: completionDetails.primaryInfo,
+        kind: "text"
+      }
+    ],
+    documentation:
+      completionDetails.secondaryInfo == null
+        ? []
+        : [
+            {
+              kind: "text",
+              text: completionDetails.secondaryInfo
+            }
+          ]
+  };
 }

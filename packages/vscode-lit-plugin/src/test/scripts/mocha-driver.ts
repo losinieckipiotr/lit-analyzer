@@ -10,21 +10,21 @@ import * as glob from "glob";
  * Should resolve if the tests pass, reject if any fail.
  */
 export async function run(): Promise<void> {
-	const mocha = new Mocha({
-		ui: "tdd",
-		color: true,
-		timeout: 60_000
-	});
+  const mocha = new Mocha({
+    ui: "tdd",
+    color: true,
+    timeout: 60_000
+  });
 
-	const testsRoot = path.join(__dirname, "..");
-	const files = glob.sync("**/*-test.js", { cwd: testsRoot });
-	for (const file of files) {
-		mocha.addFile(path.resolve(testsRoot, file));
-	}
-	const failures = await new Promise<number>(resolve => {
-		mocha.run(num => resolve(num));
-	});
-	if (failures > 0) {
-		throw new Error(`${failures} tests failed.`);
-	}
+  const testsRoot = path.join(__dirname, "..");
+  const files = glob.sync("**/*-test.js", { cwd: testsRoot });
+  for (const file of files) {
+    mocha.addFile(path.resolve(testsRoot, file));
+  }
+  const failures = await new Promise<number>(resolve => {
+    mocha.run(num => resolve(num));
+  });
+  if (failures > 0) {
+    throw new Error(`${failures} tests failed.`);
+  }
 }

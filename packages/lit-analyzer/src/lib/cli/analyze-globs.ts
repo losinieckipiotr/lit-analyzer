@@ -11,16 +11,16 @@ const IGNORE_GLOBS: string[] = [];
 const DEFAULT_DIR_GLOB = "**/*.{js,jsx,ts,tsx}";
 
 export interface AnalyzeGlobsContext {
-	didExpandGlobs?(filePaths: string[]): void;
-	willAnalyzeFiles?(filePaths: string[]): void;
-	didFindTypescriptDiagnostics?(
-		diagnostics: readonly Diagnostic[],
-		options: { program: Program }
-	): void;
-	analyzeSourceFile?(
-		file: SourceFile,
-		options: { program: Program }
-	): void | boolean;
+  didExpandGlobs?(filePaths: string[]): void;
+  willAnalyzeFiles?(filePaths: string[]): void;
+  didFindTypescriptDiagnostics?(
+    diagnostics: readonly Diagnostic[],
+    options: { program: Program }
+  ): void;
+  analyzeSourceFile?(
+    file: SourceFile,
+    options: { program: Program }
+  ): void | boolean;
 }
 
 /**
@@ -30,35 +30,35 @@ export interface AnalyzeGlobsContext {
  * @param context
  */
 export async function analyzeGlobs(
-	globs: string[],
-	config: LitAnalyzerCliConfig,
-	context: AnalyzeGlobsContext = {}
+  globs: string[],
+  config: LitAnalyzerCliConfig,
+  context: AnalyzeGlobsContext = {}
 ): Promise<CompileResult> {
-	// Expand the globs
-	const filePaths = await expandGlobs(globs);
+  // Expand the globs
+  const filePaths = await expandGlobs(globs);
 
-	if (config.debug) {
-		// eslint-disable-next-line no-console
-		console.log(filePaths);
-	}
+  if (config.debug) {
+    // eslint-disable-next-line no-console
+    console.log(filePaths);
+  }
 
-	// Callbacks
-	if (context.didExpandGlobs != null) context.didExpandGlobs(filePaths);
-	if (context.willAnalyzeFiles != null) context.willAnalyzeFiles(filePaths);
+  // Callbacks
+  if (context.didExpandGlobs != null) context.didExpandGlobs(filePaths);
+  if (context.willAnalyzeFiles != null) context.willAnalyzeFiles(filePaths);
 
-	// Parse all the files with typescript
-	const { program, files } = compileTypescript(filePaths);
+  // Parse all the files with typescript
+  const { program, files } = compileTypescript(filePaths);
 
-	// Analyze each file
-	for (const file of files) {
-		// Analyze
-		if (context.analyzeSourceFile != null) {
-			const result = context.analyzeSourceFile(file, { program });
-			if (result === false) break;
-		}
-	}
+  // Analyze each file
+  for (const file of files) {
+    // Analyze
+    if (context.analyzeSourceFile != null) {
+      const result = context.analyzeSourceFile(file, { program });
+      if (result === false) break;
+    }
+  }
 
-	return { program, files };
+  return { program, files };
 }
 
 /**
@@ -66,31 +66,31 @@ export async function analyzeGlobs(
  * @param globs
  */
 async function expandGlobs(globs: string | string[]): Promise<string[]> {
-	globs = Array.isArray(globs) ? globs : [globs];
+  globs = Array.isArray(globs) ? globs : [globs];
 
-	return arrayFlat(
-		await Promise.all(
-			globs.map(g => {
-				try {
-					// Test if the glob points to a directory.
-					// If so, return the result of a new glob that searches for files in the directory excluding node_modules..
-					const dirExists = existsSync(g) && lstatSync(g).isDirectory();
-					if (dirExists) {
-						return fastGlob([...IGNORE_GLOBS, join(g, DEFAULT_DIR_GLOB)], {
-							absolute: true,
-							followSymbolicLinks: true
-						});
-					}
-				} catch {
-					// Do nothing
-				}
+  return arrayFlat(
+    await Promise.all(
+      globs.map(g => {
+        try {
+          // Test if the glob points to a directory.
+          // If so, return the result of a new glob that searches for files in the directory excluding node_modules..
+          const dirExists = existsSync(g) && lstatSync(g).isDirectory();
+          if (dirExists) {
+            return fastGlob([...IGNORE_GLOBS, join(g, DEFAULT_DIR_GLOB)], {
+              absolute: true,
+              followSymbolicLinks: true
+            });
+          }
+        } catch {
+          // Do nothing
+        }
 
-				// Return the result of globbing
-				return fastGlob([...IGNORE_GLOBS, g], {
-					absolute: true,
-					followSymbolicLinks: false
-				});
-			})
-		)
-	);
+        // Return the result of globbing
+        return fastGlob([...IGNORE_GLOBS, g], {
+          absolute: true,
+          followSymbolicLinks: false
+        });
+      })
+    )
+  );
 }

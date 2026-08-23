@@ -9,18 +9,18 @@ import { AnalyzerHtmlStore } from "../../store/analyzer-html-store.js";
 import { RuleDiagnostic } from "./rule-diagnostic.js";
 
 export interface RuleModuleContext {
-	readonly ts: typeof tsMod;
-	readonly program: Program;
-	readonly file: SourceFile;
+  readonly ts: typeof tsMod;
+  readonly program: Program;
+  readonly file: SourceFile;
 
-	readonly htmlStore: AnalyzerHtmlStore;
-	readonly dependencyStore: AnalyzerDependencyStore;
-	readonly documentStore: AnalyzerDocumentStore;
-	readonly definitionStore: AnalyzerDefinitionStore;
+  readonly htmlStore: AnalyzerHtmlStore;
+  readonly dependencyStore: AnalyzerDependencyStore;
+  readonly documentStore: AnalyzerDocumentStore;
+  readonly definitionStore: AnalyzerDefinitionStore;
 
-	readonly logger: LitAnalyzerLogger;
-	readonly config: LitAnalyzerConfig;
+  readonly logger: LitAnalyzerLogger;
+  readonly config: LitAnalyzerConfig;
 
-	report(diagnostic: RuleDiagnostic): void;
-	break(): void;
+  report(diagnostic: RuleDiagnostic): void;
+  break(): void;
 }

@@ -16,46 +16,46 @@ const IMPORTED_SOURCE_FILES_CACHE = new WeakMap<SourceFile, Set<SourceFile>>();
  * @param context
  */
 export function parseDependencies(
-	sourceFile: SourceFile,
-	context: LitAnalyzerContext
+  sourceFile: SourceFile,
+  context: LitAnalyzerContext
 ): ComponentDefinition[] {
-	if (RESULT_CACHE.has(sourceFile)) {
-		let invalidate = false;
+  if (RESULT_CACHE.has(sourceFile)) {
+    let invalidate = false;
 
-		// Check if the cache has been invalidated
-		for (const file of IMPORTED_SOURCE_FILES_CACHE.get(sourceFile) || []) {
-			// If we get a SourceFile with a certain fileName but it's not the same reference, the file has been updated
-			if (context.program.getSourceFile(file.fileName) !== file) {
-				invalidate = true;
-				break;
-			}
-		}
+    // Check if the cache has been invalidated
+    for (const file of IMPORTED_SOURCE_FILES_CACHE.get(sourceFile) || []) {
+      // If we get a SourceFile with a certain fileName but it's not the same reference, the file has been updated
+      if (context.program.getSourceFile(file.fileName) !== file) {
+        invalidate = true;
+        break;
+      }
+    }
 
-		if (invalidate) {
-			RESULT_CACHE.delete(sourceFile);
-			IMPORTED_SOURCE_FILES_CACHE.delete(sourceFile);
-		} else {
-			return RESULT_CACHE.get(sourceFile)!;
-		}
-	}
+    if (invalidate) {
+      RESULT_CACHE.delete(sourceFile);
+      IMPORTED_SOURCE_FILES_CACHE.delete(sourceFile);
+    } else {
+      return RESULT_CACHE.get(sourceFile)!;
+    }
+  }
 
-	// Get all indirectly imported source files from this the source file
-	const importedSourceFiles = parseAllIndirectImports(sourceFile, context);
-	IMPORTED_SOURCE_FILES_CACHE.set(sourceFile, importedSourceFiles);
+  // Get all indirectly imported source files from this the source file
+  const importedSourceFiles = parseAllIndirectImports(sourceFile, context);
+  IMPORTED_SOURCE_FILES_CACHE.set(sourceFile, importedSourceFiles);
 
-	// Get component definitions from all these source files
-	const definitions = new Set<ComponentDefinition>();
-	for (const file of importedSourceFiles) {
-		for (const def of context.definitionStore.getDefinitionsInFile(file)) {
-			definitions.add(def);
-		}
-	}
+  // Get component definitions from all these source files
+  const definitions = new Set<ComponentDefinition>();
+  for (const file of importedSourceFiles) {
+    for (const def of context.definitionStore.getDefinitionsInFile(file)) {
+      definitions.add(def);
+    }
+  }
 
-	// Cache the result
-	const result = Array.from(definitions);
-	RESULT_CACHE.set(sourceFile, result);
+  // Cache the result
+  const result = Array.from(definitions);
+  RESULT_CACHE.set(sourceFile, result);
 
-	return result;
+  return result;
 }
 
 /**
@@ -66,33 +66,33 @@ export function parseDependencies(
  * @param minExternalDepth
  */
 export function parseAllIndirectImports(
-	sourceFile: SourceFile,
-	context: LitAnalyzerContext,
-	{
-		maxExternalDepth,
-		maxInternalDepth
-	}: { maxExternalDepth?: number; maxInternalDepth?: number } = {}
+  sourceFile: SourceFile,
+  context: LitAnalyzerContext,
+  {
+    maxExternalDepth,
+    maxInternalDepth
+  }: { maxExternalDepth?: number; maxInternalDepth?: number } = {}
 ): Set<SourceFile> {
-	const importedSourceFiles = new Set<SourceFile>();
+  const importedSourceFiles = new Set<SourceFile>();
 
-	visitIndirectImportsFromSourceFile(sourceFile, {
-		project: context.project,
-		program: context.program,
-		ts: context.ts,
-		directImportCache: DIRECT_IMPORT_CACHE,
-		maxExternalDepth:
-			maxExternalDepth ?? context.config.maxNodeModuleImportDepth,
-		maxInternalDepth: maxInternalDepth ?? context.config.maxProjectImportDepth,
-		emitIndirectImport(file: SourceFile): boolean {
-			if (importedSourceFiles.has(file)) {
-				return false;
-			}
+  visitIndirectImportsFromSourceFile(sourceFile, {
+    project: context.project,
+    program: context.program,
+    ts: context.ts,
+    directImportCache: DIRECT_IMPORT_CACHE,
+    maxExternalDepth:
+      maxExternalDepth ?? context.config.maxNodeModuleImportDepth,
+    maxInternalDepth: maxInternalDepth ?? context.config.maxProjectImportDepth,
+    emitIndirectImport(file: SourceFile): boolean {
+      if (importedSourceFiles.has(file)) {
+        return false;
+      }
 
-			importedSourceFiles.add(file);
+      importedSourceFiles.add(file);
 
-			return true;
-		}
-	});
+      return true;
+    }
+  });
 
-	return importedSourceFiles;
+  return importedSourceFiles;
 }

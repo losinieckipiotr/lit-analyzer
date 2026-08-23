@@ -1,3 +1,3 @@
 export interface LitClosingTagInfo {
-	newText: string;
+  newText: string;
 }

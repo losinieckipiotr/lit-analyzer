@@ -1,9 +1,9 @@
 import {
-	IP5CommentNode,
-	IP5DocumentFragmentNode,
-	IP5TagNode,
-	IP5TextNode,
-	P5Node
+  IP5CommentNode,
+  IP5DocumentFragmentNode,
+  IP5TagNode,
+  IP5TextNode,
+  P5Node
 } from "./parse-html-types.js";
 import { parseFragment } from "parse5";
 import type { DefaultTreeAdapterTypes } from "parse5";
@@ -13,7 +13,7 @@ import type { DefaultTreeAdapterTypes } from "parse5";
  * @param node
  */
 export function isTagNode(node: P5Node): node is IP5TagNode {
-	return !node.nodeName.includes("#");
+  return !node.nodeName.includes("#");
 }
 
 /**
@@ -21,9 +21,9 @@ export function isTagNode(node: P5Node): node is IP5TagNode {
  * @param node
  */
 export function isDocumentFragmentNode(
-	node: DefaultTreeAdapterTypes.Node
+  node: DefaultTreeAdapterTypes.Node
 ): node is IP5DocumentFragmentNode {
-	return node.nodeName === "#document-fragment";
+  return node.nodeName === "#document-fragment";
 }
 
 /**
@@ -31,7 +31,7 @@ export function isDocumentFragmentNode(
  * @param node
  */
 export function isTextNode(node: P5Node): node is IP5TextNode {
-	return node.nodeName === "#text";
+  return node.nodeName === "#text";
 }
 
 /**
@@ -39,7 +39,7 @@ export function isTextNode(node: P5Node): node is IP5TextNode {
  * @param node
  */
 export function isCommentNode(node: P5Node): node is IP5CommentNode {
-	return node.nodeName === "#comment";
+  return node.nodeName === "#comment";
 }
 
 /**
@@ -47,5 +47,5 @@ export function isCommentNode(node: P5Node): node is IP5CommentNode {
  * @param html
  */
 export function parseHtml(html: string): IP5DocumentFragmentNode {
-	return parseFragment(html, { sourceCodeLocationInfo: true });
+  return parseFragment(html, { sourceCodeLocationInfo: true });
 }

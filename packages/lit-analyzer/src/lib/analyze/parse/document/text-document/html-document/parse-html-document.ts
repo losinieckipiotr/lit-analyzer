@@ -7,28 +7,28 @@ import { parseHtmlNodes } from "./parse-html-node/parse-html-node.js";
 import { parseHtml } from "./parse-html-p5/parse-html.js";
 
 export function parseHtmlDocuments(
-	nodes: TaggedTemplateExpression[]
+  nodes: TaggedTemplateExpression[]
 ): HtmlDocument[] {
-	return nodes.map(parseHtmlDocument);
+  return nodes.map(parseHtmlDocument);
 }
 
 export function parseHtmlDocument(
-	node: TaggedTemplateExpression
+  node: TaggedTemplateExpression
 ): HtmlDocument {
-	const virtualDocument = new VirtualAstHtmlDocument(node);
-	const html = virtualDocument.text;
-	const htmlAst = parseHtml(html);
-	const document = new HtmlDocument(virtualDocument, []);
+  const virtualDocument = new VirtualAstHtmlDocument(node);
+  const html = virtualDocument.text;
+  const htmlAst = parseHtml(html);
+  const document = new HtmlDocument(virtualDocument, []);
 
-	const context: ParseHtmlContext = {
-		html,
-		document,
-		getPartsAtOffsetRange(range: DocumentRange): (Expression | string)[] {
-			return virtualDocument.getPartsAtDocumentRange(range);
-		}
-	};
+  const context: ParseHtmlContext = {
+    html,
+    document,
+    getPartsAtOffsetRange(range: DocumentRange): (Expression | string)[] {
+      return virtualDocument.getPartsAtDocumentRange(range);
+    }
+  };
 
-	document.rootNodes = parseHtmlNodes(htmlAst.childNodes, undefined, context);
+  document.rootNodes = parseHtmlNodes(htmlAst.childNodes, undefined, context);
 
-	return document;
+  return document;
 }

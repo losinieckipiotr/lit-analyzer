@@ -8,16 +8,16 @@ const PRIMITIVE_STRING_ARRAY_TYPE_BRAND = Symbol("PRIMITIVE_STRING_ARRAY_TYPE");
  * @param union
  */
 export function makePrimitiveArrayType(
-	union: SimpleTypeUnion
+  union: SimpleTypeUnion
 ): SimpleTypeUnion {
-	const extendedUnion: SimpleTypeUnion = {
-		...union
-	};
+  const extendedUnion: SimpleTypeUnion = {
+    ...union
+  };
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	(extendedUnion as any)[PRIMITIVE_STRING_ARRAY_TYPE_BRAND] = true;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (extendedUnion as any)[PRIMITIVE_STRING_ARRAY_TYPE_BRAND] = true;
 
-	return extendedUnion;
+  return extendedUnion;
 }
 
 /**
@@ -25,11 +25,11 @@ export function makePrimitiveArrayType(
  * @param simpleType
  */
 export function isPrimitiveArrayType(
-	simpleType: SimpleType
+  simpleType: SimpleType
 ): simpleType is SimpleTypeUnion {
-	return (
-		simpleType.kind === "UNION" &&
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(simpleType as any)[PRIMITIVE_STRING_ARRAY_TYPE_BRAND] === true
-	);
+  return (
+    simpleType.kind === "UNION" &&
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (simpleType as any)[PRIMITIVE_STRING_ARRAY_TYPE_BRAND] === true
+  );
 }

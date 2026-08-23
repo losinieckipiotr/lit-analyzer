@@ -4,8 +4,8 @@ import * as tsModule from "typescript";
 import { setTypescriptModule } from "../../lib/analyze/ts-module.js";
 
 type TestFunction = (
-	title: string,
-	implementation: ImplementationFn<unknown[]>
+  title: string,
+  implementation: ImplementationFn<unknown[]>
 ) => void;
 
 const TS_MODULES_ALL = ["current", "5.2"] as const;
@@ -13,8 +13,8 @@ const TS_MODULES_ALL = ["current", "5.2"] as const;
 type TsModuleKind = (typeof TS_MODULES_ALL)[number];
 
 const TS_MODULES_DEFAULT: TsModuleKind[] = [
-	"current"
-	// "5.2"
+  "current"
+  // "5.2"
 ];
 
 /**
@@ -22,20 +22,20 @@ const TS_MODULES_DEFAULT: TsModuleKind[] = [
  * @param kind
  */
 function getTsModuleNameWithKind(kind: TsModuleKind | undefined): string {
-	// Return the corresponding ts module
-	switch (kind) {
-		case "5.2":
-			return `typescript-${kind}`;
-		case "current":
-		case undefined:
-		case null:
-			// Fall back to "default"
-			return "typescript";
-		default: {
-			const never: never = kind;
-			throw new Error(`Unknown ts module "${never}"`);
-		}
-	}
+  // Return the corresponding ts module
+  switch (kind) {
+    case "5.2":
+      return `typescript-${kind}`;
+    case "current":
+    case undefined:
+    case null:
+      // Fall back to "default"
+      return "typescript";
+    default: {
+      const never: never = kind;
+      throw new Error(`Unknown ts module "${never}"`);
+    }
+  }
 }
 
 /**
@@ -43,45 +43,45 @@ function getTsModuleNameWithKind(kind: TsModuleKind | undefined): string {
  * @param kind
  */
 function getTsModuleWithKind(kind: TsModuleKind | undefined): typeof tsModule {
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	return require(getTsModuleNameWithKind(kind));
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require(getTsModuleNameWithKind(kind));
 }
 
 function setCurrentTsModuleKind(kind: TsModuleKind | undefined) {
-	if (kind == null) {
-		delete process.env.TS_MODULE;
-	} else {
-		process.env.TS_MODULE = kind;
-	}
+  if (kind == null) {
+    delete process.env.TS_MODULE;
+  } else {
+    process.env.TS_MODULE = kind;
+  }
 }
 
 /**
  * Returns the current ts module kind based on environment vars
  */
 function getCurrentTsModuleKind(): TsModuleKind | undefined {
-	const kind = process.env.TS_MODULE as TsModuleKind | undefined;
+  const kind = process.env.TS_MODULE as TsModuleKind | undefined;
 
-	// Validate the value
-	if (kind != null && !TS_MODULES_ALL.includes(kind)) {
-		throw new Error(`Unknown ts module "${kind}"`);
-	}
+  // Validate the value
+  if (kind != null && !TS_MODULES_ALL.includes(kind)) {
+    throw new Error(`Unknown ts module "${kind}"`);
+  }
 
-	return kind;
+  return kind;
 }
 
 /**
  * Returns the current ts module based based on environment vars
  */
 export function getCurrentTsModule(): typeof tsModule {
-	return getTsModuleWithKind(getCurrentTsModuleKind());
+  return getTsModuleWithKind(getCurrentTsModuleKind());
 }
 
 /**
  * Returns the directory of the current ts module
  */
 export function getCurrentTsModuleDirectory(): string {
-	const moduleName = getTsModuleNameWithKind(getCurrentTsModuleKind());
-	return dirname(require.resolve(moduleName));
+  const moduleName = getTsModuleNameWithKind(getCurrentTsModuleKind());
+  return dirname(require.resolve(moduleName));
 }
 
 /**
@@ -92,33 +92,33 @@ export function getCurrentTsModuleDirectory(): string {
  * @param cb
  */
 function setupTest(
-	testFunction: TestFunction,
-	tsModuleKind: TsModuleKind | undefined,
-	title: string,
-	cb: ImplementationFn<unknown[]>
+  testFunction: TestFunction,
+  tsModuleKind: TsModuleKind | undefined,
+  title: string,
+  cb: ImplementationFn<unknown[]>
 ) {
-	// Generate title based on the ts module
-	const version = getTsModuleWithKind(tsModuleKind).version;
-	const titleWithModule = `[ts${version}] ${title}`;
+  // Generate title based on the ts module
+  const version = getTsModuleWithKind(tsModuleKind).version;
+  const titleWithModule = `[ts${version}] ${title}`;
 
-	// Setup up the ava test
-	testFunction(titleWithModule, (...args: unknown[]) => {
-		// Set the ts module as environment variable before running the test
-		setCurrentTsModuleKind(tsModuleKind);
+  // Setup up the ava test
+  testFunction(titleWithModule, (...args: unknown[]) => {
+    // Set the ts module as environment variable before running the test
+    setCurrentTsModuleKind(tsModuleKind);
 
-		// Temporarily set the "typescript" module for helper functions to use
-		// Remove this line after refactoring away the global "tsModule.ts"
-		setTypescriptModule(getCurrentTsModule());
+    // Temporarily set the "typescript" module for helper functions to use
+    // Remove this line after refactoring away the global "tsModule.ts"
+    setTypescriptModule(getCurrentTsModule());
 
-		// @ts-expect-error - idk maybe fix later
-		const res = cb(...args);
+    // @ts-expect-error - idk maybe fix later
+    const res = cb(...args);
 
-		// Reset the selected TS_MODULE
-		setCurrentTsModuleKind(undefined);
-		setTypescriptModule(getTsModuleWithKind("current"));
+    // Reset the selected TS_MODULE
+    setCurrentTsModuleKind(undefined);
+    setTypescriptModule(getTsModuleWithKind("current"));
 
-		return res;
-	});
+    return res;
+  });
 }
 
 /**
@@ -128,27 +128,27 @@ function setupTest(
  * @param cb
  */
 function setupTests(
-	testFunction: (
-		title: string,
-		implementation: ImplementationFn<unknown[]>
-	) => void,
-	title: string,
-	cb: ImplementationFn<unknown[]>
+  testFunction: (
+    title: string,
+    implementation: ImplementationFn<unknown[]>
+  ) => void,
+  title: string,
+  cb: ImplementationFn<unknown[]>
 ) {
-	// Find the user specified TS_MODULE at setup time
-	const moduleKinds: TsModuleKind[] = (() => {
-		const currentTsModuleKind = getCurrentTsModuleKind();
+  // Find the user specified TS_MODULE at setup time
+  const moduleKinds: TsModuleKind[] = (() => {
+    const currentTsModuleKind = getCurrentTsModuleKind();
 
-		// Default to running all ts modules if TS_MODULE is not set
-		return currentTsModuleKind != null
-			? [currentTsModuleKind]
-			: TS_MODULES_DEFAULT;
-	})();
+    // Default to running all ts modules if TS_MODULE is not set
+    return currentTsModuleKind != null
+      ? [currentTsModuleKind]
+      : TS_MODULES_DEFAULT;
+  })();
 
-	// Set up tests for each ts module
-	for (const tsModuleKind of moduleKinds) {
-		setupTest(testFunction, tsModuleKind, title, cb);
-	}
+  // Set up tests for each ts module
+  for (const tsModuleKind of moduleKinds) {
+    setupTest(testFunction, tsModuleKind, title, cb);
+  }
 }
 
 /**
@@ -156,15 +156,15 @@ function setupTests(
  * @param testFunction
  */
 function wrapAvaTest(testFunction: TestFunction): TestFunction {
-	return (title, implementation) => {
-		return setupTests(testFunction, title, implementation);
-	};
+  return (title, implementation) => {
+    return setupTests(testFunction, title, implementation);
+  };
 }
 
 /**
  * Wrap the ava test module in these helper functions
  */
 export const tsTest = Object.assign(wrapAvaTest(test), {
-	only: wrapAvaTest(test.only),
-	skip: wrapAvaTest(test.skip)
+  only: wrapAvaTest(test.only),
+  skip: wrapAvaTest(test.skip)
 });

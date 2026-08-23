@@ -3,25 +3,25 @@ import { translateRange } from "./translate-range.js";
 import { RenameLocation } from "typescript";
 
 export function translateRenameLocations(
-	renameLocations: LitRenameLocation[]
+  renameLocations: LitRenameLocation[]
 ): RenameLocation[] {
-	return renameLocations.map(renameLocation =>
-		translateRenameLocation(renameLocation)
-	);
+  return renameLocations.map(renameLocation =>
+    translateRenameLocation(renameLocation)
+  );
 }
 
 function translateRenameLocation({
-	fileName,
-	prefixText,
-	suffixText,
-	range
+  fileName,
+  prefixText,
+  suffixText,
+  range
 }: LitRenameLocation): RenameLocation {
-	const textSpan = translateRange(range);
+  const textSpan = translateRange(range);
 
-	return {
-		textSpan,
-		fileName,
-		prefixText,
-		suffixText
-	};
+  return {
+    textSpan,
+    fileName,
+    prefixText,
+    suffixText
+  };
 }

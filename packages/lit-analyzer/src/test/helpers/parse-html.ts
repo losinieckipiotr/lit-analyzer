@@ -5,17 +5,17 @@ import { compileFiles } from "./compile-files.js";
 import { getCurrentTsModule } from "./ts-test.js";
 
 export function parseHtml(html: string): HtmlDocument {
-	const { sourceFile } = compileFiles([`html\`${html}\``]);
-	const taggedTemplateExpression = findTaggedTemplateExpression(sourceFile)!;
-	return parseHtmlDocument(taggedTemplateExpression);
+  const { sourceFile } = compileFiles([`html\`${html}\``]);
+  const taggedTemplateExpression = findTaggedTemplateExpression(sourceFile)!;
+  return parseHtmlDocument(taggedTemplateExpression);
 }
 
 function findTaggedTemplateExpression(
-	node: Node
+  node: Node
 ): TaggedTemplateExpression | undefined {
-	if (getCurrentTsModule().isTaggedTemplateExpression(node)) {
-		return node;
-	}
+  if (getCurrentTsModule().isTaggedTemplateExpression(node)) {
+    return node;
+  }
 
-	return node.forEachChild(findTaggedTemplateExpression);
+  return node.forEachChild(findTaggedTemplateExpression);
 }

@@ -2,7 +2,7 @@ import { VirtualAstCssDocument } from "../../virtual-document/virtual-css-docume
 import { TextDocument } from "../text-document.js";
 
 export class CssDocument extends TextDocument {
-	constructor(virtualDocument: VirtualAstCssDocument) {
-		super(virtualDocument);
-	}
+  constructor(virtualDocument: VirtualAstCssDocument) {
+    super(virtualDocument);
+  }
 }

@@ -10,13 +10,13 @@ const ILLEGAL_UNICODE_CHARACTERS = /[\u0020\u0022\u0027\u003E\u002F\u003D]/g;
  * @type {RegExp}
  */
 const NONCHARACTERS =
-	/[\uFFFF\uFFFE\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF]/g;
+  /[\uFFFF\uFFFE\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF]/g;
 
 function hasOnlyValidCharacters(name: string): boolean {
-	return (
-		name.match(ILLEGAL_UNICODE_CHARACTERS) == null &&
-		name.match(NONCHARACTERS) == null
-	);
+  return (
+    name.match(ILLEGAL_UNICODE_CHARACTERS) == null &&
+    name.match(NONCHARACTERS) == null
+  );
 }
 
 /**
@@ -25,7 +25,7 @@ function hasOnlyValidCharacters(name: string): boolean {
  * @return {boolean}
  */
 export function isValidAttributeName(input: string): boolean {
-	return hasOnlyValidCharacters(input);
+  return hasOnlyValidCharacters(input);
 }
 
 /**
@@ -34,13 +34,13 @@ export function isValidAttributeName(input: string): boolean {
  * @return {boolean}
  */
 export function isValidCustomElementName(input: string): boolean {
-	return (
-		input.includes("-") &&
-		input.toLowerCase() === input &&
-		hasOnlyValidCharacters(input)
-	);
+  return (
+    input.includes("-") &&
+    input.toLowerCase() === input &&
+    hasOnlyValidCharacters(input)
+  );
 }
 
 export function isCustomElementTagName(tagName: string): boolean {
-	return tagName.includes("-");
+  return tagName.includes("-");
 }

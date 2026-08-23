@@ -1,15 +1,15 @@
 import { TestFile } from "./compile-files.js";
 
 export function makeElement({
-	properties,
-	slots
+  properties,
+  slots
 }: {
-	properties?: string[];
-	slots?: string[];
+  properties?: string[];
+  slots?: string[];
 }): TestFile {
-	return {
-		fileName: "my-element.ts",
-		text: `
+  return {
+    fileName: "my-element.ts",
+    text: `
 		/**
 ${(slots || []).map(slot => `        * @slot ${slot}`)}
 		 */
@@ -18,5 +18,5 @@ ${(slots || []).map(slot => `        * @slot ${slot}`)}
 		};
 		customElements.define("my-element", MyElement);	
 		`
-	};
+  };
 }

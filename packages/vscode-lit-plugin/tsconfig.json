@@ -1,15 +1,15 @@
 {
-	"extends": "../../tsconfig.json",
-	"include": ["./src"],
-	"exclude": ["node_modules", "./src/test/fixtures"],
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es6",
-		"outDir": "out",
-		"lib": ["es2019"],
-		"sourceMap": true,
-		"rootDir": "src",
-		"tsBuildInfoFile": "./.tsbuildinfo",
-		"types": ["mocha", "node"]
-	}
+  "extends": "../../tsconfig.json",
+  "include": ["./src"],
+  "exclude": ["node_modules", "./src/test/fixtures"],
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2022",
+    "outDir": "out",
+    "lib": ["ES2022"],
+    "sourceMap": true,
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "types": ["mocha", "node"]
+  }
 }

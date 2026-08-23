@@ -1,21 +1,21 @@
 {
-	"include": ["./**/*.ts"],
-	"compilerOptions": {
-		"target": "es6",
-		"module": "commonjs",
-		"lib": ["esnext"],
-		"outDir": "./lib",
-		"strict": true,
-		"esModuleInterop": true,
-		"experimentalDecorators": true,
-		"noUnusedLocals": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitThis": true,
-		"noImplicitAny": true,
-		"noImplicitReturns": true,
-		"skipLibCheck": true,
-		"declaration": true,
-		"declarationMap": true,
-		"incremental": true
-	}
+  "include": ["./**/*.ts"],
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "outDir": "./lib",
+    "strict": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true
+  }
 }

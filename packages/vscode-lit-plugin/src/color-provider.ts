@@ -18,22 +18,22 @@ const COLOR_SECTION_REGEX = /(css|html)`([\s\S]*?)`/gi;
  * @param alpha
  */
 function RGBAToHex({
-	red,
-	green,
-	blue,
-	alpha
+  red,
+  green,
+  blue,
+  alpha
 }: {
-	red: number;
-	green: number;
-	blue: number;
-	alpha: number;
+  red: number;
+  green: number;
+  blue: number;
+  alpha: number;
 }): string {
-	const r = red.toString(16).padStart(2, "0");
-	const g = green.toString(16).padStart(2, "0");
-	const b = blue.toString(16).padStart(2, "0");
-	const a = alpha.toString(16).padStart(2, "0");
+  const r = red.toString(16).padStart(2, "0");
+  const g = green.toString(16).padStart(2, "0");
+  const b = blue.toString(16).padStart(2, "0");
+  const a = alpha.toString(16).padStart(2, "0");
 
-	return `#${r}${g}${b}${a === "ff" ? "" : a}`;
+  return `#${r}${g}${b}${a === "ff" ? "" : a}`;
 }
 
 /**
@@ -41,38 +41,38 @@ function RGBAToHex({
  * @param hex
  */
 function hexToRGBA(
-	hex: string
+  hex: string
 ): { red: number; green: number; blue: number; alpha: number } | undefined {
-	// Parses "#ffffff" and "#ffffffff"
-	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(
-		hex
-	);
-	if (result != null) {
-		return {
-			red: parseInt(result[1], 16),
-			green: parseInt(result[2], 16),
-			blue: parseInt(result[3], 16),
-			alpha: result[4] == null ? 255 : parseInt(result[4], 16)
-		};
-	}
+  // Parses "#ffffff" and "#ffffffff"
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(
+    hex
+  );
+  if (result != null) {
+    return {
+      red: parseInt(result[1], 16),
+      green: parseInt(result[2], 16),
+      blue: parseInt(result[3], 16),
+      alpha: result[4] == null ? 255 : parseInt(result[4], 16)
+    };
+  }
 
-	// Parses "#fff" and "#ffff"
-	const shorthandResult = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])?$/i.exec(
-		hex
-	);
-	if (shorthandResult != null) {
-		return {
-			red: parseInt(shorthandResult[1] + shorthandResult[1], 16),
-			green: parseInt(shorthandResult[2] + shorthandResult[2], 16),
-			blue: parseInt(shorthandResult[3] + shorthandResult[3], 16),
-			alpha:
-				shorthandResult[4] == null
-					? 255
-					: parseInt(shorthandResult[4] + shorthandResult[4], 16)
-		};
-	}
+  // Parses "#fff" and "#ffff"
+  const shorthandResult = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])?$/i.exec(
+    hex
+  );
+  if (shorthandResult != null) {
+    return {
+      red: parseInt(shorthandResult[1] + shorthandResult[1], 16),
+      green: parseInt(shorthandResult[2] + shorthandResult[2], 16),
+      blue: parseInt(shorthandResult[3] + shorthandResult[3], 16),
+      alpha:
+        shorthandResult[4] == null
+          ? 255
+          : parseInt(shorthandResult[4] + shorthandResult[4], 16)
+    };
+  }
 
-	return undefined;
+  return undefined;
 }
 
 /**
@@ -80,14 +80,14 @@ function hexToRGBA(
  * @param vscodeColor
  */
 function vscodeColorToHex(vscodeColor: vscode.Color): string {
-	const { red, green, blue, alpha } = vscodeColor;
+  const { red, green, blue, alpha } = vscodeColor;
 
-	return RGBAToHex({
-		red: Math.floor(red * 255),
-		green: Math.floor(green * 255),
-		blue: Math.floor(blue * 255),
-		alpha: Math.floor(alpha * 255)
-	});
+  return RGBAToHex({
+    red: Math.floor(red * 255),
+    green: Math.floor(green * 255),
+    blue: Math.floor(blue * 255),
+    alpha: Math.floor(alpha * 255)
+  });
 }
 
 /**
@@ -95,14 +95,14 @@ function vscodeColorToHex(vscodeColor: vscode.Color): string {
  * @param hex
  */
 function hexToVscodeColor(hex: string): vscode.Color | undefined {
-	const rgba = hexToRGBA(hex);
-	if (rgba == null) return undefined;
-	return new vscode.Color(
-		rgba.red / 255,
-		rgba.green / 255,
-		rgba.blue / 255,
-		rgba.alpha / 255
-	);
+  const rgba = hexToRGBA(hex);
+  if (rgba == null) return undefined;
+  return new vscode.Color(
+    rgba.red / 255,
+    rgba.green / 255,
+    rgba.blue / 255,
+    rgba.alpha / 255
+  );
 }
 
 /**
@@ -112,20 +112,20 @@ function hexToVscodeColor(hex: string): vscode.Color | undefined {
  * @param callback
  */
 function getRegexMatches(
-	regex: RegExp,
-	text: string
+  regex: RegExp,
+  text: string
 ): { start: number; text: string }[] {
-	// Find all hex colors in the document
-	let match: RegExpExecArray | null = null;
+  // Find all hex colors in the document
+  let match: RegExpExecArray | null = null;
 
-	const matches: { start: number; text: string }[] = [];
+  const matches: { start: number; text: string }[] = [];
 
-	while ((match = regex.exec(text)) != null) {
-		const start = match.index;
-		matches.push({ start, text: match[0] });
-	}
+  while ((match = regex.exec(text)) != null) {
+    const start = match.index;
+    matches.push({ start, text: match[0] });
+  }
 
-	return matches;
+  return matches;
 }
 
 /**
@@ -133,62 +133,62 @@ function getRegexMatches(
  * @param document
  */
 function findColorsInDocument(
-	document: vscode.TextDocument
+  document: vscode.TextDocument
 ): vscode.ColorInformation[] {
-	const documentText = document.getText();
+  const documentText = document.getText();
 
-	const colors: vscode.ColorInformation[] = [];
+  const colors: vscode.ColorInformation[] = [];
 
-	// Find all sections that can include colors
-	const taggedLiteralMatches = getRegexMatches(
-		COLOR_SECTION_REGEX,
-		documentText
-	);
-	for (const {
-		text: taggedTemplateText,
-		start: taggedTemplateStart
-	} of taggedLiteralMatches) {
-		// Find all colors in those sections
-		const colorMatches = getRegexMatches(COLOR_HEX_REGEX, taggedTemplateText);
+  // Find all sections that can include colors
+  const taggedLiteralMatches = getRegexMatches(
+    COLOR_SECTION_REGEX,
+    documentText
+  );
+  for (const {
+    text: taggedTemplateText,
+    start: taggedTemplateStart
+  } of taggedLiteralMatches) {
+    // Find all colors in those sections
+    const colorMatches = getRegexMatches(COLOR_HEX_REGEX, taggedTemplateText);
 
-		// Add a color information based on each color found
-		for (const { text: hex, start: colorStart } of colorMatches) {
-			const color = hexToVscodeColor(hex);
-			if (color == null) continue;
+    // Add a color information based on each color found
+    for (const { text: hex, start: colorStart } of colorMatches) {
+      const color = hexToVscodeColor(hex);
+      if (color == null) continue;
 
-			const documentOffset = taggedTemplateStart + colorStart;
+      const documentOffset = taggedTemplateStart + colorStart;
 
-			colors.push(
-				new vscode.ColorInformation(
-					new vscode.Range(
-						document.positionAt(documentOffset),
-						document.positionAt(documentOffset + hex.length)
-					),
-					color
-				)
-			);
-		}
-	}
+      colors.push(
+        new vscode.ColorInformation(
+          new vscode.Range(
+            document.positionAt(documentOffset),
+            document.positionAt(documentOffset + hex.length)
+          ),
+          color
+        )
+      );
+    }
+  }
 
-	return colors;
+  return colors;
 }
 
 /**
  * Exports a color provider that makes it possible to highlight colors within "css" and "html" tagged templates.
  */
 export class ColorProvider implements vscode.DocumentColorProvider {
-	provideDocumentColors(
-		document: vscode.TextDocument,
-		token: vscode.CancellationToken
-	): vscode.ProviderResult<vscode.ColorInformation[]> {
-		return findColorsInDocument(document);
-	}
+  provideDocumentColors(
+    document: vscode.TextDocument,
+    token: vscode.CancellationToken
+  ): vscode.ProviderResult<vscode.ColorInformation[]> {
+    return findColorsInDocument(document);
+  }
 
-	provideColorPresentations(
-		color: vscode.Color,
-		context: { document: vscode.TextDocument; range: vscode.Range },
-		token: vscode.CancellationToken
-	): vscode.ProviderResult<vscode.ColorPresentation[]> {
-		return [new vscode.ColorPresentation(vscodeColorToHex(color))];
-	}
+  provideColorPresentations(
+    color: vscode.Color,
+    context: { document: vscode.TextDocument; range: vscode.Range },
+    token: vscode.CancellationToken
+  ): vscode.ProviderResult<vscode.ColorPresentation[]> {
+    return [new vscode.ColorPresentation(vscodeColorToHex(color))];
+  }
 }

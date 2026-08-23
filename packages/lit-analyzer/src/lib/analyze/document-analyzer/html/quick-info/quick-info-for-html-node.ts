@@ -5,15 +5,15 @@ import { LitQuickInfo } from "../../../types/lit-quick-info.js";
 import { rangeFromHtmlNode } from "../../../util/range-util.js";
 
 export function quickInfoForHtmlNode(
-	htmlNode: HtmlNode,
-	{ htmlStore }: LitAnalyzerContext
+  htmlNode: HtmlNode,
+  { htmlStore }: LitAnalyzerContext
 ): LitQuickInfo | undefined {
-	const htmlTag = htmlStore.getHtmlTag(htmlNode);
-	if (htmlTag == null) return undefined;
+  const htmlTag = htmlStore.getHtmlTag(htmlNode);
+  if (htmlTag == null) return undefined;
 
-	return {
-		range: rangeFromHtmlNode(htmlNode),
-		primaryInfo: `<${htmlNode.tagName}>`,
-		secondaryInfo: documentationForHtmlTag(htmlTag, { markdown: true })
-	};
+  return {
+    range: rangeFromHtmlNode(htmlNode),
+    primaryInfo: `<${htmlNode.tagName}>`,
+    secondaryInfo: documentationForHtmlTag(htmlTag, { markdown: true })
+  };
 }
