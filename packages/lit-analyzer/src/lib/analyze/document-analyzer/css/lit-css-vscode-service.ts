@@ -1,9 +1,23 @@
-import * as vscode from "vscode-css-languageservice";
-import { IAtDirectiveData, ICSSDataProvider, IPropertyData, IPseudoClassData, IPseudoElementData } from "vscode-css-languageservice";
+import {
+	CompletionItemKind,
+	DiagnosticSeverity,
+	getCSSLanguageService,
+	getSCSSLanguageService,
+	IAtDirectiveData,
+	ICSSDataProvider,
+	IPropertyData,
+	IPseudoClassData,
+	IPseudoElementData,
+	TextDocument
+} from "vscode-css-languageservice";
 import { isRuleDisabled } from "../../lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
 import { CssDocument } from "../../parse/document/text-document/css-document/css-document.js";
-import { documentationForCssPart, documentationForCssProperty, documentationForHtmlTag } from "../../parse/parse-html-data/html-tag.js";
+import {
+	documentationForCssPart,
+	documentationForCssProperty,
+	documentationForHtmlTag
+} from "../../parse/parse-html-data/html-tag.js";
 import { AnalyzerHtmlStore } from "../../store/analyzer-html-store.js";
 import { LitCompletion } from "../../types/lit-completion.js";
 import { LitDiagnostic } from "../../types/lit-diagnostic.js";
@@ -11,26 +25,41 @@ import { LitQuickInfo } from "../../types/lit-quick-info.js";
 import { LitTargetKind } from "../../types/lit-target-kind.js";
 import { DocumentOffset } from "../../types/range.js";
 import { lazy } from "../../util/general-util.js";
-import { getPositionContextInDocument, grabWordInDirection } from "../../util/get-position-context-in-document.js";
+import {
+	getPositionContextInDocument,
+	grabWordInDirection
+} from "../../util/get-position-context-in-document.js";
 import { iterableFilter, iterableMap } from "../../util/iterable-util.js";
 import { documentRangeToSFRange } from "../../util/range-util.js";
 
-function makeVscTextDocument(cssDocument: CssDocument): vscode.TextDocument {
-	return vscode.TextDocument.create("untitled://embedded.css", "css", 1, cssDocument.virtualDocument.text);
+function makeVscTextDocument(cssDocument: CssDocument): TextDocument {
+	return TextDocument.create(
+		"untitled://embedded.css",
+		"css",
+		1,
+		cssDocument.virtualDocument.text
+	);
 }
 
 export class LitCssVscodeService {
 	private dataProvider = new LitVscodeCSSDataProvider();
 
 	private get cssService() {
-		return vscode.getCSSLanguageService({ customDataProviders: [this.dataProvider.provider] });
+		return getCSSLanguageService({
+			customDataProviders: [this.dataProvider.provider]
+		});
 	}
 
 	private get scssService() {
-		return vscode.getSCSSLanguageService({ customDataProviders: [this.dataProvider.provider] });
+		return getSCSSLanguageService({
+			customDataProviders: [this.dataProvider.provider]
+		});
 	}
 
-	getDiagnostics(document: CssDocument, context: LitAnalyzerContext): LitDiagnostic[] {
+	getDiagnostics(
+		document: CssDocument,
+		context: LitAnalyzerContext
+	): LitDiagnostic[] {
 		if (isRuleDisabled(context.config, "no-invalid-css")) {
 			return [];
 		}
@@ -46,14 +75,24 @@ export class LitCssVscodeService {
 		}
 
 		const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
-		const diagnostics = this.scssService.doValidation(vscTextDocument, vscStylesheet);
+		const diagnostics = this.scssService.doValidation(
+			vscTextDocument,
+			vscStylesheet
+		);
 
 		return diagnostics
-			.filter(diagnostic => diagnostic.range.start.line !== 0 && diagnostic.range.start.line < vscTextDocument.lineCount - 1)
+			.filter(
+				diagnostic =>
+					diagnostic.range.start.line !== 0 &&
+					diagnostic.range.start.line < vscTextDocument.lineCount - 1
+			)
 			.map(
 				diagnostic =>
 					({
-						severity: diagnostic.severity === vscode.DiagnosticSeverity.Error ? "error" : "warning",
+						severity:
+							diagnostic.severity === DiagnosticSeverity.Error
+								? "error"
+								: "warning",
 						source: "no-invalid-css",
 						location: documentRangeToSFRange(document, {
 							start: vscTextDocument.offsetAt(diagnostic.range.start),
@@ -65,16 +104,26 @@ export class LitCssVscodeService {
 			);
 	}
 
-	getQuickInfo(document: CssDocument, offset: DocumentOffset, context: LitAnalyzerContext): LitQuickInfo | undefined {
+	getQuickInfo(
+		document: CssDocument,
+		offset: DocumentOffset,
+		context: LitAnalyzerContext
+	): LitQuickInfo | undefined {
 		this.dataProvider.update(context.htmlStore);
 
 		const vscTextDocument = makeVscTextDocument(document);
 		const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
 		const vscPosition = vscTextDocument.positionAt(offset);
-		const hover = this.scssService.doHover(vscTextDocument, vscPosition, vscStylesheet);
+		const hover = this.scssService.doHover(
+			vscTextDocument,
+			vscPosition,
+			vscStylesheet
+		);
 		if (hover == null || hover.range == null) return;
 
-		const contents = Array.isArray(hover.contents) ? hover.contents : [hover.contents];
+		const contents = Array.isArray(hover.contents)
+			? hover.contents
+			: [hover.contents];
 		let primaryInfo: string | undefined = undefined;
 		let secondaryInfo: string | undefined = undefined;
 
@@ -93,11 +142,18 @@ export class LitCssVscodeService {
 		return {
 			primaryInfo: primaryInfo || "",
 			secondaryInfo,
-			range: documentRangeToSFRange(document, { start: vscTextDocument.offsetAt(hover.range.start), end: vscTextDocument.offsetAt(hover.range.end) })
+			range: documentRangeToSFRange(document, {
+				start: vscTextDocument.offsetAt(hover.range.start),
+				end: vscTextDocument.offsetAt(hover.range.end)
+			})
 		};
 	}
 
-	getCompletions(document: CssDocument, offset: DocumentOffset, context: LitAnalyzerContext): LitCompletion[] {
+	getCompletions(
+		document: CssDocument,
+		offset: DocumentOffset,
+		context: LitAnalyzerContext
+	): LitCompletion[] {
 		this.dataProvider.update(context.htmlStore);
 
 		const positionContext = getPositionContextInDocument(document, offset);
@@ -123,17 +179,27 @@ export class LitCssVscodeService {
 		const vscTextDocument = makeVscTextDocument(document);
 		const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
 		const vscPosition = vscTextDocument.positionAt(offset);
-		const items = this.cssService.doComplete(vscTextDocument, vscPosition, vscStylesheet);
+		const items = this.cssService.doComplete(
+			vscTextDocument,
+			vscPosition,
+			vscStylesheet
+		);
 
 		// Get all completions from vscode html language service
 		const completions = items.items.map(
 			i =>
 				({
-					kind: i.kind == null ? "unknown" : translateCompletionItemKind(i.kind),
+					kind:
+						i.kind == null ? "unknown" : translateCompletionItemKind(i.kind),
 					name: i.label,
 					insert: i.label, //replacePrefix(i.label, positionContext.leftWord),
-					kindModifiers: i.kind === vscode.CompletionItemKind.Color ? "color" : undefined,
-					documentation: lazy(() => (typeof i.documentation === "string" || i.documentation == null ? i.documentation : i.documentation.value)),
+					kindModifiers:
+						i.kind === CompletionItemKind.Color ? "color" : undefined,
+					documentation: lazy(() =>
+						typeof i.documentation === "string" || i.documentation == null
+							? i.documentation
+							: i.documentation.value
+					),
 					sortText: i.sortText,
 					range
 				}) as LitCompletion
@@ -182,45 +248,45 @@ export class LitCssVscodeService {
 		return completions;
 	}
 
-	private makeVscStylesheet(vscTextDocument: vscode.TextDocument) {
+	private makeVscStylesheet(vscTextDocument: TextDocument) {
 		return this.scssService.parseStylesheet(vscTextDocument);
 	}
 }
 
-function translateCompletionItemKind(kind: vscode.CompletionItemKind): LitTargetKind {
+function translateCompletionItemKind(kind: CompletionItemKind): LitTargetKind {
 	switch (kind) {
-		case vscode.CompletionItemKind.Method:
+		case CompletionItemKind.Method:
 			return "memberFunctionElement";
-		case vscode.CompletionItemKind.Function:
+		case CompletionItemKind.Function:
 			return "functionElement";
-		case vscode.CompletionItemKind.Constructor:
+		case CompletionItemKind.Constructor:
 			return "constructorImplementationElement";
-		case vscode.CompletionItemKind.Field:
-		case vscode.CompletionItemKind.Variable:
+		case CompletionItemKind.Field:
+		case CompletionItemKind.Variable:
 			return "variableElement";
-		case vscode.CompletionItemKind.Class:
+		case CompletionItemKind.Class:
 			return "classElement";
-		case vscode.CompletionItemKind.Interface:
+		case CompletionItemKind.Interface:
 			return "interfaceElement";
-		case vscode.CompletionItemKind.Module:
+		case CompletionItemKind.Module:
 			return "moduleElement";
-		case vscode.CompletionItemKind.Property:
+		case CompletionItemKind.Property:
 			return "memberVariableElement";
-		case vscode.CompletionItemKind.Unit:
-		case vscode.CompletionItemKind.Value:
+		case CompletionItemKind.Unit:
+		case CompletionItemKind.Value:
 			return "constElement";
-		case vscode.CompletionItemKind.Enum:
+		case CompletionItemKind.Enum:
 			return "enumElement";
-		case vscode.CompletionItemKind.Keyword:
+		case CompletionItemKind.Keyword:
 			return "keyword";
-		case vscode.CompletionItemKind.Color:
+		case CompletionItemKind.Color:
 			return "constElement";
-		case vscode.CompletionItemKind.Reference:
+		case CompletionItemKind.Reference:
 			return "alias";
-		case vscode.CompletionItemKind.File:
+		case CompletionItemKind.File:
 			return "moduleElement";
-		case vscode.CompletionItemKind.Snippet:
-		case vscode.CompletionItemKind.Text:
+		case CompletionItemKind.Snippet:
+		case CompletionItemKind.Text:
 		default:
 			return "unknown";
 	}
