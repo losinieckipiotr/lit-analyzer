@@ -101,7 +101,6 @@
 	"devDependencies": {
 		"@types/node": "^26.2.0",
 		"ava": "^8.0.1",
-		"rimraf": "^3.0.2",
 		"tslib": "^2.0.0",
 		"typescript": "5.9.3",
 		"typescript-5.2": "npm:typescript@5.2.2",
