@@ -29,7 +29,7 @@ import { translateRenameInfo } from "./translate/translate-rename-info.js";
 import { translateRenameLocations } from "./translate/translate-rename-locations.js";
 
 export class TsLitPlugin {
-  private litAnalyzer = new LitAnalyzer(this.context);
+  private litAnalyzer: LitAnalyzer;
 
   private get program(): Program {
     return this.prevLangService.getProgram()!;
@@ -38,7 +38,9 @@ export class TsLitPlugin {
   constructor(
     private prevLangService: LanguageService,
     public readonly context: LitPluginContext
-  ) {}
+  ) {
+    this.litAnalyzer = new LitAnalyzer(context);
+  }
 
   // All methods in this file use ...args because these methods should override
   // the methods on prevLangService, but that object may come from a future
