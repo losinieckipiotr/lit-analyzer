@@ -1,7 +1,7 @@
 import { IP5CommentNode, IP5DocumentFragmentNode, IP5NodeBase, IP5TagNode, IP5TextNode, P5Node } from "./parse-html-types.js";
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { parseFragment } = require("parse5");
+// @ts-expect-error no types for now
+import { parseFragment } from "parse5";
 
 /**
  * Returns if a p5Node is a tag node.
