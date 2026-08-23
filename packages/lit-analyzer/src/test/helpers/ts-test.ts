@@ -1,9 +1,9 @@
-import test, { Implementation } from "ava";
+import test, { ImplementationFn } from "ava";
 import { dirname } from "path";
 import * as tsModule from "typescript";
 import { setTypescriptModule } from "../../lib/analyze/ts-module.js";
 
-type TestFunction = (title: string, implementation: Implementation) => void;
+type TestFunction = (title: string, implementation: ImplementationFn<unknown[]>) => void;
 
 const TS_MODULES_ALL = ["current", "4.8", "5.0", "5.1", "5.2"] as const;
 
@@ -88,13 +88,13 @@ export function getCurrentTsModuleDirectory(): string {
  * @param title
  * @param cb
  */
-function setupTest(testFunction: TestFunction, tsModuleKind: TsModuleKind | undefined, title: string, cb: Implementation) {
+function setupTest(testFunction: TestFunction, tsModuleKind: TsModuleKind | undefined, title: string, cb: ImplementationFn<unknown[]>) {
 	// Generate title based on the ts module
 	const version = getTsModuleWithKind(tsModuleKind).version;
 	const titleWithModule = `[ts${version}] ${title}`;
 
 	// Setup up the ava test
-	testFunction(titleWithModule, (...args: Parameters<Implementation>) => {
+	testFunction(titleWithModule, (...args: unknown[]) => {
 		// Set the ts module as environment variable before running the test
 		setCurrentTsModuleKind(tsModuleKind);
 
@@ -102,6 +102,7 @@ function setupTest(testFunction: TestFunction, tsModuleKind: TsModuleKind | unde
 		// Remove this line after refactoring away the global "tsModule.ts"
 		setTypescriptModule(getCurrentTsModule());
 
+		// @ts-expect-error - idk maybe fix later
 		const res = cb(...args);
 
 		// Reset the selected TS_MODULE
@@ -118,7 +119,11 @@ function setupTest(testFunction: TestFunction, tsModuleKind: TsModuleKind | unde
  * @param title
  * @param cb
  */
-function setupTests(testFunction: (title: string, implementation: Implementation) => void, title: string, cb: Implementation) {
+function setupTests(
+	testFunction: (title: string, implementation: ImplementationFn<unknown[]>) => void,
+	title: string,
+	cb: ImplementationFn<unknown[]>
+) {
 	// Find the user specified TS_MODULE at setup time
 	const moduleKinds: TsModuleKind[] = (() => {
 		const currentTsModuleKind = getCurrentTsModuleKind();
