@@ -1,7 +1,6 @@
-import { IP5CommentNode, IP5DocumentFragmentNode, IP5NodeBase, IP5TagNode, IP5TextNode, P5Node } from "./parse-html-types.js";
-
-// @ts-expect-error no types for now
+import { IP5CommentNode, IP5DocumentFragmentNode, IP5TagNode, IP5TextNode, P5Node } from "./parse-html-types.js";
 import { parseFragment } from "parse5";
+import type { DefaultTreeAdapterTypes } from "parse5";
 
 /**
  * Returns if a p5Node is a tag node.
@@ -15,7 +14,7 @@ export function isTagNode(node: P5Node): node is IP5TagNode {
  * Returns if a p5Node is a document fragment.
  * @param node
  */
-export function isDocumentFragmentNode(node: IP5NodeBase): node is IP5DocumentFragmentNode {
+export function isDocumentFragmentNode(node: DefaultTreeAdapterTypes.Node): node is IP5DocumentFragmentNode {
 	return node.nodeName === "#document-fragment";
 }
 
@@ -40,5 +39,5 @@ export function isCommentNode(node: P5Node): node is IP5CommentNode {
  * @param html
  */
 export function parseHtml(html: string): IP5DocumentFragmentNode {
-	return parseFragment(html, { sourceCodeLocationInfo: true, locationInfo: true });
+	return parseFragment(html, { sourceCodeLocationInfo: true });
 }

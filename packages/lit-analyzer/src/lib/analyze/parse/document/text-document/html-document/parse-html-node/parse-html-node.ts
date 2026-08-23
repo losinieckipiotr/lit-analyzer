@@ -76,7 +76,7 @@ export function parseHtmlNode(p5Node: IP5TagNode, parent: HtmlNode | undefined, 
  */
 function isSelfClosed(p5Node: IP5TagNode, context: ParseHtmlContext) {
 	const isEmpty = p5Node.childNodes == null || p5Node.childNodes.length === 0;
-	const isSelfClosed = getSourceLocation(p5Node)!.startTag.endOffset === getSourceLocation(p5Node)!.endOffset;
+	const isSelfClosed = getSourceLocation(p5Node)!.startTag!.endOffset === getSourceLocation(p5Node)!.endOffset;
 	return isEmpty && isSelfClosed;
 }
 
@@ -92,19 +92,19 @@ function makeHtmlNodeLocation(p5Node: IP5TagNode, context: ParseHtmlContext): IH
 		start: loc.startOffset,
 		end: loc.endOffset,
 		name: {
-			start: loc.startTag.startOffset + 1, // take '<' into account
-			end: loc.startTag.startOffset + 1 + p5Node.tagName.length
+			start: loc.startTag!.startOffset + 1, // take '<' into account
+			end: loc.startTag!.startOffset + 1 + p5Node.tagName.length
 		},
 		startTag: {
-			start: loc.startTag.startOffset,
-			end: loc.startTag.endOffset
+			start: loc.startTag!.startOffset,
+			end: loc.startTag!.endOffset
 		},
 		endTag:
 			loc.endTag == null
 				? undefined
 				: {
-						start: loc.endTag.startOffset,
-						end: loc.endTag.endOffset
+						start: loc.endTag!.startOffset,
+						end: loc.endTag!.endOffset
 					}
 	};
 }
