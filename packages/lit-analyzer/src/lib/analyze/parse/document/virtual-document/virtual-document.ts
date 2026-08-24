@@ -4,7 +4,7 @@ import {
   DocumentRange,
   Range,
   SourceFilePosition,
-  SourceFileRange
+  SourceFileRange,
 } from "../../../types/range.js";
 
 export interface VirtualDocument {
@@ -20,13 +20,13 @@ export function textPartsToRanges(parts: (Expression | string)[]): Range[] {
   let offset = 0;
 
   return parts
-    .map(p => {
+    .map((p) => {
       if (typeof p === "string") {
         const startOffset = offset;
         offset += p.length;
         return {
           start: startOffset,
-          end: offset
+          end: offset,
         } as Range;
       } else {
         offset += p.getText().length + 3;

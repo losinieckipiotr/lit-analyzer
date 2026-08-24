@@ -12,7 +12,7 @@ const LEGACY_ASSIGNMENT = /^(\[\[[^\]]+\]\]|{{[^}]+}})/;
 const rule: RuleModule = {
   id: "no-legacy-attribute",
   meta: {
-    priority: "medium"
+    priority: "medium",
   },
   visitHtmlAttribute(htmlAttr, context) {
     if (htmlAttr.htmlNode.kind !== HtmlNodeKind.NODE) {
@@ -34,7 +34,7 @@ const rule: RuleModule = {
         location: rangeFromHtmlNodeAttr(htmlAttr),
         message: `Legacy Polymer binding syntax in attribute '${htmlAttr.name}'.`,
         fixMessage: `Did you mean '${suggestedName}'?`,
-        suggestion: "Legacy Polymer binding syntax is not supported in Lit."
+        suggestion: "Legacy Polymer binding syntax is not supported in Lit.",
         /*fix: () => ({
 					message: `Change to '${suggestedName}'`,
 					actions: [{ kind: "changeAttributeName", htmlAttr, newName: suggestedName }]
@@ -57,11 +57,11 @@ const rule: RuleModule = {
         message: `Legacy Polymer binding syntax in attribute '${htmlAttr.name}'.`,
         suggestion:
           "Legacy Polymer binding syntax is not supported in Lit." +
-          ' Instead you should use JavaScript interpolation, e.g. "attr=${foo}".'
+          ' Instead you should use JavaScript interpolation, e.g. "attr=${foo}".',
         //suggestedTarget
       });
     }
-  }
+  },
 };
 
 export default rule;

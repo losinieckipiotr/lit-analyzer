@@ -7,7 +7,7 @@ import {
   Program,
   ScriptKind,
   ScriptTarget,
-  SourceFile
+  SourceFile,
 } from "typescript";
 import { getCurrentTsModule, getCurrentTsModuleDirectory } from "./ts-test.js";
 
@@ -34,29 +34,29 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
   const files: ITestFile[] = (
     Array.isArray(inputFiles) ? inputFiles : [inputFiles]
   )
-    .map(file =>
+    .map((file) =>
       typeof file === "string"
         ? {
             text: file,
             fileName: `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
-            entry: true
+            entry: true,
           }
         : {
             ...file,
             fileName:
               file.fileName ||
-              `auto-generated-${Math.floor(Math.random() * 100000)}.ts`
-          }
+              `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
+          },
     )
-    .map(file => ({ ...file, fileName: file.fileName }));
+    .map((file) => ({ ...file, fileName: file.fileName }));
 
-  const entryFile = files.find(file => file.entry === true) || files[0];
+  const entryFile = files.find((file) => file.entry === true) || files[0];
 
   const includeLib = true; //files.find(file => file.includeLib) != null;
 
   const readFile = (fileName: string): string | undefined => {
     const matchedFile = files.find(
-      currentFile => currentFile.fileName === fileName
+      (currentFile) => currentFile.fileName === fileName,
     );
     if (matchedFile != null) {
       return matchedFile.text;
@@ -75,7 +75,7 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
     return undefined;
   };
   const fileExists = (fileName: string): boolean => {
-    return files.some(currentFile => currentFile.fileName === fileName);
+    return files.some((currentFile) => currentFile.fileName === fileName);
   };
 
   const compilerOptions: CompilerOptions = {
@@ -83,7 +83,7 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
     target: ScriptTarget.ESNext,
     allowJs: true,
     sourceMap: false,
-    strict: true // if strict = false, "undefined" and "null" will be removed from unions types.
+    strict: true, // if strict = false, "undefined" and "null" will be removed from unions types.
   };
 
   const compilerHost: CompilerHost = {
@@ -92,7 +92,7 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
     fileExists,
     getSourceFile(
       fileName: string,
-      languageVersion: ScriptTarget
+      languageVersion: ScriptTarget,
     ): SourceFile | undefined {
       const sourceText = this.readFile(fileName);
       if (sourceText == null) return undefined;
@@ -102,7 +102,7 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
         sourceText,
         languageVersion,
         true,
-        ScriptKind.TS
+        ScriptKind.TS,
       );
     },
 
@@ -130,23 +130,23 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
 
     useCaseSensitiveFileNames() {
       return ts.sys.useCaseSensitiveFileNames;
-    }
+    },
   };
 
   const program = ts.createProgram({
     //rootNames: [...files.map(file => file.fileName!), "node_modules/typescript/lib/lib.dom.d.ts"],
     rootNames: [
-      ...files.map(file => file.fileName!),
-      ...(includeLib ? ["node_modules/typescript/lib/lib.dom.d.ts"] : [])
+      ...files.map((file) => file.fileName!),
+      ...(includeLib ? ["node_modules/typescript/lib/lib.dom.d.ts"] : []),
     ],
     //rootNames: files.map(file => file.fileName!),
     options: compilerOptions,
-    host: compilerHost
+    host: compilerHost,
   });
 
   // We need to overwrite this so the traversal of external modules can be tested.
   program.isSourceFileFromExternalLibrary = (
-    sourceFile: SourceFile
+    sourceFile: SourceFile,
   ): boolean => {
     const filename = sourceFile.fileName;
     return filename.includes("node_modules");
@@ -159,6 +159,6 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
 
   return {
     program,
-    sourceFile: entrySourceFile
+    sourceFile: entrySourceFile,
   };
 }

@@ -5,7 +5,7 @@ import { LitDiagnostic } from "../../lib/analyze/types/lit-diagnostic.js";
 export function hasDiagnostic(
   t: ExecutionContext,
   diagnostics: LitDiagnostic[],
-  ruleName: LitAnalyzerRuleId
+  ruleName: LitAnalyzerRuleId,
 ): void {
   if (diagnostics.length !== 1) {
     prettyLogDiagnostics(t, diagnostics);
@@ -16,7 +16,7 @@ export function hasDiagnostic(
 
 export function hasNoDiagnostics(
   t: ExecutionContext,
-  diagnostics: LitDiagnostic[]
+  diagnostics: LitDiagnostic[],
 ): void {
   if (diagnostics.length !== 0) {
     prettyLogDiagnostics(t, diagnostics);
@@ -26,9 +26,11 @@ export function hasNoDiagnostics(
 
 function prettyLogDiagnostics(
   t: ExecutionContext,
-  diagnostics: LitDiagnostic[]
+  diagnostics: LitDiagnostic[],
 ) {
   t.log(
-    diagnostics.map(diagnostic => `${diagnostic.source}: ${diagnostic.message}`)
+    diagnostics.map(
+      (diagnostic) => `${diagnostic.source}: ${diagnostic.message}`,
+    ),
   );
 }

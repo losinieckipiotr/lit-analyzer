@@ -6,7 +6,7 @@ import { rangeFromHtmlNode } from "../../../util/range-util.js";
 
 export function definitionForHtmlNode(
   htmlNode: HtmlNode,
-  { htmlStore, ts }: LitAnalyzerContext
+  { htmlStore, ts }: LitAnalyzerContext,
 ): LitDefinition | undefined {
   const tag = htmlStore.getHtmlTag(htmlNode);
   if (tag == null || tag.declaration == null) return undefined;
@@ -18,8 +18,8 @@ export function definitionForHtmlNode(
     targets: [
       {
         kind: "node",
-        node: getNodeIdentifier(node, ts) || node
-      }
-    ]
+        node: getNodeIdentifier(node, ts) || node,
+      },
+    ],
   };
 }

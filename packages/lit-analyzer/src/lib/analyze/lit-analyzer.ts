@@ -3,7 +3,7 @@ import { ComponentAnalyzer } from "./component-analyzer/component-analyzer.js";
 import { LitCssDocumentAnalyzer } from "./document-analyzer/css/lit-css-document-analyzer.js";
 import {
   LitHtmlDocumentAnalyzer,
-  LitIndexEntry
+  LitIndexEntry,
 } from "./document-analyzer/html/lit-html-document-analyzer.js";
 import { renameLocationsForTagName } from "./document-analyzer/html/rename-locations/rename-locations-for-tag-name.js";
 import { LitAnalyzerContext } from "./lit-analyzer-context.js";
@@ -28,7 +28,7 @@ import { getNodeAtPosition, nodeIntersects } from "./util/ast-util.js";
 import { iterableFirst } from "./util/iterable-util.js";
 import {
   makeSourceFileRange,
-  sfRangeToDocumentRange
+  sfRangeToDocumentRange,
 } from "./util/range-util.js";
 
 export class LitAnalyzer {
@@ -50,7 +50,7 @@ export class LitAnalyzer {
     this.context.updateComponents(file);
 
     return arrayFlat(
-      documents.map(document => {
+      documents.map((document) => {
         if (document instanceof CssDocument) {
           return [];
         } else if (document instanceof HtmlDocument) {
@@ -58,19 +58,19 @@ export class LitAnalyzer {
         }
 
         return [];
-      })
+      }),
     );
   }
 
   getDefinitionAtPosition(
     file: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): LitDefinition | undefined {
     this.context.setContextBase({ file });
 
     const { document, offset } = this.getDocumentAndOffsetAtPosition(
       file,
-      position
+      position,
     );
     if (document == null) return undefined;
 
@@ -80,13 +80,13 @@ export class LitAnalyzer {
       return this.litCssDocumentAnalyzer.getDefinitionAtOffset(
         document,
         offset,
-        this.context
+        this.context,
       );
     } else if (document instanceof HtmlDocument) {
       return this.litHtmlDocumentAnalyzer.getDefinitionAtOffset(
         document,
         offset,
-        this.context
+        this.context,
       );
     }
     return;
@@ -111,13 +111,13 @@ export class LitAnalyzer {
 
   getQuickInfoAtPosition(
     file: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): LitQuickInfo | undefined {
     this.context.setContextBase({ file });
 
     const { document, offset } = this.getDocumentAndOffsetAtPosition(
       file,
-      position
+      position,
     );
     if (document == null) return undefined;
 
@@ -127,13 +127,13 @@ export class LitAnalyzer {
       return this.litCssDocumentAnalyzer.getQuickInfoAtOffset(
         document,
         offset,
-        this.context
+        this.context,
       );
     } else if (document instanceof HtmlDocument) {
       return this.litHtmlDocumentAnalyzer.getQuickInfoAtOffset(
         document,
         offset,
-        this.context
+        this.context,
       );
     }
     return;
@@ -141,13 +141,13 @@ export class LitAnalyzer {
 
   getRenameInfoAtPosition(
     file: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): LitRenameInfo | undefined {
     this.context.setContextBase({ file });
 
     const { document, offset } = this.getDocumentAndOffsetAtPosition(
       file,
-      position
+      position,
     );
     if (document != null) {
       if (document instanceof CssDocument) {
@@ -156,7 +156,7 @@ export class LitAnalyzer {
         return this.litHtmlDocumentAnalyzer.getRenameInfoAtOffset(
           document,
           offset,
-          this.context
+          this.context,
         );
       }
     } else {
@@ -172,7 +172,7 @@ export class LitAnalyzer {
           definition != null &&
           nodeIntersects(
             nodeUnderCursor,
-            iterableFirst(definition.tagNameNodes)!
+            iterableFirst(definition.tagNameNodes)!,
           )
         ) {
           return {
@@ -180,10 +180,10 @@ export class LitAnalyzer {
             displayName: tagName,
             range: makeSourceFileRange({
               start: nodeUnderCursor.getStart() + 1,
-              end: nodeUnderCursor.getEnd() - 1
+              end: nodeUnderCursor.getEnd() - 1,
             }),
             kind: "label",
-            target: definition
+            target: definition,
           };
         }
       }
@@ -193,7 +193,7 @@ export class LitAnalyzer {
 
   getRenameLocationsAtPosition(
     file: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): LitRenameLocation[] {
     this.context.setContextBase({ file });
 
@@ -211,7 +211,7 @@ export class LitAnalyzer {
         return this.litHtmlDocumentAnalyzer.getRenameLocationsAtOffset(
           document,
           offset,
-          this.context
+          this.context,
         );
       }
     } else {
@@ -221,13 +221,13 @@ export class LitAnalyzer {
 
   getClosingTagAtPosition(
     file: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): LitClosingTagInfo | undefined {
     this.context.setContextBase({ file });
 
     const { document, offset } = this.getDocumentAndOffsetAtPosition(
       file,
-      position
+      position,
     );
     if (document == null) return undefined;
 
@@ -236,7 +236,7 @@ export class LitAnalyzer {
     if (document instanceof HtmlDocument) {
       return this.litHtmlDocumentAnalyzer.getClosingTagAtOffset(
         document,
-        offset
+        offset,
       );
     }
     return;
@@ -245,13 +245,13 @@ export class LitAnalyzer {
   getCompletionDetailsAtPosition(
     file: SourceFile,
     position: SourceFilePosition,
-    name: string
+    name: string,
   ): LitCompletionDetails | undefined {
     this.context.setContextBase({ file });
 
     const { document, offset } = this.getDocumentAndOffsetAtPosition(
       file,
-      position
+      position,
     );
     if (document == null) return undefined;
 
@@ -260,14 +260,14 @@ export class LitAnalyzer {
         document,
         offset,
         name,
-        this.context
+        this.context,
       );
     } else if (document instanceof HtmlDocument) {
       return this.litHtmlDocumentAnalyzer.getCompletionDetailsAtOffset(
         document,
         offset,
         name,
-        this.context
+        this.context,
       );
     }
     return;
@@ -275,13 +275,13 @@ export class LitAnalyzer {
 
   getCompletionsAtPosition(
     file: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): LitCompletion[] | undefined {
     this.context.setContextBase({ file });
 
     const { document, offset } = this.getDocumentAndOffsetAtPosition(
       file,
-      position
+      position,
     );
 
     if (document == null) return undefined;
@@ -292,13 +292,13 @@ export class LitAnalyzer {
       return this.litCssDocumentAnalyzer.getCompletionsAtOffset(
         document,
         offset,
-        this.context
+        this.context,
       );
     } else if (document instanceof HtmlDocument) {
       return this.litHtmlDocumentAnalyzer.getCompletionsAtOffset(
         document,
         offset,
-        this.context
+        this.context,
       );
     }
     return;
@@ -308,7 +308,7 @@ export class LitAnalyzer {
     this.context.setContextBase({
       file,
       timeout: 7000,
-      throwOnCancellation: true
+      throwOnCancellation: true,
     });
 
     this.context.updateComponents(file);
@@ -327,7 +327,7 @@ export class LitAnalyzer {
       }
 
       diagnostics.push(
-        ...this.componentAnalyzer.getDiagnostics(definition, this.context)
+        ...this.componentAnalyzer.getDiagnostics(definition, this.context),
       );
     }
 
@@ -340,7 +340,7 @@ export class LitAnalyzer {
       }
 
       diagnostics.push(
-        ...this.componentAnalyzer.getDiagnostics(declaration, this.context)
+        ...this.componentAnalyzer.getDiagnostics(declaration, this.context),
       );
     }
 
@@ -352,11 +352,14 @@ export class LitAnalyzer {
 
       if (document instanceof CssDocument) {
         diagnostics.push(
-          ...this.litCssDocumentAnalyzer.getDiagnostics(document, this.context)
+          ...this.litCssDocumentAnalyzer.getDiagnostics(document, this.context),
         );
       } else if (document instanceof HtmlDocument) {
         diagnostics.push(
-          ...this.litHtmlDocumentAnalyzer.getDiagnostics(document, this.context)
+          ...this.litHtmlDocumentAnalyzer.getDiagnostics(
+            document,
+            this.context,
+          ),
         );
       }
     }
@@ -366,13 +369,13 @@ export class LitAnalyzer {
 
   getCodeFixesAtPositionRange(
     file: SourceFile,
-    sourceFileRange: Range
+    sourceFileRange: Range,
   ): LitCodeFix[] {
     this.context.setContextBase({ file });
 
     const { document } = this.getDocumentAndOffsetAtPosition(
       file,
-      sourceFileRange.start
+      sourceFileRange.start,
     );
 
     this.context.updateComponents(file);
@@ -383,7 +386,7 @@ export class LitAnalyzer {
       return this.litHtmlDocumentAnalyzer.getCodeFixesAtOffsetRange(
         document,
         sfRangeToDocumentRange(document, sourceFileRange),
-        this.context
+        this.context,
       );
     }
 
@@ -395,7 +398,7 @@ export class LitAnalyzer {
         const result = this.componentAnalyzer.getCodeFixesAtOffsetRange(
           definition,
           makeSourceFileRange(sourceFileRange),
-          this.context
+          this.context,
         );
         if (result.length > 0) {
           return result;
@@ -408,7 +411,7 @@ export class LitAnalyzer {
         const result = this.componentAnalyzer.getCodeFixesAtOffsetRange(
           component,
           makeSourceFileRange(sourceFileRange),
-          this.context
+          this.context,
         );
         if (result.length > 0) {
           return result;
@@ -421,36 +424,36 @@ export class LitAnalyzer {
 
   getFormatEditsInFile(
     file: SourceFile,
-    settings: FormatCodeSettings
+    settings: FormatCodeSettings,
   ): LitFormatEdit[] {
     this.context.setContextBase({ file });
 
     const documents = this.getDocumentsInFile(file);
 
     return arrayFlat(
-      documents.map(document => {
+      documents.map((document) => {
         if (document instanceof CssDocument) {
           return [];
         } else if (document instanceof HtmlDocument) {
           return this.litHtmlDocumentAnalyzer.getFormatEdits(
             document,
-            settings
+            settings,
           );
         }
 
         return [];
-      })
+      }),
     );
   }
 
   private getDocumentAndOffsetAtPosition(
     sourceFile: SourceFile,
-    position: SourceFilePosition
+    position: SourceFilePosition,
   ): { document: TextDocument | undefined; offset: DocumentOffset } {
     const document = this.context.documentStore.getDocumentAtPosition(
       sourceFile,
       position,
-      this.context.config
+      this.context.config,
     );
 
     return {
@@ -458,14 +461,14 @@ export class LitAnalyzer {
       offset:
         document != null
           ? document.virtualDocument.sfPositionToDocumentOffset(position)
-          : -1
+          : -1,
     };
   }
 
   private getDocumentsInFile(sourceFile: SourceFile): TextDocument[] {
     return this.context.documentStore.getDocumentsInFile(
       sourceFile,
-      this.context.config
+      this.context.config,
     );
   }
 }

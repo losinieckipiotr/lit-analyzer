@@ -5,7 +5,7 @@ import { setTypescriptModule } from "../../lib/analyze/ts-module.js";
 
 type TestFunction = (
   title: string,
-  implementation: ImplementationFn<unknown[]>
+  implementation: ImplementationFn<unknown[]>,
 ) => void;
 
 const TS_MODULES_ALL = ["current", "5.2"] as const;
@@ -13,7 +13,7 @@ const TS_MODULES_ALL = ["current", "5.2"] as const;
 type TsModuleKind = (typeof TS_MODULES_ALL)[number];
 
 const TS_MODULES_DEFAULT: TsModuleKind[] = [
-  "current"
+  "current",
   // "5.2"
 ];
 
@@ -95,7 +95,7 @@ function setupTest(
   testFunction: TestFunction,
   tsModuleKind: TsModuleKind | undefined,
   title: string,
-  cb: ImplementationFn<unknown[]>
+  cb: ImplementationFn<unknown[]>,
 ) {
   // Generate title based on the ts module
   const version = getTsModuleWithKind(tsModuleKind).version;
@@ -130,10 +130,10 @@ function setupTest(
 function setupTests(
   testFunction: (
     title: string,
-    implementation: ImplementationFn<unknown[]>
+    implementation: ImplementationFn<unknown[]>,
   ) => void,
   title: string,
-  cb: ImplementationFn<unknown[]>
+  cb: ImplementationFn<unknown[]>,
 ) {
   // Find the user specified TS_MODULE at setup time
   const moduleKinds: TsModuleKind[] = (() => {
@@ -166,5 +166,5 @@ function wrapAvaTest(testFunction: TestFunction): TestFunction {
  */
 export const tsTest = Object.assign(wrapAvaTest(test), {
   only: wrapAvaTest(test.only),
-  skip: wrapAvaTest(test.skip)
+  skip: wrapAvaTest(test.skip),
 });

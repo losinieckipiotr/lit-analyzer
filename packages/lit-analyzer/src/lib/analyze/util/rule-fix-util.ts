@@ -1,7 +1,7 @@
 import {
   InterfaceDeclaration,
   ModuleDeclaration,
-  SourceFile
+  SourceFile,
 } from "typescript";
 import { tsModule } from "../ts-module.js";
 import { LitCodeFix } from "../types/lit-code-fix.js";
@@ -13,14 +13,14 @@ import {
   documentRangeToSFRange,
   makeSourceFileRange,
   rangeFromHtmlNodeAttr,
-  rangeFromNode
+  rangeFromNode,
 } from "./range-util.js";
 
 export function converRuleFixToLitCodeFix(codeFix: RuleFix): LitCodeFix {
   return {
     name: "",
     message: codeFix.message,
-    actions: arrayFlat(codeFix.actions.map(ruleFixActionConverter))
+    actions: arrayFlat(codeFix.actions.map(ruleFixActionConverter)),
   };
 }
 
@@ -34,7 +34,7 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
       return [
         {
           range: documentRangeToSFRange(document, startLocation),
-          newText: action.newName
+          newText: action.newName,
         },
         ...(endLocation == null
           ? []
@@ -42,11 +42,11 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
               {
                 range: documentRangeToSFRange(document, {
                   start: endLocation.start + 2,
-                  end: endLocation.end - 1
+                  end: endLocation.end - 1,
                 }),
-                newText: action.newName
-              }
-            ])
+                newText: action.newName,
+              },
+            ]),
       ];
     }
 
@@ -57,10 +57,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
         {
           range: documentRangeToSFRange(htmlNode.document, {
             start: htmlNode.location.name.end,
-            end: htmlNode.location.name.end
+            end: htmlNode.location.name.end,
           }),
-          newText: ` ${action.name}${action.value == null ? "" : `="${action.value}"`}`
-        }
+          newText: ` ${action.name}${action.value == null ? "" : `="${action.value}"`}`,
+        },
       ];
     }
 
@@ -68,8 +68,8 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
       return [
         {
           range: rangeFromHtmlNodeAttr(action.htmlAttr),
-          newText: action.newName
-        }
+          newText: action.newName,
+        },
       ];
     }
 
@@ -81,10 +81,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
           // Make a range that includes the modifier.
           range: documentRangeToSFRange(document, {
             start: action.htmlAttr.location.start,
-            end: action.htmlAttr.location.name.start
+            end: action.htmlAttr.location.name.start,
           }),
-          newText: action.newModifier
-        }
+          newText: action.newModifier,
+        },
       ];
     }
 
@@ -99,10 +99,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
         {
           range: documentRangeToSFRange(assignment.htmlAttr.document, {
             start: assignment.location.start + 2, // Offset 2 for '${'
-            end: assignment.location.end - 1 // Offset 1 for '}'
+            end: assignment.location.end - 1, // Offset 1 for '}'
           }),
-          newText: action.newValue
-        }
+          newText: action.newValue,
+        },
       ];
     }
 
@@ -114,10 +114,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
         {
           range: makeSourceFileRange({
             start: lastImportIndex,
-            end: lastImportIndex
+            end: lastImportIndex,
           }),
-          newText: `\nimport "${action.path}";`
-        }
+          newText: `\nimport "${action.path}";`,
+        },
       ];
     }
 
@@ -125,8 +125,8 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
       return [
         {
           range: rangeFromNode(action.identifier),
-          newText: action.newText
-        }
+          newText: action.newText,
+        },
       ];
     }
 
@@ -134,8 +134,8 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
       return [
         {
           range: action.range,
-          newText: action.newText
-        }
+          newText: action.newText,
+        },
       ];
     }
 
@@ -151,7 +151,7 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
       const existingModuleDeclaration = action.file.statements?.find(
         (statement): statement is ModuleDeclaration =>
           tsModule.ts.isModuleDeclaration(statement) &&
-          statement.name.text === "global"
+          statement.name.text === "global",
       );
 
       const existingModuleBody = existingModuleDeclaration?.body;
@@ -162,10 +162,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
           {
             range: makeSourceFileRange({
               start: action.file.getEnd(),
-              end: action.file.getEnd()
+              end: action.file.getEnd(),
             }),
-            newText: MODULE_PART
-          }
+            newText: MODULE_PART,
+          },
         ];
       }
 
@@ -179,7 +179,7 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
       const existingDeclaration = existingModuleBody.statements?.find(
         (statement): statement is InterfaceDeclaration =>
           tsModule.ts.isInterfaceDeclaration(statement) &&
-          statement.name.text === action.name
+          statement.name.text === action.name,
       );
 
       // If there is no existing declaration with "action.name", add a new declaration inside the module block
@@ -188,10 +188,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
           {
             range: makeSourceFileRange({
               start: existingModuleBody.getStart() + 1,
-              end: existingModuleBody.getStart() + 1
+              end: existingModuleBody.getStart() + 1,
             }),
-            newText: DECLARATION_PART
-          }
+            newText: DECLARATION_PART,
+          },
         ];
       }
 
@@ -200,10 +200,10 @@ function ruleFixActionConverter(action: RuleFixAction): LitCodeFixAction[] {
         {
           range: makeSourceFileRange({
             start: existingDeclaration.name.getEnd() + 2,
-            end: existingDeclaration.name.getEnd() + 2
+            end: existingDeclaration.name.getEnd() + 2,
           }),
-          newText: MEMBER_PART
-        }
+          newText: MEMBER_PART,
+        },
       ];
     }
   }

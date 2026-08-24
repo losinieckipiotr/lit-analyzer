@@ -1,19 +1,19 @@
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
-  LIT_HTML_PROP_ATTRIBUTE_MODIFIER
+  LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../../../../constants.js";
 import {
   HtmlNodeAttr,
   HtmlNodeAttrKind,
   IHtmlNodeAttrBase,
-  IHtmlNodeAttrSourceCodeLocation
+  IHtmlNodeAttrSourceCodeLocation,
 } from "../../../../../types/html-node/html-node-attr-types.js";
 import { parseLitAttrName } from "../../../../../util/general-util.js";
 import {
   getSourceLocation,
   IP5NodeAttr,
-  IP5TagNode
+  IP5TagNode,
 } from "../parse-html-p5/parse-html-types.js";
 import { parseHtmlAttrAssignment } from "./parse-html-attr-assignment.js";
 import { ParseHtmlAttrContext } from "./parse-html-attr-context.js";
@@ -25,14 +25,14 @@ import { ParseHtmlAttrContext } from "./parse-html-attr-context.js";
  */
 export function parseHtmlNodeAttrs(
   p5Node: IP5TagNode,
-  context: ParseHtmlAttrContext
+  context: ParseHtmlAttrContext,
 ): HtmlNodeAttr[] {
   return p5Node.attrs
-    .map(htmlAttr =>
+    .map((htmlAttr) =>
       parseHtmlNodeAttr(p5Node, htmlAttr, {
         ...context,
-        htmlNode: context.htmlNode
-      })
+        htmlNode: context.htmlNode,
+      }),
     )
     .filter((attr): attr is HtmlNodeAttr => attr != null);
 }
@@ -46,7 +46,7 @@ export function parseHtmlNodeAttrs(
 export function parseHtmlNodeAttr(
   p5Node: IP5TagNode,
   p5Attr: IP5NodeAttr,
-  context: ParseHtmlAttrContext
+  context: ParseHtmlAttrContext,
 ): HtmlNodeAttr | undefined {
   const { htmlNode } = context;
   const { name, modifier } = parseLitAttrName(p5Attr.name);
@@ -61,7 +61,7 @@ export function parseHtmlNodeAttr(
     document: context.document,
     modifier,
     htmlNode,
-    location
+    location,
   };
 
   const htmlAttr = parseHtmlAttrBase(htmlAttrBase);
@@ -70,7 +70,7 @@ export function parseHtmlNodeAttr(
     p5Node,
     p5Attr,
     htmlAttr,
-    context
+    context,
   );
 
   return htmlAttr;
@@ -85,7 +85,7 @@ export function parseHtmlNodeAttr(
 function makeHtmlAttrLocation(
   p5Node: IP5TagNode,
   p5Attr: IP5NodeAttr,
-  context: ParseHtmlAttrContext
+  context: ParseHtmlAttrContext,
 ): IHtmlNodeAttrSourceCodeLocation | undefined {
   const { name, modifier } = parseLitAttrName(p5Attr.name);
 
@@ -109,8 +109,8 @@ function makeHtmlAttrLocation(
     end,
     name: {
       start: start + (modifier ? modifier.length : 0),
-      end: start + (modifier ? modifier.length : 0) + name.length
-    }
+      end: start + (modifier ? modifier.length : 0) + name.length,
+    },
   };
 }
 
@@ -122,26 +122,26 @@ function parseHtmlAttrBase(htmlAttrBase: IHtmlNodeAttrBase): HtmlNodeAttr {
       return {
         kind: HtmlNodeAttrKind.EVENT_LISTENER,
         ...htmlAttrBase,
-        modifier
+        modifier,
       };
     case LIT_HTML_PROP_ATTRIBUTE_MODIFIER:
       return {
         kind: HtmlNodeAttrKind.PROPERTY,
         ...htmlAttrBase,
-        modifier
+        modifier,
       };
     case LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER:
       return {
         kind: HtmlNodeAttrKind.BOOLEAN_ATTRIBUTE,
         ...htmlAttrBase,
-        modifier
+        modifier,
       };
 
     default:
       return {
         kind: HtmlNodeAttrKind.ATTRIBUTE,
         ...htmlAttrBase,
-        modifier: undefined
+        modifier: undefined,
       };
   }
 }

@@ -3,7 +3,7 @@ import {
   LitAnalyzer,
   LitAnalyzerConfig,
   LitAnalyzerContext,
-  makeConfig
+  makeConfig,
 } from "lit-analyzer";
 import ts, { Diagnostic } from "typescript";
 import { translateDiagnostics } from "./ts-lit-plugin/translate/translate-diagnostics.js";
@@ -29,7 +29,7 @@ export class Plugin implements DiagnosticPlugin {
     const context = new DefaultLitAnalyzerContext({
       getProgram() {
         return program;
-      }
+      },
     });
     context.updateConfig(makeConfig(config));
     this.context = context;
@@ -42,7 +42,7 @@ export class Plugin implements DiagnosticPlugin {
     const diagnostics = translateDiagnostics(
       litDiagnostics,
       sourceFile,
-      this.context
+      this.context,
     );
     for (const diagnostic of diagnostics) {
       if (diagnostic.category === ts.DiagnosticCategory.Warning) {

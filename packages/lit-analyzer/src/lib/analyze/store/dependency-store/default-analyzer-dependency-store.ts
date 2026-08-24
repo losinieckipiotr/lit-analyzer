@@ -10,7 +10,7 @@ export class DefaultAnalyzerDependencyStore implements AnalyzerDependencyStore {
 
   absorbComponentDefinitionsForFile(
     sourceFile: SourceFile,
-    result: ComponentDefinition[]
+    result: ComponentDefinition[],
   ): void {
     this.importedComponentDefinitionsInFile.set(sourceFile.fileName, result);
   }

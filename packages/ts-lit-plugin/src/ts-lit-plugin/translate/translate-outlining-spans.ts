@@ -3,15 +3,15 @@ import { translateRange } from "./translate-range.js";
 import type * as ts from "typescript";
 
 export function translateOutliningSpans(
-  outliningSpans: LitOutliningSpan[]
+  outliningSpans: LitOutliningSpan[],
 ): ts.OutliningSpan[] {
-  return outliningSpans.map(outliningSpan =>
-    translateOutliningSpan(outliningSpan)
+  return outliningSpans.map((outliningSpan) =>
+    translateOutliningSpan(outliningSpan),
   );
 }
 
 function translateOutliningSpan(
-  outliningSpan: LitOutliningSpan
+  outliningSpan: LitOutliningSpan,
 ): ts.OutliningSpan {
   const span = translateRange(outliningSpan.location);
 
@@ -20,6 +20,6 @@ function translateOutliningSpan(
     textSpan: span,
     hintSpan: span,
     kind: outliningSpan.kind as unknown as ts.OutliningSpanKind,
-    bannerText: outliningSpan.bannerText
+    bannerText: outliningSpan.bannerText,
   };
 }

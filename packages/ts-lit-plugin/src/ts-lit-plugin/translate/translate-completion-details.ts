@@ -4,7 +4,7 @@ import { LitPluginContext } from "../lit-plugin-context.js";
 
 export function translateCompletionDetails(
   completionDetails: LitCompletionDetails,
-  context: LitPluginContext
+  context: LitPluginContext,
 ): CompletionEntryDetails {
   return {
     name: completionDetails.name,
@@ -13,8 +13,8 @@ export function translateCompletionDetails(
     displayParts: [
       {
         text: completionDetails.primaryInfo,
-        kind: "text"
-      }
+        kind: "text",
+      },
     ],
     documentation:
       completionDetails.secondaryInfo == null
@@ -22,8 +22,8 @@ export function translateCompletionDetails(
         : [
             {
               kind: "text",
-              text: completionDetails.secondaryInfo
-            }
-          ]
+              text: completionDetails.secondaryInfo,
+            },
+          ],
   };
 }

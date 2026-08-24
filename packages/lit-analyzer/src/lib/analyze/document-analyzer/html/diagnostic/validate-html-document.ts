@@ -5,9 +5,9 @@ import { convertRuleDiagnosticToLitDiagnostic } from "../../../util/rule-diagnos
 
 export function validateHTMLDocument(
   htmlDocument: HtmlDocument,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): LitDiagnostic[] {
   return context.rules
     .getDiagnosticsFromDocument(htmlDocument, context)
-    .map(d => convertRuleDiagnosticToLitDiagnostic(d, context));
+    .map((d) => convertRuleDiagnosticToLitDiagnostic(d, context));
 }

@@ -4,7 +4,7 @@ import {
   IAttributeData,
   ITagData,
   IValueData,
-  IValueSet
+  IValueSet,
 } from "vscode-html-languageservice";
 import { MarkupContent } from "vscode-languageserver-types";
 import { lazy } from "../../util/general-util.js";
@@ -12,7 +12,7 @@ import {
   HtmlAttr,
   HtmlDataCollection,
   HtmlEvent,
-  HtmlTag
+  HtmlTag,
 } from "./html-tag.js";
 
 export interface ParseVscodeHtmlDataConfig {
@@ -22,7 +22,7 @@ export interface ParseVscodeHtmlDataConfig {
 
 export function parseVscodeHtmlData(
   data: HTMLDataV1,
-  config: ParseVscodeHtmlDataConfig = {}
+  config: ParseVscodeHtmlDataConfig = {},
 ): HtmlDataCollection {
   switch (data.version) {
     case 1:
@@ -33,7 +33,7 @@ export function parseVscodeHtmlData(
 
 function parseVscodeDataV1(
   data: HTMLDataV1,
-  config: ParseVscodeHtmlDataConfig
+  config: ParseVscodeHtmlDataConfig,
 ): HtmlDataCollection {
   const valueSetTypeMap = valueSetsToTypeMap(data.valueSets || []);
   valueSetTypeMap.set("v", { kind: "BOOLEAN" });
@@ -47,37 +47,37 @@ function parseVscodeDataV1(
 
   const newConfig = {
     ...config,
-    typeMap: valueSetTypeMap
+    typeMap: valueSetTypeMap,
   };
 
-  const globalAttributes = (data.globalAttributes || []).map(tagDataAttr =>
-    tagDataToHtmlTagAttr(tagDataAttr, newConfig)
+  const globalAttributes = (data.globalAttributes || []).map((tagDataAttr) =>
+    tagDataToHtmlTagAttr(tagDataAttr, newConfig),
   );
 
-  const globalEvents = attrsToEvents(globalAttributes).map(evt => ({
+  const globalEvents = attrsToEvents(globalAttributes).map((evt) => ({
     ...evt,
-    global: true
+    global: true,
   }));
 
   return {
-    tags: (data.tags || []).map(tagData =>
-      tagDataToHtmlTag(tagData, newConfig)
+    tags: (data.tags || []).map((tagData) =>
+      tagDataToHtmlTag(tagData, newConfig),
     ),
     global: {
       attributes: globalAttributes,
-      events: globalEvents
-    }
+      events: globalEvents,
+    },
   };
 }
 
 function tagDataToHtmlTag(
   tagData: ITagData,
-  config: ParseVscodeHtmlDataConfig
+  config: ParseVscodeHtmlDataConfig,
 ): HtmlTag {
   const { name, description } = tagData;
 
-  const attributes = tagData.attributes.map(tagDataAttr =>
-    tagDataToHtmlTagAttr(tagDataAttr, config, name)
+  const attributes = tagData.attributes.map((tagDataAttr) =>
+    tagDataToHtmlTagAttr(tagDataAttr, config, name),
   );
 
   const events = attrsToEvents(attributes);
@@ -91,14 +91,14 @@ function tagDataToHtmlTag(
     slots: [],
     builtIn: config.builtIn,
     cssParts: [],
-    cssProperties: []
+    cssProperties: [],
   };
 }
 
 function tagDataToHtmlTagAttr(
   tagDataAttr: IAttributeData,
   config: ParseVscodeHtmlDataConfig,
-  fromTagName?: string
+  fromTagName?: string,
 ): HtmlAttr {
   const { name, description, valueSet, values } = tagDataAttr;
 
@@ -115,17 +115,17 @@ function tagDataToHtmlTagAttr(
     description: stringOrMarkupContentToString(description),
     fromTagName,
     getType: lazy(() => type || { kind: "ANY" }),
-    builtIn: config.builtIn
+    builtIn: config.builtIn,
   };
 }
 
 function valueSetsToTypeMap(valueSets: IValueSet[]): Map<string, SimpleType> {
   const entries = valueSets.map(
-    valueSet =>
+    (valueSet) =>
       [valueSet.name, attrValuesToUnion(valueSet.values)] as [
         string,
-        SimpleType
-      ]
+        SimpleType,
+      ],
   );
 
   return new Map(entries);
@@ -135,17 +135,17 @@ function attrValuesToUnion(attrValues: IValueData[]): SimpleType {
   return {
     kind: "UNION",
     types: attrValues.map(
-      value =>
+      (value) =>
         ({
           value: value.name,
-          kind: "STRING_LITERAL"
-        }) as SimpleTypeStringLiteral
-    )
+          kind: "STRING_LITERAL",
+        }) as SimpleTypeStringLiteral,
+    ),
   };
 }
 
 function stringOrMarkupContentToString(
-  str: string | MarkupContent | undefined
+  str: string | MarkupContent | undefined,
 ): string | undefined {
   if (str == null || typeof str === "string") {
     return str;
@@ -156,12 +156,12 @@ function stringOrMarkupContentToString(
 
 function attrsToEvents(htmlAttrs: HtmlAttr[]): HtmlEvent[] {
   return htmlAttrs
-    .filter(htmlAttr => htmlAttr.name.startsWith("on"))
-    .map(htmlAttr => ({
+    .filter((htmlAttr) => htmlAttr.name.startsWith("on"))
+    .map((htmlAttr) => ({
       name: htmlAttr.name.replace(/^on/, ""),
       description: htmlAttr.description,
       fromTagName: htmlAttr.fromTagName,
       getType: lazy(() => ({ kind: "ANY" }) as SimpleType),
-      builtIn: htmlAttr.builtIn
+      builtIn: htmlAttr.builtIn,
     }));
 }

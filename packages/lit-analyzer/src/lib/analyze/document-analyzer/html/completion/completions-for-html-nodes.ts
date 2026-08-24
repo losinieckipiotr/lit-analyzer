@@ -16,9 +16,9 @@ export function completionsForHtmlNodes(
     leftWord,
     rightWord,
     beforeWord,
-    afterWord
+    afterWord,
   }: DocumentPositionContext,
-  { htmlStore }: LitAnalyzerContext
+  { htmlStore }: LitAnalyzerContext,
 ): LitCompletion[] {
   const isClosingTag = beforeWord === "/";
 
@@ -43,19 +43,19 @@ export function completionsForHtmlNodes(
         importance: "high",
         range: documentRangeToSFRange(document, {
           start: offset - leftWord.length - 2,
-          end: offset + rightWord.length
+          end: offset + rightWord.length,
         }),
         documentation: lazy(() => {
           const htmlTag = htmlStore.getHtmlTag(intersectingClosestNode);
           return htmlTag != null ? documentationForHtmlTag(htmlTag) : undefined;
-        })
-      } as LitCompletion
+        }),
+      } as LitCompletion,
     ];
   }
 
   const htmlTags = Array.from(htmlStore.getGlobalTags());
 
-  return htmlTags.map(htmlTag => {
+  return htmlTags.map((htmlTag) => {
     const isBuiltIn = !isCustomElementTagName(htmlTag.tagName);
     const hasDeclaration = htmlTag.declaration != null;
 
@@ -73,9 +73,9 @@ export function completionsForHtmlNodes(
         end:
           offset +
           rightWord.length +
-          (isClosingTag && afterWord === ">" ? 1 : 0)
+          (isClosingTag && afterWord === ">" ? 1 : 0),
       }),
-      documentation: lazy(() => documentationForHtmlTag(htmlTag))
+      documentation: lazy(() => documentationForHtmlTag(htmlTag)),
     } as LitCompletion;
   });
 }

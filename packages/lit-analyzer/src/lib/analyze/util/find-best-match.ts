@@ -16,7 +16,7 @@ export interface FindBestMatchOptions<T> {
 export function findBestMatch<T extends string | object>(
   find: string,
   elements: T[],
-  options: FindBestMatchOptions<T>
+  options: FindBestMatchOptions<T>,
 ): T | undefined {
   options.caseSensitive =
     "caseSensitive" in options ? options.caseSensitive : false;
@@ -28,7 +28,7 @@ export function findBestMatch<T extends string | object>(
       threshold: options.threshold,
       matchPath: [options.matchKey] as [string],
       returnType: dym.ReturnTypeEnums.FIRST_CLOSEST_MATCH,
-      trimSpaces: false
+      trimSpaces: false,
     }) || undefined
   );
 }
@@ -38,8 +38,8 @@ export function findBestStringMatch(
   elements: string[],
   {
     caseSensitive = true,
-    threshold = 0.5
-  }: Omit<FindBestMatchOptions<string>, "matchKey"> = {}
+    threshold = 0.5,
+  }: Omit<FindBestMatchOptions<string>, "matchKey"> = {},
 ): string | undefined {
   const matches = didYouMean(find, elements, { caseSensitive, threshold });
   return typeof matches === "string"

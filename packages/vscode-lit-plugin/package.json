@@ -100,7 +100,7 @@
 			"output": [
 				"out/packaged.vsix"
 			],
-			"command": "mkdir -p out && cd built && vsce package -o ../out/packaged.vsix"
+			"command": "echo TODO: 'mkdir -p out && cd built && vsce package -o ../out/packaged.vsix'"
 		},
 		"publish": {
 			"dependencies": [

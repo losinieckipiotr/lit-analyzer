@@ -3,7 +3,7 @@ import {
   AnalyzerResult,
   ComponentDeclaration,
   ComponentDefinition,
-  visitAllHeritageClauses
+  visitAllHeritageClauses,
 } from "web-component-analyzer";
 import { getDeclarationsInFile } from "../../util/component-util.js";
 import { AnalyzerDefinitionStore } from "../analyzer-definition-store.js";
@@ -20,13 +20,13 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
   absorbAnalysisResult(sourceFile: SourceFile, result: AnalyzerResult): void {
     this.analysisResultForFile.set(sourceFile.fileName, result);
 
-    result.componentDefinitions.forEach(definition => {
+    result.componentDefinitions.forEach((definition) => {
       this.definitionForTagName.set(definition.tagName, definition);
 
       addToSetInMap(
         this.intersectingDefinitionsForFile,
         definition.sourceFile.fileName,
-        definition
+        definition,
       );
 
       if (definition.declaration == null) {
@@ -36,15 +36,15 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
       addToSetInMap(
         this.intersectingDefinitionsForFile,
         definition.declaration?.sourceFile.fileName,
-        definition
+        definition,
       );
 
-      visitAllHeritageClauses(definition.declaration, clause => {
+      visitAllHeritageClauses(definition.declaration, (clause) => {
         if (clause.declaration != null) {
           addToSetInMap(
             this.intersectingDefinitionsForFile,
             clause.declaration.sourceFile.fileName,
-            definition
+            definition,
           );
         }
       });
@@ -55,7 +55,7 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
     const result = this.analysisResultForFile.get(sourceFile.fileName);
     if (result == null) return;
 
-    result.componentDefinitions.forEach(definition => {
+    result.componentDefinitions.forEach((definition) => {
       this.definitionForTagName.delete(definition.tagName);
 
       this.intersectingDefinitionsForFile
@@ -70,7 +70,7 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
         .get(definition.declaration?.sourceFile.fileName)
         ?.delete(definition);
 
-      visitAllHeritageClauses(definition.declaration, clause => {
+      visitAllHeritageClauses(definition.declaration, (clause) => {
         if (clause.declaration != null) {
           this.intersectingDefinitionsForFile
             .get(clause.declaration.sourceFile.fileName)
@@ -87,20 +87,20 @@ export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {
   }
 
   getDefinitionsWithDeclarationInFile(
-    sourceFile: SourceFile
+    sourceFile: SourceFile,
   ): ComponentDefinition[] {
     return Array.from(
-      this.intersectingDefinitionsForFile.get(sourceFile.fileName) || []
+      this.intersectingDefinitionsForFile.get(sourceFile.fileName) || [],
     );
   }
 
   getComponentDeclarationsInFile(
-    sourceFile: SourceFile
+    sourceFile: SourceFile,
   ): ComponentDeclaration[] {
     const declarations = new Set<ComponentDeclaration>();
 
     for (const definition of this.intersectingDefinitionsForFile.get(
-      sourceFile.fileName
+      sourceFile.fileName,
     ) || []) {
       for (const declaration of getDeclarationsInFile(definition, sourceFile)) {
         declarations.add(declaration);

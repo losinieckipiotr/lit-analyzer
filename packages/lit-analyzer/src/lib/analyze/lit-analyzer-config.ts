@@ -63,12 +63,12 @@ const DEFAULT_RULES_SEVERITY: Record<
   "no-invalid-css": ["warn", "error"],
   "no-property-visibility-mismatch": ["off", "warning"],
   "no-legacy-attribute": ["off", "off"],
-  "no-missing-element-type-definition": ["off", "off"]
+  "no-missing-element-type-definition": ["off", "off"],
 };
 
 // All rule names order alphabetically
 export const ALL_RULE_IDS = Object.keys(
-  DEFAULT_RULES_SEVERITY
+  DEFAULT_RULES_SEVERITY,
 ).sort() as LitAnalyzerRuleId[];
 
 // This map is based on alphabetic order, so it assumed that
@@ -81,7 +81,7 @@ export const RULE_ID_CODE_MAP = ALL_RULE_IDS.reduce(
     acc[ruleId] = i + 2300;
     return acc;
   },
-  {} as Record<LitAnalyzerRuleId, number>
+  {} as Record<LitAnalyzerRuleId, number>,
 );
 
 export function ruleIdCode(ruleId: LitAnalyzerRuleId): number {
@@ -90,7 +90,7 @@ export function ruleIdCode(ruleId: LitAnalyzerRuleId): number {
 
 export function ruleSeverity(
   rules: LitAnalyzerConfig | LitAnalyzerRules,
-  ruleId: LitAnalyzerRuleId
+  ruleId: LitAnalyzerRuleId,
 ): LitAnalyzerRuleSeverity {
   if ("rules" in rules) return ruleSeverity(rules.rules, ruleId);
 
@@ -100,21 +100,21 @@ export function ruleSeverity(
 
 export function isRuleDisabled(
   config: LitAnalyzerConfig,
-  ruleId: LitAnalyzerRuleId
+  ruleId: LitAnalyzerRuleId,
 ): boolean {
   return ["off", 0, false].includes(ruleSeverity(config, ruleId));
 }
 
 export function isRuleEnabled(
   config: LitAnalyzerConfig,
-  ruleId: LitAnalyzerRuleId
+  ruleId: LitAnalyzerRuleId,
 ): boolean {
   return !isRuleDisabled(config, ruleId);
 }
 
 export function litDiagnosticRuleSeverity(
   config: LitAnalyzerConfig,
-  ruleId: LitAnalyzerRuleId
+  ruleId: LitAnalyzerRuleId,
 ): LitDiagnosticSeverity {
   switch (ruleSeverity(config, ruleId)) {
     case "off":
@@ -171,7 +171,7 @@ function expectNever(never: never) {
  * @param userOptions
  */
 export function makeConfig(
-  userOptions: Partial<LitAnalyzerConfig> = {}
+  userOptions: Partial<LitAnalyzerConfig> = {},
 ): LitAnalyzerConfig {
   let securitySystem = userOptions.securitySystem || "off";
   switch (securitySystem) {
@@ -197,7 +197,7 @@ export function makeConfig(
       // always disable formating for now
       disable:
         (userOptions.format != null ? userOptions.format.disable : undefined) ||
-        false
+        false,
     },
     dontSuggestConfigChanges: userOptions.dontSuggestConfigChanges || false,
     dontShowSuggestions:
@@ -206,11 +206,11 @@ export function makeConfig(
       false,
     maxProjectImportDepth: parseImportDepth(
       userOptions.maxProjectImportDepth,
-      Infinity
+      Infinity,
     ),
     maxNodeModuleImportDepth: parseImportDepth(
       userOptions.maxNodeModuleImportDepth,
-      1
+      1,
     ),
 
     // Template tags
@@ -224,13 +224,13 @@ export function makeConfig(
       [],
     globalAttributes: userOptions.globalAttributes || [],
     globalEvents: userOptions.globalEvents || [],
-    customHtmlData: userOptions.customHtmlData || []
+    customHtmlData: userOptions.customHtmlData || [],
   };
 }
 
 function getDeprecatedOption<T>(
   userOptions: Partial<LitAnalyzerConfig>,
-  name: string
+  name: string,
 ): T | undefined {
   return (userOptions as Record<string, T>)[name];
 }
@@ -240,7 +240,7 @@ function getDeprecatedOption<T>(
 }*/
 
 export function makeRules(
-  userOptions: Partial<LitAnalyzerConfig>
+  userOptions: Partial<LitAnalyzerConfig>,
 ): LitAnalyzerRules {
   const mappedDeprecatedRules = getDeprecatedMappedRules(userOptions);
   const defaultRules = getDefaultRules(userOptions);
@@ -250,13 +250,13 @@ export function makeRules(
 }
 
 function getUserRules(
-  userOptions: Partial<LitAnalyzerConfig>
+  userOptions: Partial<LitAnalyzerConfig>,
 ): LitAnalyzerRules {
   return userOptions.rules || {};
 }
 
 function getDefaultRules(
-  userOptions: Partial<LitAnalyzerConfig>
+  userOptions: Partial<LitAnalyzerConfig>,
 ): LitAnalyzerRules {
   const isStrict = userOptions.strict || false;
 
@@ -266,12 +266,12 @@ function getDefaultRules(
       acc[ruleId] = isStrict ? severities[1] : severities[0];
       return acc;
     },
-    {} as unknown as LitAnalyzerRules
+    {} as unknown as LitAnalyzerRules,
   );
 }
 
 function getDeprecatedMappedRules(
-  userOptions: Partial<LitAnalyzerConfig>
+  userOptions: Partial<LitAnalyzerConfig>,
 ): LitAnalyzerRules {
   const mappedDeprecatedRules: LitAnalyzerRules = {};
 
@@ -311,7 +311,7 @@ function getDeprecatedMappedRules(
       "no-complex-attribute-binding": "off",
       "no-nullable-attribute-binding": "off",
       "no-incompatible-type-binding": "off",
-      "no-incompatible-property-type": "off"
+      "no-incompatible-property-type": "off",
     } as LitAnalyzerRules);
   }
 
@@ -326,7 +326,7 @@ function getDeprecatedMappedRules(
  */
 function parseImportDepth(
   value: number | undefined,
-  defaultValue: number
+  defaultValue: number,
 ): number {
   if (value != null) {
     return value < 0 ? Infinity : value;

@@ -2,16 +2,16 @@ import { SourceFile } from "typescript";
 import {
   ComponentDeclaration,
   ComponentDefinition,
-  visitAllHeritageClauses
+  visitAllHeritageClauses,
 } from "web-component-analyzer";
 
 export function getDeclarationsInFile(
   definition: ComponentDefinition,
-  sourceFile: SourceFile
+  sourceFile: SourceFile,
 ): ComponentDeclaration[] {
   const declarations = new Set<ComponentDeclaration>();
-  emitDeclarationsInFile(definition, sourceFile, decl =>
-    declarations.add(decl)
+  emitDeclarationsInFile(definition, sourceFile, (decl) =>
+    declarations.add(decl),
   );
   return Array.from(declarations);
 }
@@ -19,7 +19,7 @@ export function getDeclarationsInFile(
 function emitDeclarationsInFile(
   definition: ComponentDefinition,
   sourceFile: SourceFile,
-  emit: (decl: ComponentDeclaration) => unknown
+  emit: (decl: ComponentDeclaration) => unknown,
 ): void {
   const declaration = definition.declaration;
 
@@ -33,7 +33,7 @@ function emitDeclarationsInFile(
     }
   }
 
-  visitAllHeritageClauses(declaration, clause => {
+  visitAllHeritageClauses(declaration, (clause) => {
     if (clause.declaration && clause.declaration.sourceFile === sourceFile) {
       if (emit(clause.declaration) === false) {
         return;

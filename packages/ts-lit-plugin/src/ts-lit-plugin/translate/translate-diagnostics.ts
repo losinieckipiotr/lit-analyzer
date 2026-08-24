@@ -2,16 +2,16 @@ import { LitAnalyzerContext, LitDiagnostic } from "lit-analyzer";
 import {
   DiagnosticMessageChain,
   DiagnosticWithLocation,
-  SourceFile
+  SourceFile,
 } from "typescript";
 import { translateRange } from "./translate-range.js";
 
 export function translateDiagnostics(
   reports: LitDiagnostic[],
   file: SourceFile,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): DiagnosticWithLocation[] {
-  return reports.map(report => translateDiagnostic(report, file, context));
+  return reports.map((report) => translateDiagnostic(report, file, context));
 }
 
 /**
@@ -25,7 +25,7 @@ function getMessageTextFromDiagnostic(diagnostic: LitDiagnostic): string {
 function translateDiagnostic(
   diagnostic: LitDiagnostic,
   file: SourceFile,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): DiagnosticWithLocation {
   const span = translateRange(diagnostic.location);
 
@@ -44,9 +44,9 @@ function translateDiagnostic(
             {
               messageText: diagnostic.suggestion,
               code: 0,
-              category: context.ts.DiagnosticCategory.Suggestion
-            }
-          ]
+              category: context.ts.DiagnosticCategory.Suggestion,
+            },
+          ],
         }
       : getMessageTextFromDiagnostic(diagnostic);
 
@@ -69,6 +69,8 @@ function translateDiagnostic(
     category,
     code,
     source:
-      diagnostic.source == null ? undefined : `lit-plugin(${diagnostic.source})`
+      diagnostic.source == null
+        ? undefined
+        : `lit-plugin(${diagnostic.source})`,
   };
 }

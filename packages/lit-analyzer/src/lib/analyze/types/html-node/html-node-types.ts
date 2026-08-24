@@ -11,7 +11,7 @@ export interface IHtmlNodeSourceCodeLocation extends Range {
 export enum HtmlNodeKind {
   NODE = "NODE",
   SVG = "SVG",
-  STYLE = "STYLE"
+  STYLE = "STYLE",
 }
 
 export interface IHtmlNodeBase {

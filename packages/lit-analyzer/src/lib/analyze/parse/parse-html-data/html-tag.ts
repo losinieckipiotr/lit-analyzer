@@ -1,7 +1,7 @@
 import {
   isAssignableToSimpleTypeKind,
   SimpleType,
-  typeToString
+  typeToString,
 } from "ts-simple-type";
 import {
   ComponentCssPart,
@@ -9,12 +9,12 @@ import {
   ComponentDeclaration,
   ComponentEvent,
   ComponentMember,
-  ComponentSlot
+  ComponentSlot,
 } from "web-component-analyzer";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
-  LIT_HTML_PROP_ATTRIBUTE_MODIFIER
+  LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../constants.js";
 import { iterableDefined } from "../../util/iterable-util.js";
 
@@ -147,7 +147,7 @@ export interface DescriptionOptions {
 function descriptionHeader(
   title: string,
   titleLevel = 0,
-  { markdown }: DescriptionOptions
+  { markdown }: DescriptionOptions,
 ) {
   return markdown
     ? titleLevel === 0
@@ -164,21 +164,21 @@ function descriptionList<T>(
   title: string,
   items: T[],
   toString: (item: T) => string,
-  options: DescriptionOptions
+  options: DescriptionOptions,
 ) {
   const itemsDesc = items
-    .map(item => descriptionListItem(toString(item), options))
+    .map((item) => descriptionListItem(toString(item), options))
     .join("\n");
   return `${descriptionHeader(`${title}:`, 0, options)}\n${itemsDesc}`;
 }
 
 export function documentationForCssPart(
   cssPart: HtmlCssPart,
-  options: DescriptionOptions = {}
+  options: DescriptionOptions = {},
 ): string | undefined {
   const relatedText = (() => {
     if ((cssPart.related?.length || 0) > 0) {
-      return `From multiple elements: ${cssPart.related!.map(p => `<${p.fromTagName}>`).join(", ")}`;
+      return `From multiple elements: ${cssPart.related!.map((p) => `<${p.fromTagName}>`).join(", ")}`;
     } else if (cssPart.fromTagName != null) {
       return `From: <${cssPart.fromTagName}>`;
     }
@@ -191,11 +191,11 @@ export function documentationForCssPart(
 
 export function documentationForCssProperty(
   cssProperty: HtmlCssProperty,
-  options: DescriptionOptions = {}
+  options: DescriptionOptions = {},
 ): string | undefined {
   const relatedText = (() => {
     if ((cssProperty.related?.length || 0) > 0) {
-      return `From multiple elements: ${cssProperty.related!.map(p => `<${p.fromTagName}>`).join(", ")}`;
+      return `From multiple elements: ${cssProperty.related!.map((p) => `<${p.fromTagName}>`).join(", ")}`;
     } else if (cssProperty.fromTagName != null) {
       return `From: <${cssProperty.fromTagName}>`;
     }
@@ -206,13 +206,13 @@ export function documentationForCssProperty(
   return iterableDefined([
     cssProperty.description,
     cssProperty.typeHint,
-    relatedText
+    relatedText,
   ]).join("\n\n");
 }
 
 export function documentationForHtmlTag(
   htmlTag: HtmlTag,
-  options: DescriptionOptions = {}
+  options: DescriptionOptions = {},
 ): string | undefined {
   let desc = htmlTag.description || "";
 
@@ -221,9 +221,9 @@ export function documentationForHtmlTag(
     desc += `\n\n${descriptionList(
       "Slots",
       items,
-      slot =>
+      (slot) =>
         `${descriptionHeader(`@slot ${slot.name}`, 0, options)}${slot.description ? ` - ${slot.description}` : ""}`,
-      options
+      options,
     )}`;
   }
 
@@ -232,9 +232,9 @@ export function documentationForHtmlTag(
     desc += `\n\n${descriptionList(
       "Events",
       items,
-      event =>
+      (event) =>
         `${descriptionHeader(`@fires ${event.name}`, 0, options)}${event.description ? ` - ${event.description}` : ""}`,
-      options
+      options,
     )}`;
   }
 
@@ -243,7 +243,7 @@ export function documentationForHtmlTag(
 
 export function documentationForTarget(
   target: HtmlAttrTarget,
-  options: DescriptionOptions & { modifier?: string } = {}
+  options: DescriptionOptions & { modifier?: string } = {},
 ): string | undefined {
   const typeText = targetKindAndTypeText(target, options);
   const documentation = descriptionForTarget(target, options);
@@ -253,13 +253,13 @@ export function documentationForTarget(
 
 export function descriptionForTarget(
   target: HtmlAttrTarget,
-  options: DescriptionOptions = {}
+  options: DescriptionOptions = {},
 ): string | undefined {
   if (target.related != null && target.related.length > 1) {
     const subDocumentation = (target.related as HtmlAttrTarget[])
       .map(
-        t =>
-          `${t.fromTagName ? `<${t.fromTagName}>: ` : "(global): "}${t.description || "[no documentation]"}`
+        (t) =>
+          `${t.fromTagName ? `<${t.fromTagName}>: ` : "(global): "}${t.description || "[no documentation]"}`,
       )
       .map((doc, i) => `${i + 1}. ${doc}`);
     return `${descriptionHeader("Multiple declarations (best match first):", 0, options)}\n${subDocumentation.join("\n")}`;
@@ -270,7 +270,7 @@ export function descriptionForTarget(
 
 export function targetKindAndTypeText(
   target: HtmlAttrTarget,
-  options: DescriptionOptions & { modifier?: string } = {}
+  options: DescriptionOptions & { modifier?: string } = {},
 ): string {
   const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
 
@@ -293,7 +293,7 @@ export function targetKindText(target: HtmlAttrTarget): string {
 
 function mergeFirstUnique<T, U>(items: T[], uniqueOn: (item: T) => U): T[] {
   const unique = new Set<U>();
-  return items.filter(item => {
+  return items.filter((item) => {
     const identity = uniqueOn(item);
     if (!unique.has(identity)) {
       unique.add(identity);
@@ -305,29 +305,29 @@ function mergeFirstUnique<T, U>(items: T[], uniqueOn: (item: T) => U): T[] {
 }
 
 export function mergeHtmlAttrs(attrs: HtmlAttr[]): HtmlAttr[] {
-  return mergeFirstUnique(attrs, attr => attr.name);
+  return mergeFirstUnique(attrs, (attr) => attr.name);
 }
 
 export function mergeHtmlProps(props: HtmlProp[]): HtmlProp[] {
-  return mergeFirstUnique(props, prop => prop.name);
+  return mergeFirstUnique(props, (prop) => prop.name);
 }
 
 export function mergeHtmlEvents(events: HtmlEvent[]): HtmlEvent[] {
-  return mergeFirstUnique(events, event => event.name);
+  return mergeFirstUnique(events, (event) => event.name);
 }
 
 export function mergeHtmlSlots(slots: HtmlSlot[]): HtmlSlot[] {
-  return mergeFirstUnique(slots, event => event.name);
+  return mergeFirstUnique(slots, (event) => event.name);
 }
 
 export function mergeCssParts(cssParts: HtmlCssPart[]): HtmlCssPart[] {
-  return mergeFirstUnique(cssParts, cssPart => cssPart.name);
+  return mergeFirstUnique(cssParts, (cssPart) => cssPart.name);
 }
 
 export function mergeCssProperties(
-  cssProperties: HtmlCssProperty[]
+  cssProperties: HtmlCssProperty[],
 ): HtmlCssProperty[] {
-  return mergeFirstUnique(cssProperties, cssProp => cssProp.name);
+  return mergeFirstUnique(cssProperties, (cssProp) => cssProp.name);
 }
 
 export function mergeHtmlTags(tags: HtmlTag[]): HtmlTag[] {
@@ -343,14 +343,14 @@ export function mergeHtmlTags(tags: HtmlTag[]): HtmlTag[] {
         description: tag.description || existingTag.description,
         attributes: mergeHtmlAttrs([
           ...tag.attributes,
-          ...existingTag.attributes
+          ...existingTag.attributes,
         ]),
         properties: mergeHtmlProps([
           ...tag.properties,
-          ...existingTag.properties
+          ...existingTag.properties,
         ]),
         events: mergeHtmlEvents([...tag.events, ...existingTag.events]),
-        slots: mergeHtmlSlots([...tag.slots, ...existingTag.slots])
+        slots: mergeHtmlSlots([...tag.slots, ...existingTag.slots]),
       });
     } else {
       mergedTags.set(tag.tagName, tag);

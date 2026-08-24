@@ -16,7 +16,7 @@ const CONTROL_CHARACTERS = ["'", '"', "}", "/"];
 const rule: RuleModule = {
   id: "no-unintended-mixed-binding",
   meta: {
-    priority: "high"
+    priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
     // Check only mixed bindings
@@ -56,12 +56,12 @@ const rule: RuleModule = {
 
       context.report({
         location: rangeFromHtmlNodeAttr(assignment.htmlAttr),
-        message
+        message,
       });
     }
 
     return;
-  }
+  },
 };
 
 export default rule;

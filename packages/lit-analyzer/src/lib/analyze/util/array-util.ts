@@ -37,7 +37,7 @@ export function arrayDefined<T>(array: (T | undefined)[]): T[] {
 export function joinArray(
   items: string[],
   splitter = ", ",
-  finalSplitter = "or"
+  finalSplitter = "or",
 ): string {
   return items.join(splitter).replace(/, ([^,]*)$/, ` ${finalSplitter} $1`);
 }

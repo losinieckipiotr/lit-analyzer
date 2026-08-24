@@ -9,7 +9,7 @@ import { rangeFromHtmlNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-unknown-tag-name",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitHtmlNode(htmlNode, context) {
     const { htmlStore, config } = context;
@@ -25,7 +25,7 @@ const rule: RuleModule = {
       // Find a suggested name in the set of defined tag names. Maybe this tag name is a typo?
       const suggestedName = findBestStringMatch(
         htmlNode.tagName,
-        Array.from(htmlStore.getGlobalTags()).map(tag => tag.tagName)
+        Array.from(htmlStore.getGlobalTags()).map((tag) => tag.tagName),
       );
 
       // Build a suggestion text
@@ -52,15 +52,15 @@ const rule: RuleModule = {
                   {
                     kind: "changeTagName",
                     htmlNode,
-                    newName: suggestedName
-                  }
-                ]
-              })
+                    newName: suggestedName,
+                  },
+                ],
+              }),
       });
     }
 
     return;
-  }
+  },
 };
 
 export default rule;

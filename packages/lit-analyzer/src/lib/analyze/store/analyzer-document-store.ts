@@ -7,10 +7,10 @@ export interface AnalyzerDocumentStore {
   getDocumentAtPosition(
     sourceFile: SourceFile,
     position: SourceFilePosition,
-    options: LitAnalyzerConfig
+    options: LitAnalyzerConfig,
   ): TextDocument | undefined;
   getDocumentsInFile(
     sourceFile: SourceFile,
-    config: LitAnalyzerConfig
+    config: LitAnalyzerConfig,
   ): TextDocument[];
 }

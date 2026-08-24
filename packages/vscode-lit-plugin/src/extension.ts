@@ -14,7 +14,7 @@ let defaultAnalyzeGlob = "src";
 const colorProvider = new ColorProvider();
 
 export async function activate(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
 ): Promise<void> {
   const extension = vscode.extensions.getExtension(typeScriptExtensionId);
   if (!extension) {
@@ -33,7 +33,7 @@ export async function activate(
 
   // Subscribe to configuration change
   vscode.workspace.onDidChangeConfiguration(
-    e => {
+    (e) => {
       if (
         e.affectsConfiguration(configurationSection) ||
         e.affectsConfiguration(configurationExperimentalHtmlSection)
@@ -42,21 +42,21 @@ export async function activate(
       }
     },
     undefined,
-    context.subscriptions
+    context.subscriptions,
   );
 
   // Subscribe to the analyze command
   context.subscriptions.push(
-    vscode.commands.registerCommand(analyzeCommandId, handleAnalyzeCommand)
+    vscode.commands.registerCommand(analyzeCommandId, handleAnalyzeCommand),
   );
 
   // Register a color provider
   const registration = vscode.languages.registerColorProvider(
     [
       { scheme: "file", language: "typescript" },
-      { scheme: "file", language: "javascript" }
+      { scheme: "file", language: "javascript" },
     ],
-    colorProvider
+    colorProvider,
   );
   context.subscriptions.push(registration);
 
@@ -76,13 +76,13 @@ function getConfig(): Partial<LitAnalyzerConfig> {
   outConfig.cwd = getCwd();
 
   // Deprecated values
-  withConfigValue(config, "externalHtmlTagNames", value => {
+  withConfigValue(config, "externalHtmlTagNames", (value) => {
     outConfig.globalTags = value;
   });
-  withConfigValue(config, "externalHtmlTags", value => {
+  withConfigValue(config, "externalHtmlTags", (value) => {
     outConfig.globalTags = value;
   });
-  withConfigValue(config, "externalHtmlAttributes", value => {
+  withConfigValue(config, "externalHtmlAttributes", (value) => {
     outConfig.globalAttributes = value;
   });
   // Just set these deprecated rules directly on the config object.
@@ -95,67 +95,67 @@ function getConfig(): Partial<LitAnalyzerConfig> {
     "skipUnknownProperties",
     "skipUnknownSlots",
     "skipMissingImports",
-    "skipTypeChecking"
-  ].forEach(deprecatedRuleName => {
-    withConfigValue(config, deprecatedRuleName, value => {
+    "skipTypeChecking",
+  ].forEach((deprecatedRuleName) => {
+    withConfigValue(config, deprecatedRuleName, (value) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (outConfig as any)[deprecatedRuleName] = value;
     });
   });
 
   // Values
-  withConfigValue(config, "disable", value => {
+  withConfigValue(config, "disable", (value) => {
     outConfig.disable = value;
   });
-  withConfigValue(config, "logging", value => {
+  withConfigValue(config, "logging", (value) => {
     outConfig.logging = value;
   });
-  withConfigValue(config, "dontShowSuggestions", value => {
+  withConfigValue(config, "dontShowSuggestions", (value) => {
     outConfig.dontShowSuggestions = value;
   });
-  withConfigValue(config, "strict", value => {
+  withConfigValue(config, "strict", (value) => {
     outConfig.strict = value;
   });
-  withConfigValue(config, "securitySystem", value => {
+  withConfigValue(config, "securitySystem", (value) => {
     outConfig.securitySystem = value;
   });
-  withConfigValue(config, "maxProjectImportDepth", value => {
+  withConfigValue(config, "maxProjectImportDepth", (value) => {
     outConfig.maxProjectImportDepth = value;
   });
-  withConfigValue(config, "maxNodeModuleImportDepth", value => {
+  withConfigValue(config, "maxNodeModuleImportDepth", (value) => {
     outConfig.maxNodeModuleImportDepth = value;
   });
   // Template tags
-  withConfigValue(config, "htmlTemplateTags", value => {
+  withConfigValue(config, "htmlTemplateTags", (value) => {
     outConfig.htmlTemplateTags = value;
   });
-  withConfigValue(config, "cssTemplateTags", value => {
+  withConfigValue(config, "cssTemplateTags", (value) => {
     outConfig.cssTemplateTags = value;
   });
 
   // Global
-  withConfigValue(config, "globalEvents", value => {
+  withConfigValue(config, "globalEvents", (value) => {
     outConfig.globalEvents = value;
   });
-  withConfigValue(config, "globalAttributes", value => {
+  withConfigValue(config, "globalAttributes", (value) => {
     outConfig.globalAttributes = value;
   });
-  withConfigValue(config, "globalTags", value => {
+  withConfigValue(config, "globalTags", (value) => {
     outConfig.globalTags = value;
   });
-  withConfigValue(config, "customHtmlData", value => {
+  withConfigValue(config, "customHtmlData", (value) => {
     outConfig.customHtmlData = value;
   });
 
   // Experimental values from vscode
   const experimental = vscode.workspace.getConfiguration(
     configurationExperimentalHtmlSection,
-    null
+    null,
   );
-  withConfigValue(experimental, "customData", value => {
+  withConfigValue(experimental, "customData", (value) => {
     // Merge value from vscode with "lit-plugin.customHtmlData"
-    const filePaths = (Array.isArray(value) ? value : [value]).map(path =>
-      typeof path === "string" ? toWorkspacePath(path) : path
+    const filePaths = (Array.isArray(value) ? value : [value]).map((path) =>
+      typeof path === "string" ? toWorkspacePath(path) : path,
     );
     outConfig.customHtmlData =
       outConfig.customHtmlData == null
@@ -166,8 +166,8 @@ function getConfig(): Partial<LitAnalyzerConfig> {
   // Apply rules
   const rules = outConfig.rules || {};
 
-  ALL_RULE_IDS.forEach(ruleName => {
-    withConfigValue(config, `rules.${ruleName}`, value => {
+  ALL_RULE_IDS.forEach((ruleName) => {
+    withConfigValue(config, `rules.${ruleName}`, (value) => {
       rules[ruleName] = value;
     });
   });
@@ -181,7 +181,7 @@ function withConfigValue(
   config: vscode.WorkspaceConfiguration,
   key: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  withValue: (value: any) => void
+  withValue: (value: any) => void,
 ): void {
   const configSetting = config.inspect(key);
   if (!configSetting) {
@@ -224,7 +224,7 @@ function handleAnalyzeCommand() {
     .showInputBox({
       value: defaultAnalyzeGlob,
       prompt: "Please enter a directory/path/glob to analyze",
-      placeHolder: "directory/path/glob"
+      placeHolder: "directory/path/glob",
     })
     .then((glob: string | undefined) => {
       if (glob == null) return;

@@ -4,7 +4,7 @@ export enum LitOutliningSpanKind {
   Comment = "comment",
   Region = "region",
   Code = "code",
-  Imports = "imports"
+  Imports = "imports",
 }
 
 export interface LitOutliningSpan {

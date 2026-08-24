@@ -30,13 +30,12 @@
 		"dev": "cd dev && TSS_DEBUG=5999 code . --disable-extension runem.lit-plugin",
 		"dev:logs": "touch dev/lit-plugin.log && tail -f dev/lit-plugin.log",
 		"lint": "wireit",
-		"eslint": "wireit",
+		"lint:fix": "wireit",
 		"build": "wireit",
 		"test": "wireit",
 		"test:headless": "wireit",
 		"test:headful": "wireit",
 		"prettier:check": "wireit",
-		"prettier:write": "wireit",
 		"package": "wireit"
 	},
 	"wireit": {
@@ -60,6 +59,11 @@
 				"prettier:check"
 			]
 		},
+		"lint:fix": {
+			"dependencies": [
+				"prettier:write"
+			]
+		},
 		"test:headless": {
 			"dependencies": [
 				"./packages/lit-analyzer:test"
@@ -73,19 +77,15 @@
 		"eslint": {
 			"command": "eslint ."
 		},
+		"eslint:fix": {
+			"command": "eslint . --fix"
+		},
 		"prettier:check": {
-			"files": [
-				"packages/*/src/**/*.ts",
-				"prettier.config.js"
-			],
-			"command": "prettier --check \"packages/*/src/**/*.ts\""
+			"command": "prettier --check **/*.ts"
 		},
 		"prettier:write": {
-			"files": [
-				"packages/*/src/**/*.ts",
-				"prettier.config.js"
-			],
-			"command": "prettier --write \"packages/*/src/**/*.ts\""
+			"dependencies": ["eslint:fix"],
+			"command": "prettier --write **/*.ts"
 		},
 		"package": {
 			"dependencies": [

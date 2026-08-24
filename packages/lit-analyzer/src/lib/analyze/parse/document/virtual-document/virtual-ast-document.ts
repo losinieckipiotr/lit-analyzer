@@ -5,7 +5,7 @@ import {
   DocumentRange,
   Range,
   SourceFilePosition,
-  SourceFileRange
+  SourceFileRange,
 } from "../../../types/range.js";
 import { intersects, makeSourceFileRange } from "../../../util/range-util.js";
 import { VirtualDocument } from "./virtual-document.js";
@@ -36,7 +36,7 @@ export class VirtualAstDocument implements VirtualDocument {
         if (typeof part === "string") {
           str += part.substring(
             i === 0 ? 0 : 1,
-            part.length - (isLastPart ? 0 : 2)
+            part.length - (isLastPart ? 0 : 2),
           );
           prevPart = part;
         } else {
@@ -47,7 +47,7 @@ export class VirtualAstDocument implements VirtualDocument {
             part,
             prevPart,
             this.parts[i + 1] as string,
-            expressionIndex
+            expressionIndex,
           );
           str += substitution;
         }
@@ -79,7 +79,7 @@ export class VirtualAstDocument implements VirtualDocument {
 
         const literalPartRange: Range = {
           start: startOffset + startPadding,
-          end: offset - endPadding
+          end: offset - endPadding,
         };
 
         if (
@@ -99,7 +99,7 @@ export class VirtualAstDocument implements VirtualDocument {
 
         const expressionPartRange: Range = {
           start: startOffset,
-          end: offset
+          end: offset,
         };
 
         if (intersects(expressionPartRange, range)) {
@@ -122,19 +122,19 @@ export class VirtualAstDocument implements VirtualDocument {
   constructor(
     parts: (Expression | string)[],
     location: SourceFileRange,
-    fileName: string
+    fileName: string,
   );
   constructor(astNode: TaggedTemplateExpression);
   constructor(
     astNodeOrParts: TaggedTemplateExpression | (Expression | string)[],
     location?: SourceFileRange,
-    fileName?: string
+    fileName?: string,
   ) {
     if (Array.isArray(astNodeOrParts)) {
       this.parts = astNodeOrParts.map((p, i) =>
         typeof p === "string"
           ? `${i !== 0 ? "}" : ""}${p}${i !== astNodeOrParts.length - 1 ? "${" : ""}`
-          : p
+          : p,
       );
       this.location = location!;
       this.fileName = fileName!;
@@ -150,14 +150,14 @@ export class VirtualAstDocument implements VirtualDocument {
         this.parts.push(
           p
             .getText()
-            .slice(i === 0 ? 1 : 0, expressionPart == null ? -1 : undefined)
+            .slice(i === 0 ? 1 : 0, expressionPart == null ? -1 : undefined),
         );
         if (expressionPart != null) this.parts.push(expressionPart);
       });
 
       this.location = makeSourceFileRange({
         start: astNodeOrParts.template.getStart() + 1,
-        end: astNodeOrParts.template.getEnd() - 1
+        end: astNodeOrParts.template.getEnd() - 1,
       });
 
       this.fileName = this.fileName = astNodeOrParts.getSourceFile().fileName;
@@ -169,11 +169,11 @@ export class VirtualAstDocument implements VirtualDocument {
     expression: Expression,
     prev: string,
     next: string | undefined,
-    index: number
+    index: number,
   ): string {
     if (length < 4) {
       throw new Error(
-        "Internal error: unexpected expression length: " + length
+        "Internal error: unexpected expression length: " + length,
       );
     }
     const indexString = index.toString(36);

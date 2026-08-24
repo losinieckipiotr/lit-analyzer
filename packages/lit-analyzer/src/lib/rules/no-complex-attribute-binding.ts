@@ -13,7 +13,7 @@ import { isAssignableBindingUnderSecuritySystem } from "./util/type/is-assignabl
 const rule: RuleModule = {
   id: "no-complex-attribute-binding",
   meta: {
-    priority: "medium"
+    priority: "medium",
   },
   visitHtmlAssignment(assignment, context) {
     // Only validate attribute bindings, because you are able to assign complex types in property bindings.
@@ -35,7 +35,7 @@ const rule: RuleModule = {
         isAssignableBindingUnderSecuritySystem(
           htmlAttr,
           { typeA, typeB },
-          context
+          context,
         ) !== undefined
       ) {
         // This is binding via a security sanitization system, let it do
@@ -56,10 +56,10 @@ const rule: RuleModule = {
             {
               kind: "changeAttributeModifier",
               htmlAttr,
-              newModifier
-            }
-          ]
-        })
+              newModifier,
+            },
+          ],
+        }),
       });
     }
 
@@ -78,13 +78,13 @@ const rule: RuleModule = {
             {
               kind: "changeAttributeModifier",
               htmlAttr,
-              newModifier
-            }
-          ]
-        })
+              newModifier,
+            },
+          ],
+        }),
       });
     }
-  }
+  },
 };
 
 export default rule;

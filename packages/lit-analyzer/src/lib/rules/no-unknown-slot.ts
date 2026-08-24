@@ -3,7 +3,7 @@ import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-type
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import {
   rangeFromHtmlNode,
-  rangeFromHtmlNodeAttr
+  rangeFromHtmlNodeAttr,
 } from "../analyze/util/range-util.js";
 
 /**
@@ -13,7 +13,7 @@ import {
 const rule: RuleModule = {
   id: "no-unknown-slot",
   meta: {
-    priority: "high"
+    priority: "high",
   },
   visitHtmlNode(htmlNode, context) {
     const { htmlStore } = context;
@@ -30,33 +30,33 @@ const rule: RuleModule = {
     if (slots == null || slots.length === 0) return;
 
     // Find out if it's possible to use an unnamed slot.
-    const unnamedSlot = slots.find(s => s.name === "");
+    const unnamedSlot = slots.find((s) => s.name === "");
     if (unnamedSlot == null) {
       // If it's not possible to use an unnamed slot, see if there is a "slot" attribute present.
-      const slotAttr = htmlNode.attributes.find(a => a.name === "slot");
+      const slotAttr = htmlNode.attributes.find((a) => a.name === "slot");
       if (slotAttr == null) {
         const parentTagName =
           (htmlNode.parent && htmlNode.parent.tagName) || "";
         // The slot attribute is missing, and it's not possible to use an unnamed slot.
 
-        const validSlotNames = slots.map(s => s.name);
+        const validSlotNames = slots.map((s) => s.name);
 
         context.report({
           location: rangeFromHtmlNode(htmlNode),
           message: `Missing slot attribute. Parent element <${parentTagName}> only allows named slots as children.`,
-          fixMessage: `Add slot attribute with: ${validSlotNames.map(n => `'${n}'`).join(" | ")}?`,
+          fixMessage: `Add slot attribute with: ${validSlotNames.map((n) => `'${n}'`).join(" | ")}?`,
           fix: () =>
-            validSlotNames.map(slotName => ({
+            validSlotNames.map((slotName) => ({
               message: `Add slot attribute for '${slotName}'.`,
               actions: [
                 {
                   kind: "addAttribute",
                   htmlNode,
                   name: "slot",
-                  value: `"${slotName}"`
-                }
-              ]
-            }))
+                  value: `"${slotName}"`,
+                },
+              ],
+            })),
         });
       }
     }
@@ -87,24 +87,24 @@ const rule: RuleModule = {
 
     // Find which slots names are valid, and find if the slot name matches any of these.
     const validSlots = Array.from(
-      context.htmlStore.getAllSlotsForTag(parentHtmlTag.tagName)
+      context.htmlStore.getAllSlotsForTag(parentHtmlTag.tagName),
     );
-    const matchingSlot = validSlots.find(slot => slot.name === slotName);
+    const matchingSlot = validSlots.find((slot) => slot.name === slotName);
 
     if (matchingSlot == null) {
       // The slot name doesn't mach any slots! Generate a diagnostic.
-      const validSlotNames = validSlots.map(s => s.name);
+      const validSlotNames = validSlots.map((s) => s.name);
       const message =
         validSlotNames.length === 1 && validSlotNames[0].length === 0
           ? `Invalid slot name '${slotName}'. Only the unnamed slot is valid for <${parentHtmlTag.tagName}>`
-          : `Invalid slot name '${slotName}'. Valid slot names for <${parentHtmlTag.tagName}> are: ${validSlotNames.map(n => `'${n}'`).join(" | ")}`;
+          : `Invalid slot name '${slotName}'. Valid slot names for <${parentHtmlTag.tagName}> are: ${validSlotNames.map((n) => `'${n}'`).join(" | ")}`;
 
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message
+        message,
       });
     }
-  }
+  },
 };
 
 export default rule;

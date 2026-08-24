@@ -11,7 +11,7 @@ import { completionsForHtmlNodes } from "./completions-for-html-nodes.js";
 export function completionsAtOffset(
   document: HtmlDocument,
   offset: DocumentOffset,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): LitCompletion[] {
   const positionContext = getPositionContextInDocument(document, offset);
 
@@ -29,32 +29,32 @@ export function completionsAtOffset(
     const entries = completionsForHtmlAttrs(
       intersectingAttr.htmlNode,
       positionContext,
-      context
+      context,
     );
 
     // Make sure that every entry overwrites the entire attribute name.
-    return entries.map(entry => ({
+    return entries.map((entry) => ({
       ...entry,
-      range: rangeFromHtmlNodeAttr(intersectingAttr)
+      range: rangeFromHtmlNodeAttr(intersectingAttr),
     }));
   } else if (intersectingAttrAssignment != null) {
     return completionsForHtmlAttrValues(
       intersectingAttrAssignment,
       positionContext,
-      context
+      context,
     );
   } else if (intersectingAttrAreaNode != null) {
     return completionsForHtmlAttrs(
       intersectingAttrAreaNode,
       positionContext,
-      context
+      context,
     );
   } else if (beforeWord === "<" || beforeWord === "/") {
     return completionsForHtmlNodes(
       document,
       intersectingClosestNode,
       positionContext,
-      context
+      context,
     );
   }
 

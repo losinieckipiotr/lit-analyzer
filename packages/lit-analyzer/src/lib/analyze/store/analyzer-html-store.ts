@@ -7,14 +7,14 @@ import {
   HtmlMember,
   HtmlProp,
   HtmlSlot,
-  HtmlTag
+  HtmlTag,
 } from "../parse/parse-html-data/html-tag.js";
 import {
   HtmlNodeAttr,
   IHtmlNodeAttr,
   IHtmlNodeAttrEventListener,
   IHtmlNodeAttrProp,
-  IHtmlNodeBooleanAttribute
+  IHtmlNodeBooleanAttribute,
 } from "../types/html-node/html-node-attr-types.js";
 import { HtmlNode } from "../types/html-node/html-node-types.js";
 
@@ -37,18 +37,18 @@ export interface AnalyzerHtmlStore {
   getAllSlotsForTag(htmlNode: HtmlNode | string): Iterable<HtmlSlot>;
   getAllCssPartsForTag(htmlNode: HtmlNode | string): Iterable<HtmlCssPart>;
   getAllCssPropertiesForTag(
-    htmlNode: HtmlNode | string
+    htmlNode: HtmlNode | string,
   ): Iterable<HtmlCssProperty>;
 
   getHtmlAttrTarget(htmlNodeAttr: IHtmlNodeAttrProp): HtmlProp | undefined;
   getHtmlAttrTarget(
-    htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute
+    htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute,
   ): HtmlAttr | undefined;
   getHtmlAttrTarget(
-    htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute | IHtmlNodeAttrProp
+    htmlNodeAttr: IHtmlNodeAttr | IHtmlNodeBooleanAttribute | IHtmlNodeAttrProp,
   ): HtmlMember | undefined;
   getHtmlAttrTarget(
-    htmlNodeAttr: IHtmlNodeAttrEventListener
+    htmlNodeAttr: IHtmlNodeAttrEventListener,
   ): HtmlEvent | undefined;
   getHtmlAttrTarget(htmlNodeAttr: HtmlNodeAttr): HtmlAttrTarget | undefined;
   getHtmlAttrTarget(htmlNodeAttr: HtmlNodeAttr): HtmlAttrTarget | undefined;

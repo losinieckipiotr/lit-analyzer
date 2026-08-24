@@ -3,7 +3,7 @@ import { DefaultLitAnalyzerContext } from "../../lib/analyze/default-lit-analyze
 import { LitAnalyzer } from "../../lib/analyze/lit-analyzer.js";
 import {
   LitAnalyzerConfig,
-  makeConfig
+  makeConfig,
 } from "../../lib/analyze/lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lib/analyze/lit-analyzer-context.js";
 import { LitDiagnostic } from "../../lib/analyze/types/lit-diagnostic.js";
@@ -20,7 +20,7 @@ import { LitIndexEntry } from "../../lib/analyze/document-analyzer/html/lit-html
  */
 export function prepareAnalyzer(
   inputFiles: TestFile[] | TestFile,
-  config: Partial<LitAnalyzerConfig> = {}
+  config: Partial<LitAnalyzerConfig> = {},
 ): {
   analyzer: LitAnalyzer;
   program: Program;
@@ -33,7 +33,7 @@ export function prepareAnalyzer(
     ts: getCurrentTsModule(),
     getProgram(): Program {
       return program;
-    }
+    },
   });
 
   const analyzer = new LitAnalyzer(context);
@@ -44,7 +44,7 @@ export function prepareAnalyzer(
     analyzer,
     program,
     sourceFile,
-    context
+    context,
   };
 }
 
@@ -55,14 +55,14 @@ export function prepareAnalyzer(
  */
 export function getDiagnostics(
   inputFiles: TestFile[] | TestFile,
-  config: Partial<LitAnalyzerConfig> = {}
+  config: Partial<LitAnalyzerConfig> = {},
 ): { diagnostics: LitDiagnostic[]; program: Program; sourceFile: SourceFile } {
   const { analyzer, sourceFile, program } = prepareAnalyzer(inputFiles, config);
 
   return {
     diagnostics: analyzer.getDiagnosticsInFile(sourceFile),
     program,
-    sourceFile
+    sourceFile,
   };
 }
 
@@ -75,14 +75,14 @@ export function getDiagnostics(
 export function getCodeFixesAtRange(
   inputFiles: TestFile[] | TestFile,
   range: Range,
-  config: Partial<LitAnalyzerConfig> = {}
+  config: Partial<LitAnalyzerConfig> = {},
 ): { codeFixes: LitCodeFix[]; program: Program; sourceFile: SourceFile } {
   const { analyzer, sourceFile, program } = prepareAnalyzer(inputFiles, config);
 
   return {
     codeFixes: analyzer.getCodeFixesAtPositionRange(sourceFile, range),
     program,
-    sourceFile
+    sourceFile,
   };
 }
 
@@ -92,7 +92,7 @@ export function getCodeFixesAtRange(
  */
 export function getIndexEntries(
   inputFiles: TestFile[] | TestFile,
-  config: Partial<LitAnalyzerConfig> = {}
+  config: Partial<LitAnalyzerConfig> = {},
 ): {
   indexEntries: IterableIterator<LitIndexEntry>;
   program: Program;
@@ -103,6 +103,6 @@ export function getIndexEntries(
   return {
     indexEntries: analyzer.indexFile(sourceFile),
     program,
-    sourceFile
+    sourceFile,
   };
 }

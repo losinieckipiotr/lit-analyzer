@@ -9,7 +9,7 @@ import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-expressionless-property-binding",
   meta: {
-    priority: "high"
+    priority: "high",
   },
 
   visitHtmlAssignment(assignment, context) {
@@ -23,24 +23,24 @@ const rule: RuleModule = {
           case HtmlNodeAttrKind.EVENT_LISTENER:
             context.report({
               location: rangeFromHtmlNodeAttr(htmlAttr),
-              message: `You are using an event listener binding without an expression`
+              message: `You are using an event listener binding without an expression`,
             });
             break;
           case HtmlNodeAttrKind.BOOLEAN_ATTRIBUTE:
             context.report({
               location: rangeFromHtmlNodeAttr(htmlAttr),
-              message: `You are using a boolean attribute binding without an expression`
+              message: `You are using a boolean attribute binding without an expression`,
             });
             break;
           case HtmlNodeAttrKind.PROPERTY:
             context.report({
               location: rangeFromHtmlNodeAttr(htmlAttr),
-              message: `You are using a property binding without an expression`
+              message: `You are using a property binding without an expression`,
             });
             break;
         }
     }
-  }
+  },
 };
 
 export default rule;

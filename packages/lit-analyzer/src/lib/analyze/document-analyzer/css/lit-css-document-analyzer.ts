@@ -20,10 +20,10 @@ export class LitCssDocumentAnalyzer {
     document: CssDocument,
     offset: DocumentOffset,
     name: string,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitCompletionDetails | undefined {
     const completionWithName = this.completionsCache.find(
-      completion => completion.name === name
+      (completion) => completion.name === name,
     );
 
     if (completionWithName == null || completionWithName.documentation == null)
@@ -35,19 +35,19 @@ export class LitCssDocumentAnalyzer {
     return {
       name,
       kind: completionWithName.kind,
-      primaryInfo
+      primaryInfo,
     };
   }
 
   getCompletionsAtOffset(
     document: CssDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitCompletion[] {
     this.completionsCache = this.vscodeCssService.getCompletions(
       document,
       offset,
-      context
+      context,
     );
     return this.completionsCache;
   }
@@ -55,14 +55,14 @@ export class LitCssDocumentAnalyzer {
   getQuickInfoAtOffset(
     document: CssDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitQuickInfo | undefined {
     return this.vscodeCssService.getQuickInfo(document, offset, context);
   }
 
   getDiagnostics(
     document: CssDocument,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitDiagnostic[] {
     return this.vscodeCssService.getDiagnostics(document, context);
   }
@@ -70,7 +70,7 @@ export class LitCssDocumentAnalyzer {
   getDefinitionAtOffset(
     document: CssDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitDefinition | undefined {
     const positionContext = getPositionContextInDocument(document, offset);
     const word = positionContext.word;
@@ -84,8 +84,8 @@ export class LitCssDocumentAnalyzer {
         if (cssProp.name === word) {
           const nodes = iterableDefined(
             (cssProp.related != null ? cssProp.related : [cssProp]).map(
-              p => p.declaration?.declaration?.node
-            )
+              (p) => p.declaration?.declaration?.node,
+            ),
           );
           if (nodes.length === 0) {
             return;
@@ -93,10 +93,10 @@ export class LitCssDocumentAnalyzer {
 
           return {
             fromRange: documentRangeToSFRange(document, { start, end }),
-            targets: nodes.map(node => ({
+            targets: nodes.map((node) => ({
               kind: "node",
-              node: getNodeIdentifier(node, context.ts) || node
-            }))
+              node: getNodeIdentifier(node, context.ts) || node,
+            })),
           };
         }
       }
@@ -114,9 +114,9 @@ export class LitCssDocumentAnalyzer {
           targets: [
             {
               kind: "node",
-              node: getNodeIdentifier(node, context.ts) || node
-            }
-          ]
+              node: getNodeIdentifier(node, context.ts) || node,
+            },
+          ],
         };
       }
     }

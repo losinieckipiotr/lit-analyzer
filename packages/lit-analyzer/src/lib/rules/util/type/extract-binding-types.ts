@@ -5,12 +5,12 @@ import {
   SimpleTypeEnumMember,
   SimpleTypeString,
   SimpleTypeStringLiteral,
-  toSimpleType
+  toSimpleType,
 } from "ts-simple-type";
 import { Expression, Type, TypeChecker } from "typescript";
 import {
   HtmlNodeAttrAssignment,
-  HtmlNodeAttrAssignmentKind
+  HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
@@ -23,7 +23,7 @@ const cache = new WeakMap<
 
 export function extractBindingTypes(
   assignment: HtmlNodeAttrAssignment,
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): { typeA: SimpleType; typeB: SimpleType } {
   if (cache.has(assignment)) {
     return cache.get(assignment)!;
@@ -50,7 +50,7 @@ export function extractBindingTypes(
 
   // Find a corresponding target for this attribute
   const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(
-    assignment.htmlAttr
+    assignment.htmlAttr,
   );
   //if (htmlAttrTarget == null) return [];
 
@@ -75,18 +75,18 @@ export function extractBindingTypes(
 
 export function inferTypeFromAssignment(
   assignment: HtmlNodeAttrAssignment,
-  checker: TypeChecker
+  checker: TypeChecker,
 ): SimpleType | Type {
   switch (assignment.kind) {
     case HtmlNodeAttrAssignmentKind.STRING:
       return {
         kind: "STRING_LITERAL",
-        value: assignment.value
+        value: assignment.value,
       } as SimpleTypeStringLiteral;
     case HtmlNodeAttrAssignmentKind.BOOLEAN:
       return {
         kind: "BOOLEAN_LITERAL",
-        value: true
+        value: true,
       } as SimpleTypeBooleanLiteral;
     case HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION:
       return checker.getTypeAtLocation(assignment.expression);
@@ -97,7 +97,7 @@ export function inferTypeFromAssignment(
       // Therefore, return the type of the first expression
       if (assignment.htmlAttr.kind === HtmlNodeAttrKind.EVENT_LISTENER) {
         const expression = assignment.values.find(
-          (val): val is Expression => typeof val !== "string"
+          (val): val is Expression => typeof val !== "string",
         );
 
         if (expression != null) {
@@ -120,25 +120,25 @@ export function relaxType(type: SimpleType): SimpleType {
     case "UNION":
       return {
         ...type,
-        types: type.types.map(t => relaxType(t))
+        types: type.types.map((t) => relaxType(t)),
       };
 
     case "ENUM":
       return {
         ...type,
-        types: type.types.map(t => relaxType(t) as SimpleTypeEnumMember)
+        types: type.types.map((t) => relaxType(t) as SimpleTypeEnumMember),
       };
 
     case "ARRAY":
       return {
         ...type,
-        type: relaxType(type.type)
+        type: relaxType(type.type),
       };
 
     case "PROMISE":
       return {
         ...type,
-        type: relaxType(type.type)
+        type: relaxType(type.type),
       };
 
     case "INTERFACE":
@@ -146,7 +146,7 @@ export function relaxType(type: SimpleType): SimpleType {
     case "FUNCTION":
     case "CLASS":
       return {
-        kind: "ANY"
+        kind: "ANY",
       };
 
     case "NUMBER_LITERAL":
@@ -161,13 +161,13 @@ export function relaxType(type: SimpleType): SimpleType {
     case "ENUM_MEMBER":
       return {
         ...type,
-        type: relaxType(type.type)
+        type: relaxType(type.type),
       } as SimpleTypeEnumMember;
 
     case "ALIAS":
       return {
         ...type,
-        target: relaxType(type.target)
+        target: relaxType(type.target),
       };
 
     default:

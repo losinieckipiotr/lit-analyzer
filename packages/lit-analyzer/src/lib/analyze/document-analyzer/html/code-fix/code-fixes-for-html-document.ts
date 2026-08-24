@@ -5,14 +5,14 @@ import { DocumentRange } from "../../../types/range.js";
 import { arrayDefined, arrayFlat } from "../../../util/array-util.js";
 import {
   documentRangeToSFRange,
-  intersects
+  intersects,
 } from "../../../util/range-util.js";
 import { converRuleFixToLitCodeFix } from "../../../util/rule-fix-util.js";
 
 export function codeFixesForHtmlDocument(
   htmlDocument: HtmlDocument,
   range: DocumentRange,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): LitCodeFix[] {
   return arrayFlat(
     arrayDefined(
@@ -21,10 +21,10 @@ export function codeFixesForHtmlDocument(
         .filter(({ diagnostic }) =>
           intersects(
             documentRangeToSFRange(htmlDocument, range),
-            diagnostic.location
-          )
+            diagnostic.location,
+          ),
         )
-        .map(({ diagnostic }) => diagnostic.fix?.())
-    )
-  ).map(ruleFix => converRuleFixToLitCodeFix(ruleFix));
+        .map(({ diagnostic }) => diagnostic.fix?.()),
+    ),
+  ).map((ruleFix) => converRuleFixToLitCodeFix(ruleFix));
 }

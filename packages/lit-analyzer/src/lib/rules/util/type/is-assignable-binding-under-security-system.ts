@@ -13,7 +13,7 @@ import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
 export function isAssignableBindingUnderSecuritySystem(
   htmlAttr: HtmlNodeAttr,
   { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): boolean | undefined {
   const securityPolicy = context.config.securitySystem;
   switch (securityPolicy) {
@@ -41,29 +41,29 @@ interface SecurityOverrideMap {
 
 const closureScopedOverrides: TagNameToSecurityOverrideMap = {
   iframe: {
-    src: ["TrustedResourceUrl"]
+    src: ["TrustedResourceUrl"],
   },
   a: {
-    href: ["TrustedResourceUrl", "SafeUrl", "string"]
+    href: ["TrustedResourceUrl", "SafeUrl", "string"],
   },
   img: {
-    src: ["TrustedResourceUrl", "SafeUrl", "string"]
+    src: ["TrustedResourceUrl", "SafeUrl", "string"],
   },
   script: {
-    src: ["TrustedResourceUrl"]
+    src: ["TrustedResourceUrl"],
   },
   source: {
-    src: ["TrustedResourceUrl", "SafeUrl"]
-  }
+    src: ["TrustedResourceUrl", "SafeUrl"],
+  },
 };
 const closureGlobalOverrides: SecurityOverrideMap = {
-  style: ["SafeStyle", "string"]
+  style: ["SafeStyle", "string"],
 };
 
 function checkClosureSecurityAssignability(
   typeB: SimpleType,
   htmlAttr: HtmlNodeAttr,
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): boolean | undefined {
   const scopedOverride = closureScopedOverrides[htmlAttr.htmlNode.tagName];
   const overriddenTypes =
@@ -91,7 +91,7 @@ function checkClosureSecurityAssignability(
 
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${typeToString(typeB)}' is not assignable to '${overriddenTypes.join(" | ")}'. This is due to Closure Safe Type enforcement.`
+      message: `Type '${typeToString(typeB)}' is not assignable to '${overriddenTypes.join(" | ")}'. This is due to Closure Safe Type enforcement.`,
     });
     return false;
   }
@@ -112,7 +112,7 @@ function normalizeTypeName(typeName: string) {
 
 function matchesAtLeastOneNominalType(
   typeNames: string[],
-  typeB: SimpleType
+  typeB: SimpleType,
 ): boolean {
   // Check if typeB.name is in typeNames, either before or after normalization.
   const typeBName = typeB.name;
@@ -128,7 +128,9 @@ function matchesAtLeastOneNominalType(
   // Otherwise, check for other cases beyond just a simple named type.
   switch (typeB.kind) {
     case "UNION":
-      return typeB.types.every(t => matchesAtLeastOneNominalType(typeNames, t));
+      return typeB.types.every((t) =>
+        matchesAtLeastOneNominalType(typeNames, t),
+      );
     case "STRING_LITERAL":
     case "STRING":
       return typeNames.includes("string");

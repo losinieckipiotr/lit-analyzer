@@ -9,7 +9,7 @@ import { rangeFromHtmlNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-missing-import",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitHtmlNode(htmlNode, context) {
     const { htmlStore, config, definitionStore, dependencyStore, file } =
@@ -26,14 +26,14 @@ const rule: RuleModule = {
     // Don't continue if this tag name doesn't have a definition.
     // If the html tag doesn't have a definition we won't know how to import it.
     const definition = definitionStore.getDefinitionForTagName(
-      htmlNode.tagName
+      htmlNode.tagName,
     );
     if (definition == null) return;
 
     // Check if the tag name has been imported in the file of the template.
     const isDefinitionImported = dependencyStore.hasTagNameBeenImported(
       file.fileName,
-      htmlNode.tagName
+      htmlNode.tagName,
     );
 
     // Report diagnostic if the html tag hasn't been imported.
@@ -47,7 +47,7 @@ const rule: RuleModule = {
         fix: () => {
           const importPath = getRelativePathForImport(
             file.fileName,
-            definition.sourceFile.fileName
+            definition.sourceFile.fileName,
           );
 
           return {
@@ -56,14 +56,14 @@ const rule: RuleModule = {
               {
                 kind: "import",
                 path: importPath,
-                file: context.file
-              }
-            ]
+                file: context.file,
+              },
+            ],
           };
-        }
+        },
       });
     }
-  }
+  },
 };
 
 export default rule;
@@ -76,7 +76,7 @@ export default rule;
  */
 function getRelativePathForImport(
   fromFileName: string,
-  toFileName: string
+  toFileName: string,
 ): string {
   const path = posix.relative(dirname(fromFileName), dirname(toFileName));
   const filenameWithoutExt = basename(toFileName).replace(/\.[^/.]+$/, "");

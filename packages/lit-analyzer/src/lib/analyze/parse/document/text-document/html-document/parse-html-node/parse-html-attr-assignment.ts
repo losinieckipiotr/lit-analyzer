@@ -1,14 +1,14 @@
 import { Expression } from "typescript";
 import {
   HtmlNodeAttrAssignment,
-  HtmlNodeAttrAssignmentKind
+  HtmlNodeAttrAssignmentKind,
 } from "../../../../../types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../../../../../types/html-node/html-node-attr-types.js";
 import { Range } from "../../../../../types/range.js";
 import {
   getSourceLocation,
   IP5NodeAttr,
-  IP5TagNode
+  IP5TagNode,
 } from "../parse-html-p5/parse-html-types.js";
 import { ParseHtmlContext } from "./parse-html-context.js";
 
@@ -23,7 +23,7 @@ export function parseHtmlAttrAssignment(
   p5Node: IP5TagNode,
   p5Attr: IP5NodeAttr,
   htmlAttr: HtmlNodeAttr,
-  context: ParseHtmlContext
+  context: ParseHtmlContext,
 ): HtmlNodeAttrAssignment | undefined {
   const location = getAssignmentLocation(p5Node, p5Attr, htmlAttr, context);
 
@@ -38,7 +38,7 @@ export function parseHtmlAttrAssignment(
         kind: HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION,
         htmlAttr,
         location: htmlAttr.location,
-        expression: values[0] as Expression
+        expression: values[0] as Expression,
       };
     }
     return { kind: HtmlNodeAttrAssignmentKind.BOOLEAN, htmlAttr };
@@ -55,14 +55,14 @@ export function parseHtmlAttrAssignment(
         kind: HtmlNodeAttrAssignmentKind.STRING,
         location,
         value,
-        htmlAttr
+        htmlAttr,
       };
     } else {
       return {
         kind: HtmlNodeAttrAssignmentKind.EXPRESSION,
         location,
         expression: value,
-        htmlAttr
+        htmlAttr,
       };
     }
   } else {
@@ -70,7 +70,7 @@ export function parseHtmlAttrAssignment(
       kind: HtmlNodeAttrAssignmentKind.MIXED,
       location,
       values,
-      htmlAttr
+      htmlAttr,
     };
   }
 }
@@ -79,7 +79,7 @@ function getAssignmentLocation(
   p5Node: IP5TagNode,
   p5Attr: IP5NodeAttr,
   htmlAttr: HtmlNodeAttr,
-  context: ParseHtmlContext
+  context: ParseHtmlContext,
 ): Range | undefined {
   const sourceLocation = getSourceLocation(p5Node);
   if (sourceLocation == null) {
@@ -93,7 +93,7 @@ function getAssignmentLocation(
 
   const htmlAfterName = context.html.substring(
     nameEndOffset,
-    htmlAttrLocation.endOffset
+    htmlAttrLocation.endOffset,
   );
 
   const firstQuote = indexOfRegExp(htmlAfterName, /^([\s=]*)(['"])/);
@@ -107,14 +107,14 @@ function getAssignmentLocation(
   if (firstQuote == null || lastQuote == null) {
     return {
       start: nameEndOffset + firstEquals + 1,
-      end: htmlAttrLocation.endOffset
+      end: htmlAttrLocation.endOffset,
     };
   }
 
   // Example: attr="myvalue"
   return {
     start: nameEndOffset + firstQuote + 1,
-    end: nameEndOffset + lastQuote
+    end: nameEndOffset + lastQuote,
   };
 }
 

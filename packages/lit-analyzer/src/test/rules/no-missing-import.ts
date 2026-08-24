@@ -4,49 +4,49 @@ import { makeElement } from "../helpers/generate-test-file.js";
 import { tsTest } from "../helpers/ts-test.js";
 import { TestFile } from "../helpers/compile-files.js";
 
-tsTest("Report missing imports of custom elements", t => {
+tsTest("Report missing imports of custom elements", (t) => {
   const { diagnostics } = getDiagnostics(
     [makeElement({}), "html`<my-element></my-element>`"],
-    { rules: { "no-missing-import": true } }
+    { rules: { "no-missing-import": true } },
   );
   hasDiagnostic(t, diagnostics, "no-missing-import");
 });
 
 tsTest(
   "Don't report missing imports when the custom element has been imported 1",
-  t => {
+  (t) => {
     const { diagnostics } = getDiagnostics(
       [
         makeElement({}),
-        "import './my-element'; html`<my-element></my-element>`"
+        "import './my-element'; html`<my-element></my-element>`",
       ],
       {
-        rules: { "no-missing-import": true }
-      }
+        rules: { "no-missing-import": true },
+      },
     );
     hasNoDiagnostics(t, diagnostics);
-  }
+  },
 );
 
 tsTest(
   "Don't report missing imports when the custom element has been imported 2",
-  t => {
+  (t) => {
     const { diagnostics } = getDiagnostics(
       [
         makeElement({}),
         {
           fileName: "file2.ts",
-          text: "import './my-element'"
+          text: "import './my-element'",
         },
-        "import './file2'; html`<my-element></my-element>`"
+        "import './file2'; html`<my-element></my-element>`",
       ],
-      { rules: { "no-missing-import": true } }
+      { rules: { "no-missing-import": true } },
     );
     hasNoDiagnostics(t, diagnostics);
-  }
+  },
 );
 
-tsTest("Suggest adding correct import statement", t => {
+tsTest("Suggest adding correct import statement", (t) => {
   const fileContentWithMissingImport = "html`<my-element></my-element>`";
   const elementTagWithoutImport = "my-element";
 
@@ -61,13 +61,13 @@ tsTest("Suggest adding correct import statement", t => {
   const { codeFixes } = getCodeFixesAtRange(
     [makeElement({}), fileContentWithMissingImport],
     { start, end },
-    { rules: { "no-missing-import": true } }
+    { rules: { "no-missing-import": true } },
   );
-  const correctCodeFixCreated = codeFixes.some(litCodeFix =>
+  const correctCodeFixCreated = codeFixes.some((litCodeFix) =>
     litCodeFix.actions.some(
-      litCodeFixAction =>
-        litCodeFixAction.newText === '\nimport "./my-element";'
-    )
+      (litCodeFixAction) =>
+        litCodeFixAction.newText === '\nimport "./my-element";',
+    ),
   );
 
   t.true(correctCodeFixCreated);
@@ -75,7 +75,7 @@ tsTest("Suggest adding correct import statement", t => {
 
 tsTest(
   "Suggest adding correct import statement for element in nested folder",
-  t => {
+  (t) => {
     const fileContentWithMissingImport = "html`<my-element></my-element>`";
     const elementTagWithoutImport = "my-element";
 
@@ -92,21 +92,21 @@ tsTest(
 		class MyElement extends HTMLElement {
 		};
 		customElements.define("my-element", MyElement);
-		`
+		`,
     };
     const { codeFixes } = getCodeFixesAtRange(
       [nestedElement, fileContentWithMissingImport],
       { start, end },
-      { rules: { "no-missing-import": true } }
+      { rules: { "no-missing-import": true } },
     );
 
-    const correctCodeFixCreated = codeFixes.some(litCodeFix =>
+    const correctCodeFixCreated = codeFixes.some((litCodeFix) =>
       litCodeFix.actions.some(
-        litCodeFixAction =>
-          litCodeFixAction.newText === '\nimport "./1/2/3/4/5/my-element";'
-      )
+        (litCodeFixAction) =>
+          litCodeFixAction.newText === '\nimport "./1/2/3/4/5/my-element";',
+      ),
     );
 
     t.true(correctCodeFixCreated);
-  }
+  },
 );

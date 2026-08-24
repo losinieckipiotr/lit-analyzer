@@ -2,7 +2,7 @@ import {
   isAssignableToSimpleTypeKind,
   SimpleType,
   typeToString,
-  validateType
+  validateType,
 } from "ts-simple-type";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -16,7 +16,7 @@ import { extractBindingTypes } from "./util/type/extract-binding-types.js";
 const rule: RuleModule = {
   id: "no-noncallable-event-binding",
   meta: {
-    priority: "high"
+    priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
     // Only validate event listener bindings.
@@ -29,10 +29,10 @@ const rule: RuleModule = {
     if (!isTypeBindableToEventListener(typeB)) {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `You are setting up an event listener with a non-callable type '${typeToString(typeB)}'`
+        message: `You are setting up an event listener with a non-callable type '${typeToString(typeB)}'`,
       });
     }
-  }
+  },
 };
 
 export default rule;
@@ -50,13 +50,13 @@ function isTypeBindableToEventListener(type: SimpleType): boolean {
   // Callable types can be used in the binding
   if (
     isAssignableToSimpleTypeKind(type, ["FUNCTION", "METHOD", "UNKNOWN"], {
-      matchAny: true
+      matchAny: true,
     })
   ) {
     return true;
   }
 
-  return validateType(type, simpleType => {
+  return validateType(type, (simpleType) => {
     switch (simpleType.kind) {
       // Object types with attributes for the setup function of the event listener can be used
       case "OBJECT":
@@ -64,7 +64,7 @@ function isTypeBindableToEventListener(type: SimpleType): boolean {
         // The "handleEvent" property must be present
         const handleEventFunction =
           simpleType.members != null
-            ? simpleType.members.find(m => m.name === "handleEvent")
+            ? simpleType.members.find((m) => m.name === "handleEvent")
             : undefined;
 
         // The "handleEvent" property must be callable

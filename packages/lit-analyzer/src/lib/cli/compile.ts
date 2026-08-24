@@ -10,7 +10,7 @@ import {
   Program,
   readConfigFile,
   ScriptTarget,
-  SourceFile
+  SourceFile,
 } from "typescript";
 import { LitAnalyzerConfig } from "../analyze/lit-analyzer-config.js";
 
@@ -20,7 +20,7 @@ const requiredCompilerOptions: CompilerOptions = {
   allowJs: true,
   //maxNodeModuleJsDepth: 3,
   strictNullChecks: true, // Type checking will remove all "null" and "undefined" from types if "strictNullChecks" is false
-  skipLibCheck: true
+  skipLibCheck: true,
 };
 
 /**
@@ -37,7 +37,7 @@ const defaultCompilerOptions: CompilerOptions = {
   allowSyntheticDefaultImports: true,
   allowUnreachableCode: true,
   allowUnusedLabels: true,
-  lib: ["lib.esnext.d.ts", "lib.dom.d.ts"]
+  lib: ["lib.esnext.d.ts", "lib.dom.d.ts"],
 };
 
 export interface CompileResult {
@@ -56,7 +56,7 @@ export function compileTypescript(filePaths: string | string[]): CompileResult {
   const program = createProgram(filePaths, options);
   const files = program
     .getSourceFiles()
-    .filter(sf => filePaths.includes(sf.fileName))
+    .filter((sf) => filePaths.includes(sf.fileName))
     .sort((sfA, sfB) => (sfA.fileName > sfB.fileName ? 1 : -1));
 
   return { program, files };
@@ -73,7 +73,7 @@ export function getCompilerOptions(): CompilerOptions {
   if (compilerOptions != null) {
     const options = {
       ...compilerOptions,
-      ...requiredCompilerOptions
+      ...requiredCompilerOptions,
     };
     // set module resolution to nodejs if it is classic
     // but if the user has set it to something else, don't override it
@@ -98,20 +98,20 @@ export function resolveTsConfigCompilerOptions(): CompilerOptions | undefined {
   const tsConfigFilePath = findConfigFile(
     process.cwd(),
     existsSync,
-    "tsconfig.json"
+    "tsconfig.json",
   );
 
   if (tsConfigFilePath != null) {
     // Read the tsconfig.json file
-    const parsedConfig = readConfigFile(tsConfigFilePath, path =>
-      readFileSync(path, "utf8")
+    const parsedConfig = readConfigFile(tsConfigFilePath, (path) =>
+      readFileSync(path, "utf8"),
     );
     if (parsedConfig != null && parsedConfig.config != null) {
       // Parse the tsconfig.json file
       const parsedJson = parseJsonConfigFileContent(
         parsedConfig.config,
         sys,
-        process.cwd()
+        process.cwd(),
       );
       return parsedJson?.options;
     }
@@ -133,7 +133,7 @@ export function readLitAnalyzerConfigFromTsConfig():
       name: string;
     } & Partial<LitAnalyzerConfig>)[];
     const tsLitPluginOptions = plugins.find(
-      plugin => plugin.name === "ts-lit-plugin"
+      (plugin) => plugin.name === "ts-lit-plugin",
     );
     if (tsLitPluginOptions != null) {
       return tsLitPluginOptions;

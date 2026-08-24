@@ -1,7 +1,7 @@
 import {
   SimpleType,
   SimpleTypeStringLiteral,
-  SimpleTypeUnion
+  SimpleTypeUnion,
 } from "ts-simple-type";
 import { makePrimitiveArrayType } from "../util/type-util.js";
 
@@ -237,9 +237,9 @@ const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {
       "doc-qna",
       "doc-subtitle",
       "doc-tip",
-      "doc-toc"
-    ]
-  ]
+      "doc-toc",
+    ],
+  ],
 };
 
 export function hasTypeForAttrName(attrName: string): boolean {
@@ -255,27 +255,30 @@ export function html5TagAttrType(attrName: string): SimpleType {
 
 function stringToSimpleType(
   typeString: string | string[] | [string[]],
-  name?: string
+  name?: string,
 ): SimpleType {
   if (Array.isArray(typeString)) {
     if (Array.isArray(typeString[0])) {
       return makePrimitiveArrayType(
-        stringToSimpleType(typeString[0]) as SimpleTypeUnion
+        stringToSimpleType(typeString[0]) as SimpleTypeUnion,
       );
     }
 
     return {
       kind: "UNION",
       types: (typeString as string[]).map(
-        value => ({ kind: "STRING_LITERAL", value }) as SimpleTypeStringLiteral
-      )
+        (value) =>
+          ({ kind: "STRING_LITERAL", value }) as SimpleTypeStringLiteral,
+      ),
     };
   }
 
   if (typeString.includes("|")) {
     return {
       kind: "UNION",
-      types: typeString.split("|").map(typeStr => stringToSimpleType(typeStr))
+      types: typeString
+        .split("|")
+        .map((typeStr) => stringToSimpleType(typeStr)),
     };
   }
 
@@ -297,147 +300,147 @@ function stringToSimpleType(
 export const EXTRA_HTML5_EVENTS = [
   {
     name: "onanimationend",
-    description: "A CSS animation has completed."
+    description: "A CSS animation has completed.",
   },
   {
     name: "onanimationiteration",
-    description: "A CSS animation is repeated."
+    description: "A CSS animation is repeated.",
   },
   {
     name: "onanimationstart",
-    description: "A CSS animation has started."
+    description: "A CSS animation has started.",
   },
   {
     name: "oncopy",
-    description: "The text selection has been added to the clipboard."
+    description: "The text selection has been added to the clipboard.",
   },
   {
     name: "oncut",
     description:
-      "The text selection has been removed from the document and added to the clipboard."
+      "The text selection has been removed from the document and added to the clipboard.",
   },
   {
     name: "ondragstart",
-    description: "The user starts dragging an element or text selection."
+    description: "The user starts dragging an element or text selection.",
   },
   {
     name: "onfocusin",
-    description: "An element is about to receive focus (bubbles)."
+    description: "An element is about to receive focus (bubbles).",
   },
   {
     name: "onfocusout",
-    description: "An element is about to lose focus (bubbles)."
+    description: "An element is about to lose focus (bubbles).",
   },
   {
     name: "onfullscreenchange",
     description:
-      "An element was turned to fullscreen mode or back to normal mode."
+      "An element was turned to fullscreen mode or back to normal mode.",
   },
   {
     name: "onfullscreenerror",
     description:
-      "It was impossible to switch to fullscreen mode for technical reasons or because the permission was denied."
+      "It was impossible to switch to fullscreen mode for technical reasons or because the permission was denied.",
   },
   {
     name: "ongotpointercapture",
-    description: "Element receives pointer capture."
+    description: "Element receives pointer capture.",
   },
   {
     name: "onlostpointercapture",
-    description: "Element lost pointer capture."
+    description: "Element lost pointer capture.",
   },
   {
     name: "onoffline",
-    description: "The browser has lost access to the network."
+    description: "The browser has lost access to the network.",
   },
   {
     name: "ononline",
     description:
-      "The browser has gained access to the network (but particular websites might be unreachable)."
+      "The browser has gained access to the network (but particular websites might be unreachable).",
   },
   {
     name: "onpaste",
     description:
-      "Data has been transferred from the system clipboard to the document."
+      "Data has been transferred from the system clipboard to the document.",
   },
   {
     name: "onpointercancel",
-    description: "The pointer is unlikely to produce any more events."
+    description: "The pointer is unlikely to produce any more events.",
   },
   {
     name: "onpointerdown",
-    description: "The pointer enters the active buttons state."
+    description: "The pointer enters the active buttons state.",
   },
   {
     name: "onpointerenter",
-    description: "Pointing device is moved inside the hit-testing boundary."
+    description: "Pointing device is moved inside the hit-testing boundary.",
   },
   {
     name: "onpointerleave",
-    description: "Pointing device is moved out of the hit-testing boundary."
+    description: "Pointing device is moved out of the hit-testing boundary.",
   },
   {
     name: "onpointerlockchange",
-    description: "The pointer was locked or released."
+    description: "The pointer was locked or released.",
   },
   {
     name: "onpointerlockerror",
     description:
-      "It was impossible to lock the pointer for technical reasons or because the permission was denied."
+      "It was impossible to lock the pointer for technical reasons or because the permission was denied.",
   },
   {
     name: "onpointermove",
-    description: "The pointer changed coordinates."
+    description: "The pointer changed coordinates.",
   },
   {
     name: "onpointerout",
     description:
-      "The pointing device moved out of hit-testing boundary or leaves detectable hover range."
+      "The pointing device moved out of hit-testing boundary or leaves detectable hover range.",
   },
   {
     name: "onpointerover",
-    description: "The pointing device is moved into the hit-testing boundary."
+    description: "The pointing device is moved into the hit-testing boundary.",
   },
   {
     name: "onpointerup",
-    description: "The pointer leaves the active buttons state."
+    description: "The pointer leaves the active buttons state.",
   },
   {
     name: "onratechange",
-    description: "The playback rate has changed."
+    description: "The playback rate has changed.",
   },
   {
     name: "onselectstart",
-    description: "A selection just started."
+    description: "A selection just started.",
   },
   {
     name: "onselectionchange",
-    description: "The selection in the document has been changed."
+    description: "The selection in the document has been changed.",
   },
   {
     name: "ontouchcancel",
     description:
-      "A touch point has been disrupted in an implementation-specific manners (too many touch points for example)."
+      "A touch point has been disrupted in an implementation-specific manners (too many touch points for example).",
   },
   {
     name: "ontouchend",
-    description: "A touch point is removed from the touch surface."
+    description: "A touch point is removed from the touch surface.",
   },
   {
     name: "ontouchmove",
-    description: "A touch point is moved along the touch surface."
+    description: "A touch point is moved along the touch surface.",
   },
   {
     name: "ontouchstart",
-    description: "A touch point is placed on the touch surface."
+    description: "A touch point is placed on the touch surface.",
   },
   {
     name: "ontransitionend",
-    description: "A CSS transition has completed."
+    description: "A CSS transition has completed.",
   },
   {
     name: "onwheel",
     description:
-      "A wheel button of a pointing device is rotated in any direction."
-  }
+      "A wheel button of a pointing device is rotated in any direction.",
+  },
 ];

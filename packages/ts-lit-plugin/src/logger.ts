@@ -84,7 +84,7 @@ export class Logger extends DefaultLitAnalyzerLogger {
         colors: true,
         depth: 6,
         breakLength: 50,
-        maxArrayLength: 10
+        maxArrayLength: 10,
       });
       try {
         appendFileSync(this.logPath, `${prefix}${message}\n`);
@@ -95,7 +95,7 @@ export class Logger extends DefaultLitAnalyzerLogger {
         `[ts-lit-plugin] ${message}`,
         level === LitAnalyzerLoggerLevel.ERROR
           ? tsServer.server.Msg.Err
-          : tsServer.server.Msg.Info
+          : tsServer.server.Msg.Info,
       );
     }
   }

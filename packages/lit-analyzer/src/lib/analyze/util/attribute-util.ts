@@ -2,13 +2,13 @@ import { HtmlAttrTarget } from "../parse/parse-html-data/html-tag.js";
 import { AnalyzerHtmlStore } from "../store/analyzer-html-store.js";
 import {
   HtmlNodeAttr,
-  HtmlNodeAttrKind
+  HtmlNodeAttrKind,
 } from "../types/html-node/html-node-attr-types.js";
 import { findBestMatch } from "./find-best-match.js";
 
 export function suggestTargetForHtmlAttr(
   htmlNodeAttr: HtmlNodeAttr,
-  htmlStore: AnalyzerHtmlStore
+  htmlStore: AnalyzerHtmlStore,
 ): HtmlAttrTarget | undefined {
   const properties = htmlStore.getAllPropertiesForTag(htmlNodeAttr.htmlNode);
   const attributes = htmlStore.getAllAttributesForTag(htmlNodeAttr.htmlNode);
@@ -27,7 +27,7 @@ export function suggestTargetForHtmlAttr(
 
 function findSuggestedTarget(
   name: string,
-  tests: Iterable<HtmlAttrTarget>[]
+  tests: Iterable<HtmlAttrTarget>[],
 ): HtmlAttrTarget | undefined {
   for (const test of tests) {
     let items = [...test];
@@ -35,18 +35,18 @@ function findSuggestedTarget(
     // If the search string starts with "on"/"aria", only check members starting with "on"/"aria"
     // If not, remove members starting with "on"/"aria" from the list of items
     if (name.startsWith("on")) {
-      items = items.filter(item => item.name.startsWith("on"));
+      items = items.filter((item) => item.name.startsWith("on"));
     } else if (name.startsWith("aria")) {
-      items = items.filter(item => item.name.startsWith("aria"));
+      items = items.filter((item) => item.name.startsWith("aria"));
     } else {
       items = items.filter(
-        item => !item.name.startsWith("on") && !item.name.startsWith("aria")
+        (item) => !item.name.startsWith("on") && !item.name.startsWith("aria"),
       );
     }
 
     const match = findBestMatch(name, items, {
       matchKey: "name",
-      caseSensitive: false
+      caseSensitive: false,
     });
     if (match != null) {
       return match;

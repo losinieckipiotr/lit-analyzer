@@ -1,7 +1,7 @@
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
-  LIT_HTML_PROP_ATTRIBUTE_MODIFIER
+  LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../analyze/constants.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -17,7 +17,7 @@ import { isAssignableInElementBinding } from "./util/type/is-assignable-in-eleme
 const rule: RuleModule = {
   id: "no-incompatible-type-binding",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitHtmlAssignment(assignment, context) {
     const { htmlAttr } = assignment;
@@ -52,7 +52,7 @@ const rule: RuleModule = {
         break;
       }
     }
-  }
+  },
 };
 
 export default rule;

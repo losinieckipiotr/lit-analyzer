@@ -4,7 +4,7 @@ import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-conte
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
 import {
   isLit2Directive,
-  isLit1Directive
+  isLit1Directive,
 } from "../directive/is-lit-directive.js";
 
 /**
@@ -14,7 +14,7 @@ import {
 export function isAssignableInElementBinding(
   htmlAttr: HtmlNodeAttr,
   type: SimpleType,
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): boolean | undefined {
   // TODO (justinfagnani): is there a better way to determine if the
   // type *contains* any, rather than *is* any?
@@ -22,12 +22,12 @@ export function isAssignableInElementBinding(
     if (isLit1Directive(type)) {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `Type '${typeToString(type)}' is a lit-html 1.0 directive, not a Lit 2 directive'`
+        message: `Type '${typeToString(type)}' is a lit-html 1.0 directive, not a Lit 2 directive'`,
       });
     } else {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `Type '${typeToString(type)}' is not a Lit 2 directive'`
+        message: `Type '${typeToString(type)}' is not a Lit 2 directive'`,
       });
     }
     return false;

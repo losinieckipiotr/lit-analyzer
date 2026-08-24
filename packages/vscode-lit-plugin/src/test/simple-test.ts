@@ -16,7 +16,7 @@ async function getDiagnostics(docUri: vscode.Uri, retries = 1000) {
     }
     // Is there a better way to wait for the ts server to be ready?
     // Maybe we can listen for the event that displays and hides the "initializing TS/JS language features" message?
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
   throw new Error("No diagnostics found");
 }
@@ -27,11 +27,11 @@ suite("Extension Test Suite", () => {
   });
 
   test("The extension is installed", () => {
-    const extensionIds = vscode.extensions.all.map(extension => extension.id);
+    const extensionIds = vscode.extensions.all.map((extension) => extension.id);
     const ourId = "runem.lit-plugin";
     assert.ok(
       extensionIds.includes(ourId),
-      `Expected ${JSON.stringify(extensionIds)} to include '${ourId}'`
+      `Expected ${JSON.stringify(extensionIds)} to include '${ourId}'`,
     );
   });
 
@@ -41,19 +41,19 @@ suite("Extension Test Suite", () => {
     config.update(
       "lit-plugin.rules.no-missing-element-type-definition",
       "error",
-      true
+      true,
     );
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/missing-elem-type.ts")
-      )
+        path.join(__dirname, "../../src/test/fixtures/missing-elem-type.ts"),
+      ),
     );
     await vscode.window.showTextDocument(doc);
 
     const diagnostics = await getDiagnostics(doc.uri);
     assert.deepStrictEqual(
-      diagnostics.map(d => d.message),
-      ["'my-element' has not been registered on HTMLElementTagNameMap"]
+      diagnostics.map((d) => d.message),
+      ["'my-element' has not been registered on HTMLElementTagNameMap"],
     );
   });
 
@@ -63,45 +63,45 @@ suite("Extension Test Suite", () => {
     config.update("lit-plugin.rules.no-missing-import", "error", true);
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/missing-import.ts")
-      )
+        path.join(__dirname, "../../src/test/fixtures/missing-import.ts"),
+      ),
     );
     const editor = await vscode.window.showTextDocument(doc);
 
     const diagnostics = await getDiagnostics(doc.uri);
     assert.deepStrictEqual(
-      diagnostics.map(d => d.message),
+      diagnostics.map((d) => d.message),
       [
-        "Missing import for <my-other-element>\n  You can disable this check by disabling the 'no-missing-import' rule."
-      ]
+        "Missing import for <my-other-element>\n  You can disable this check by disabling the 'no-missing-import' rule.",
+      ],
     );
 
     // now add the fix
     const editRange = doc.lineAt(0).range.start;
-    editor.edit(builder => {
+    editor.edit((builder) => {
       if (!editor) {
         throw new Error("No editor found");
       }
       editor.insertSnippet(
         new vscode.SnippetString("import './my-other-element';\n"),
-        editRange
+        editRange,
       );
     });
 
     // give it some time to settle
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     assert.rejects(
       getDiagnostics(doc.uri, 3),
-      "Expected rejection as no diagnostics will be found."
+      "Expected rejection as no diagnostics will be found.",
     );
   });
 
   test("We generate completions", async () => {
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/completions.ts")
-      )
+        path.join(__dirname, "../../src/test/fixtures/completions.ts"),
+      ),
     );
     const editor = await vscode.window.showTextDocument(doc);
 
@@ -110,7 +110,7 @@ suite("Extension Test Suite", () => {
 
     editor.selection = new vscode.Selection(
       tagCompletionPosition,
-      tagCompletionPosition
+      tagCompletionPosition,
     );
 
     async function getCompletions(expected: string) {
@@ -119,7 +119,7 @@ suite("Extension Test Suite", () => {
           await vscode.commands.executeCommand<vscode.CompletionList>(
             "vscode.executeCompletionItemProvider",
             doc.uri,
-            editor.selection.active
+            editor.selection.active,
           );
         if (completions && completions.items.length > 0) {
           for (const completion of completions.items) {
@@ -130,40 +130,40 @@ suite("Extension Test Suite", () => {
         }
         // Is there a better way to wait for the ts server to be ready?
         // Maybe we can listen for the event that displays and hides the "initializing TS/JS language features" message?
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
       throw new Error("No completions found");
     }
 
     const elemCompletions = await getCompletions("complete-me");
-    const elemLabels = elemCompletions.map(c => c.label);
+    const elemLabels = elemCompletions.map((c) => c.label);
     assert.ok(
       elemLabels.includes("complete-me"),
-      `Expected to find completion 'complete-me' in completions: ${JSON.stringify(elemLabels)}`
+      `Expected to find completion 'complete-me' in completions: ${JSON.stringify(elemLabels)}`,
     );
 
     editor.selection = new vscode.Selection(
       propertyCompletionPosition,
-      propertyCompletionPosition
+      propertyCompletionPosition,
     );
     // type a '.' character
-    await editor.edit(editBuilder => {
+    await editor.edit((editBuilder) => {
       editBuilder.insert(editor.selection.active, ".");
     });
 
     const propCompletions = await getCompletions(".prop1");
-    const propLabels = propCompletions.map(c => c.label);
+    const propLabels = propCompletions.map((c) => c.label);
     assert.ok(
       propLabels.includes(".prop1"),
-      `Expected to find completion '.prop1' in completions: ${JSON.stringify(propLabels)}`
+      `Expected to find completion '.prop1' in completions: ${JSON.stringify(propLabels)}`,
     );
     assert.ok(
       propLabels.includes(".prop2"),
-      `Expected to find completion '.prop2' in completions: ${JSON.stringify(propLabels)}`
+      `Expected to find completion '.prop2' in completions: ${JSON.stringify(propLabels)}`,
     );
     assert.ok(
       propLabels.includes(".prop3"),
-      `Expected to find completion '.prop3' in completions: ${JSON.stringify(propLabels)}`
+      `Expected to find completion '.prop3' in completions: ${JSON.stringify(propLabels)}`,
     );
   });
 });

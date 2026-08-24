@@ -7,7 +7,7 @@ export function translateRenameInfo({
   displayName,
   fullDisplayName,
   kind,
-  range
+  range,
 }: LitRenameInfo): RenameInfo {
   const triggerSpan = translateRange(range);
 
@@ -17,6 +17,6 @@ export function translateRenameInfo({
     kindModifiers: "",
     displayName,
     fullDisplayName,
-    triggerSpan
+    triggerSpan,
   };
 }

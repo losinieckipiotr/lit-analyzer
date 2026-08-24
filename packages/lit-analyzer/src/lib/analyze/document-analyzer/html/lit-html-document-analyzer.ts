@@ -3,7 +3,7 @@ import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
 import { HtmlDocument } from "../../parse/document/text-document/html-document/html-document.js";
 import {
   isHTMLAttr,
-  HtmlNodeAttr
+  HtmlNodeAttr,
 } from "../../types/html-node/html-node-attr-types.js";
 import { isHTMLNode, HtmlNode } from "../../types/html-node/html-node-types.js";
 import { LitClosingTagInfo } from "../../types/lit-closing-tag-info.js";
@@ -15,7 +15,7 @@ import { LitDiagnostic } from "../../types/lit-diagnostic.js";
 import { LitFormatEdit } from "../../types/lit-format-edit.js";
 import {
   LitOutliningSpan,
-  LitOutliningSpanKind
+  LitOutliningSpanKind,
 } from "../../types/lit-outlining-span.js";
 import { LitQuickInfo } from "../../types/lit-quick-info.js";
 import { LitRenameInfo } from "../../types/lit-rename-info.js";
@@ -41,10 +41,10 @@ export class LitHtmlDocumentAnalyzer {
     document: HtmlDocument,
     offset: DocumentOffset,
     name: string,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitCompletionDetails | undefined {
     const completionWithName = this.completionsCache.find(
-      completion => completion.name === name
+      (completion) => completion.name === name,
     );
 
     if (completionWithName == null || completionWithName.documentation == null)
@@ -56,14 +56,14 @@ export class LitHtmlDocumentAnalyzer {
     return {
       name,
       kind: completionWithName.kind,
-      primaryInfo
+      primaryInfo,
     };
   }
 
   getCompletionsAtOffset(
     document: HtmlDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitCompletion[] {
     this.completionsCache = completionsAtOffset(document, offset, context);
     return completionsAtOffset(document, offset, context);
@@ -71,14 +71,14 @@ export class LitHtmlDocumentAnalyzer {
 
   getDiagnostics(
     document: HtmlDocument,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitDiagnostic[] {
     return validateHTMLDocument(document, context);
   }
 
   getClosingTagAtOffset(
     document: HtmlDocument,
-    offset: DocumentOffset
+    offset: DocumentOffset,
   ): LitClosingTagInfo | undefined {
     return this.vscodeHtmlService.getClosingTagAtOffset(document, offset);
   }
@@ -86,7 +86,7 @@ export class LitHtmlDocumentAnalyzer {
   getCodeFixesAtOffsetRange(
     document: HtmlDocument,
     offsetRange: DocumentRange,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitCodeFix[] {
     const hit = document.htmlNodeOrAttrAtOffset(offsetRange);
     if (hit == null) return [];
@@ -97,7 +97,7 @@ export class LitHtmlDocumentAnalyzer {
   getDefinitionAtOffset(
     document: HtmlDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitDefinition | undefined {
     const hit = document.htmlNodeOrAttrAtOffset(offset);
     if (hit == null) return undefined;
@@ -113,7 +113,7 @@ export class LitHtmlDocumentAnalyzer {
   getRenameInfoAtOffset(
     document: HtmlDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitRenameInfo | undefined {
     const hit = document.htmlNodeOrAttrAtOffset(offset);
     if (hit == null) return undefined;
@@ -125,7 +125,7 @@ export class LitHtmlDocumentAnalyzer {
         displayName: hit.tagName,
         range: documentRangeToSFRange(document, { ...hit.location.name }),
         document,
-        target: hit
+        target: hit,
       };
     }
     return;
@@ -134,7 +134,7 @@ export class LitHtmlDocumentAnalyzer {
   getRenameLocationsAtOffset(
     document: HtmlDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitRenameLocation[] {
     return renameLocationsAtOffset(document, offset, context);
   }
@@ -142,7 +142,7 @@ export class LitHtmlDocumentAnalyzer {
   getQuickInfoAtOffset(
     document: HtmlDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitQuickInfo | undefined {
     const hit = document.htmlNodeOrAttrAtOffset(offset);
     if (hit == null) return undefined;
@@ -159,7 +159,7 @@ export class LitHtmlDocumentAnalyzer {
 
   getOutliningSpans(document: HtmlDocument): LitOutliningSpan[] {
     return iterableDefined(
-      document.mapNodes(node => {
+      document.mapNodes((node) => {
         if (node.location.endTag == null) return undefined;
 
         // Calculate last index of the collapsed span.
@@ -182,23 +182,23 @@ export class LitHtmlDocumentAnalyzer {
           kind: LitOutliningSpanKind.Code,
           location: documentRangeToSFRange(document, {
             start: node.location.startTag.end,
-            end: endIndex
-          })
+            end: endIndex,
+          }),
         } as LitOutliningSpan;
-      })
+      }),
     );
   }
 
   getFormatEdits(
     document: HtmlDocument,
-    settings: FormatCodeSettings
+    settings: FormatCodeSettings,
   ): LitFormatEdit[] {
     return this.vscodeHtmlService.format(document, settings);
   }
 
   *indexFile(
     document: HtmlDocument,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): IterableIterator<LitIndexEntry> {
     for (const node of document.nodes()) {
       const definition = definitionForHtmlNode(node, context);
@@ -212,7 +212,7 @@ export class LitHtmlDocumentAnalyzer {
             kind: "ATTRIBUTE-REFERENCE",
             attribute,
             document,
-            definition
+            definition,
           };
         }
       }

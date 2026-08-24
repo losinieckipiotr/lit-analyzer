@@ -9,7 +9,7 @@ import { rangeFromNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-missing-element-type-definition",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitComponentDefinition(definition, context) {
     // Don't run this rule on non-typescript files and declaration files
@@ -23,14 +23,14 @@ const rule: RuleModule = {
     // Try to find the tag name node on "interface HTMLElementTagNameMap"
     const htmlElementTagNameMapTagNameNode = iterableFind(
       definition.tagNameNodes,
-      node =>
+      (node) =>
         findParent(
           node,
-          node =>
+          (node) =>
             context.ts.isInterfaceDeclaration(node) &&
             context.ts.isModuleBlock(node.parent) &&
-            node.name.getText() === "HTMLElementTagNameMap"
-        ) != null
+            node.name.getText() === "HTMLElementTagNameMap",
+        ) != null,
     );
 
     // Don't continue if the node was found
@@ -63,15 +63,15 @@ const rule: RuleModule = {
                 file: context.file,
                 name: "HTMLElementTagNameMap",
                 newMembers: [
-                  `"${definition.tagName}": ${declarationIdentifier.text}`
-                ]
-              }
-            ]
+                  `"${definition.tagName}": ${declarationIdentifier.text}`,
+                ],
+              },
+            ],
           };
-        }
+        },
       });
     }
-  }
+  },
 };
 
 export default rule;

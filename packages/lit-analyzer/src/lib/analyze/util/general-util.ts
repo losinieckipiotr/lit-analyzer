@@ -20,7 +20,7 @@ export function parseLitAttrName(attributeName: string): {
   const [, modifier, name] = attributeName.match(/^([.?@])?(.*)/) || [
     "",
     "",
-    ""
+    "",
   ];
   return { name, modifier: modifier as LitHtmlAttributeModifier };
 }

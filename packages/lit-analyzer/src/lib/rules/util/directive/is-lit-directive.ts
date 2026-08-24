@@ -6,7 +6,7 @@ const partTypeNames: ReadonlySet<string | undefined> = new Set([
   "AttributePart",
   "BooleanAttributePart",
   "PropertyPart",
-  "EventPart"
+  "EventPart",
 ]);
 
 /**
@@ -40,7 +40,7 @@ export function isLit1Directive(type: SimpleType): boolean {
       // And that one argument must all be lit Part types.
       const firstArg = type.parameters[0].type;
       if (firstArg.kind === "UNION") {
-        return firstArg.types.every(t => partTypeNames.has(t.name));
+        return firstArg.types.every((t) => partTypeNames.has(t.name));
       }
       return partTypeNames.has(firstArg.name);
     }

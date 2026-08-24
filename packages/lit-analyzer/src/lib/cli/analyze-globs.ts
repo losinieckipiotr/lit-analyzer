@@ -15,11 +15,11 @@ export interface AnalyzeGlobsContext {
   willAnalyzeFiles?(filePaths: string[]): void;
   didFindTypescriptDiagnostics?(
     diagnostics: readonly Diagnostic[],
-    options: { program: Program }
+    options: { program: Program },
   ): void;
   analyzeSourceFile?(
     file: SourceFile,
-    options: { program: Program }
+    options: { program: Program },
   ): void | boolean;
 }
 
@@ -32,7 +32,7 @@ export interface AnalyzeGlobsContext {
 export async function analyzeGlobs(
   globs: string[],
   config: LitAnalyzerCliConfig,
-  context: AnalyzeGlobsContext = {}
+  context: AnalyzeGlobsContext = {},
 ): Promise<CompileResult> {
   // Expand the globs
   const filePaths = await expandGlobs(globs);
@@ -70,7 +70,7 @@ async function expandGlobs(globs: string | string[]): Promise<string[]> {
 
   return arrayFlat(
     await Promise.all(
-      globs.map(g => {
+      globs.map((g) => {
         try {
           // Test if the glob points to a directory.
           // If so, return the result of a new glob that searches for files in the directory excluding node_modules..
@@ -78,7 +78,7 @@ async function expandGlobs(globs: string | string[]): Promise<string[]> {
           if (dirExists) {
             return fastGlob([...IGNORE_GLOBS, join(g, DEFAULT_DIR_GLOB)], {
               absolute: true,
-              followSymbolicLinks: true
+              followSymbolicLinks: true,
             });
           }
         } catch {
@@ -88,9 +88,9 @@ async function expandGlobs(globs: string | string[]): Promise<string[]> {
         // Return the result of globbing
         return fastGlob([...IGNORE_GLOBS, g], {
           absolute: true,
-          followSymbolicLinks: false
+          followSymbolicLinks: false,
         });
-      })
-    )
+      }),
+    ),
   );
 }

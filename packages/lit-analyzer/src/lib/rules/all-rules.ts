@@ -42,5 +42,5 @@ export const ALL_RULES: RuleModule[] = [
   noInvalidAttributeName,
   noPropertyVisibilityMismatch,
   noLegacyAttribute,
-  noMissingElementTypeDefinition
+  noMissingElementTypeDefinition,
 ];

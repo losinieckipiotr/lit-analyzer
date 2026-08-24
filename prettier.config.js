@@ -3,9 +3,7 @@
  * @type {import("prettier").Config}
  */
 const config = {
-	arrowParens: "avoid",
-	trailingComma: "none",
-	endOfLine: "auto"
+  endOfLine: "auto"
 };
 
 export default config;

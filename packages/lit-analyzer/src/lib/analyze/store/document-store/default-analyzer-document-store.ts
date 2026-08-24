@@ -9,25 +9,25 @@ export class DefaultAnalyzerDocumentStore implements AnalyzerDocumentStore {
   getDocumentAtPosition(
     sourceFile: SourceFile,
     position: SourceFilePosition,
-    options: LitAnalyzerConfig
+    options: LitAnalyzerConfig,
   ): TextDocument | undefined {
     return parseDocumentsInSourceFile(
       sourceFile,
       {
         htmlTags: options.htmlTemplateTags,
-        cssTags: options.cssTemplateTags
+        cssTags: options.cssTemplateTags,
       },
-      position
+      position,
     );
   }
 
   getDocumentsInFile(
     sourceFile: SourceFile,
-    config: LitAnalyzerConfig
+    config: LitAnalyzerConfig,
   ): TextDocument[] {
     return parseDocumentsInSourceFile(sourceFile, {
       htmlTags: config.htmlTemplateTags,
-      cssTags: config.cssTemplateTags
+      cssTags: config.cssTemplateTags,
     });
   }
 }

@@ -3,13 +3,13 @@ import {
   HtmlNode,
   HtmlNodeKind,
   IHtmlNodeBase,
-  IHtmlNodeSourceCodeLocation
+  IHtmlNodeSourceCodeLocation,
 } from "../../../../../types/html-node/html-node-types.js";
 import { isCommentNode, isTagNode } from "../parse-html-p5/parse-html.js";
 import {
   getSourceLocation,
   IP5TagNode,
-  P5Node
+  P5Node,
 } from "../parse-html-p5/parse-html-types.js";
 import { parseHtmlNodeAttrs } from "./parse-html-attribute.js";
 import { ParseHtmlContext } from "./parse-html-context.js";
@@ -23,7 +23,7 @@ import { ParseHtmlContext } from "./parse-html-context.js";
 export function parseHtmlNodes(
   p5Nodes: P5Node[],
   parent: HtmlNode | undefined,
-  context: ParseHtmlContext
+  context: ParseHtmlContext,
 ): HtmlNode[] {
   const htmlNodes: HtmlNode[] = [];
   let ignoreNextNode = false;
@@ -59,7 +59,7 @@ export function parseHtmlNodes(
 export function parseHtmlNode(
   p5Node: IP5TagNode,
   parent: HtmlNode | undefined,
-  context: ParseHtmlContext
+  context: ParseHtmlContext,
 ): HtmlNode | undefined {
   // `sourceCodeLocation` will be undefined if the element was implicitly created by the parser.
   if (getSourceLocation(p5Node) == null) return undefined;
@@ -71,7 +71,7 @@ export function parseHtmlNode(
     location: makeHtmlNodeLocation(p5Node, context),
     children: [],
     document: context.document,
-    parent
+    parent,
   };
 
   const htmlNode = parseHtmlNodeBase(htmlNodeBase);
@@ -81,7 +81,7 @@ export function parseHtmlNode(
     htmlNode.children = parseHtmlNodes(
       p5Node.childNodes || [],
       htmlNode,
-      context
+      context,
     );
   }
 
@@ -110,7 +110,7 @@ function isSelfClosed(p5Node: IP5TagNode, context: ParseHtmlContext) {
  */
 function makeHtmlNodeLocation(
   p5Node: IP5TagNode,
-  context: ParseHtmlContext
+  context: ParseHtmlContext,
 ): IHtmlNodeSourceCodeLocation {
   const loc = getSourceLocation(p5Node)!;
 
@@ -119,19 +119,19 @@ function makeHtmlNodeLocation(
     end: loc.endOffset,
     name: {
       start: loc.startTag!.startOffset + 1, // take '<' into account
-      end: loc.startTag!.startOffset + 1 + p5Node.tagName.length
+      end: loc.startTag!.startOffset + 1 + p5Node.tagName.length,
     },
     startTag: {
       start: loc.startTag!.startOffset,
-      end: loc.startTag!.endOffset
+      end: loc.startTag!.endOffset,
     },
     endTag:
       loc.endTag == null
         ? undefined
         : {
             start: loc.endTag!.startOffset,
-            end: loc.endTag!.endOffset
-          }
+            end: loc.endTag!.endOffset,
+          },
   };
 }
 
@@ -140,20 +140,20 @@ function parseHtmlNodeBase(htmlNodeBase: IHtmlNodeBase): HtmlNode {
     return {
       kind: HtmlNodeKind.STYLE,
       ...htmlNodeBase,
-      children: []
+      children: [],
     };
   } else if (htmlNodeBase.tagName === "svg") {
     // Ignore children of "svg" for now
     return {
       kind: HtmlNodeKind.SVG,
       ...htmlNodeBase,
-      children: []
+      children: [],
     };
   }
 
   return {
     kind: HtmlNodeKind.NODE,
-    ...htmlNodeBase
+    ...htmlNodeBase,
   };
 
   /*if (component != null) {

@@ -12,12 +12,11 @@ out
 *.gif
 *.png
 *.log
-.eslintignore
 .gitignore
 .prettierignore
 .vscodeignore
 .wireit
-
+/dev/
 /packages/*/.wireit
 /packages/*/lib
 /packages/*/out

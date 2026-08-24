@@ -14,7 +14,7 @@ import {
   RenameLocation,
   SignatureHelpItems,
   TextChange,
-  UserPreferences
+  UserPreferences,
 } from "typescript";
 import { LitPluginContext } from "./lit-plugin-context.js";
 import { translateCodeFixes } from "./translate/translate-code-fixes.js";
@@ -37,7 +37,7 @@ export class TsLitPlugin {
 
   constructor(
     private prevLangService: LanguageService,
-    public readonly context: LitPluginContext
+    public readonly context: LitPluginContext,
   ) {
     this.litAnalyzer = new LitAnalyzer(context);
   }
@@ -55,7 +55,7 @@ export class TsLitPlugin {
     const result = this.litAnalyzer.getCompletionDetailsAtPosition(
       file,
       position,
-      name
+      name,
     );
     return (
       (result && translateCompletionDetails(result, this.context)) ||
@@ -110,7 +110,7 @@ export class TsLitPlugin {
       this.prevLangService.getCodeFixesAtPosition(...args) || [];
     const codeFixes = translateCodeFixes(
       this.litAnalyzer.getCodeFixesAtPositionRange(file, { start, end }),
-      file
+      file,
     );
 
     return [...prevResult, ...codeFixes];
@@ -136,7 +136,7 @@ export class TsLitPlugin {
 
     const prev = this.prevLangService.getOutliningSpans(...args);
     const outliningSpans = translateOutliningSpans(
-      this.litAnalyzer.getOutliningSpansInFile(file)
+      this.litAnalyzer.getOutliningSpansInFile(file),
     );
 
     return [...prev, ...outliningSpans];
@@ -178,34 +178,35 @@ export class TsLitPlugin {
     position: number,
     findInStrings: boolean,
     findInComments: boolean,
-    providePrefixAndSuffixTextForRename?: boolean
+    providePrefixAndSuffixTextForRename?: boolean,
   ): readonly RenameLocation[] | undefined;
   findRenameLocations(
     fileName: string,
     position: number,
     findInStrings: boolean,
     findInComments: boolean,
-    preferences: UserPreferences
+    preferences: UserPreferences,
   ): readonly RenameLocation[] | undefined;
   findRenameLocations(
     fileName: string,
     position: number,
     findInStrings: boolean,
     findInComments: boolean,
-    preferencesOrProvidePrefixAndSuffixTextForRename?: UserPreferences | boolean
+    preferencesOrProvidePrefixAndSuffixTextForRename?:
+      UserPreferences | boolean,
   ): readonly RenameLocation[] | undefined {
     const args = [
       fileName,
       position,
       findInStrings,
       findInComments,
-      preferencesOrProvidePrefixAndSuffixTextForRename
+      preferencesOrProvidePrefixAndSuffixTextForRename,
     ] as [string, number, boolean, boolean, UserPreferences];
     const file = this.program.getSourceFile(fileName)!;
 
     const prev = this.prevLangService.findRenameLocations(...args);
     const renameLocations = translateRenameLocations(
-      this.litAnalyzer.getRenameLocationsAtPosition(file, position)
+      this.litAnalyzer.getRenameLocationsAtPosition(file, position),
     );
 
     if (prev == null) {
@@ -239,7 +240,7 @@ export class TsLitPlugin {
 
     const file = this.program.getSourceFile(fileName)!;
     const edits = translateFormatEdits(
-      this.litAnalyzer.getFormatEditsInFile(file, settings)
+      this.litAnalyzer.getFormatEditsInFile(file, settings),
     );
 
     return [...prev, ...edits];

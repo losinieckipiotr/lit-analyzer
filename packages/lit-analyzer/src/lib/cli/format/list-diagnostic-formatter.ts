@@ -11,7 +11,7 @@ export class ListDiagnosticFormatter implements DiagnosticFormatter {
 
   diagnosticTextForFile(
     file: SourceFile,
-    diagnostics: LitDiagnostic[]
+    diagnostics: LitDiagnostic[],
   ): string | undefined {
     if (diagnostics.length === 0) return undefined;
 
@@ -21,10 +21,10 @@ export class ListDiagnosticFormatter implements DiagnosticFormatter {
 
 function diagnosticTextForFile(
   file: SourceFile,
-  diagnostics: LitDiagnostic[]
+  diagnostics: LitDiagnostic[],
 ): string {
   const diagnosticText = diagnostics
-    .map(diagnostic => litDiagnosticToErrorText(file, diagnostic))
+    .map((diagnostic) => litDiagnosticToErrorText(file, diagnostic))
     .join("\n");
 
   return `
@@ -34,17 +34,17 @@ ${diagnosticText}`;
 
 function litDiagnosticToErrorText(
   file: SourceFile,
-  diagnostic: LitDiagnostic
+  diagnostic: LitDiagnostic,
 ): string {
   const lineContext = file.getLineAndCharacterOfPosition(
-    diagnostic.location.start
+    diagnostic.location.start,
   );
   const linePart = `${textPad(`${lineContext.line + 1}`, { width: 5 })}:${textPad(
     `${lineContext.character}`,
     {
       width: 4,
-      dir: "right"
-    }
+      dir: "right",
+    },
   )}`;
   const severityPart = `${textPad(
     diagnostic.severity === "warning"
@@ -52,8 +52,8 @@ function litDiagnosticToErrorText(
       : chalk.red("error"),
     {
       width: 18,
-      dir: "right"
-    }
+      dir: "right",
+    },
   )}`;
   const messagePart = diagnostic.message;
   return `${linePart} ${severityPart} ${messagePart}`;

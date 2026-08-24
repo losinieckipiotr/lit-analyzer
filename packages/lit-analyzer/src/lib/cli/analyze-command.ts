@@ -5,20 +5,20 @@ import { DefaultLitAnalyzerContext } from "../analyze/default-lit-analyzer-conte
 import { LitAnalyzer } from "../analyze/lit-analyzer.js";
 import {
   LitAnalyzerConfig,
-  makeConfig
+  makeConfig,
 } from "../analyze/lit-analyzer-config.js";
 import { analyzeGlobs } from "./analyze-globs.js";
 import { readLitAnalyzerConfigFromTsConfig } from "./compile.js";
 import { CodeDiagnosticFormatter } from "./format/code-diagnostic-formatter.js";
 import {
   AnalysisStats,
-  DiagnosticFormatter
+  DiagnosticFormatter,
 } from "./format/diagnostic-formatter.js";
 import { ListDiagnosticFormatter } from "./format/list-diagnostic-formatter.js";
 import { MarkdownDiagnosticFormatter } from "./format/markdown-formatter.js";
 import {
   FormatterFormat,
-  LitAnalyzerCliConfig
+  LitAnalyzerCliConfig,
 } from "./lit-analyzer-cli-config.js";
 
 function printText(text: string, config: LitAnalyzerCliConfig) {
@@ -37,13 +37,13 @@ function printText(text: string, config: LitAnalyzerCliConfig) {
  */
 export async function analyzeCommand(
   globs: string[],
-  cliConfig: LitAnalyzerCliConfig
+  cliConfig: LitAnalyzerCliConfig,
 ): Promise<boolean> {
   let program: Program | undefined = undefined;
   const context = new DefaultLitAnalyzerContext({
     getProgram() {
       return program!;
-    }
+    },
   });
 
   // Read config from tsconfig.json
@@ -60,8 +60,8 @@ export async function analyzeCommand(
     // Also merge rules deep
     rules: {
       ...(configFromTS.rules || {}),
-      ...(configFromCLI.rules || {})
-    }
+      ...(configFromCLI.rules || {}),
+    },
   };
 
   // Generate final config based on CLI and "tsconfig.json"
@@ -80,7 +80,7 @@ export async function analyzeCommand(
     warnings: 0,
     filesWithProblems: 0,
     totalFiles: 0,
-    diagnostics: 0
+    diagnostics: 0,
   };
 
   const formatter = getFormatter(cliConfig.format || "code");
@@ -95,7 +95,7 @@ export async function analyzeCommand(
       } else {
         // eslint-disable-next-line no-console
         console.log(
-          `Analyzing ${filePaths.length} file${filePaths.length === 1 ? "" : "s"}...`
+          `Analyzing ${filePaths.length} file${filePaths.length === 1 ? "" : "s"}...`,
         );
       }
     },
@@ -107,7 +107,7 @@ export async function analyzeCommand(
     },
     analyzeSourceFile(
       file: SourceFile,
-      options: { program: Program }
+      options: { program: Program },
     ): void | boolean {
       program = options.program;
 
@@ -126,14 +126,14 @@ export async function analyzeCommand(
 
       // Filter all diagnostics by "error" if "quiet" option is active
       diagnostics = cliConfig.quiet
-        ? diagnostics.filter(d => d.severity === "error")
+        ? diagnostics.filter((d) => d.severity === "error")
         : diagnostics;
 
       // Print the diagnostic text based on the formatter
       const fileDiagnosticsText = formatter.diagnosticTextForFile(
         file,
         diagnostics,
-        cliConfig
+        cliConfig,
       );
       if (fileDiagnosticsText != null) {
         printText(fileDiagnosticsText, cliConfig);
@@ -147,11 +147,11 @@ export async function analyzeCommand(
       if (diagnostics.length > 0) {
         stats.errors += diagnostics.reduce(
           (sum, d) => (d.severity === "error" ? sum + 1 : sum),
-          0
+          0,
         );
         stats.warnings += diagnostics.reduce(
           (sum, d) => (d.severity === "warning" ? sum + 1 : sum),
-          0
+          0,
         );
         stats.filesWithProblems += 1;
 
@@ -160,7 +160,7 @@ export async function analyzeCommand(
           return false;
         }
       }
-    }
+    },
   });
 
   // Print summary text
@@ -172,13 +172,13 @@ export async function analyzeCommand(
   // Print debugging
   if (cliConfig.debug) {
     const sortedTimeArray = Array.from(timeMap.entries()).sort(
-      ([, timeA], [, timeB]) => (timeA > timeB ? 1 : -1)
+      ([, timeA], [, timeB]) => (timeA > timeB ? 1 : -1),
     );
     // eslint-disable-next-line no-console
     console.log(
       sortedTimeArray
         .map(([fileName, time]) => `${fileName}: ${time}ms`)
-        .join("\n")
+        .join("\n"),
     );
   }
 
@@ -206,7 +206,7 @@ function getFormatter(format: FormatterFormat): DiagnosticFormatter {
  */
 function isSuccessful(
   stats: AnalysisStats,
-  config: LitAnalyzerCliConfig
+  config: LitAnalyzerCliConfig,
 ): boolean {
   const maxErrorCount = 0;
   const maxWarningCount = config.maxWarnings != null ? config.maxWarnings : -1;
@@ -223,7 +223,7 @@ function isSuccessful(
 }
 
 function readLitAnalyzerConfigFromCliConfig(
-  cliConfig: LitAnalyzerCliConfig
+  cliConfig: LitAnalyzerCliConfig,
 ): Partial<LitAnalyzerConfig> {
   const config: Partial<LitAnalyzerConfig> = {};
 

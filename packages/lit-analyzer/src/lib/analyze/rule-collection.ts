@@ -1,6 +1,6 @@
 import {
   ComponentDeclaration,
-  ComponentDefinition
+  ComponentDefinition,
 } from "web-component-analyzer";
 import { isRuleEnabled, LitAnalyzerRuleId } from "./lit-analyzer-config.js";
 import { LitAnalyzerContext } from "./lit-analyzer-context.js";
@@ -10,7 +10,7 @@ import { HtmlNode, HtmlNodeKind } from "./types/html-node/html-node-types.js";
 import { RuleDiagnostic } from "./types/rule/rule-diagnostic.js";
 import {
   RuleModule,
-  RuleModuleImplementation
+  RuleModuleImplementation,
 } from "./types/rule/rule-module.js";
 import { RuleModuleContext } from "./types/rule/rule-module-context.js";
 
@@ -27,7 +27,7 @@ export class RuleCollection {
 
     // Sort rules by most important first
     this.rules.sort((ruleA, ruleB) =>
-      getPriorityValue(ruleA) > getPriorityValue(ruleB) ? -1 : 1
+      getPriorityValue(ruleA) > getPriorityValue(ruleB) ? -1 : 1,
     );
   }
 
@@ -37,7 +37,7 @@ export class RuleCollection {
       NonNullable<RuleModuleImplementation[VisitFunctionName]>
     >[0],
     report: (diagnostic: ReportedRuleDiagnostic) => void,
-    baseContext: LitAnalyzerContext
+    baseContext: LitAnalyzerContext,
   ): void {
     let shouldBreak = false;
 
@@ -49,7 +49,7 @@ export class RuleCollection {
       dependencyStore,
       documentStore,
       logger,
-      ts
+      ts,
     } = baseContext;
 
     let currentRuleId: LitAnalyzerRuleId | undefined = undefined;
@@ -72,7 +72,7 @@ export class RuleCollection {
       },
       break(): void {
         shouldBreak = true;
-      }
+      },
     };
 
     for (const rule of this.rules) {
@@ -94,7 +94,7 @@ export class RuleCollection {
 
   getDiagnosticsFromDeclaration(
     declaration: ComponentDeclaration,
-    baseContext: LitAnalyzerContext
+    baseContext: LitAnalyzerContext,
   ): ReportedRuleDiagnostic[] {
     const file = baseContext.currentFile;
 
@@ -103,8 +103,8 @@ export class RuleCollection {
     this.invokeRules(
       "visitComponentDeclaration",
       declaration,
-      d => diagnostics.push(d),
-      baseContext
+      (d) => diagnostics.push(d),
+      baseContext,
     );
 
     for (const member of declaration.members) {
@@ -112,8 +112,8 @@ export class RuleCollection {
         this.invokeRules(
           "visitComponentMember",
           member,
-          d => diagnostics.push(d),
-          baseContext
+          (d) => diagnostics.push(d),
+          baseContext,
         );
       }
     }
@@ -123,7 +123,7 @@ export class RuleCollection {
 
   getDiagnosticsFromDefinition(
     definition: ComponentDefinition,
-    baseContext: LitAnalyzerContext
+    baseContext: LitAnalyzerContext,
   ): ReportedRuleDiagnostic[] {
     const file = baseContext.currentFile;
 
@@ -133,8 +133,8 @@ export class RuleCollection {
       this.invokeRules(
         "visitComponentDefinition",
         definition,
-        d => diagnostics.push(d),
-        baseContext
+        (d) => diagnostics.push(d),
+        baseContext,
       );
     }
 
@@ -143,7 +143,7 @@ export class RuleCollection {
 
   getDiagnosticsFromDocument(
     htmlDocument: HtmlDocument,
-    baseContext: LitAnalyzerContext
+    baseContext: LitAnalyzerContext,
   ): ReportedRuleDiagnostic[] {
     const diagnostics: ReportedRuleDiagnostic[] = [];
 
@@ -157,8 +157,8 @@ export class RuleCollection {
         this.invokeRules(
           "visitHtmlNode",
           childNode,
-          d => diagnostics.push(d),
-          baseContext
+          (d) => diagnostics.push(d),
+          baseContext,
         );
 
         const iterateAttrs = (attrs: HtmlNodeAttr[]) => {
@@ -166,16 +166,16 @@ export class RuleCollection {
             this.invokeRules(
               "visitHtmlAttribute",
               attr,
-              d => diagnostics.push(d),
-              baseContext
+              (d) => diagnostics.push(d),
+              baseContext,
             );
 
             if (attr.assignment != null) {
               this.invokeRules(
                 "visitHtmlAssignment",
                 attr.assignment,
-                d => diagnostics.push(d),
-                baseContext
+                (d) => diagnostics.push(d),
+                baseContext,
               );
             }
           }

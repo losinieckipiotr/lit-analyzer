@@ -8,7 +8,7 @@ import {
   IPropertyData,
   IPseudoClassData,
   IPseudoElementData,
-  TextDocument
+  TextDocument,
 } from "vscode-css-languageservice";
 import { isRuleDisabled } from "../../lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
@@ -16,7 +16,7 @@ import { CssDocument } from "../../parse/document/text-document/css-document/css
 import {
   documentationForCssPart,
   documentationForCssProperty,
-  documentationForHtmlTag
+  documentationForHtmlTag,
 } from "../../parse/parse-html-data/html-tag.js";
 import { AnalyzerHtmlStore } from "../../store/analyzer-html-store.js";
 import { LitCompletion } from "../../types/lit-completion.js";
@@ -27,7 +27,7 @@ import { DocumentOffset } from "../../types/range.js";
 import { lazy } from "../../util/general-util.js";
 import {
   getPositionContextInDocument,
-  grabWordInDirection
+  grabWordInDirection,
 } from "../../util/get-position-context-in-document.js";
 import { iterableFilter, iterableMap } from "../../util/iterable-util.js";
 import { documentRangeToSFRange } from "../../util/range-util.js";
@@ -37,7 +37,7 @@ function makeVscTextDocument(cssDocument: CssDocument): TextDocument {
     "untitled://embedded.css",
     "css",
     1,
-    cssDocument.virtualDocument.text
+    cssDocument.virtualDocument.text,
   );
 }
 
@@ -46,19 +46,19 @@ export class LitCssVscodeService {
 
   private get cssService() {
     return getCSSLanguageService({
-      customDataProviders: [this.dataProvider.provider]
+      customDataProviders: [this.dataProvider.provider],
     });
   }
 
   private get scssService() {
     return getSCSSLanguageService({
-      customDataProviders: [this.dataProvider.provider]
+      customDataProviders: [this.dataProvider.provider],
     });
   }
 
   getDiagnostics(
     document: CssDocument,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitDiagnostic[] {
     if (isRuleDisabled(context.config, "no-invalid-css")) {
       return [];
@@ -77,17 +77,17 @@ export class LitCssVscodeService {
     const vscStylesheet = this.makeVscStylesheet(vscTextDocument);
     const diagnostics = this.scssService.doValidation(
       vscTextDocument,
-      vscStylesheet
+      vscStylesheet,
     );
 
     return diagnostics
       .filter(
-        diagnostic =>
+        (diagnostic) =>
           diagnostic.range.start.line !== 0 &&
-          diagnostic.range.start.line < vscTextDocument.lineCount - 1
+          diagnostic.range.start.line < vscTextDocument.lineCount - 1,
       )
       .map(
-        diagnostic =>
+        (diagnostic) =>
           ({
             severity:
               diagnostic.severity === DiagnosticSeverity.Error
@@ -96,18 +96,18 @@ export class LitCssVscodeService {
             source: "no-invalid-css",
             location: documentRangeToSFRange(document, {
               start: vscTextDocument.offsetAt(diagnostic.range.start),
-              end: vscTextDocument.offsetAt(diagnostic.range.end)
+              end: vscTextDocument.offsetAt(diagnostic.range.end),
             }),
             message: diagnostic.message,
-            file: context.currentFile
-          }) as LitDiagnostic
+            file: context.currentFile,
+          }) as LitDiagnostic,
       );
   }
 
   getQuickInfo(
     document: CssDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitQuickInfo | undefined {
     this.dataProvider.update(context.htmlStore);
 
@@ -117,7 +117,7 @@ export class LitCssVscodeService {
     const hover = this.scssService.doHover(
       vscTextDocument,
       vscPosition,
-      vscStylesheet
+      vscStylesheet,
     );
     if (hover == null || hover.range == null) return;
 
@@ -144,15 +144,15 @@ export class LitCssVscodeService {
       secondaryInfo,
       range: documentRangeToSFRange(document, {
         start: vscTextDocument.offsetAt(hover.range.start),
-        end: vscTextDocument.offsetAt(hover.range.end)
-      })
+        end: vscTextDocument.offsetAt(hover.range.end),
+      }),
     };
   }
 
   getCompletions(
     document: CssDocument,
     offset: DocumentOffset,
-    context: LitAnalyzerContext
+    context: LitAnalyzerContext,
   ): LitCompletion[] {
     this.dataProvider.update(context.htmlStore);
 
@@ -166,14 +166,14 @@ export class LitCssVscodeService {
           startOffset: offset - positionContext.leftWord.length - 1,
           stopChar: /[^:]/,
           direction: "left",
-          text: document.virtualDocument.text
+          text: document.virtualDocument.text,
         }) +
         positionContext.leftWord;
     }
 
     const range = documentRangeToSFRange(document, {
       start: positionContext.offset - positionContext.leftWord.length,
-      end: positionContext.offset + positionContext.rightWord.length
+      end: positionContext.offset + positionContext.rightWord.length,
     });
 
     const vscTextDocument = makeVscTextDocument(document);
@@ -182,12 +182,12 @@ export class LitCssVscodeService {
     const items = this.cssService.doComplete(
       vscTextDocument,
       vscPosition,
-      vscStylesheet
+      vscStylesheet,
     );
 
     // Get all completions from vscode html language service
     const completions = items.items.map(
-      i =>
+      (i) =>
         ({
           kind:
             i.kind == null ? "unknown" : translateCompletionItemKind(i.kind),
@@ -198,16 +198,16 @@ export class LitCssVscodeService {
           documentation: lazy(() =>
             typeof i.documentation === "string" || i.documentation == null
               ? i.documentation
-              : i.documentation.value
+              : i.documentation.value,
           ),
           sortText: i.sortText,
-          range
-        }) as LitCompletion
+          range,
+        }) as LitCompletion,
     );
 
     // Add completions for css custom properties
     for (const cssProp of context.htmlStore.getAllCssPropertiesForTag("")) {
-      if (completions.some(c => c.name === cssProp.name)) {
+      if (completions.some((c) => c.name === cssProp.name)) {
         continue;
       }
 
@@ -217,7 +217,7 @@ export class LitCssVscodeService {
         insert: cssProp.name,
         sortText: positionContext.leftWord.startsWith("-") ? "0" : "e_0",
         documentation: lazy(() => documentationForCssProperty(cssProp)),
-        range
+        range,
       });
     }
 
@@ -227,7 +227,7 @@ export class LitCssVscodeService {
         startOffset: offset - positionContext.leftWord.length - 1,
         stopChar: /[^-A-Za-z]/,
         direction: "left",
-        text: document.virtualDocument.text
+        text: document.virtualDocument.text,
       });
 
       // Add completions for css shadow parts
@@ -239,7 +239,7 @@ export class LitCssVscodeService {
             insert: cssPart.name,
             sortText: "0",
             documentation: lazy(() => documentationForCssPart(cssPart)),
-            range
+            range,
           });
         }
       }
@@ -305,8 +305,8 @@ class LitVscodeCSSDataProvider {
             browsers: [],
             description: `Unlike ::part, ::theme matches elements parts with that theme name, anywhere in the document.`,
             name: "::theme",
-            status: "nonstandard"
-          }
+            status: "nonstandard",
+          },
         ];
       },
       provideAtDirectives(): IAtDirectiveData[] {
@@ -317,7 +317,7 @@ class LitVscodeCSSDataProvider {
       },
       provideProperties(): IPropertyData[] {
         return [];
-      }
+      },
     };
   })();
 
@@ -328,15 +328,15 @@ class LitVscodeCSSDataProvider {
   update(htmlStore: AnalyzerHtmlStore) {
     this.pseudoElementData = Array.from(
       iterableMap(
-        iterableFilter(htmlStore.getGlobalTags(), tag => !tag.builtIn),
-        tag =>
+        iterableFilter(htmlStore.getGlobalTags(), (tag) => !tag.builtIn),
+        (tag) =>
           ({
             browsers: [],
             description: documentationForHtmlTag(tag),
             name: tag.tagName,
-            status: "standard"
-          }) as IPseudoElementData
-      )
+            status: "standard",
+          }) as IPseudoElementData,
+      ),
     );
   }
 }

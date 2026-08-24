@@ -17,7 +17,7 @@ const IMPORTED_SOURCE_FILES_CACHE = new WeakMap<SourceFile, Set<SourceFile>>();
  */
 export function parseDependencies(
   sourceFile: SourceFile,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): ComponentDefinition[] {
   if (RESULT_CACHE.has(sourceFile)) {
     let invalidate = false;
@@ -70,8 +70,8 @@ export function parseAllIndirectImports(
   context: LitAnalyzerContext,
   {
     maxExternalDepth,
-    maxInternalDepth
-  }: { maxExternalDepth?: number; maxInternalDepth?: number } = {}
+    maxInternalDepth,
+  }: { maxExternalDepth?: number; maxInternalDepth?: number } = {},
 ): Set<SourceFile> {
   const importedSourceFiles = new Set<SourceFile>();
 
@@ -91,7 +91,7 @@ export function parseAllIndirectImports(
       importedSourceFiles.add(file);
 
       return true;
-    }
+    },
   });
 
   return importedSourceFiles;

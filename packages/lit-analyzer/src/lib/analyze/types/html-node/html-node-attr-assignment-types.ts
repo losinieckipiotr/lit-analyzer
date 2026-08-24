@@ -7,7 +7,7 @@ export enum HtmlNodeAttrAssignmentKind {
   EXPRESSION = "EXPRESSION",
   STRING = "STRING",
   MIXED = "MIXED",
-  ELEMENT_EXPRESSION = "ELEMENT_EXPRESSION"
+  ELEMENT_EXPRESSION = "ELEMENT_EXPRESSION",
 }
 
 export interface IHtmlNodeAttrAssignmentBase {

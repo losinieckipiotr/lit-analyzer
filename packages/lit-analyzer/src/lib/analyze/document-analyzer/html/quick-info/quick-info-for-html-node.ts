@@ -6,7 +6,7 @@ import { rangeFromHtmlNode } from "../../../util/range-util.js";
 
 export function quickInfoForHtmlNode(
   htmlNode: HtmlNode,
-  { htmlStore }: LitAnalyzerContext
+  { htmlStore }: LitAnalyzerContext,
 ): LitQuickInfo | undefined {
   const htmlTag = htmlStore.getHtmlTag(htmlNode);
   if (htmlTag == null) return undefined;
@@ -14,6 +14,6 @@ export function quickInfoForHtmlNode(
   return {
     range: rangeFromHtmlNode(htmlNode),
     primaryInfo: `<${htmlNode.tagName}>`,
-    secondaryInfo: documentationForHtmlTag(htmlTag, { markdown: true })
+    secondaryInfo: documentationForHtmlTag(htmlTag, { markdown: true }),
   };
 }

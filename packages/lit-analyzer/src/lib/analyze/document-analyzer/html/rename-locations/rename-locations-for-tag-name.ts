@@ -7,31 +7,31 @@ import { findChild } from "../../../util/ast-util.js";
 import { iterableFirst } from "../../../util/iterable-util.js";
 import {
   documentRangeToSFRange,
-  makeSourceFileRange
+  makeSourceFileRange,
 } from "../../../util/range-util.js";
 
 export function renameLocationsForTagName(
   tagName: string,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): LitRenameLocation[] {
   const locations: LitRenameLocation[] = [];
 
   for (const sourceFile of context.program.getSourceFiles()) {
     const documents = context.documentStore.getDocumentsInFile(
       sourceFile,
-      context.config
+      context.config,
     );
 
     for (const document of documents) {
       if (document instanceof HtmlDocument) {
-        document.rootNodes.forEach(rootNode =>
+        document.rootNodes.forEach((rootNode) =>
           visitHtmlNode(rootNode, {
             document,
             tagName,
             emitRenameLocation(location: LitRenameLocation): void {
               locations.push(location);
-            }
-          })
+            },
+          }),
         );
       }
     }
@@ -48,8 +48,8 @@ export function renameLocationsForTagName(
       if (context.ts.isCallLikeExpression(definitionNode)) {
         const stringLiteralNode = findChild(
           definitionNode,
-          child =>
-            context.ts.isStringLiteralLike(child) && child.text === tagName
+          (child) =>
+            context.ts.isStringLiteralLike(child) && child.text === tagName,
         );
 
         if (stringLiteralNode != null) {
@@ -57,8 +57,8 @@ export function renameLocationsForTagName(
             fileName,
             range: makeSourceFileRange({
               start: stringLiteralNode.getStart() + 1,
-              end: stringLiteralNode.getEnd() - 1
-            })
+              end: stringLiteralNode.getEnd() - 1,
+            }),
           });
         }
       } else if (definitionNode.kind === context.ts.SyntaxKind.JSDocTag) {
@@ -71,15 +71,15 @@ export function renameLocationsForTagName(
             fileName,
             range: makeSourceFileRange({
               start,
-              end: start + jsDocTagNode.comment.length
-            })
+              end: start + jsDocTagNode.comment.length,
+            }),
           });
         }
       } else if (context.ts.isInterfaceDeclaration(definitionNode)) {
         const stringLiteralNode = findChild(
           definitionNode,
-          child =>
-            context.ts.isStringLiteralLike(child) && child.text === tagName
+          (child) =>
+            context.ts.isStringLiteralLike(child) && child.text === tagName,
         );
 
         if (stringLiteralNode != null) {
@@ -87,8 +87,8 @@ export function renameLocationsForTagName(
             fileName,
             range: makeSourceFileRange({
               start: stringLiteralNode.getStart() + 1,
-              end: stringLiteralNode.getEnd() - 1
-            })
+              end: stringLiteralNode.getEnd() - 1,
+            }),
           });
         }
       }
@@ -108,7 +108,7 @@ function visitHtmlNode(node: HtmlNode, context: VisitHtmlNodeContext) {
   if (node.tagName === context.tagName) {
     context.emitRenameLocation({
       range: documentRangeToSFRange(context.document, node.location.name),
-      fileName: context.document.virtualDocument.fileName
+      fileName: context.document.virtualDocument.fileName,
     });
 
     if (node.location.endTag != null) {
@@ -116,12 +116,12 @@ function visitHtmlNode(node: HtmlNode, context: VisitHtmlNodeContext) {
       context.emitRenameLocation({
         range: documentRangeToSFRange(context.document, {
           start: start + 2,
-          end: end - 1
+          end: end - 1,
         }),
-        fileName: context.document.virtualDocument.fileName
+        fileName: context.document.virtualDocument.fileName,
       });
     }
   }
 
-  node.children.forEach(childNode => visitHtmlNode(childNode, context));
+  node.children.forEach((childNode) => visitHtmlNode(childNode, context));
 }

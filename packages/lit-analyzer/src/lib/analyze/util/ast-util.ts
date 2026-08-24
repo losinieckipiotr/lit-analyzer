@@ -10,7 +10,7 @@ import { intersects } from "./range-util.js";
  */
 export function findParent<T = Node>(
   node: Node | undefined,
-  test: (node: Node) => boolean
+  test: (node: Node) => boolean,
 ): T | undefined {
   if (node == null) return;
   return test(node) ? (node as unknown as T) : findParent(node.parent, test);
@@ -18,11 +18,11 @@ export function findParent<T = Node>(
 
 export function findChild<T = Node>(
   node: Node | undefined,
-  test: (node: Node) => boolean
+  test: (node: Node) => boolean,
 ): T | undefined {
   if (!node) return;
   if (test(node)) return node as unknown as T;
-  return node.forEachChild(child => findChild(child, test));
+  return node.forEachChild((child) => findChild(child, test));
 }
 
 /**
@@ -32,25 +32,27 @@ export function findChild<T = Node>(
  */
 export function getNodeAtPosition(
   node: Node,
-  position: number | Range
+  position: number | Range,
 ): Node | undefined {
   if (!intersects(position, { start: node.pos, end: node.end })) {
     return;
   }
 
-  return node.forEachChild(child => getNodeAtPosition(child, position)) || node;
+  return (
+    node.forEachChild((child) => getNodeAtPosition(child, position)) || node
+  );
 }
 
 export function nodeIntersects(nodeA: Node, nodeB: Node): boolean {
   return intersects(
     {
       start: nodeA.getStart(),
-      end: nodeA.getEnd()
+      end: nodeA.getEnd(),
     },
     {
       start: nodeB.getStart(),
-      end: nodeB.getEnd()
-    }
+      end: nodeB.getEnd(),
+    },
   );
 }
 
@@ -63,7 +65,7 @@ export function nodeIntersects(nodeA: Node, nodeB: Node): boolean {
 export function leadingCommentsIncludes(
   text: string,
   pos: number,
-  needle: string
+  needle: string,
 ): boolean {
   // Get the leading comments to the position.
   const leadingComments = tsModule.ts.getLeadingCommentRanges(text, pos);
@@ -87,7 +89,7 @@ export function leadingCommentsIncludes(
  */
 export function getNodeIdentifier(
   node: Node,
-  ts: typeof tsModule.ts
+  ts: typeof tsModule.ts,
 ): Identifier | undefined {
   if (ts.isIdentifier(node)) {
     return node;

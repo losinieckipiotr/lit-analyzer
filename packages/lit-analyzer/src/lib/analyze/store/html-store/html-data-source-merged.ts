@@ -16,7 +16,7 @@ import {
   mergeHtmlTags,
   NamedHtmlDataCollection,
   HtmlCssProperty,
-  mergeCssProperties
+  mergeCssProperties,
 } from "../../parse/parse-html-data/html-tag.js";
 import { lazy } from "../../util/general-util.js";
 import { iterableDefined } from "../../util/iterable-util.js";
@@ -26,7 +26,7 @@ export enum HtmlDataSourceKind {
   DECLARED = 0,
   USER = 1,
   BUILT_IN = 2,
-  BUILT_IN_DECLARED = 3
+  BUILT_IN_DECLARED = 3,
 }
 
 export class HtmlDataSourceMerged {
@@ -49,7 +49,7 @@ export class HtmlDataSourceMerged {
     slots: new Map<string, ReadonlyMap<string, HtmlSlot>>(),
     props: new Map<string, ReadonlyMap<string, HtmlProp>>(),
     cssParts: new Map<string, ReadonlyMap<string, HtmlCssPart>>(),
-    cssProperties: new Map<string, ReadonlyMap<string, HtmlCssProperty>>()
+    cssProperties: new Map<string, ReadonlyMap<string, HtmlCssProperty>>(),
   };
 
   get globalTags(): ReadonlyMap<string, HtmlTag> {
@@ -59,7 +59,7 @@ export class HtmlDataSourceMerged {
   invalidateCache(collection: NamedHtmlDataCollection): void {
     const {
       tags,
-      global: { attributes, events, cssParts }
+      global: { attributes, events, cssParts },
     } = collection;
 
     if (tags && tags.length > 0) {
@@ -105,7 +105,14 @@ export class HtmlDataSourceMerged {
   mergeDataSourcesAndInvalidate(collection: NamedHtmlDataCollection): void {
     const {
       tags,
-      global: { events, attributes, properties, slots, cssParts, cssProperties }
+      global: {
+        events,
+        attributes,
+        properties,
+        slots,
+        cssParts,
+        cssProperties,
+      },
     } = collection;
 
     this.invalidateCache(collection);
@@ -113,7 +120,7 @@ export class HtmlDataSourceMerged {
     if (tags != null) {
       for (const tagName of tags) {
         const allTags = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalTag(tagName))
+          this.htmlDataSources.map((r) => r.getGlobalTag(tagName)),
         );
 
         if (allTags.length > 0) {
@@ -127,14 +134,14 @@ export class HtmlDataSourceMerged {
     if (attributes != null) {
       for (const attrName of attributes) {
         const allAttrs = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalAttribute(attrName))
+          this.htmlDataSources.map((r) => r.getGlobalAttribute(attrName)),
         );
 
         if (allAttrs.length > 0) {
           const mergedAttrs =
             allAttrs.length === 1 ? allAttrs : mergeHtmlAttrs(allAttrs);
           this.combinedHtmlDataSource.absorbCollection({
-            global: { attributes: mergedAttrs }
+            global: { attributes: mergedAttrs },
           });
         }
       }
@@ -143,14 +150,14 @@ export class HtmlDataSourceMerged {
     if (events != null) {
       for (const eventName of events) {
         const allEvents = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalEvent(eventName))
+          this.htmlDataSources.map((r) => r.getGlobalEvent(eventName)),
         );
 
         if (allEvents.length > 0) {
           const mergedEvents =
             allEvents.length === 1 ? allEvents : mergeHtmlEvents(allEvents);
           this.combinedHtmlDataSource.absorbCollection({
-            global: { events: mergedEvents }
+            global: { events: mergedEvents },
           });
         }
       }
@@ -159,14 +166,14 @@ export class HtmlDataSourceMerged {
     if (properties != null) {
       for (const propName of properties) {
         const allProps = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalProperty(propName))
+          this.htmlDataSources.map((r) => r.getGlobalProperty(propName)),
         );
 
         if (allProps.length > 0) {
           const mergedProps =
             allProps.length === 1 ? allProps : mergeHtmlProps(allProps);
           this.combinedHtmlDataSource.absorbCollection({
-            global: { properties: mergedProps }
+            global: { properties: mergedProps },
           });
         }
       }
@@ -175,14 +182,14 @@ export class HtmlDataSourceMerged {
     if (slots != null) {
       for (const slotName of slots) {
         const allSlots = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalSlot(slotName))
+          this.htmlDataSources.map((r) => r.getGlobalSlot(slotName)),
         );
 
         if (allSlots.length > 0) {
           const mergedSlots =
             allSlots.length === 1 ? allSlots : mergeHtmlSlots(allSlots);
           this.combinedHtmlDataSource.absorbCollection({
-            global: { slots: mergedSlots }
+            global: { slots: mergedSlots },
           });
         }
       }
@@ -191,7 +198,7 @@ export class HtmlDataSourceMerged {
     if (cssProperties != null) {
       for (const cssPartName of cssProperties) {
         const allCssProps = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalCssProperty(cssPartName))
+          this.htmlDataSources.map((r) => r.getGlobalCssProperty(cssPartName)),
         );
 
         if (allCssProps.length > 0) {
@@ -200,7 +207,7 @@ export class HtmlDataSourceMerged {
               ? allCssProps
               : mergeCssProperties(allCssProps);
           this.combinedHtmlDataSource.absorbCollection({
-            global: { cssProperties: mergedCssProps }
+            global: { cssProperties: mergedCssProps },
           });
         }
       }
@@ -209,14 +216,14 @@ export class HtmlDataSourceMerged {
     if (cssParts != null) {
       for (const cssPartName of cssParts) {
         const allCssParts = iterableDefined(
-          this.htmlDataSources.map(r => r.getGlobalCssPart(cssPartName))
+          this.htmlDataSources.map((r) => r.getGlobalCssPart(cssPartName)),
         );
 
         if (allCssParts.length > 0) {
           const mergedCssParts =
             allCssParts.length === 1 ? allCssParts : mergeCssParts(allCssParts);
           this.combinedHtmlDataSource.absorbCollection({
-            global: { cssParts: mergedCssParts }
+            global: { cssParts: mergedCssParts },
           });
         }
       }
@@ -225,10 +232,10 @@ export class HtmlDataSourceMerged {
 
   forgetCollection(
     collection: NamedHtmlDataCollection,
-    dataSource?: HtmlDataSourceKind
+    dataSource?: HtmlDataSourceKind,
   ): void {
     if (dataSource == null) {
-      this.htmlDataSources.forEach(ds => ds.forgetCollection(collection));
+      this.htmlDataSources.forEach((ds) => ds.forgetCollection(collection));
     } else {
       this.htmlDataSources[dataSource].forgetCollection(collection);
     }
@@ -239,20 +246,20 @@ export class HtmlDataSourceMerged {
 
   absorbCollection(
     collection: HtmlDataCollection,
-    register: HtmlDataSourceKind
+    register: HtmlDataSourceKind,
   ): void {
     this.htmlDataSources[register].absorbCollection(collection);
 
     this.mergeDataSourcesAndInvalidate({
-      tags: collection.tags.map(t => t.tagName),
+      tags: collection.tags.map((t) => t.tagName),
       global: {
-        events: collection.global?.events?.map(t => t.name),
-        attributes: collection.global?.attributes?.map(a => a.name),
-        properties: collection.global?.properties?.map(p => p.name),
-        slots: collection.global?.slots?.map(s => s.name),
-        cssParts: collection.global?.cssParts?.map(s => s.name),
-        cssProperties: collection.global?.cssProperties?.map(s => s.name)
-      }
+        events: collection.global?.events?.map((t) => t.name),
+        attributes: collection.global?.attributes?.map((a) => a.name),
+        properties: collection.global?.properties?.map((p) => p.name),
+        slots: collection.global?.slots?.map((s) => s.name),
+        cssParts: collection.global?.cssParts?.map((s) => s.name),
+        cssProperties: collection.global?.cssProperties?.map((s) => s.name),
+      },
     });
   }
 
@@ -274,7 +281,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.attrs.has(tagName)) {
       this.relatedForTagName.attrs.set(
         tagName,
-        mergeRelatedMembers(this.iterateAllAttributesForNode(tagName))
+        mergeRelatedMembers(this.iterateAllAttributesForNode(tagName)),
       );
     }
 
@@ -285,7 +292,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.props.has(tagName)) {
       this.relatedForTagName.props.set(
         tagName,
-        mergeRelatedMembers(this.iterateAllPropertiesForNode(tagName))
+        mergeRelatedMembers(this.iterateAllPropertiesForNode(tagName)),
       );
     }
 
@@ -296,7 +303,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.events.has(tagName)) {
       this.relatedForTagName.events.set(
         tagName,
-        mergeRelatedEvents(this.iterateAllEventsForNode(tagName))
+        mergeRelatedEvents(this.iterateAllEventsForNode(tagName)),
       );
     }
 
@@ -307,7 +314,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.slots.has(tagName)) {
       this.relatedForTagName.slots.set(
         tagName,
-        mergeRelatedSlots(this.iterateAllSlotsForNode(tagName))
+        mergeRelatedSlots(this.iterateAllSlotsForNode(tagName)),
       );
     }
 
@@ -318,7 +325,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.cssParts.has(tagName)) {
       this.relatedForTagName.cssParts.set(
         tagName,
-        mergeRelatedCssParts(this.iterateAllCssPartsForNode(tagName))
+        mergeRelatedCssParts(this.iterateAllCssPartsForNode(tagName)),
       );
     }
 
@@ -326,12 +333,12 @@ export class HtmlDataSourceMerged {
   }
 
   getAllCssPropertiesForTag(
-    tagName: string
+    tagName: string,
   ): ReadonlyMap<string, HtmlCssProperty> {
     if (!this.relatedForTagName.cssProperties.has(tagName)) {
       this.relatedForTagName.cssProperties.set(
         tagName,
-        mergeRelatedCssProperties(this.iterateAllCssPropertiesForNode(tagName))
+        mergeRelatedCssProperties(this.iterateAllCssPropertiesForNode(tagName)),
       );
     }
 
@@ -400,7 +407,7 @@ export class HtmlDataSourceMerged {
       yield* this.iterateGlobalEvents();
     } else {
       // If we emitted some events from the main html tag, don't emit these events again
-      const eventNameSet = new Set(htmlTag.events.map(e => e.name));
+      const eventNameSet = new Set(htmlTag.events.map((e) => e.name));
 
       for (const tag of this.globalTags.values()) {
         if (tag.tagName !== tagName) {
@@ -473,7 +480,7 @@ export class HtmlDataSourceMerged {
   }
 
   private *iterateAllCssPropertiesForNode(
-    tagName: string
+    tagName: string,
   ): Iterable<HtmlCssProperty> {
     if (tagName === "") {
       // Iterate all css custom properties for all tags
@@ -497,7 +504,7 @@ export class HtmlDataSourceMerged {
 }
 
 function mergeRelatedMembers<T extends HtmlMember>(
-  members: Iterable<T>
+  members: Iterable<T>,
 ): ReadonlyMap<string, T> {
   const mergedMembers = new Map<string, T>();
   for (const member of members) {
@@ -516,12 +523,12 @@ function mergeRelatedMembers<T extends HtmlMember>(
         builtIn: existingMember.required && member.required,
         fromTagName: existingMember.fromTagName || member.fromTagName,
         getType: lazy(() =>
-          mergeRelatedTypeToUnion(prevType(), member.getType())
+          mergeRelatedTypeToUnion(prevType(), member.getType()),
         ),
         related:
           existingMember.related == null
             ? [existingMember, member]
-            : [...existingMember.related, member]
+            : [...existingMember.related, member],
       });
     }
   }
@@ -530,7 +537,7 @@ function mergeRelatedMembers<T extends HtmlMember>(
 
 function mergeRelatedTypeToUnion(
   typeA: SimpleType,
-  typeB: SimpleType
+  typeB: SimpleType,
 ): SimpleType {
   if (typeA.kind === typeB.kind) {
     switch (typeA.kind) {
@@ -543,25 +550,25 @@ function mergeRelatedTypeToUnion(
     case "UNION":
       if (
         typeB.kind === "ANY" &&
-        typeA.types.find(t => t.kind === "ANY") != null
+        typeA.types.find((t) => t.kind === "ANY") != null
       ) {
         return typeA;
       } else {
         return {
           ...typeA,
-          types: [...typeA.types, typeB]
+          types: [...typeA.types, typeB],
         };
       }
   }
 
   return {
     kind: "UNION",
-    types: [typeA, typeB]
+    types: [typeA, typeB],
   } as SimpleTypeUnion;
 }
 
 function mergeNamedRelated<T extends { name: string; related?: T[] }>(
-  items: Iterable<T>
+  items: Iterable<T>,
 ): ReadonlyMap<string, T> {
   const merged = new Map<string, T>();
 
@@ -577,7 +584,7 @@ function mergeNamedRelated<T extends { name: string; related?: T[] }>(
         related:
           existingItem.related == null
             ? [existingItem, item]
-            : [existingItem.related, item]
+            : [existingItem.related, item],
       });
     } else {
       merged.set(name, item);
@@ -588,25 +595,25 @@ function mergeNamedRelated<T extends { name: string; related?: T[] }>(
 }
 
 function mergeRelatedSlots(
-  slots: Iterable<HtmlSlot>
+  slots: Iterable<HtmlSlot>,
 ): ReadonlyMap<string, HtmlSlot> {
   return mergeNamedRelated(slots);
 }
 
 function mergeRelatedCssParts(
-  cssParts: Iterable<HtmlCssPart>
+  cssParts: Iterable<HtmlCssPart>,
 ): ReadonlyMap<string, HtmlCssPart> {
   return mergeNamedRelated(cssParts);
 }
 
 function mergeRelatedCssProperties(
-  cssProperties: Iterable<HtmlCssPart>
+  cssProperties: Iterable<HtmlCssPart>,
 ): ReadonlyMap<string, HtmlCssProperty> {
   return mergeNamedRelated(cssProperties);
 }
 
 function mergeRelatedEvents(
-  events: Iterable<HtmlEvent>
+  events: Iterable<HtmlEvent>,
 ): ReadonlyMap<string, HtmlEvent> {
   const mergedAttrs = new Map<string, HtmlEvent>();
   for (const event of events) {
@@ -623,13 +630,13 @@ function mergeRelatedEvents(
         global: existingEvent.global && event.global,
         description: undefined,
         getType: lazy(() =>
-          mergeRelatedTypeToUnion(prevType(), event.getType())
+          mergeRelatedTypeToUnion(prevType(), event.getType()),
         ),
         related:
           existingEvent.related == null
             ? [existingEvent, event]
             : [...existingEvent.related, event],
-        fromTagName: existingEvent.fromTagName || event.fromTagName
+        fromTagName: existingEvent.fromTagName || event.fromTagName,
       });
     }
   }

@@ -8,10 +8,10 @@ const PRIMITIVE_STRING_ARRAY_TYPE_BRAND = Symbol("PRIMITIVE_STRING_ARRAY_TYPE");
  * @param union
  */
 export function makePrimitiveArrayType(
-  union: SimpleTypeUnion
+  union: SimpleTypeUnion,
 ): SimpleTypeUnion {
   const extendedUnion: SimpleTypeUnion = {
-    ...union
+    ...union,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,7 +25,7 @@ export function makePrimitiveArrayType(
  * @param simpleType
  */
 export function isPrimitiveArrayType(
-  simpleType: SimpleType
+  simpleType: SimpleType,
 ): simpleType is SimpleTypeUnion {
   return (
     simpleType.kind === "UNION" &&

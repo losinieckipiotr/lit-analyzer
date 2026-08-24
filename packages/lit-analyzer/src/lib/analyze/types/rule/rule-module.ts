@@ -1,7 +1,7 @@
 import {
   ComponentDeclaration,
   ComponentDefinition,
-  ComponentMember
+  ComponentMember,
 } from "web-component-analyzer";
 import { LitAnalyzerRuleId } from "../../lit-analyzer-config.js";
 import { HtmlNodeAttrAssignment } from "../html-node/html-node-attr-assignment-types.js";
@@ -18,25 +18,25 @@ export interface RuleModuleImplementation {
   visitHtmlNode?(node: HtmlNode, context: RuleModuleContext): void;
   visitHtmlAttribute?(
     attribute: HtmlNodeAttr,
-    context: RuleModuleContext
+    context: RuleModuleContext,
   ): void;
   visitHtmlAssignment?(
     assignment: HtmlNodeAttrAssignment,
-    context: RuleModuleContext
+    context: RuleModuleContext,
   ): void;
 
   // Component based rules
   visitComponentDefinition?(
     definition: ComponentDefinition,
-    context: RuleModuleContext
+    context: RuleModuleContext,
   ): void;
   visitComponentDeclaration?(
     declaration: ComponentDeclaration,
-    context: RuleModuleContext
+    context: RuleModuleContext,
   ): void;
   visitComponentMember?(
     declaration: ComponentMember,
-    context: RuleModuleContext
+    context: RuleModuleContext,
   ): void;
 }
 

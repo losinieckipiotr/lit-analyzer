@@ -1,7 +1,7 @@
 import { LitAnalyzerConfig } from "../analyze/lit-analyzer-config.js";
 import {
   HtmlTag,
-  litAttributeModifierForTarget
+  litAttributeModifierForTarget,
 } from "../analyze/parse/parse-html-data/html-tag.js";
 import { AnalyzerDefinitionStore } from "../analyze/store/analyzer-definition-store.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
@@ -18,7 +18,7 @@ import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-unknown-attribute",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitHtmlAttribute(htmlAttr, context) {
     const { htmlStore, config, definitionStore } = context;
@@ -62,7 +62,7 @@ const rule: RuleModule = {
       const suggestion = getSuggestionText({
         config,
         htmlTag,
-        definitionStore
+        definitionStore,
       });
 
       context.report({
@@ -81,9 +81,9 @@ const rule: RuleModule = {
                 {
                   kind: "changeAttributeName",
                   newName: `data-${htmlAttr.name}`,
-                  htmlAttr
-                }
-              ]
+                  htmlAttr,
+                },
+              ],
             } as RuleFix,
             ...(suggestedMemberName == null
               ? []
@@ -94,22 +94,22 @@ const rule: RuleModule = {
                       {
                         kind: "changeAttributeName",
                         newName: suggestedMemberName,
-                        htmlAttr
+                        htmlAttr,
                       },
                       {
                         kind: "changeAttributeModifier",
                         newModifier: suggestedModifier,
-                        htmlAttr
-                      }
-                    ]
-                  } as RuleFix
-                ])
-          ] as RuleFix[]
+                        htmlAttr,
+                      },
+                    ],
+                  } as RuleFix,
+                ]),
+          ] as RuleFix[],
       });
     }
 
     return;
-  }
+  },
 };
 
 export default rule;
@@ -123,7 +123,7 @@ export default rule;
 function getSuggestionText({
   config,
   definitionStore,
-  htmlTag
+  htmlTag,
 }: {
   config: LitAnalyzerConfig;
   definitionStore: AnalyzerDefinitionStore;

@@ -8,7 +8,7 @@ export function* iterableFlatten<T>(...iterables: Iterable<T>[]): Iterable<T> {
 
 export function* iterableMap<T, U>(
   iterable: Iterable<T>,
-  map: (item: T) => U
+  map: (item: T) => U,
 ): Iterable<U> {
   for (const item of iterable) {
     yield map(item);
@@ -17,7 +17,7 @@ export function* iterableMap<T, U>(
 
 export function* iterableFilter<T>(
   iterable: Iterable<T>,
-  filter: (item: T) => boolean
+  filter: (item: T) => boolean,
 ): Iterable<T> {
   for (const item of iterable) {
     if (filter(item)) {
@@ -28,7 +28,7 @@ export function* iterableFilter<T>(
 
 export function iterableFind<T>(
   iterable: Iterable<T>,
-  match: (item: T) => boolean
+  match: (item: T) => boolean,
 ): T | undefined {
   for (const item of iterable) {
     if (match(item)) {
@@ -40,7 +40,7 @@ export function iterableFind<T>(
 
 export function* iterableUnique<T, U>(
   iterable: Iterable<T>,
-  on: (item: T) => U
+  on: (item: T) => U,
 ): Iterable<T> {
   const unique = new Set<U>();
   for (const item of iterable) {
@@ -57,7 +57,7 @@ export function iterableDefined<T>(iterable: (T | undefined | null)[]): T[] {
 }
 
 export function iterableFirst<T>(
-  iterable: Iterator<T> | Set<T> | Map<unknown, T> | undefined
+  iterable: Iterator<T> | Set<T> | Map<unknown, T> | undefined,
 ): T | undefined {
   if (iterable == null) {
     return iterable;

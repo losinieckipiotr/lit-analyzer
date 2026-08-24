@@ -11,12 +11,12 @@ export class CodeDiagnosticFormatter implements DiagnosticFormatter {
 
   diagnosticTextForFile(
     file: SourceFile,
-    diagnostics: LitDiagnostic[]
+    diagnostics: LitDiagnostic[],
   ): string | undefined {
     if (diagnostics.length === 0) return undefined;
 
     const diagnosticText = diagnostics
-      .map(diagnostic => diagnosticTextForFile(file, diagnostic))
+      .map((diagnostic) => diagnosticTextForFile(file, diagnostic))
       .join("\n");
 
     return `
@@ -31,13 +31,13 @@ function diagnosticTextForFile(file: SourceFile, diagnostic: LitDiagnostic) {
 
   // Get line and character of start position
   const lineContext = file.getLineAndCharacterOfPosition(
-    diagnostic.location.start
+    diagnostic.location.start,
   );
 
   // Get start and end position of the line
   let linePositionRange = {
     start: file.getPositionOfLineAndCharacter(lineContext.line, 0),
-    end: file.getLineEndOfPosition(diagnostic.location.start)
+    end: file.getLineEndOfPosition(diagnostic.location.start),
   };
 
   // Modify the line position range if the width of the line exceeds MAX_LINE_WIDTH
@@ -48,18 +48,18 @@ function diagnosticTextForFile(file: SourceFile, diagnostic: LitDiagnostic) {
       Math.round(
         (MAX_LINE_WIDTH -
           (diagnostic.location.end - diagnostic.location.start)) /
-          2
-      )
+          2,
+      ),
     );
 
     // Calculate new start and end position without exceeding the line position range
     const start = Math.max(
       linePositionRange.start,
-      diagnostic.location.start - padding
+      diagnostic.location.start - padding,
     );
     const end = Math.min(
       linePositionRange.end,
-      diagnostic.location.end + padding
+      diagnostic.location.end + padding,
     );
 
     linePositionRange = { start, end };
@@ -76,27 +76,27 @@ function diagnosticTextForFile(file: SourceFile, diagnostic: LitDiagnostic) {
     chalk.black(
       diagnostic.severity === "error"
         ? chalk.bgRedBright(str)
-        : chalk.bgYellow(str)
+        : chalk.bgYellow(str),
     );
 
   const markedLine = markText(
     lineText,
     {
       start: diagnostic.location.start - linePositionRange.start,
-      length: diagnostic.location.end - diagnostic.location.start
+      length: diagnostic.location.end - diagnostic.location.start,
     },
-    highlightingColorFunction
+    highlightingColorFunction,
   ).replace(/^\s*/, " ");
 
   const block = [
     chalk.bold(
-      `${diagnostic.message}${diagnostic.fixMessage ? ` ${diagnostic.fixMessage}` : ""}`
+      `${diagnostic.message}${diagnostic.fixMessage ? ` ${diagnostic.fixMessage}` : ""}`,
     ),
     `${chalk.gray(`${lineContext.line + 1}:`)} ${markedLine}`,
-    diagnostic.source == null ? undefined : chalk.gray(`${diagnostic.source}`)
+    diagnostic.source == null ? undefined : chalk.gray(`${diagnostic.source}`),
   ]
-    .filter(line => line != null)
-    .map(line => `    ${line}`)
+    .filter((line) => line != null)
+    .map((line) => `    ${line}`)
     .join("\n");
 
   return `\n${block}\n`;

@@ -7,7 +7,7 @@ import { isAssignableToType } from "./is-assignable-to-type.js";
 export function isAssignableInBooleanBinding(
   htmlAttr: HtmlNodeAttr,
   { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): boolean | undefined {
   // Test if the user is trying to use ? modifier on a non-boolean type.
   if (
@@ -15,16 +15,16 @@ export function isAssignableInBooleanBinding(
       {
         typeA: {
           kind: "UNION",
-          types: [{ kind: "BOOLEAN" }, { kind: "UNDEFINED" }, { kind: "NULL" }]
+          types: [{ kind: "BOOLEAN" }, { kind: "UNDEFINED" }, { kind: "NULL" }],
         },
-        typeB
+        typeB,
       },
-      context
+      context,
     )
   ) {
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${typeToString(typeB)}' is not assignable to 'boolean'`
+      message: `Type '${typeToString(typeB)}' is not assignable to 'boolean'`,
     });
 
     return false;
@@ -48,11 +48,11 @@ export function isAssignableInBooleanBinding(
             {
               kind: "changeAttributeModifier",
               htmlAttr,
-              newModifier
-            }
-          ]
+              newModifier,
+            },
+          ],
         };
-      }
+      },
     });
 
     return false;

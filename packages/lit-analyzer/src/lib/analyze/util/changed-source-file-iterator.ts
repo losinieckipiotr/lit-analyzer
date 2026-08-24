@@ -1,7 +1,7 @@
 import { SourceFile } from "typescript";
 
 export type ChangedSourceFileIterator = ((
-  sourceFiles: readonly SourceFile[]
+  sourceFiles: readonly SourceFile[],
 ) => Iterable<SourceFile>) & {
   invalidate(sourceFile: SourceFile): void;
 };
@@ -13,7 +13,7 @@ export function changedSourceFileIterator(): ChangedSourceFileIterator {
   const sourceFileCache = new WeakSet<SourceFile>();
 
   const iterator = function* (
-    sourceFiles: readonly SourceFile[]
+    sourceFiles: readonly SourceFile[],
   ): Iterable<SourceFile> {
     for (const sourceFile of sourceFiles) {
       if (!sourceFileCache.has(sourceFile)) {
@@ -26,6 +26,6 @@ export function changedSourceFileIterator(): ChangedSourceFileIterator {
   return Object.assign(iterator, {
     invalidate(sourceFile: SourceFile) {
       sourceFileCache.delete(sourceFile);
-    }
+    },
   });
 }

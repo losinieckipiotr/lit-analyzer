@@ -3,7 +3,7 @@ import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
 import { HtmlNodeAttrAssignmentKind } from "../../../types/html-node/html-node-attr-assignment-types.js";
 import {
   HtmlNodeAttr,
-  HtmlNodeAttrKind
+  HtmlNodeAttrKind,
 } from "../../../types/html-node/html-node-attr-types.js";
 import { LitCompletion } from "../../../types/lit-completion.js";
 import { DocumentPositionContext } from "../../../util/get-position-context-in-document.js";
@@ -11,7 +11,7 @@ import { DocumentPositionContext } from "../../../util/get-position-context-in-d
 export function completionsForHtmlAttrValues(
   htmlNodeAttr: HtmlNodeAttr,
   location: DocumentPositionContext,
-  { htmlStore }: LitAnalyzerContext
+  { htmlStore }: LitAnalyzerContext,
 ): LitCompletion[] {
   // There is not point in showing completions for event listener bindings
   if (htmlNodeAttr.kind === HtmlNodeAttrKind.EVENT_LISTENER) return [];
@@ -33,13 +33,13 @@ export function completionsForHtmlAttrValues(
       htmlStore.getHtmlTag(htmlNodeAttr.htmlNode.parent);
     if (parentHtmlTag != null && parentHtmlTag.slots.length > 0) {
       return parentHtmlTag.slots.map(
-        slot =>
+        (slot) =>
           ({
             name: slot.name || " ",
             insert: slot.name || "",
             documentation: () => slot.description,
-            kind: "enumElement"
-          }) as LitCompletion
+            kind: "enumElement",
+          }) as LitCompletion,
       );
     }
   }
@@ -47,12 +47,12 @@ export function completionsForHtmlAttrValues(
   const options = getOptionsFromType(htmlTagMember.getType());
 
   return options.map(
-    option =>
+    (option) =>
       ({
         name: option,
         insert: option,
-        kind: "enumElement"
-      }) as LitCompletion
+        kind: "enumElement",
+      }) as LitCompletion,
   );
 }
 
@@ -61,12 +61,12 @@ function getOptionsFromType(type: SimpleType): string[] {
     case "UNION":
       return type.types
         .filter(isSimpleTypeLiteral)
-        .map(t => t.value.toString());
+        .map((t) => t.value.toString());
     case "ENUM":
       return type.types
-        .map(m => m.type)
+        .map((m) => m.type)
         .filter(isSimpleTypeLiteral)
-        .map(t => t.value.toString());
+        .map((t) => t.value.toString());
     case "ALIAS":
       return getOptionsFromType(type.target);
   }

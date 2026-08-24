@@ -7,13 +7,13 @@ import { parseHtmlNodes } from "./parse-html-node/parse-html-node.js";
 import { parseHtml } from "./parse-html-p5/parse-html.js";
 
 export function parseHtmlDocuments(
-  nodes: TaggedTemplateExpression[]
+  nodes: TaggedTemplateExpression[],
 ): HtmlDocument[] {
   return nodes.map(parseHtmlDocument);
 }
 
 export function parseHtmlDocument(
-  node: TaggedTemplateExpression
+  node: TaggedTemplateExpression,
 ): HtmlDocument {
   const virtualDocument = new VirtualAstHtmlDocument(node);
   const html = virtualDocument.text;
@@ -25,7 +25,7 @@ export function parseHtmlDocument(
     document,
     getPartsAtOffsetRange(range: DocumentRange): (Expression | string)[] {
       return virtualDocument.getPartsAtDocumentRange(range);
-    }
+    },
   };
 
   document.rootNodes = parseHtmlNodes(htmlAst.childNodes, undefined, context);

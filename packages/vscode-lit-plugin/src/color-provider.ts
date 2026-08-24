@@ -21,7 +21,7 @@ function RGBAToHex({
   red,
   green,
   blue,
-  alpha
+  alpha,
 }: {
   red: number;
   green: number;
@@ -41,24 +41,24 @@ function RGBAToHex({
  * @param hex
  */
 function hexToRGBA(
-  hex: string
+  hex: string,
 ): { red: number; green: number; blue: number; alpha: number } | undefined {
   // Parses "#ffffff" and "#ffffffff"
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(
-    hex
+    hex,
   );
   if (result != null) {
     return {
       red: parseInt(result[1], 16),
       green: parseInt(result[2], 16),
       blue: parseInt(result[3], 16),
-      alpha: result[4] == null ? 255 : parseInt(result[4], 16)
+      alpha: result[4] == null ? 255 : parseInt(result[4], 16),
     };
   }
 
   // Parses "#fff" and "#ffff"
   const shorthandResult = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])?$/i.exec(
-    hex
+    hex,
   );
   if (shorthandResult != null) {
     return {
@@ -68,7 +68,7 @@ function hexToRGBA(
       alpha:
         shorthandResult[4] == null
           ? 255
-          : parseInt(shorthandResult[4] + shorthandResult[4], 16)
+          : parseInt(shorthandResult[4] + shorthandResult[4], 16),
     };
   }
 
@@ -86,7 +86,7 @@ function vscodeColorToHex(vscodeColor: vscode.Color): string {
     red: Math.floor(red * 255),
     green: Math.floor(green * 255),
     blue: Math.floor(blue * 255),
-    alpha: Math.floor(alpha * 255)
+    alpha: Math.floor(alpha * 255),
   });
 }
 
@@ -101,7 +101,7 @@ function hexToVscodeColor(hex: string): vscode.Color | undefined {
     rgba.red / 255,
     rgba.green / 255,
     rgba.blue / 255,
-    rgba.alpha / 255
+    rgba.alpha / 255,
   );
 }
 
@@ -113,7 +113,7 @@ function hexToVscodeColor(hex: string): vscode.Color | undefined {
  */
 function getRegexMatches(
   regex: RegExp,
-  text: string
+  text: string,
 ): { start: number; text: string }[] {
   // Find all hex colors in the document
   let match: RegExpExecArray | null = null;
@@ -133,7 +133,7 @@ function getRegexMatches(
  * @param document
  */
 function findColorsInDocument(
-  document: vscode.TextDocument
+  document: vscode.TextDocument,
 ): vscode.ColorInformation[] {
   const documentText = document.getText();
 
@@ -142,11 +142,11 @@ function findColorsInDocument(
   // Find all sections that can include colors
   const taggedLiteralMatches = getRegexMatches(
     COLOR_SECTION_REGEX,
-    documentText
+    documentText,
   );
   for (const {
     text: taggedTemplateText,
-    start: taggedTemplateStart
+    start: taggedTemplateStart,
   } of taggedLiteralMatches) {
     // Find all colors in those sections
     const colorMatches = getRegexMatches(COLOR_HEX_REGEX, taggedTemplateText);
@@ -162,10 +162,10 @@ function findColorsInDocument(
         new vscode.ColorInformation(
           new vscode.Range(
             document.positionAt(documentOffset),
-            document.positionAt(documentOffset + hex.length)
+            document.positionAt(documentOffset + hex.length),
           ),
-          color
-        )
+          color,
+        ),
       );
     }
   }
@@ -179,7 +179,7 @@ function findColorsInDocument(
 export class ColorProvider implements vscode.DocumentColorProvider {
   provideDocumentColors(
     document: vscode.TextDocument,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.ColorInformation[]> {
     return findColorsInDocument(document);
   }
@@ -187,7 +187,7 @@ export class ColorProvider implements vscode.DocumentColorProvider {
   provideColorPresentations(
     color: vscode.Color,
     context: { document: vscode.TextDocument; range: vscode.Range },
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.ColorPresentation[]> {
     return [new vscode.ColorPresentation(vscodeColorToHex(color))];
   }

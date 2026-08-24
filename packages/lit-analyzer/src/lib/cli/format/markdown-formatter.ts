@@ -4,7 +4,7 @@ import { AnalysisStats, DiagnosticFormatter } from "./diagnostic-formatter.js";
 import {
   markdownHeader,
   markdownHighlight,
-  markdownTable
+  markdownTable,
 } from "./markdown-util.js";
 import { relativeFileName } from "./util.js";
 
@@ -19,14 +19,14 @@ ${markdownTable([
     stats.filesWithProblems,
     stats.diagnostics,
     stats.errors,
-    stats.warnings
-  ].map(v => v.toString())
+    stats.warnings,
+  ].map((v) => v.toString()),
 ])}`;
   }
 
   diagnosticTextForFile(
     file: SourceFile,
-    diagnostics: LitDiagnostic[]
+    diagnostics: LitDiagnostic[],
   ): string | undefined {
     if (diagnostics.length === 0) return undefined;
 
@@ -38,13 +38,13 @@ ${markdownDiagnosticTable(file, diagnostics)}`;
 
 function markdownDiagnosticTable(
   file: SourceFile,
-  diagnostics: LitDiagnostic[]
+  diagnostics: LitDiagnostic[],
 ): string {
   const headerRow: string[] = ["Line", "Column", "Type", "Rule", "Message"];
 
   const rows: string[][] = diagnostics.map((diagnostic): string[] => {
     const lineContext = file.getLineAndCharacterOfPosition(
-      diagnostic.location.start
+      diagnostic.location.start,
     );
 
     return [
@@ -52,7 +52,7 @@ function markdownDiagnosticTable(
       (lineContext.character + 1).toString(),
       diagnostic.severity === "error" ? markdownHighlight("error") : "warning",
       diagnostic.source || "",
-      diagnostic.message
+      diagnostic.message,
     ];
   });
 

@@ -2,14 +2,14 @@ import { Identifier, ObjectLiteralExpression } from "typescript";
 import { ComponentMember } from "web-component-analyzer";
 import {
   RuleFixAction,
-  RuleFixActionChangeRange
+  RuleFixActionChangeRange,
 } from "../analyze/types/rule/rule-fix-action.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { RuleModuleContext } from "../analyze/types/rule/rule-module-context.js";
 import { findChild, getNodeIdentifier } from "../analyze/util/ast-util.js";
 import {
   makeSourceFileRange,
-  rangeFromNode
+  rangeFromNode,
 } from "../analyze/util/range-util.js";
 
 /**
@@ -19,7 +19,7 @@ import {
  */
 const getDecoratorIdentifier = (
   member: ComponentMember,
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): Identifier | undefined => {
   const decorator = member.meta?.node?.decorator;
 
@@ -37,7 +37,7 @@ const getDecoratorIdentifier = (
 const rule: RuleModule = {
   id: "no-property-visibility-mismatch",
   meta: {
-    priority: "medium"
+    priority: "medium",
   },
   visitComponentMember(member, context) {
     // Only run this rule on members of "property" kind
@@ -90,21 +90,21 @@ const rule: RuleModule = {
 
                 // Get the public modifier if any. If one exists, we want to change that one.
                 const publicModifier = propertyDeclaration.modifiers?.find(
-                  modifier =>
-                    modifier.kind === context.ts.SyntaxKind.PublicKeyword
+                  (modifier) =>
+                    modifier.kind === context.ts.SyntaxKind.PublicKeyword,
                 );
 
                 if (publicModifier != null) {
                   // Return actions that can replace the modifier
-                  return modifiers.map(keyword => ({
+                  return modifiers.map((keyword) => ({
                     message: `Change to '${keyword}'`,
                     actions: [
                       {
                         kind: "changeRange",
                         range: rangeFromNode(publicModifier),
-                        newText: keyword
-                      } as RuleFixActionChangeRange
-                    ]
+                        newText: keyword,
+                      } as RuleFixActionChangeRange,
+                    ],
                   }));
                 }
 
@@ -112,24 +112,24 @@ const rule: RuleModule = {
                 const propertyIdentifier = propertyDeclaration.name;
                 if (propertyIdentifier != null) {
                   // Return actions that can add a modifier in front of the identifier
-                  return modifiers.map(keyword => ({
+                  return modifiers.map((keyword) => ({
                     message: `Add '${keyword}' modifier`,
                     actions: [
                       {
                         kind: "changeRange",
                         range: makeSourceFileRange({
                           start: propertyIdentifier.getStart(),
-                          end: propertyIdentifier.getStart()
+                          end: propertyIdentifier.getStart(),
                         }),
-                        newText: `${keyword} `
-                      } as RuleFixActionChangeRange
-                    ]
+                        newText: `${keyword} `,
+                      } as RuleFixActionChangeRange,
+                    ],
                   }));
                 }
 
                 return [];
-              }
-            })
+              },
+            }),
       });
     }
 
@@ -148,42 +148,42 @@ const rule: RuleModule = {
             {
               kind: "changeIdentifier",
               identifier: decoratorIdentifier,
-              newText
-            }
+              newText,
+            },
           ];
 
           // Find the object literal node (the config of the "@property" decorator)
           const objectLiteralNode = findChild<ObjectLiteralExpression>(
             decoratorIdentifier.parent,
-            node => context.ts.isObjectLiteralExpression(node)
+            (node) => context.ts.isObjectLiteralExpression(node),
           );
 
           if (objectLiteralNode != null) {
             // Remove the configuration if the config doesn't have any shared properties with the "internalProperty" config
             const internalPropertyConfigProperties = ["hasChanged"];
             if (
-              !objectLiteralNode.properties?.some(propertyNode =>
+              !objectLiteralNode.properties?.some((propertyNode) =>
                 internalPropertyConfigProperties.includes(
-                  propertyNode.name?.getText() || ""
-                )
+                  propertyNode.name?.getText() || "",
+                ),
               )
             ) {
               actions.push({
                 kind: "changeRange",
                 range: rangeFromNode(objectLiteralNode),
-                newText: ""
+                newText: "",
               });
             }
           }
 
           return {
             message: `Change to '${newText}'`,
-            actions
+            actions,
           };
-        }
+        },
       });
     }
-  }
+  },
 };
 
 export default rule;

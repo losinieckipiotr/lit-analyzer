@@ -10,7 +10,7 @@ export function generalReport(stats: AnalysisStats): string {
   if (stats.diagnostics > 0) {
     const message = `  ✖ ${numberStatText(stats.diagnostics, "problem")} in ${numberStatText(stats.filesWithProblems, "file")} (${numberStatText(
       stats.errors,
-      "error"
+      "error",
     )}, ${numberStatText(stats.warnings, "warning")})`;
 
     if (stats.errors > 0) {
@@ -30,7 +30,7 @@ export function relativeFileName(fileName: string): string {
 export function markText(
   text: string,
   range: TextSpan,
-  colorFunction: (str: string) => string = chalk.bgRedBright
+  colorFunction: (str: string) => string = chalk.bgRedBright,
 ): string {
   return (
     text.substring(0, range.start) +
@@ -41,7 +41,11 @@ export function markText(
 
 export function textPad(
   str: string,
-  { width, fill, dir }: { width: number; fill?: string; dir?: "left" | "right" }
+  {
+    width,
+    fill,
+    dir,
+  }: { width: number; fill?: string; dir?: "left" | "right" },
 ): string {
   const padding = (fill || " ").repeat(Math.max(0, width - str.length));
   return `${dir !== "right" ? padding : ""}${str}${dir === "right" ? padding : ""}`;

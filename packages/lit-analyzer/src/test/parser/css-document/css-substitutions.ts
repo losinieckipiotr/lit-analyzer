@@ -16,58 +16,58 @@ function isTemplateText(t: ExecutionContext, text: string, testFile: string) {
   t.is(text, createCssDocument(testFile).virtualDocument.text);
 }
 
-tsTest("Substitute for template followed by percent", t => {
+tsTest("Substitute for template followed by percent", (t) => {
   isTemplateText(
     t,
     "{ div { transform-origin: 0000% 0000%; } }",
-    "css`{ div { transform-origin: ${x}% ${y}%; } }`"
+    "css`{ div { transform-origin: ${x}% ${y}%; } }`",
   );
 });
 
-tsTest("Substitute for template last in css list", t => {
+tsTest("Substitute for template last in css list", (t) => {
   isTemplateText(
     t,
     "{ div { border: 2px solid ________; } }",
-    "css`{ div { border: 2px solid ${COLOR}; } }`"
+    "css`{ div { border: 2px solid ${COLOR}; } }`",
   );
 });
 
-tsTest("Substitute for template first in css list", t => {
+tsTest("Substitute for template first in css list", (t) => {
   isTemplateText(
     t,
     "{ div { border: ________ solid #ffffff; } }",
-    "css`{ div { border: ${WIDTH} solid #ffffff; } }`"
+    "css`{ div { border: ${WIDTH} solid #ffffff; } }`",
   );
 });
 
-tsTest("Substitute for template middle in css list", t => {
+tsTest("Substitute for template middle in css list", (t) => {
   isTemplateText(
     t,
     "{ div { border: 2px ________ #ffffff; } }",
-    "css`{ div { border: 2px ${STYLE} #ffffff; } }`"
+    "css`{ div { border: 2px ${STYLE} #ffffff; } }`",
   );
 });
 
-tsTest("Substitute for template css key-value pair", t => {
+tsTest("Substitute for template css key-value pair", (t) => {
   isTemplateText(
     t,
     "{ div { $_:_______________________; } }",
-    "css`{ div { ${unsafeCSS('color: red')}; } }`"
+    "css`{ div { ${unsafeCSS('color: red')}; } }`",
   );
 });
 
-tsTest("Substitute for template css value only", t => {
+tsTest("Substitute for template css value only", (t) => {
   isTemplateText(
     t,
     "{ div { color: ___________________; } }",
-    "css`{ div { color: ${unsafeCSS('red')}; } }`"
+    "css`{ div { color: ${unsafeCSS('red')}; } }`",
   );
 });
 
-tsTest("Substitute for template css key only", t => {
+tsTest("Substitute for template css key only", (t) => {
   isTemplateText(
     t,
     "{ div { $____________________: red; } }",
-    "css`{ div { ${unsafeCSS('color')}: red; } }`"
+    "css`{ div { ${unsafeCSS('color')}: red; } }`",
   );
 });

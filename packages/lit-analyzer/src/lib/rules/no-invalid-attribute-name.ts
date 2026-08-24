@@ -6,7 +6,7 @@ import { rangeFromNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-invalid-attribute-name",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitComponentMember(member, context) {
     // Check if the tag name is invalid
@@ -29,10 +29,10 @@ const rule: RuleModule = {
     ) {
       context.report({
         location: rangeFromNode(attrNameNode),
-        message: `'${attrName}' is not a valid attribute name.`
+        message: `'${attrName}' is not a valid attribute name.`,
       });
     }
-  }
+  },
 };
 
 export default rule;

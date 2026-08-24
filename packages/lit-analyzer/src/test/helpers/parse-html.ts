@@ -11,7 +11,7 @@ export function parseHtml(html: string): HtmlDocument {
 }
 
 function findTaggedTemplateExpression(
-  node: Node
+  node: Node,
 ): TaggedTemplateExpression | undefined {
   if (getCurrentTsModule().isTaggedTemplateExpression(node)) {
     return node;

@@ -11,8 +11,8 @@ export function translateQuickInfo(quickInfo: LitQuickInfo): QuickInfo {
     displayParts: [
       {
         text: quickInfo.primaryInfo,
-        kind: "text"
-      }
+        kind: "text",
+      },
     ],
     documentation:
       quickInfo.secondaryInfo == null
@@ -20,8 +20,8 @@ export function translateQuickInfo(quickInfo: LitQuickInfo): QuickInfo {
         : [
             {
               kind: "text",
-              text: quickInfo.secondaryInfo
-            }
-          ]
+              text: quickInfo.secondaryInfo,
+            },
+          ],
   };
 }

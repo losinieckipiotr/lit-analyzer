@@ -1,7 +1,7 @@
 import {
   ALL_RULE_IDS,
   LitAnalyzerRuleId,
-  LitAnalyzerRules
+  LitAnalyzerRules,
 } from "../analyze/lit-analyzer-config.js";
 import { analyzeCommand } from "./analyze-command.js";
 import { LitAnalyzerCliConfig } from "./lit-analyzer-cli-config.js";
@@ -19,7 +19,7 @@ const DEFAULT_CONFIG: LitAnalyzerCliConfig = {
   failFast: false,
   format: "code",
   //strict: false,
-  rules: {}
+  rules: {},
 };
 
 /**
@@ -63,7 +63,7 @@ export async function cli(): Promise<void> {
     --strict              Enable strict mode. This change the default ruleset.
     --rules.___ SEVERITY  Enable or disable a rule (example: --rules.no-unknown-tag-name off). 
                           Severity can be: "off" | "warn" | "error". The possible rules are:
-                          ${ALL_RULE_IDS.map(ruleName => `o  ${ruleName}`).join("\n                          ")}
+                          ${ALL_RULE_IDS.map((ruleName) => `o  ${ruleName}`).join("\n                          ")}
     
   Examples
     lit-analyzer src

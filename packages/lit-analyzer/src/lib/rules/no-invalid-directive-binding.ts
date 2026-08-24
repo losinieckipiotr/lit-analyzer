@@ -11,7 +11,7 @@ import { getDirective } from "./util/directive/get-directive.js";
 const rule: RuleModule = {
   id: "no-invalid-directive-binding",
   meta: {
-    priority: "high"
+    priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
     const { htmlAttr } = assignment;
@@ -35,7 +35,7 @@ const rule: RuleModule = {
             if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) {
               context.report({
                 location: rangeFromHtmlNodeAttr(htmlAttr),
-                message: `The 'ifDefined' directive has no effect here.`
+                message: `The 'ifDefined' directive has no effect here.`,
               });
             }
           }
@@ -53,7 +53,7 @@ const rule: RuleModule = {
               ) {
                 context.report({
                   location: rangeFromHtmlNodeAttr(htmlAttr),
-                  message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`
+                  message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`,
                 });
               }
 
@@ -63,7 +63,7 @@ const rule: RuleModule = {
             case HtmlNodeAttrKind.EVENT_LISTENER:
               context.report({
                 location: rangeFromHtmlNodeAttr(htmlAttr),
-                message: `The 'live' directive can only be used in attribute and property bindings`
+                message: `The 'live' directive can only be used in attribute and property bindings`,
               });
           }
 
@@ -77,7 +77,7 @@ const rule: RuleModule = {
           ) {
             context.report({
               location: rangeFromHtmlNodeAttr(htmlAttr),
-              message: `The 'classMap' directive can only be used in an attribute binding for the 'class' attribute`
+              message: `The 'classMap' directive can only be used in an attribute binding for the 'class' attribute`,
             });
           }
           break;
@@ -90,7 +90,7 @@ const rule: RuleModule = {
           ) {
             context.report({
               location: rangeFromHtmlNodeAttr(htmlAttr),
-              message: `The 'styleMap' directive can only be used in an attribute binding for the 'style' attribute`
+              message: `The 'styleMap' directive can only be used in an attribute binding for the 'style' attribute`,
             });
           }
           break;
@@ -106,7 +106,7 @@ const rule: RuleModule = {
           // This function validating assignments is per definition used NOT in a text binding
           context.report({
             location: rangeFromHtmlNodeAttr(htmlAttr),
-            message: `The '${directive.kind}' directive can only be used within a text binding.`
+            message: `The '${directive.kind}' directive can only be used within a text binding.`,
           });
       }
     } else {
@@ -117,7 +117,7 @@ const rule: RuleModule = {
         context.break();
       }
     }
-  }
+  },
 };
 
 export default rule;

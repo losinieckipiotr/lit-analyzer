@@ -6,7 +6,7 @@ import { rangeFromNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-invalid-tag-name",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitComponentDefinition(definition, context) {
     // Check if the tag name is invalid
@@ -24,11 +24,11 @@ const rule: RuleModule = {
       if (node != null && tag != null && !tag.builtIn) {
         context.report({
           location: rangeFromNode(node),
-          message: `The tag name '${definition.tagName}' is not a valid custom element name. Remember that a hyphen (-) is required.`
+          message: `The tag name '${definition.tagName}' is not a valid custom element name. Remember that a hyphen (-) is required.`,
         });
       }
     }
-  }
+  },
 };
 
 export default rule;

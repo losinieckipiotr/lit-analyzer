@@ -22,7 +22,7 @@ interface IVisitDependenciesContext {
  */
 export function visitIndirectImportsFromSourceFile(
   sourceFile: SourceFile,
-  context: IVisitDependenciesContext
+  context: IVisitDependenciesContext,
 ): void {
   const currentDepth = context.depth ?? 0;
 
@@ -55,7 +55,7 @@ export function visitIndirectImportsFromSourceFile(
       ...context,
       emitDirectImport(file: SourceFile) {
         directImports!.add(file);
-      }
+      },
     };
 
     // Emit all direct imports
@@ -102,7 +102,7 @@ export function visitIndirectImportsFromSourceFile(
     // Visit direct imported source files recursively
     visitIndirectImportsFromSourceFile(file, {
       ...context,
-      depth: newDepth
+      depth: newDepth,
     });
   }
 }
@@ -115,7 +115,7 @@ export function visitIndirectImportsFromSourceFile(
  */
 function visitDirectImports(
   node: Node,
-  context: IVisitDependenciesContext
+  context: IVisitDependenciesContext,
 ): void {
   if (node == null) return;
 
@@ -154,7 +154,7 @@ function visitDirectImports(
     }
   }
 
-  node.forEachChild(child => visitDirectImports(child, context));
+  node.forEachChild((child) => visitDirectImports(child, context));
 }
 
 interface MaybeModernProgram extends tsModule.Program {
@@ -170,7 +170,7 @@ interface MaybeModernProgram extends tsModule.Program {
 function emitDirectModuleImportWithName(
   moduleSpecifier: string,
   node: Node,
-  context: IVisitDependenciesContext
+  context: IVisitDependenciesContext,
 ) {
   const fromSourceFile = node.getSourceFile();
 
@@ -185,7 +185,7 @@ function emitDirectModuleImportWithName(
     const { project } = context as { project: any };
     result = project.getResolvedModuleWithFailedLookupLocationsFromCache(
       moduleSpecifier,
-      fromSourceFile.fileName
+      fromSourceFile.fileName,
     );
   } else if (
     "getResolvedModuleWithFailedLookupLocationsFromCache" in context.program
@@ -194,7 +194,7 @@ function emitDirectModuleImportWithName(
     const { program } = context as { program: any };
     result = program["getResolvedModuleWithFailedLookupLocationsFromCache"](
       moduleSpecifier,
-      fromSourceFile.fileName
+      fromSourceFile.fileName,
     );
   } else {
     const cache = (
@@ -215,7 +215,7 @@ function emitDirectModuleImportWithName(
         mode = tsModule.getModeForUsageLocation(
           fromSourceFile,
           node.moduleSpecifier,
-          context.program.getCompilerOptions()
+          context.program.getCompilerOptions(),
         );
       }
     }
@@ -225,7 +225,7 @@ function emitDirectModuleImportWithName(
         moduleSpecifier,
         node.getSourceFile().fileName,
         cache,
-        mode
+        mode,
       );
     }
     if (result == null) {
@@ -235,7 +235,7 @@ function emitDirectModuleImportWithName(
         moduleSpecifier,
         node.getSourceFile().fileName,
         context.program.getCompilerOptions(),
-        context.ts.createCompilerHost(context.program.getCompilerOptions())
+        context.ts.createCompilerHost(context.program.getCompilerOptions()),
       );
     }
   }
@@ -243,7 +243,7 @@ function emitDirectModuleImportWithName(
   if (result?.resolvedModule?.resolvedFileName != null) {
     const resolvedModule = result.resolvedModule;
     const sourceFile = context.program.getSourceFile(
-      resolvedModule.resolvedFileName
+      resolvedModule.resolvedFileName,
     );
     if (sourceFile != null) {
       context.emitDirectImport?.(sourceFile);
@@ -259,10 +259,10 @@ function emitDirectModuleImportWithName(
  */
 export function isFacadeModule(
   sourceFile: SourceFile,
-  ts: typeof tsModule
+  ts: typeof tsModule,
 ): boolean {
   const statements = sourceFile.statements;
-  const isFacade = statements.every(statement => {
+  const isFacade = statements.every((statement) => {
     return (
       ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)
     );

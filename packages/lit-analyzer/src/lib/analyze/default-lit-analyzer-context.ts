@@ -3,7 +3,7 @@ import {
   HostCancellationToken,
   Program,
   SourceFile,
-  TypeChecker
+  TypeChecker,
 } from "typescript";
 import * as tsServer from "typescript/lib/tsserverlibrary.js";
 import { analyzeHTMLElement, analyzeSourceFile } from "web-component-analyzer";
@@ -14,20 +14,20 @@ import { getUserConfigHtmlCollection } from "./data/get-user-config-html-collect
 import {
   isRuleDisabled,
   LitAnalyzerConfig,
-  makeConfig
+  makeConfig,
 } from "./lit-analyzer-config.js";
 import {
   LitAnalyzerContext,
   LitAnalyzerContextBaseOptions,
-  LitPluginContextHandler
+  LitPluginContextHandler,
 } from "./lit-analyzer-context.js";
 import {
   DefaultLitAnalyzerLogger,
-  LitAnalyzerLoggerLevel
+  LitAnalyzerLoggerLevel,
 } from "./lit-analyzer-logger.js";
 import {
   convertAnalyzeResultToHtmlCollection,
-  convertComponentDeclarationToHtmlTag
+  convertComponentDeclarationToHtmlTag,
 } from "./parse/convert-component-definitions-to-html-collection.js";
 import { parseDependencies } from "./parse/parse-dependencies/parse-dependencies.js";
 import { RuleCollection } from "./rule-collection.js";
@@ -85,7 +85,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     if (this._currentCancellationToken?.isCancellationRequested()) {
       if (!this._hasRequestedCancellation) {
         this.logger.error(
-          "Cancelling current operation because project host has requested cancellation"
+          "Cancelling current operation because project host has requested cancellation",
         );
       }
 
@@ -95,7 +95,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     if (this.currentRunningTime > this._currentTimeout) {
       if (!this._hasRequestedCancellation) {
         this.logger.error(
-          `Cancelling current operation because it has been running for more than ${this._currentTimeout}ms (${this.currentRunningTime}ms)`
+          `Cancelling current operation because it has been running for more than ${this._currentTimeout}ms (${this.currentRunningTime}ms)`,
         );
       }
 
@@ -138,7 +138,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
   setContextBase({
     file,
     timeout,
-    throwOnCancellation
+    throwOnCancellation,
   }: LitAnalyzerContextBaseOptions): void {
     this._currentFile = file;
     this._currentStartTime = Date.now();
@@ -191,7 +191,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     const builtInCollection = getBuiltInHtmlCollection();
     this.htmlStore.absorbCollection(
       builtInCollection,
-      HtmlDataSourceKind.BUILT_IN
+      HtmlDataSourceKind.BUILT_IN,
     );
   }
 
@@ -207,7 +207,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
 
     // Find components in all changed files
     for (const sourceFile of this.componentSourceFileIterator(
-      this.program.getSourceFiles()
+      this.program.getSourceFiles(),
     )) {
       if (this.isCancellationRequested) {
         break;
@@ -218,7 +218,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
       // All components definitions that use this file must be invidalited
       this.definitionStore
         .getDefinitionsWithDeclarationInFile(sourceFile)
-        .forEach(definition => {
+        .forEach((definition) => {
           const sf = this.program.getSourceFile(definition.sourceFile.fileName);
           if (sf != null) {
             invalidatedFiles.add(sf);
@@ -226,7 +226,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
         });
 
       this.logger.debug(
-        `Analyzing components in ${sourceFile.fileName} (changed) (${getRunningTime()}ms total)`
+        `Analyzing components in ${sourceFile.fileName} (changed) (${getRunningTime()}ms total)`,
       );
       this.findComponentsInFile(sourceFile);
     }
@@ -240,14 +240,14 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
         seenFiles.add(sourceFile);
 
         this.logger.debug(
-          `Analyzing components in ${sourceFile.fileName} (invalidated) (${getRunningTime()}ms total)`
+          `Analyzing components in ${sourceFile.fileName} (invalidated) (${getRunningTime()}ms total)`,
         );
         this.findComponentsInFile(sourceFile);
       }
     }
 
     this.logger.verbose(
-      `Analyzed ${seenFiles.size} files (${invalidatedFiles.size} invalidated) in ${getRunningTime()}ms`
+      `Analyzed ${seenFiles.size} files (${invalidatedFiles.size} invalidated) in ${getRunningTime()}ms`,
     );
   }
 
@@ -275,8 +275,8 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
         analyzeDefaultLib: true,
         analyzeDependencies: true,
         analyzeAllDeclarations: false,
-        excludedDeclarationNames: ["HTMLElement"]
-      }
+        excludedDeclarationNames: ["HTMLElement"],
+      },
     });
 
     const reg = isDefaultLibrary
@@ -289,25 +289,27 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     if (existingResult != null) {
       this.htmlStore.forgetCollection(
         {
-          tags: existingResult.componentDefinitions.map(d => d.tagName),
+          tags: existingResult.componentDefinitions.map((d) => d.tagName),
           global: {
-            events: existingResult.globalFeatures?.events.map(e => e.name),
-            slots: existingResult.globalFeatures?.slots.map(s => s.name || ""),
+            events: existingResult.globalFeatures?.events.map((e) => e.name),
+            slots: existingResult.globalFeatures?.slots.map(
+              (s) => s.name || "",
+            ),
             cssParts: existingResult.globalFeatures?.cssParts.map(
-              s => s.name || ""
+              (s) => s.name || "",
             ),
             cssProperties: existingResult.globalFeatures?.cssProperties.map(
-              s => s.name || ""
+              (s) => s.name || "",
             ),
             attributes: existingResult.globalFeatures?.members
-              .filter(m => m.kind === "attribute")
-              .map(m => m.attrName || ""),
+              .filter((m) => m.kind === "attribute")
+              .map((m) => m.attrName || ""),
             properties: existingResult.globalFeatures?.members
-              .filter(m => m.kind === "property")
-              .map(m => m.propName || "")
-          }
+              .filter((m) => m.kind === "property")
+              .map((m) => m.propName || ""),
+          },
         },
-        reg
+        reg,
       );
       this.definitionStore.forgetAnalysisResultForFile(sourceFile);
     }
@@ -317,7 +319,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     const htmlCollection = convertAnalyzeResultToHtmlCollection(analyzeResult, {
       checker: this.checker,
       addDeclarationPropertiesAsAttributes:
-        this.program.isSourceFileFromExternalLibrary(sourceFile)
+        this.program.isSourceFileFromExternalLibrary(sourceFile),
     });
     this.htmlStore.absorbCollection(htmlCollection, reg);
   }
@@ -330,7 +332,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
       const extension = convertComponentDeclarationToHtmlTag(
         result,
         undefined,
-        { checker: this.checker }
+        { checker: this.checker },
       );
       this.htmlStore.absorbSubclassExtension("HTMLElement", extension);
       this.hasAnalyzedSubclassExtensions = true;

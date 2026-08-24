@@ -2,7 +2,7 @@ import { SimpleType, toSimpleType } from "ts-simple-type";
 import { Expression } from "typescript";
 import {
   HtmlNodeAttrAssignment,
-  HtmlNodeAttrAssignmentKind
+  HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { lazy } from "../../../analyze/util/general-util.js";
@@ -35,7 +35,7 @@ interface Directive {
 
 export function getDirective(
   assignment: HtmlNodeAttrAssignment,
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ): Directive | undefined {
   const { ts, program } = context;
   const checker = program.getTypeChecker();
@@ -57,7 +57,7 @@ export function getDirective(
           if (args.length >= 1) {
             const returnType = toSimpleType(
               checker.getTypeAtLocation(args[0]),
-              checker
+              checker,
             );
             return removeUndefinedFromType(returnType);
           }
@@ -68,7 +68,7 @@ export function getDirective(
         return {
           kind: "ifDefined",
           actualType,
-          args
+          args,
         };
       }
 
@@ -86,7 +86,7 @@ export function getDirective(
         return {
           kind: "live",
           actualType,
-          args
+          args,
         };
       }
 
@@ -97,7 +97,7 @@ export function getDirective(
           if (args.length >= 2) {
             let returnFunctionType = toSimpleType(
               checker.getTypeAtLocation(args[1]),
-              checker
+              checker,
             );
             if (
               "call" in returnFunctionType &&
@@ -117,7 +117,7 @@ export function getDirective(
         return {
           kind: "guard",
           actualType,
-          args
+          args,
         };
       }
 
@@ -126,7 +126,7 @@ export function getDirective(
         return {
           kind: functionName,
           actualType: () => ({ kind: "STRING" }),
-          args
+          args,
         };
 
       case "unsafeHTML":
@@ -138,7 +138,7 @@ export function getDirective(
       case "asyncAppend":
         return {
           kind: functionName,
-          args
+          args,
         };
 
       default:
@@ -146,7 +146,7 @@ export function getDirective(
         if (assignment.kind === HtmlNodeAttrAssignmentKind.EXPRESSION) {
           const typeB = toSimpleType(
             checker.getTypeAtLocation(assignment.expression),
-            checker
+            checker,
           );
 
           if (isLitDirective(typeB)) {
@@ -163,10 +163,10 @@ export function getDirective(
             // Now we have an unknown (user defined) directive.
             return {
               kind: {
-                name: functionName
+                name: functionName,
               },
               args,
-              actualType
+              actualType,
             };
           }
         }

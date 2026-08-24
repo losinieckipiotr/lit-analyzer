@@ -1,6 +1,6 @@
-import * as path from "path";
-import Mocha from "mocha";
 import * as glob from "glob";
+import Mocha from "mocha";
+import * as path from "path";
 
 /**
  * Runs all tests in src/test that are named like *-test.ts with Mocha.
@@ -13,7 +13,7 @@ export async function run(): Promise<void> {
   const mocha = new Mocha({
     ui: "tdd",
     color: true,
-    timeout: 60_000
+    timeout: 10_000
   });
 
   const testsRoot = path.join(__dirname, "..");

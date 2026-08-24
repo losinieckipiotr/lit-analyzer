@@ -7,7 +7,7 @@ export class VirtualAstCssDocument extends VirtualAstDocument {
     expression: Expression,
     prev: string,
     next: string | undefined,
-    _index: number
+    _index: number,
   ): string {
     const hasLeftColon = prev.match(/:[^;{]*\${$/) != null;
     const hasRightColon = next != null && next.match(/^}\s*:\s+/) != null;
@@ -24,7 +24,7 @@ export class VirtualAstCssDocument extends VirtualAstDocument {
       const prefix = "$_:_";
       return `${prefix}${"_".repeat(Math.max(0, length - prefix.length))}`.slice(
         0,
-        length
+        length,
       );
     }
 

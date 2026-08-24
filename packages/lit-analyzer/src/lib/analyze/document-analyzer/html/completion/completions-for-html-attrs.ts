@@ -2,14 +2,14 @@ import { isAssignableToSimpleTypeKind, SimpleType } from "ts-simple-type";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
-  LIT_HTML_PROP_ATTRIBUTE_MODIFIER
+  LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../../constants.js";
 import {
   documentationForTarget,
   HtmlAttrTarget,
   isHtmlAttr,
   isHtmlEvent,
-  isHtmlProp
+  isHtmlProp,
 } from "../../../parse/parse-html-data/html-tag.js";
 import { HtmlNode } from "../../../types/html-node/html-node-types.js";
 import { DocumentPositionContext } from "../../../util/get-position-context-in-document.js";
@@ -21,26 +21,26 @@ import { LitCompletion } from "../../../types/lit-completion.js";
 export function completionsForHtmlAttrs(
   htmlNode: HtmlNode,
   location: DocumentPositionContext,
-  { htmlStore }: LitAnalyzerContext
+  { htmlStore }: LitAnalyzerContext,
 ): LitCompletion[] {
   const onTagName = htmlNode.tagName;
 
   // Code completions for ".[...]";
   if (location.word.startsWith(LIT_HTML_PROP_ATTRIBUTE_MODIFIER)) {
     const alreadyUsedPropNames = htmlNode.attributes
-      .filter(a => a.modifier === LIT_HTML_PROP_ATTRIBUTE_MODIFIER)
-      .map(a => a.name);
+      .filter((a) => a.modifier === LIT_HTML_PROP_ATTRIBUTE_MODIFIER)
+      .map((a) => a.name);
     const unusedProps = iterableFilter(
       htmlStore.getAllPropertiesForTag(htmlNode),
-      prop => !alreadyUsedPropNames.includes(prop.name)
+      (prop) => !alreadyUsedPropNames.includes(prop.name),
     );
     return Array.from(
-      iterableMap(unusedProps, prop =>
+      iterableMap(unusedProps, (prop) =>
         targetToCompletion(prop, {
           modifier: LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
-          onTagName
-        })
-      )
+          onTagName,
+        }),
+      ),
     );
   }
 
@@ -48,25 +48,25 @@ export function completionsForHtmlAttrs(
   else if (location.word.startsWith(LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER)) {
     const alreadyUsedAttrNames = htmlNode.attributes
       .filter(
-        a =>
+        (a) =>
           a.modifier === LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER ||
-          a.modifier == null
+          a.modifier == null,
       )
-      .map(a => a.name);
+      .map((a) => a.name);
     const unusedAttrs = iterableFilter(
       htmlStore.getAllAttributesForTag(htmlNode),
-      prop => !alreadyUsedAttrNames.includes(prop.name)
+      (prop) => !alreadyUsedAttrNames.includes(prop.name),
     );
-    const booleanAttributes = iterableFilter(unusedAttrs, prop =>
-      isAssignableToBoolean(prop.getType())
+    const booleanAttributes = iterableFilter(unusedAttrs, (prop) =>
+      isAssignableToBoolean(prop.getType()),
     );
     return Array.from(
-      iterableMap(booleanAttributes, attr =>
+      iterableMap(booleanAttributes, (attr) =>
         targetToCompletion(attr, {
           modifier: LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
-          onTagName
-        })
-      )
+          onTagName,
+        }),
+      ),
     );
   }
 
@@ -75,42 +75,42 @@ export function completionsForHtmlAttrs(
     location.word.startsWith(LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER)
   ) {
     const alreadyUsedEventNames = htmlNode.attributes
-      .filter(a => a.modifier === LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER)
-      .map(a => a.name);
+      .filter((a) => a.modifier === LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER)
+      .map((a) => a.name);
     const unusedEvents = iterableFilter(
       htmlStore.getAllEventsForTag(htmlNode),
-      prop => !alreadyUsedEventNames.includes(prop.name)
+      (prop) => !alreadyUsedEventNames.includes(prop.name),
     );
     return Array.from(
-      iterableMap(unusedEvents, prop =>
+      iterableMap(unusedEvents, (prop) =>
         targetToCompletion(prop, {
           modifier: LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
-          onTagName
-        })
-      )
+          onTagName,
+        }),
+      ),
     );
   }
 
   const alreadyUsedAttrNames = htmlNode.attributes
-    .filter(a => a.modifier == null)
-    .map(a => a.name);
+    .filter((a) => a.modifier == null)
+    .map((a) => a.name);
   const unusedAttrs = iterableFilter(
     htmlStore.getAllAttributesForTag(htmlNode),
-    prop => !alreadyUsedAttrNames.includes(prop.name)
+    (prop) => !alreadyUsedAttrNames.includes(prop.name),
   );
   return Array.from(
-    iterableMap(unusedAttrs, prop =>
-      targetToCompletion(prop, { modifier: "", onTagName })
-    )
+    iterableMap(unusedAttrs, (prop) =>
+      targetToCompletion(prop, { modifier: "", onTagName }),
+    ),
   );
 }
 
 function isAssignableToBoolean(
   type: SimpleType,
-  { matchAny } = { matchAny: true }
+  { matchAny } = { matchAny: true },
 ): boolean {
   return isAssignableToSimpleTypeKind(type, ["BOOLEAN", "BOOLEAN_LITERAL"], {
-    matchAny
+    matchAny,
   });
 }
 
@@ -119,8 +119,8 @@ function targetToCompletion(
   {
     modifier,
     insertModifier,
-    onTagName
-  }: { modifier?: string; insertModifier?: boolean; onTagName?: string }
+    onTagName,
+  }: { modifier?: string; insertModifier?: boolean; onTagName?: string },
 ): LitCompletion {
   if (modifier == null) {
     if (isHtmlAttr(target)) {
@@ -144,6 +144,6 @@ function targetToCompletion(
     insert: `${insertModifier ? modifier : ""}${target.name}`,
     kind: isBuiltIn ? "enumElement" : isMember ? "member" : "label",
     importance: isBuiltIn ? "low" : isMember ? "high" : "medium",
-    documentation: lazy(() => documentationForTarget(target, { modifier }))
+    documentation: lazy(() => documentationForTarget(target, { modifier })),
   };
 }

@@ -4,7 +4,7 @@ import {
   SimpleType,
   SimpleTypeKind,
   toSimpleType,
-  typeToString
+  typeToString,
 } from "ts-simple-type";
 import { Node } from "typescript";
 import { LitElementPropertyConfig } from "web-component-analyzer";
@@ -17,7 +17,7 @@ import { rangeFromNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-incompatible-property-type",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitComponentMember(member, context) {
     if (
@@ -44,11 +44,11 @@ const rule: RuleModule = {
         propName: member.propName,
         simplePropType: isSimpleType(type)
           ? type
-          : toSimpleType(type, context.program.getTypeChecker())
+          : toSimpleType(type, context.program.getTypeChecker()),
       },
-      context
+      context,
     );
-  }
+  },
 };
 
 /**
@@ -93,24 +93,24 @@ function prepareSimpleAssignabilityTester(simpleType: SimpleType): {
         case "STRING":
           return isAssignableToSimpleTypeKind(simpleType, [
             "STRING",
-            "STRING_LITERAL"
+            "STRING_LITERAL",
           ]);
         case "NUMBER":
           return isAssignableToSimpleTypeKind(simpleType, [
             "NUMBER",
-            "NUMBER_LITERAL"
+            "NUMBER_LITERAL",
           ]);
         case "BOOLEAN":
           return isAssignableToSimpleTypeKind(simpleType, [
             "BOOLEAN",
-            "BOOLEAN_LITERAL"
+            "BOOLEAN_LITERAL",
           ]);
         case "ARRAY":
           return isAssignableToSimpleTypeKind(simpleType, ["ARRAY", "TUPLE"]);
         case "OBJECT":
           return isAssignableToSimpleTypeKind(simpleType, [
             "OBJECT",
-            "INTERFACE"
+            "INTERFACE",
           ]);
         case "ANY":
           return isAssignableToSimpleTypeKind(simpleType, "ANY");
@@ -133,11 +133,11 @@ function prepareSimpleAssignabilityTester(simpleType: SimpleType): {
         "BOOLEAN",
         "ARRAY",
         "OBJECT",
-        "ANY"
+        "ANY",
       ] as SimpleTypeKind[]
     )
-      .filter(kind => kind !== "ANY")
-      .filter(kind => isAssignableTo(kind));
+      .filter((kind) => kind !== "ANY")
+      .filter((kind) => isAssignableTo(kind));
   });
 
   return { acceptedTypeKinds, isAssignableTo };
@@ -157,9 +157,9 @@ function validateLitPropertyConfig(
   litConfig: LitElementPropertyConfig,
   {
     propName,
-    simplePropType
+    simplePropType,
   }: { propName: string; simplePropType: SimpleType },
-  context: RuleModuleContext
+  context: RuleModuleContext,
 ) {
   // Check if "type" is one of the built in default type converter hint
   if (typeof litConfig.type === "string" && !litConfig.hasConverter) {
@@ -169,7 +169,7 @@ function validateLitPropertyConfig(
       fixMessage:
         litConfig.attribute !== false
           ? "Have you considered '{attribute: false}' instead?"
-          : "Have you considered removing 'type'?"
+          : "Have you considered removing 'type'?",
     });
   }
 
@@ -193,14 +193,16 @@ function validateLitPropertyConfig(
       // Suggest what to use instead
       if (acceptedTypeKinds().length >= 1) {
         const potentialKindText = joinArray(
-          acceptedTypeKinds().map(kind => `'${toLitPropertyTypeString(kind)}'`),
+          acceptedTypeKinds().map(
+            (kind) => `'${toLitPropertyTypeString(kind)}'`,
+          ),
           ", ",
-          "or"
+          "or",
         );
 
         context.report({
           location: rangeFromNode(node),
-          message: `@property type should be ${potentialKindText} instead of '${toLitPropertyTypeString(litConfig.type.kind)}'`
+          message: `@property type should be ${potentialKindText} instead of '${toLitPropertyTypeString(litConfig.type.kind)}'`,
         });
       }
 
@@ -209,7 +211,7 @@ function validateLitPropertyConfig(
       else if (litConfig.type.kind !== "OBJECT") {
         context.report({
           location: rangeFromNode(node),
-          message: `@property type '${typeToString(litConfig.type)}' is not assignable to the actual type '${typeToString(simplePropType)}'`
+          message: `@property type '${typeToString(litConfig.type)}' is not assignable to the actual type '${typeToString(simplePropType)}'`,
         });
       }
     }
@@ -233,25 +235,25 @@ function validateLitPropertyConfig(
       const acceptedTypeText = joinArray(
         [
           ...acceptedTypeKinds().map(
-            kind => `'{type: ${toLitPropertyTypeString(kind)}}'`
+            (kind) => `'{type: ${toLitPropertyTypeString(kind)}}'`,
           ),
           ...(isAssignableTo("ARRAY") || isAssignableTo("OBJECT")
             ? ["'{attribute: false}'"]
-            : [])
+            : []),
         ],
         ", ",
-        "or"
+        "or",
       );
 
       context.report({
         location: rangeFromNode(node),
-        message: `Missing ${acceptedTypeText} on @property decorator for '${propName}'`
+        message: `Missing ${acceptedTypeText} on @property decorator for '${propName}'`,
       });
     } else {
       context.report({
         location: rangeFromNode(node),
         message: `The built in converter doesn't handle the property type '${typeToString(simplePropType)}'.`,
-        fixMessage: `Please add '{attribute: false}' on @property decorator for '${propName}'`
+        fixMessage: `Please add '{attribute: false}' on @property decorator for '${propName}'`,
       });
     }
   }

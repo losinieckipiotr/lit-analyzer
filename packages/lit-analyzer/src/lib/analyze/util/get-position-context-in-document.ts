@@ -18,7 +18,7 @@ export interface DocumentPositionContext {
  */
 export function getPositionContextInDocument(
   document: TextDocument,
-  offset: DocumentOffset
+  offset: DocumentOffset,
 ): DocumentPositionContext {
   const text = document.virtualDocument.text;
 
@@ -28,14 +28,14 @@ export function getPositionContextInDocument(
     direction: "left",
     startOffset: offset,
     stopChar,
-    text
+    text,
   });
 
   const rightWord = grabWordInDirection({
     direction: "right",
     startOffset: offset,
     stopChar,
-    text
+    text,
   });
 
   const word = leftWord + rightWord;
@@ -50,7 +50,7 @@ export function getPositionContextInDocument(
     leftWord,
     rightWord,
     beforeWord,
-    afterWord
+    afterWord,
   };
 }
 
@@ -66,7 +66,7 @@ export function grabWordInDirection({
   startOffset,
   stopChar,
   direction,
-  text
+  text,
 }: {
   stopChar: RegExp;
   direction: "left" | "right";

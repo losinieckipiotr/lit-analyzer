@@ -11,7 +11,7 @@ const constantsSource = fs.readFileSync(constantsPath, "utf-8");
 if (!constantsSource.includes(`"${version}"`)) {
   // eslint-disable-next-line no-console
   console.log(
-    `\nExpected src/lib/analyze/constants.ts to contain the current version "${version}"`
+    `\nExpected src/lib/analyze/constants.ts to contain the current version "${version}"`,
   );
   process.exit(1);
 }

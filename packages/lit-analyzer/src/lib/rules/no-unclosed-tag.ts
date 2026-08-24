@@ -8,7 +8,7 @@ import { rangeFromHtmlNode } from "../analyze/util/range-util.js";
 const rule: RuleModule = {
   id: "no-unclosed-tag",
   meta: {
-    priority: "low"
+    priority: "low",
   },
   visitHtmlNode(htmlNode, context) {
     if (!htmlNode.selfClosed && htmlNode.location.endTag == null) {
@@ -18,12 +18,12 @@ const rule: RuleModule = {
 
       context.report({
         location: rangeFromHtmlNode(htmlNode),
-        message: `This tag isn't closed.${isCustomElement ? " Custom elements cannot be self closing." : ""}`
+        message: `This tag isn't closed.${isCustomElement ? " Custom elements cannot be self closing." : ""}`,
       });
     }
 
     return;
-  }
+  },
 };
 
 export default rule;

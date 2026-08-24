@@ -8,15 +8,15 @@ import { TextDocument } from "../text-document.js";
 export class HtmlDocument extends TextDocument {
   constructor(
     virtualDocument: VirtualDocument,
-    public rootNodes: HtmlNode[]
+    public rootNodes: HtmlNode[],
   ) {
     super(virtualDocument);
   }
 
   htmlAttrAreaAtOffset(
-    offset: DocumentOffset | DocumentRange
+    offset: DocumentOffset | DocumentRange,
   ): HtmlNode | undefined {
-    return this.mapFindOne(node => {
+    return this.mapFindOne((node) => {
       const offsetNum = typeof offset === "number" ? offset : offset.end;
       if (
         offsetNum > node.location.name.end &&
@@ -36,34 +36,34 @@ export class HtmlDocument extends TextDocument {
   }
 
   htmlAttrAssignmentAtOffset(
-    offset: DocumentOffset | DocumentRange
+    offset: DocumentOffset | DocumentRange,
   ): HtmlNodeAttr | undefined {
-    return this.findAttr(attr =>
+    return this.findAttr((attr) =>
       attr.assignment != null && attr.assignment.location != null
         ? intersects(offset, attr.assignment.location)
-        : false
+        : false,
     );
   }
 
   htmlAttrNameAtOffset(
-    offset: DocumentOffset | DocumentRange
+    offset: DocumentOffset | DocumentRange,
   ): HtmlNodeAttr | undefined {
-    return this.findAttr(attr => intersects(offset, attr.location.name));
+    return this.findAttr((attr) => intersects(offset, attr.location.name));
   }
 
   htmlNodeNameAtOffset(
-    offset: DocumentOffset | DocumentRange
+    offset: DocumentOffset | DocumentRange,
   ): HtmlNode | undefined {
     return this.findNode(
-      node =>
+      (node) =>
         intersects(offset, node.location.name) ||
         (node.location.endTag != null &&
-          intersects(offset, node.location.endTag))
+          intersects(offset, node.location.endTag)),
     );
   }
 
   htmlNodeOrAttrAtOffset(
-    offset: DocumentOffset | DocumentRange
+    offset: DocumentOffset | DocumentRange,
   ): HtmlNode | HtmlNodeAttr | undefined {
     const htmlNode = this.htmlNodeNameAtOffset(offset);
     if (htmlNode != null) return htmlNode;
@@ -82,7 +82,7 @@ export class HtmlDocument extends TextDocument {
     let closestNode: HtmlNode | undefined = undefined;
 
     // Use 'findNode' to iterate nodes. Keep track of the closest node.
-    this.findNode(node => {
+    this.findNode((node) => {
       if (offset < node.location.startTag.end) {
         // Break as soon as we find a node that starts AFTER the offset.
         // The closestNode would now be the previous found node.
@@ -101,7 +101,7 @@ export class HtmlDocument extends TextDocument {
   }
 
   findAttr(test: (node: HtmlNodeAttr) => boolean): HtmlNodeAttr | undefined {
-    return this.mapFindOne(node => {
+    return this.mapFindOne((node) => {
       for (const attr of node.attributes) {
         if (test(attr)) return attr;
       }
@@ -110,7 +110,7 @@ export class HtmlDocument extends TextDocument {
   }
 
   findNode(test: (node: HtmlNode) => boolean): HtmlNode | undefined {
-    return this.mapFindOne(node => {
+    return this.mapFindOne((node) => {
       if (test(node)) return node;
       return;
     });
@@ -121,10 +121,10 @@ export class HtmlDocument extends TextDocument {
 
     function childrenLoop(node: HtmlNode) {
       items.push(map(node));
-      node.children.forEach(childNode => childrenLoop(childNode));
+      node.children.forEach((childNode) => childrenLoop(childNode));
     }
 
-    this.rootNodes.forEach(rootNode => childrenLoop(rootNode));
+    this.rootNodes.forEach((rootNode) => childrenLoop(rootNode));
 
     return items;
   }

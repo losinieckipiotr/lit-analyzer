@@ -13,11 +13,11 @@ export interface AnalysisStats {
 export interface DiagnosticFormatter {
   report(
     stats: AnalysisStats,
-    config: LitAnalyzerCliConfig
+    config: LitAnalyzerCliConfig,
   ): string | undefined;
   diagnosticTextForFile(
     file: SourceFile,
     diagnostics: LitDiagnostic[],
-    config: LitAnalyzerCliConfig
+    config: LitAnalyzerCliConfig,
   ): string | undefined;
 }

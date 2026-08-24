@@ -8,7 +8,7 @@ export enum HtmlNodeAttrKind {
   EVENT_LISTENER = "EVENT_LISTENER",
   ATTRIBUTE = "ATTRIBUTE",
   BOOLEAN_ATTRIBUTE = "BOOLEAN_ATTRIBUTE",
-  PROPERTY = "PROPERTY"
+  PROPERTY = "PROPERTY",
 }
 
 export interface IHtmlNodeAttrSourceCodeLocation extends Range {

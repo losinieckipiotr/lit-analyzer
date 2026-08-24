@@ -9,17 +9,17 @@ import { findParent, getNodeAtPosition } from "../../util/ast-util.js";
  */
 export function findTaggedTemplates(
   sourceFile: SourceFile,
-  templateTags: string[]
+  templateTags: string[],
 ): TaggedTemplateExpression[];
 export function findTaggedTemplates(
   sourceFile: SourceFile,
   templateTags: string[],
-  position?: number
+  position?: number,
 ): TaggedTemplateExpression | undefined;
 export function findTaggedTemplates(
   sourceFile: SourceFile,
   templateTags: string[],
-  position?: number
+  position?: number,
 ): TaggedTemplateExpression[] | TaggedTemplateExpression | undefined {
   if (position != null) {
     const token = getNodeAtPosition(sourceFile, position);
@@ -41,7 +41,7 @@ export function findTaggedTemplates(
       },
       emitTaggedTemplateNode(node: TaggedTemplateExpression) {
         taggedTemplates.push(node);
-      }
+      },
     });
 
     return taggedTemplates;
@@ -56,7 +56,7 @@ export interface TaggedTemplateVisitContext {
 
 export function visitTaggedTemplateNodes(
   astNode: Node,
-  context: TaggedTemplateVisitContext
+  context: TaggedTemplateVisitContext,
 ): void {
   const newContext = { ...context };
   if (
@@ -69,5 +69,5 @@ export function visitTaggedTemplateNodes(
     context.emitTaggedTemplateNode(astNode);
   }
 
-  astNode.forEachChild(child => visitTaggedTemplateNodes(child, context));
+  astNode.forEachChild((child) => visitTaggedTemplateNodes(child, context));
 }

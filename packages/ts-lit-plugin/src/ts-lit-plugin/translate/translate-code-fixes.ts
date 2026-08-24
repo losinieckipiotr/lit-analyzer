@@ -4,33 +4,35 @@ import { translateRange } from "./translate-range.js";
 
 export function translateCodeFixes(
   codeFixes: LitCodeFix[],
-  file: SourceFile
+  file: SourceFile,
 ): CodeFixAction[] {
-  return codeFixes.map(codeFix => translateCodeFix(file, codeFix));
+  return codeFixes.map((codeFix) => translateCodeFix(file, codeFix));
 }
 
 export function translateCodeFix(
   file: SourceFile,
-  codeFix: LitCodeFix
+  codeFix: LitCodeFix,
 ): CodeFixAction {
   return {
     fixName: codeFix.name,
     description: codeFix.message,
-    changes: codeFix.actions.map(action => translateCodeFixAction(file, action))
+    changes: codeFix.actions.map((action) =>
+      translateCodeFixAction(file, action),
+    ),
   };
 }
 
 function translateCodeFixAction(
   file: SourceFile,
-  action: LitCodeFixAction
+  action: LitCodeFixAction,
 ): FileTextChanges {
   return {
     fileName: file.fileName,
     textChanges: [
       {
         span: translateRange(action.range),
-        newText: action.newText
-      }
-    ]
+        newText: action.newText,
+      },
+    ],
   };
 }

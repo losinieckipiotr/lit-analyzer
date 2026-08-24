@@ -6,7 +6,7 @@ import { TsLitPlugin } from "./ts-lit-plugin/ts-lit-plugin.js";
 
 export function decorateLanguageService(
   languageService: LanguageService,
-  plugin: TsLitPlugin
+  plugin: TsLitPlugin,
 ): LanguageService {
   const languageServiceExtension: Partial<LanguageService> = {
     getCompletionsAtPosition: plugin.getCompletionsAtPosition.bind(plugin),
@@ -18,19 +18,19 @@ export function decorateLanguageService(
     getJsxClosingTagAtPosition: plugin.getJsxClosingTagAtPosition.bind(plugin),
     getRenameInfo: plugin.getRenameInfo.bind(plugin),
     findRenameLocations: plugin.findRenameLocations.bind(plugin),
-    getSignatureHelpItems: plugin.getSignatureHelpItems.bind(plugin)
+    getSignatureHelpItems: plugin.getSignatureHelpItems.bind(plugin),
     //getOutliningSpans: plugin.getOutliningSpans.bind(plugin)
     //getFormattingEditsForRange: plugin.getFormattingEditsForRange.bind(plugin)
   };
 
   const decoratedLanguageService: LanguageService = {
     ...languageService,
-    ...languageServiceExtension
+    ...languageServiceExtension,
   };
 
   // Make sure to call the old service if config.disable === true
   for (const methodName of Object.getOwnPropertyNames(
-    languageServiceExtension
+    languageServiceExtension,
   ) as (keyof LanguageService)[]) {
     const newMethod: Function | undefined =
       decoratedLanguageService[methodName]!;
@@ -47,7 +47,7 @@ export function decorateLanguageService(
 
   // Wrap all method calls to the service in logging and performance measuring
   for (const methodName of Object.getOwnPropertyNames(
-    decoratedLanguageService
+    decoratedLanguageService,
   ) as (keyof LanguageService)[]) {
     //const isDecorated = languageServiceExtension[methodName] != null;
     const isDecorated = decoratedLanguageService[methodName] != null;
@@ -57,7 +57,7 @@ export function decorateLanguageService(
       (decoratedLanguageService as any)[methodName] = wrapLog(
         methodName,
         method,
-        plugin
+        plugin,
       );
     }
   }
@@ -74,7 +74,7 @@ export function decorateLanguageService(
 function wrapTryCatch<T extends Function>(
   newMethod: T,
   oldMethod: T | undefined,
-  methodName: string
+  methodName: string,
 ): T {
   return ((...args: unknown[]) => {
     try {
@@ -105,7 +105,7 @@ function wrapTryCatch<T extends Function>(
 function wrapLog<T extends Function>(
   name: string,
   proxy: T,
-  plugin: TsLitPlugin
+  plugin: TsLitPlugin,
 ): T {
   return ((...args: unknown[]) => {
     if (plugin.context.config.logging === "verbose") {
@@ -120,7 +120,7 @@ function wrapLog<T extends Function>(
           ? "undefined"
           : Array.isArray(result)
             ? `Array: ${result.length} length`
-            : "defined"
+            : "defined",
       );
       if (time > 100) {
         logger.warn(`[${name}] took long time to complete! (${time}ms)`);

@@ -21,7 +21,7 @@ export type IP5TagNode = DefaultTreeAdapterTypes.Element;
 export type P5Node = DefaultTreeAdapterTypes.ChildNode;
 
 export function getSourceLocation(
-  node: P5Node
+  node: P5Node,
 ): IP5BaseSourceCodeLocation | null | undefined {
   return node.sourceCodeLocation;
 }

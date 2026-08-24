@@ -8,7 +8,7 @@ import { renameLocationsForTagName } from "./rename-locations-for-tag-name.js";
 export function renameLocationsAtOffset(
   document: HtmlDocument,
   offset: DocumentOffset,
-  context: LitAnalyzerContext
+  context: LitAnalyzerContext,
 ): LitRenameLocation[] {
   const hit = document.htmlNodeOrAttrAtOffset(offset);
   if (hit == null) return [];

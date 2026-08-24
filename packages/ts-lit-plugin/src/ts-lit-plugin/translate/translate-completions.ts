@@ -4,10 +4,10 @@ import { translateRange } from "./translate-range.js";
 import { translateTargetKind } from "./translate-target-kind.js";
 
 export function translateCompletions(
-  completions: LitCompletion[]
+  completions: LitCompletion[],
 ): CompletionInfo | undefined {
-  const entries = completions.map(completion =>
-    translateCompletion(completion)
+  const entries = completions.map((completion) =>
+    translateCompletion(completion),
   );
 
   if (entries != null && entries.length > 0) {
@@ -15,7 +15,7 @@ export function translateCompletions(
       isGlobalCompletion: false,
       isMemberCompletion: false,
       isNewIdentifierLocation: false,
-      entries
+      entries,
     };
   }
 
@@ -38,6 +38,6 @@ function translateCompletion(completion: LitCompletion): CompletionEntry {
             ? "1"
             : "2",
     insertText: insert,
-    ...(range != null ? { replacementSpan: translateRange(range) } : {})
+    ...(range != null ? { replacementSpan: translateRange(range) } : {}),
   };
 }
