@@ -1,852 +1,856 @@
 {
-	"name": "lit-plugin",
-	"private": true,
-	"displayName": "lit-plugin",
-	"description": "Syntax highlighting, type checking and code completion for lit-html",
-	"version": "1.4.3",
-	"publisher": "runem",
-	"icon": "docs/assets/lit-plugin@256w.png",
-	"license": "MIT",
-	"engines": {
-		"vscode": "^1.63.0"
-	},
-	"categories": [
-		"Programming Languages"
-	],
-	"homepage": "https://github.com/runem/lit-analyzer",
-	"bugs": {
-		"url": "https://github.com/runem/lit-analyzer/issues",
-		"email": "runemehlsen@gmail.com"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/runem/lit-analyzer.git"
-	},
-	"main": "bundle.js",
-	"scripts": {
-		"watch": "tsc -watch -p ./",
-		"package": "wireit",
-		"readme": "readme generate -i readme.blueprint.md -c readme.config.json",
-		"test": "wireit",
-		"build": "wireit",
-		"test:normal": "wireit",
-		"test:packaged": "wireit",
-		"create-isolated-extension-dir": "wireit",
-		"test:packaged-sequentialized": "wireit",
-		"bundle": "wireit",
-		"make-built-dir": "wireit"
-	},
-	"wireit": {
-		"build": {
-			"dependencies": [
-				"../lit-analyzer:build",
-				"make-built-dir"
-			],
-			"command": "tsc --build --pretty",
-			"files": [
-				"src/**/*",
-				"tsconfig.json"
-			],
-			"output": [
-				"out/**/*.js",
-				"out/**/*.d.ts",
-				"out/**/*.d.ts.map",
-				".tsbuildinfo"
-			],
-			"clean": "if-file-deleted"
-		},
-		"test": {
-			"dependencies": [
-				"test:normal",
-				"test:packaged-sequentialized"
-			]
-		},
-		"test:normal": {
-			"dependencies": [
-				"build"
-			],
-			"files": [
-				"package.json",
-				"schemas/**/*"
-			],
-			"output": [],
-			"command": "node ./out/test/scripts/test-runner.js ./built"
-		},
-		"test:packaged": {
-			"dependencies": [
-				"build",
-				"create-isolated-extension-dir"
-			],
-			"files": [],
-			"output": [],
-			"command": "node ./out/test/scripts/test-runner.js ../../../packaged-extension/extension/"
-		},
-		"test:packaged-sequentialized": {
-			"#comment": "like test:packaged, only it ensures that test:normal runs first",
-			"dependencies": [
-				"test:normal",
-				"build",
-				"create-isolated-extension-dir"
-			],
-			"files": [],
-			"output": [],
-			"command": "node ./out/test/scripts/test-runner.js ../../../packaged-extension/extension/"
-		},
-		"package": {
-			"dependencies": [
-				"make-built-dir"
-			],
-			"files": [],
-			"output": [
-				"out/packaged.vsix"
-			],
-			"command": "echo TODO: 'mkdir -p out && cd built && vsce package -o ../out/packaged.vsix'"
-		},
-		"publish": {
-			"dependencies": [
-				"make-built-dir"
-			],
-			"command": "cd built && vsce publish"
-		},
-		"create-isolated-extension-dir": {
-			"dependencies": [
-				"package"
-			],
-			"files": [
-				"out/packaged.vsix"
-			],
-			"command": "rm -rf ../../../packaged-extension/ && mkdir ../../../packaged-extension/ && unzip -qq ./out/packaged.vsix -d ../../../packaged-extension/",
-			"clean": false
-		},
-		"bundle": {
-			"dependencies": [
-				"../lit-analyzer:build"
-			],
-			"command": "node esbuild.script.mjs",
-			"files": [
-				"src/**/*",
-				"../ts-lit-plugin/src/**/*",
-				"../ts-lit-plugin/index.js",
-				"esbuild.script.mjs"
-			],
-			"output": [
-				"built/bundle.js",
-				"built/node_modules/ts-lit-plugin/index.js"
-			]
-		},
-		"make-built-dir": {
-			"dependencies": [
-				"../ts-lit-plugin:build",
-				"bundle"
-			],
-			"files": [
-				"../ts-lit-plugin/package.json",
-				"package.json",
-				"schemas/**",
-				"syntaxes/**",
-				"docs/**",
-				"README.md",
-				"LICENSE.md",
-				"copy-to-built.js"
-			],
-			"output": [
-				"built/docs",
-				"built/node_modules/typescript",
-				"built/node_modules/ts-lit-plugin/package.json",
-				"built/node_modules/ts-lit-plugin/index.js",
-				"built/schemas",
-				"built/syntaxes",
-				"built/LICENSE.md",
-				"built/package.json",
-				"built/README.md"
-			],
-			"command": "node ./copy-to-built.js"
-		}
-	},
-	"dependencies": {
-		"typescript": "5.9.3"
-	},
-	"devDependencies": {
-		"@types/mocha": "^9.1.0",
-		"@types/node": "^26.2.0",
-		"@types/vscode": "^1.30.0",
-		"esbuild": "^0.14.36",
-		"glob": "^13.0.6",
-		"lit-analyzer": "^2.0.3",
-		"mocha": "^9.1.4",
-		"vsce": "^2.7.0",
-		"wireit": "^0.14.13"
-	},
-	"activationEvents": [
-		"onCommand:lit-plugin.analyze",
-		"onLanguage:javascript",
-		"onLanguage:javascriptreact",
-		"onLanguage:typescript",
-		"onLanguage:typescriptreact"
-	],
-	"contributors": [
-		{
-			"name": "Rune Mehlsen",
-			"url": "https://twitter.com/runemehlsen",
-			"img": "https://avatars2.githubusercontent.com/u/5372940?s=460&v=4"
-		},
-		{
-			"name": "Andreas Mehlsen",
-			"url": "https://twitter.com/andreasmehlsen",
-			"img": "https://avatars1.githubusercontent.com/u/6267397?s=460&v=4"
-		},
-		{
-			"name": "You?",
-			"img": "https://joeschmoe.io/api/v1/random",
-			"url": "https://github.com/runem/lit-analyzer/blob/master/CONTRIBUTING.md"
-		}
-	],
-	"contributes": {
-		"commands": [
-			{
-				"command": "lit-plugin.analyze",
-				"title": "Analyze lit-html templates"
-			}
-		],
-		"configuration": [
-			{
-				"id": "lit-plugin",
-				"title": "lit-plugin",
-				"properties": {
-					"lit-plugin.disable": {
-						"type": "boolean",
-						"description": "Completely disable this plugin.",
-						"default": false
-					},
-					"lit-plugin.strict": {
-						"type": "boolean",
-						"description": "Enable strict mode.",
-						"default": false
-					},
-					"lit-plugin.maxProjectImportDepth": {
-						"type": "integer",
-						"description": "Determines how many modules deep dependencies are followed to determine whether a custom element is available in the current file. When `-1` is used, dependencies will be followed infinitely deep.",
-						"default": -1
-					},
-					"lit-plugin.maxNodeModuleImportDepth": {
-						"type": "integer",
-						"description": "Determines how many modules deep dependencies in npm packages are followed to determine whether a custom element is available in the current file. When `-1` is used, dependencies will be followed infinitely deep.",
-						"default": 1
-					},
-					"lit-plugin.securitySystem": {
-						"type": "string",
-						"description": "The lit-html security sanitization strategy to assume.",
-						"default": "off",
-						"enum": [
-							"off",
-							"ClosureSafeTypes"
-						]
-					},
-					"lit-plugin.htmlTemplateTags": {
-						"type": "array",
-						"description": "List of template tags to enable html support in.",
-						"items": {
-							"type": "string",
-							"description": "Template tag function names."
-						},
-						"default": [
-							"html",
-							"raw"
-						]
-					},
-					"lit-plugin.cssTemplateTags": {
-						"type": "array",
-						"description": "List of template tags to enable css support in.",
-						"items": {
-							"type": "string",
-							"description": "Template tag function names."
-						},
-						"default": [
-							"css"
-						]
-					},
-					"lit-plugin.dontShowSuggestions": {
-						"type": "boolean",
-						"description": "Don't append messages suggesting how to fix diagnostics.",
-						"default": false
-					},
-					"lit-plugin.globalTags": {
-						"type": "array",
-						"description": "List of html tag names that you expect to be present at all times.",
-						"items": {
-							"type": "string",
-							"description": "Tag name."
-						}
-					},
-					"lit-plugin.globalAttributes": {
-						"type": "array",
-						"description": "List of html attributes names that you expect to be present at all times. These attributes are not checked at all.",
-						"items": {
-							"type": "string",
-							"description": "Attribute name."
-						}
-					},
-					"lit-plugin.globalEvents": {
-						"type": "array",
-						"description": "List of event names that you expect to be present at all times. These events are not checked at all.",
-						"items": {
-							"type": "string",
-							"description": "Event name."
-						}
-					},
-					"lit-plugin.logging": {
-						"type": "string",
-						"description": "Log to a file called 'lit-plugin.log' which will be created in the root of the project.",
-						"default": "off",
-						"enum": [
-							"off",
-							"error",
-							"warn",
-							"debug",
-							"verbose"
-						]
-					},
-					"lit-plugin.rules.no-unknown-tag-name": {
-						"type": "string",
-						"description": "Check the existence of tag names.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-missing-import": {
-						"type": "string",
-						"description": "Check that custom elements used are imported.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-missing-element-type-definition": {
-						"type": "string",
-						"description": "This rule will ensure that custom elements are registered on the HTMLElementTagNameMap Typescript interface.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-unclosed-tag": {
-						"type": "string",
-						"description": "Check that all tags are properly closed.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-unknown-attribute": {
-						"type": "string",
-						"description": "Check the existence of attribute names.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-unknown-property": {
-						"type": "string",
-						"description": "Check the existence of property names.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-unknown-event": {
-						"type": "string",
-						"description": "Check the existence of event names.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-unknown-slot": {
-						"type": "string",
-						"description": "Check the existence of slot names (requires '@slot' jsdoc on custom element declarations).",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-invalid-boolean-binding": {
-						"type": "string",
-						"description": "Disallow boolean attribute bindings on non-boolean types.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-expressionless-property-binding": {
-						"type": "string",
-						"description": "Disallow property bindings without an expression.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-noncallable-event-binding": {
-						"type": "string",
-						"description": "Disallow event listener bindings with a noncallable type.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-boolean-in-attribute-binding": {
-						"type": "string",
-						"description": "Disallow attribute bindings with a boolean type.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-complex-attribute-binding": {
-						"type": "string",
-						"description": "Disallow attribute bindings with a complex type.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-nullable-attribute-binding": {
-						"type": "string",
-						"description": "Disallow attribute bindings with nullable types such as \"null\" or \"undefined\".",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-incompatible-type-binding": {
-						"type": "string",
-						"description": "Disallow incompatible type in bindings.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-invalid-directive-binding": {
-						"type": "string",
-						"description": "Disallow using built-in directives in unsupported bindings.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-incompatible-property-type": {
-						"type": "string",
-						"description": "Check the 'type' key of the @property decorator against the actual property type.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-invalid-attribute-name": {
-						"type": "string",
-						"description": "Check the validity of the attribute names.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-invalid-tag-name": {
-						"type": "string",
-						"description": "Check the validity of the tag name when defining custom elements.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.rules.no-invalid-css": {
-						"type": "string",
-						"description": "Check CSS within the css tagged template literal.",
-						"default": "default",
-						"enum": [
-							"default",
-							"off",
-							"warning",
-							"error"
-						]
-					},
-					"lit-plugin.customHtmlData": {
-						"version": 1,
-						"title": "VS Code HTML Custom Data format",
-						"description": "Format for loading html data in VS Code's HTML custom data format",
-						"type": "object",
-						"required": [
-							"version"
-						],
-						"properties": {
-							"version": {
-								"const": 1,
-								"description": "The custom data version",
-								"type": "number"
-							},
-							"tags": {
-								"description": "Custom HTML tags",
-								"type": "array",
-								"items": {
-									"type": "object",
-									"required": [
-										"name"
-									],
-									"defaultSnippets": [
-										{
-											"body": {
-												"name": "$1",
-												"description": "",
-												"attributes": []
-											}
-										}
-									],
-									"properties": {
-										"name": {
-											"type": "string",
-											"description": "Name of tag"
-										},
-										"description": {
-											"type": "string",
-											"description": "Description of tag shown in completion and hover"
-										},
-										"attributes": {
-											"type": "array",
-											"description": "A list of possible attributes for the tag",
-											"items": {
-												"type": "object",
-												"required": [
-													"name"
-												],
-												"defaultSnippets": [
-													{
-														"body": {
-															"name": "$1",
-															"description": "",
-															"values": []
-														}
-													}
-												],
-												"properties": {
-													"name": {
-														"type": "string",
-														"description": "Name of attribute"
-													},
-													"description": {
-														"type": "string",
-														"description": "Description of attribute shown in completion and hover"
-													},
-													"valueSet": {
-														"type": "string",
-														"description": "Name of the matching attribute value set"
-													},
-													"values": {
-														"type": "array",
-														"description": "A list of possible values for the attribute",
-														"items": {
-															"type": "object",
-															"required": [
-																"name"
-															],
-															"defaultSnippets": [
-																{
-																	"body": {
-																		"name": "$1",
-																		"description": ""
-																	}
-																}
-															],
-															"properties": {
-																"name": {
-																	"type": "string",
-																	"description": "Name of attribute value"
-																},
-																"description": {
-																	"type": "string",
-																	"description": "Description of attribute value shown in completion and hover"
-																}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							},
-							"globalAttributes": {
-								"description": "Custom HTML global attributes",
-								"type": "array",
-								"items": {
-									"type": "object",
-									"required": [
-										"name"
-									],
-									"defaultSnippets": [
-										{
-											"body": {
-												"name": "$1",
-												"description": "",
-												"values": []
-											}
-										}
-									],
-									"properties": {
-										"name": {
-											"type": "string",
-											"description": "Name of attribute"
-										},
-										"description": {
-											"type": "string",
-											"description": "Description of attribute shown in completion and hover"
-										},
-										"valueSet": {
-											"type": "string",
-											"description": "Name of the matching attribute value set"
-										},
-										"values": {
-											"type": "array",
-											"description": "A list of possible values for the attribute",
-											"items": {
-												"type": "object",
-												"required": [
-													"name"
-												],
-												"defaultSnippets": [
-													{
-														"body": {
-															"name": "$1",
-															"description": ""
-														}
-													}
-												],
-												"properties": {
-													"name": {
-														"type": "string",
-														"description": "Name of attribute value"
-													},
-													"description": {
-														"type": "string",
-														"description": "Description of attribute value shown in completion and hover"
-													}
-												}
-											}
-										}
-									}
-								}
-							},
-							"valueSets": {
-								"description": "A set of attribute value. When an attribute refers to an attribute set, its value completion will use valuse from that set",
-								"type": "array",
-								"items": {
-									"type": "object",
-									"required": [
-										"name"
-									],
-									"defaultSnippets": [
-										{
-											"body": {
-												"name": "$1",
-												"description": "",
-												"values": []
-											}
-										}
-									],
-									"properties": {
-										"name": {
-											"type": "string",
-											"description": "Name of attribute value in value set"
-										},
-										"values": {
-											"type": "array",
-											"description": "A list of possible values for the attribute",
-											"items": {
-												"type": "object",
-												"required": [
-													"name"
-												],
-												"defaultSnippets": [
-													{
-														"body": {
-															"name": "$1",
-															"description": ""
-														}
-													}
-												],
-												"properties": {
-													"name": {
-														"type": "string",
-														"description": "Name of attribute value"
-													},
-													"description": {
-														"type": "string",
-														"description": "Description of attribute value shown in completion and hover"
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		],
-		"typescriptServerPlugins": [
-			{
-				"name": "ts-lit-plugin",
-				"enableForWorkspaceTypeScriptVersions": true
-			}
-		],
-		"jsonValidation": [
-			{
-				"fileMatch": "jsconfig*.json",
-				"url": "./schemas/tsconfig.schema.json"
-			},
-			{
-				"fileMatch": "tsconfig*.json",
-				"url": "./schemas/tsconfig.schema.json"
-			}
-		],
-		"grammars": [
-			{
-				"injectTo": [
-					"source.js",
-					"source.js.jsx",
-					"source.jsx",
-					"source.ts",
-					"source.tsx",
-					"text.html.basic"
-				],
-				"scopeName": "inline.lit-html",
-				"path": "./syntaxes/vscode-lit-html/lit-html.json",
-				"embeddedLanguages": {
-					"meta.embedded.block.html": "html",
-					"meta.embedded.block.css": "css",
-					"source.css": "css"
-				}
-			},
-			{
-				"injectTo": [
-					"source.js",
-					"source.js.jsx",
-					"source.jsx",
-					"source.ts",
-					"source.tsx",
-					"text.html.basic"
-				],
-				"scopeName": "inline.lit-html.string.injection",
-				"path": "./syntaxes/vscode-lit-html/lit-html-string-injection.json",
-				"embeddedLanguages": {
-					"meta.template.expression.ts": "typescript"
-				}
-			},
-			{
-				"injectTo": [
-					"source.js",
-					"source.js.jsx",
-					"source.jsx",
-					"source.ts",
-					"source.tsx",
-					"text.html.basic"
-				],
-				"scopeName": "inline.lit-html.style.injection",
-				"path": "./syntaxes/vscode-lit-html/lit-html-style-injection.json",
-				"embeddedLanguages": {
-					"meta.template.expression.ts": "typescript"
-				}
-			},
-			{
-				"injectTo": [
-					"source.js",
-					"source.js.jsx",
-					"source.jsx",
-					"source.ts",
-					"source.tsx",
-					"text.html.basic"
-				],
-				"scopeName": "inline.lit-html-svg",
-				"path": "./syntaxes/vscode-lit-html/lit-html-svg.json",
-				"embeddedLanguages": {
-					"meta.embedded.block.svg": "xml"
-				}
-			},
-			{
-				"scopeName": "source.css.styled",
-				"path": "./syntaxes/vscode-styled-components/css.styled.json"
-			},
-			{
-				"injectTo": [
-					"source.js",
-					"source.ts",
-					"source.jsx",
-					"source.js.jsx",
-					"source.tsx"
-				],
-				"scopeName": "styled",
-				"path": "./syntaxes/vscode-styled-components/styled-components.json",
-				"embeddedLanguages": {
-					"source.css.scss": "css",
-					"meta.embedded.line.ts": "typescript"
-				}
-			}
-		]
-	}
+  "name": "lit-plugin",
+  "private": true,
+  "displayName": "lit-plugin",
+  "description": "Syntax highlighting, type checking and code completion for lit-html",
+  "version": "1.4.3",
+  "publisher": "runem",
+  "icon": "docs/assets/lit-plugin@256w.png",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.63.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "homepage": "https://github.com/runem/lit-analyzer",
+  "bugs": {
+    "url": "https://github.com/runem/lit-analyzer/issues",
+    "email": "runemehlsen@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runem/lit-analyzer.git"
+  },
+  "main": "bundle.js",
+  "scripts": {
+    "watch": "tsc -watch -p ./",
+    "package": "wireit",
+    "readme": "readme generate -i readme.blueprint.md -c readme.config.json",
+    "test": "wireit",
+    "build": "wireit",
+    "test:normal": "wireit",
+    "test:packaged": "wireit",
+    "create-isolated-extension-dir": "wireit",
+    "test:packaged-sequentialized": "wireit",
+    "bundle": "wireit",
+    "make-built-dir": "wireit"
+  },
+  "wireit": {
+    "build": {
+      "dependencies": [
+        "../lit-analyzer:build",
+        "make-built-dir"
+      ],
+      "command": "tsc --build --pretty",
+      "files": [
+        "src/**/*",
+        "tsconfig.json"
+      ],
+      "output": [
+        "out/**/*.js",
+        "out/**/*.d.ts",
+        "out/**/*.d.ts.map",
+        ".tsbuildinfo"
+      ],
+      "clean": true
+    },
+    "test": {
+      "dependencies": [
+        "test:normal"
+      ]
+    },
+    "test:normal": {
+      "dependencies": [
+        "build"
+      ],
+      "files": [
+        "package.json",
+        "schemas/**/*"
+      ],
+      "output": [],
+      "command": "node ./out/test/scripts/test-runner.js ./built"
+    },
+    "test:packaged": {
+      "dependencies": [
+        "build",
+        "create-isolated-extension-dir"
+      ],
+      "files": [],
+      "output": [],
+      "command": "node ./out/test/scripts/test-runner.js ../../../packaged-extension/extension/"
+    },
+    "test:packaged-sequentialized": {
+      "#comment": "like test:packaged, only it ensures that test:normal runs first",
+      "dependencies": [
+        "test:normal",
+        "build",
+        "create-isolated-extension-dir"
+      ],
+      "files": [],
+      "output": [],
+      "#comment1": "is this runs test outside of the project ??? disabled for now",
+      "command": "node ./out/test/scripts/test-runner.js ../../../packaged-extension/extension/"
+    },
+    "make-out-dir": {
+      "command": "node src/test/scripts/make-built-dir.ts"
+    },
+    "package": {
+      "dependencies": [
+        "make-out-dir",
+        "make-built-dir"
+      ],
+      "files": [],
+      "output": [
+        "out/packaged.vsix"
+      ],
+      "command": "cd built && vsce package -o ../out/packaged.vsix"
+    },
+    "publish": {
+      "dependencies": [
+        "make-built-dir"
+      ],
+      "command": "cd built && vsce publish"
+    },
+    "create-isolated-extension-dir": {
+      "dependencies": [
+        "package"
+      ],
+      "files": [
+        "out/packaged.vsix"
+      ],
+      "command": "rm -rf ../../../packaged-extension/ && mkdir ../../../packaged-extension/ && unzip -qq ./out/packaged.vsix -d ../../../packaged-extension/",
+      "clean": false
+    },
+    "bundle": {
+      "dependencies": [
+        "../lit-analyzer:build"
+      ],
+      "command": "node esbuild.script.mjs",
+      "files": [
+        "src/**/*",
+        "../ts-lit-plugin/src/**/*",
+        "../ts-lit-plugin/index.js",
+        "esbuild.script.mjs"
+      ],
+      "output": [
+        "built/bundle.js",
+        "built/node_modules/ts-lit-plugin/index.js"
+      ]
+    },
+    "make-built-dir": {
+      "dependencies": [
+        "../ts-lit-plugin:build",
+        "bundle"
+      ],
+      "files": [
+        "../ts-lit-plugin/package.json",
+        "package.json",
+        "schemas/**",
+        "syntaxes/**",
+        "docs/**",
+        "README.md",
+        "LICENSE.md",
+        "copy-to-built.js"
+      ],
+      "output": [
+        "built/docs",
+        "built/node_modules/typescript",
+        "built/node_modules/ts-lit-plugin/package.json",
+        "built/node_modules/ts-lit-plugin/index.js",
+        "built/schemas",
+        "built/syntaxes",
+        "built/LICENSE.md",
+        "built/package.json",
+        "built/README.md"
+      ],
+      "command": "node ./copy-to-built.js"
+    }
+  },
+  "dependencies": {
+    "typescript": "5.9.3"
+  },
+  "devDependencies": {
+    "@types/mocha": "^9.1.0",
+    "@types/node": "^26.2.0",
+    "@types/vscode": "^1.30.0",
+    "esbuild": "^0.14.36",
+    "glob": "^13.0.6",
+    "lit-analyzer": "^2.0.3",
+    "mocha": "^9.1.4",
+    "vsce": "^2.7.0",
+    "wireit": "^0.14.13"
+  },
+  "activationEvents": [
+    "onCommand:lit-plugin.analyze",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact"
+  ],
+  "contributors": [
+    {
+      "name": "Rune Mehlsen",
+      "url": "https://twitter.com/runemehlsen",
+      "img": "https://avatars2.githubusercontent.com/u/5372940?s=460&v=4"
+    },
+    {
+      "name": "Andreas Mehlsen",
+      "url": "https://twitter.com/andreasmehlsen",
+      "img": "https://avatars1.githubusercontent.com/u/6267397?s=460&v=4"
+    },
+    {
+      "name": "You?",
+      "img": "https://joeschmoe.io/api/v1/random",
+      "url": "https://github.com/runem/lit-analyzer/blob/master/CONTRIBUTING.md"
+    }
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "lit-plugin.analyze",
+        "title": "Analyze lit-html templates"
+      }
+    ],
+    "configuration": [
+      {
+        "id": "lit-plugin",
+        "title": "lit-plugin",
+        "properties": {
+          "lit-plugin.disable": {
+            "type": "boolean",
+            "description": "Completely disable this plugin.",
+            "default": false
+          },
+          "lit-plugin.strict": {
+            "type": "boolean",
+            "description": "Enable strict mode.",
+            "default": false
+          },
+          "lit-plugin.maxProjectImportDepth": {
+            "type": "integer",
+            "description": "Determines how many modules deep dependencies are followed to determine whether a custom element is available in the current file. When `-1` is used, dependencies will be followed infinitely deep.",
+            "default": -1
+          },
+          "lit-plugin.maxNodeModuleImportDepth": {
+            "type": "integer",
+            "description": "Determines how many modules deep dependencies in npm packages are followed to determine whether a custom element is available in the current file. When `-1` is used, dependencies will be followed infinitely deep.",
+            "default": 1
+          },
+          "lit-plugin.securitySystem": {
+            "type": "string",
+            "description": "The lit-html security sanitization strategy to assume.",
+            "default": "off",
+            "enum": [
+              "off",
+              "ClosureSafeTypes"
+            ]
+          },
+          "lit-plugin.htmlTemplateTags": {
+            "type": "array",
+            "description": "List of template tags to enable html support in.",
+            "items": {
+              "type": "string",
+              "description": "Template tag function names."
+            },
+            "default": [
+              "html",
+              "raw"
+            ]
+          },
+          "lit-plugin.cssTemplateTags": {
+            "type": "array",
+            "description": "List of template tags to enable css support in.",
+            "items": {
+              "type": "string",
+              "description": "Template tag function names."
+            },
+            "default": [
+              "css"
+            ]
+          },
+          "lit-plugin.dontShowSuggestions": {
+            "type": "boolean",
+            "description": "Don't append messages suggesting how to fix diagnostics.",
+            "default": false
+          },
+          "lit-plugin.globalTags": {
+            "type": "array",
+            "description": "List of html tag names that you expect to be present at all times.",
+            "items": {
+              "type": "string",
+              "description": "Tag name."
+            }
+          },
+          "lit-plugin.globalAttributes": {
+            "type": "array",
+            "description": "List of html attributes names that you expect to be present at all times. These attributes are not checked at all.",
+            "items": {
+              "type": "string",
+              "description": "Attribute name."
+            }
+          },
+          "lit-plugin.globalEvents": {
+            "type": "array",
+            "description": "List of event names that you expect to be present at all times. These events are not checked at all.",
+            "items": {
+              "type": "string",
+              "description": "Event name."
+            }
+          },
+          "lit-plugin.logging": {
+            "type": "string",
+            "description": "Log to a file called 'lit-plugin.log' which will be created in the root of the project.",
+            "default": "off",
+            "enum": [
+              "off",
+              "error",
+              "warn",
+              "debug",
+              "verbose"
+            ]
+          },
+          "lit-plugin.rules.no-unknown-tag-name": {
+            "type": "string",
+            "description": "Check the existence of tag names.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-missing-import": {
+            "type": "string",
+            "description": "Check that custom elements used are imported.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-missing-element-type-definition": {
+            "type": "string",
+            "description": "This rule will ensure that custom elements are registered on the HTMLElementTagNameMap Typescript interface.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-unclosed-tag": {
+            "type": "string",
+            "description": "Check that all tags are properly closed.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-unknown-attribute": {
+            "type": "string",
+            "description": "Check the existence of attribute names.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-unknown-property": {
+            "type": "string",
+            "description": "Check the existence of property names.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-unknown-event": {
+            "type": "string",
+            "description": "Check the existence of event names.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-unknown-slot": {
+            "type": "string",
+            "description": "Check the existence of slot names (requires '@slot' jsdoc on custom element declarations).",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-invalid-boolean-binding": {
+            "type": "string",
+            "description": "Disallow boolean attribute bindings on non-boolean types.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-expressionless-property-binding": {
+            "type": "string",
+            "description": "Disallow property bindings without an expression.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-noncallable-event-binding": {
+            "type": "string",
+            "description": "Disallow event listener bindings with a noncallable type.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-boolean-in-attribute-binding": {
+            "type": "string",
+            "description": "Disallow attribute bindings with a boolean type.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-complex-attribute-binding": {
+            "type": "string",
+            "description": "Disallow attribute bindings with a complex type.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-nullable-attribute-binding": {
+            "type": "string",
+            "description": "Disallow attribute bindings with nullable types such as \"null\" or \"undefined\".",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-incompatible-type-binding": {
+            "type": "string",
+            "description": "Disallow incompatible type in bindings.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-invalid-directive-binding": {
+            "type": "string",
+            "description": "Disallow using built-in directives in unsupported bindings.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-incompatible-property-type": {
+            "type": "string",
+            "description": "Check the 'type' key of the @property decorator against the actual property type.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-invalid-attribute-name": {
+            "type": "string",
+            "description": "Check the validity of the attribute names.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-invalid-tag-name": {
+            "type": "string",
+            "description": "Check the validity of the tag name when defining custom elements.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.rules.no-invalid-css": {
+            "type": "string",
+            "description": "Check CSS within the css tagged template literal.",
+            "default": "default",
+            "enum": [
+              "default",
+              "off",
+              "warning",
+              "error"
+            ]
+          },
+          "lit-plugin.customHtmlData": {
+            "version": 1,
+            "title": "VS Code HTML Custom Data format",
+            "description": "Format for loading html data in VS Code's HTML custom data format",
+            "type": "object",
+            "required": [
+              "version"
+            ],
+            "properties": {
+              "version": {
+                "const": 1,
+                "description": "The custom data version",
+                "type": "number"
+              },
+              "tags": {
+                "description": "Custom HTML tags",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "defaultSnippets": [
+                    {
+                      "body": {
+                        "name": "$1",
+                        "description": "",
+                        "attributes": []
+                      }
+                    }
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of tag"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description of tag shown in completion and hover"
+                    },
+                    "attributes": {
+                      "type": "array",
+                      "description": "A list of possible attributes for the tag",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name"
+                        ],
+                        "defaultSnippets": [
+                          {
+                            "body": {
+                              "name": "$1",
+                              "description": "",
+                              "values": []
+                            }
+                          }
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Name of attribute"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Description of attribute shown in completion and hover"
+                          },
+                          "valueSet": {
+                            "type": "string",
+                            "description": "Name of the matching attribute value set"
+                          },
+                          "values": {
+                            "type": "array",
+                            "description": "A list of possible values for the attribute",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "name"
+                              ],
+                              "defaultSnippets": [
+                                {
+                                  "body": {
+                                    "name": "$1",
+                                    "description": ""
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "Name of attribute value"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Description of attribute value shown in completion and hover"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "globalAttributes": {
+                "description": "Custom HTML global attributes",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "defaultSnippets": [
+                    {
+                      "body": {
+                        "name": "$1",
+                        "description": "",
+                        "values": []
+                      }
+                    }
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of attribute"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description of attribute shown in completion and hover"
+                    },
+                    "valueSet": {
+                      "type": "string",
+                      "description": "Name of the matching attribute value set"
+                    },
+                    "values": {
+                      "type": "array",
+                      "description": "A list of possible values for the attribute",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name"
+                        ],
+                        "defaultSnippets": [
+                          {
+                            "body": {
+                              "name": "$1",
+                              "description": ""
+                            }
+                          }
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Name of attribute value"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Description of attribute value shown in completion and hover"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "valueSets": {
+                "description": "A set of attribute value. When an attribute refers to an attribute set, its value completion will use valuse from that set",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "defaultSnippets": [
+                    {
+                      "body": {
+                        "name": "$1",
+                        "description": "",
+                        "values": []
+                      }
+                    }
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of attribute value in value set"
+                    },
+                    "values": {
+                      "type": "array",
+                      "description": "A list of possible values for the attribute",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name"
+                        ],
+                        "defaultSnippets": [
+                          {
+                            "body": {
+                              "name": "$1",
+                              "description": ""
+                            }
+                          }
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Name of attribute value"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Description of attribute value shown in completion and hover"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "typescriptServerPlugins": [
+      {
+        "name": "ts-lit-plugin",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "jsconfig*.json",
+        "url": "./schemas/tsconfig.schema.json"
+      },
+      {
+        "fileMatch": "tsconfig*.json",
+        "url": "./schemas/tsconfig.schema.json"
+      }
+    ],
+    "grammars": [
+      {
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.ts",
+          "source.tsx",
+          "text.html.basic"
+        ],
+        "scopeName": "inline.lit-html",
+        "path": "./syntaxes/vscode-lit-html/lit-html.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.html": "html",
+          "meta.embedded.block.css": "css",
+          "source.css": "css"
+        }
+      },
+      {
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.ts",
+          "source.tsx",
+          "text.html.basic"
+        ],
+        "scopeName": "inline.lit-html.string.injection",
+        "path": "./syntaxes/vscode-lit-html/lit-html-string-injection.json",
+        "embeddedLanguages": {
+          "meta.template.expression.ts": "typescript"
+        }
+      },
+      {
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.ts",
+          "source.tsx",
+          "text.html.basic"
+        ],
+        "scopeName": "inline.lit-html.style.injection",
+        "path": "./syntaxes/vscode-lit-html/lit-html-style-injection.json",
+        "embeddedLanguages": {
+          "meta.template.expression.ts": "typescript"
+        }
+      },
+      {
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.ts",
+          "source.tsx",
+          "text.html.basic"
+        ],
+        "scopeName": "inline.lit-html-svg",
+        "path": "./syntaxes/vscode-lit-html/lit-html-svg.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.svg": "xml"
+        }
+      },
+      {
+        "scopeName": "source.css.styled",
+        "path": "./syntaxes/vscode-styled-components/css.styled.json"
+      },
+      {
+        "injectTo": [
+          "source.js",
+          "source.ts",
+          "source.jsx",
+          "source.js.jsx",
+          "source.tsx"
+        ],
+        "scopeName": "styled",
+        "path": "./syntaxes/vscode-styled-components/styled-components.json",
+        "embeddedLanguages": {
+          "source.css.scss": "css",
+          "meta.embedded.line.ts": "typescript"
+        }
+      }
+    ]
+  }
 }

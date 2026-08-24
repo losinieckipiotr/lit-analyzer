@@ -13,7 +13,7 @@ export async function run(): Promise<void> {
   const mocha = new Mocha({
     ui: "tdd",
     color: true,
-    timeout: 10_000
+    timeout: 3_000,
   });
 
   const testsRoot = path.join(__dirname, "..");
@@ -21,8 +21,8 @@ export async function run(): Promise<void> {
   for (const file of files) {
     mocha.addFile(path.resolve(testsRoot, file));
   }
-  const failures = await new Promise<number>(resolve => {
-    mocha.run(num => resolve(num));
+  const failures = await new Promise<number>((resolve) => {
+    mocha.run((num) => resolve(num));
   });
   if (failures > 0) {
     throw new Error(`${failures} tests failed.`);
