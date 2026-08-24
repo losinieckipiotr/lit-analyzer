@@ -30,7 +30,7 @@
     "test": "wireit",
     "test:ava": "wireit",
     "test:all": "npm test",
-    "test:watch": "ava --watch --color",
+    "test:watch": "ava --watch",
     "check-version": "wireit"
   },
   "wireit": {
@@ -62,7 +62,7 @@
       "dependencies": [
         "build"
       ],
-      "command": "ava --color",
+      "command": "ava",
       "output": [],
       "files": [
         "package.json"
@@ -96,7 +96,7 @@
     "ts-simple-type": "2.0.0-next.0",
     "vscode-css-languageservice": "^6.3.10",
     "vscode-html-languageservice": "^5.6.2",
-    "web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.1.tgz"
+    "web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.2.tgz"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
@@ -107,7 +107,7 @@
     "wireit": "^0.14.13"
   },
   "ava": {
-    "cache": true,
+    "cache": false,
     "timeout": "200s",
     "extensions": [
       "js"
