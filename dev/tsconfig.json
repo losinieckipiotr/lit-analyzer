@@ -45,8 +45,9 @@
 			}
 		],
 		"experimentalDecorators": true,
-		"target": "es5",
-		"module": "commonjs",
+		"useDefineForClassFields": false,
+		"target": "esnext",
+		"module": "esnext",
 		"allowJs": true,
 		"lib": ["esnext", "dom"],
 		"strict": true,
