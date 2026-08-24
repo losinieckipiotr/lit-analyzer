@@ -2,6 +2,8 @@ import { getDiagnostics } from "../helpers/analyze.js";
 import { hasDiagnostic, hasNoDiagnostics } from "../helpers/assert.js";
 import { tsTest } from "../helpers/ts-test.js";
 
+// TODO: these tests were disabled long time ago, should we removed them?
+
 tsTest.skip(
   "Emits 'no-invalid-boolean-binding' diagnostic when a boolean binding is used on a non-boolean type",
   (t) => {

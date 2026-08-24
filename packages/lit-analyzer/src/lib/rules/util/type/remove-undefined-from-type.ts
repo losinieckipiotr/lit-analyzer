@@ -1,4 +1,8 @@
-import { isAssignableToSimpleTypeKind, SimpleType } from "ts-simple-type";
+import {
+  isAssignableToSimpleTypeKind,
+  SimpleType,
+  SimpleTypeKind,
+} from "web-component-analyzer/simple-type.js";
 
 export function removeUndefinedFromType(type: SimpleType): SimpleType {
   switch (type.kind) {
@@ -11,7 +15,7 @@ export function removeUndefinedFromType(type: SimpleType): SimpleType {
       return {
         ...type,
         types: type.types.filter(
-          (t) => !isAssignableToSimpleTypeKind(t, "UNDEFINED"),
+          (t) => !isAssignableToSimpleTypeKind(t, SimpleTypeKind.UNDEFINED),
         ),
       };
   }

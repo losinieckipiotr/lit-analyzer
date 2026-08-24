@@ -1,7 +1,12 @@
-import { SimpleType, SimpleTypeUnion } from "ts-simple-type";
+import {
+  SimpleType,
+  SimpleTypeKind,
+  SimpleTypeUnion,
+} from "web-component-analyzer/simple-type.js";
 import {
   HtmlAttr,
   HtmlCssPart,
+  HtmlCssProperty,
   HtmlDataCollection,
   HtmlEvent,
   HtmlMember,
@@ -9,14 +14,13 @@ import {
   HtmlSlot,
   HtmlTag,
   mergeCssParts,
+  mergeCssProperties,
   mergeHtmlAttrs,
   mergeHtmlEvents,
   mergeHtmlProps,
   mergeHtmlSlots,
   mergeHtmlTags,
   NamedHtmlDataCollection,
-  HtmlCssProperty,
-  mergeCssProperties,
 } from "../../parse/parse-html-data/html-tag.js";
 import { lazy } from "../../util/general-util.js";
 import { iterableDefined } from "../../util/iterable-util.js";
@@ -562,7 +566,7 @@ function mergeRelatedTypeToUnion(
   }
 
   return {
-    kind: "UNION",
+    kind: SimpleTypeKind.UNION,
     types: [typeA, typeB],
   } as SimpleTypeUnion;
 }

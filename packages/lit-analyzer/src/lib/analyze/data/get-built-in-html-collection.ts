@@ -1,6 +1,9 @@
-import { SimpleType } from "ts-simple-type";
-import { HTMLDataV1 } from "vscode-html-languageservice";
 import htmlDataJson from "@vscode/web-custom-data/data/browsers.html-data.json";
+import { HTMLDataV1 } from "vscode-html-languageservice";
+import {
+  SimpleType,
+  SimpleTypeKind,
+} from "web-component-analyzer/simple-type.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
@@ -154,8 +157,8 @@ The value must be a comma-separated list of part mappings:
           getType: lazy(
             () =>
               ({
-                kind: "UNION",
-                types: [{ kind: "STRING" }, { kind: "NULL" }],
+                kind: SimpleTypeKind.UNION,
+                types: [{ kind: SimpleTypeKind.STRING }, { kind: "NULL" }],
               }) as SimpleType,
           ),
         });
@@ -170,17 +173,17 @@ The value must be a comma-separated list of part mappings:
           getType: lazy(
             () =>
               ({
-                kind: "UNION",
+                kind: SimpleTypeKind.UNION,
                 types: [
                   {
-                    kind: "STRING_LITERAL",
+                    kind: SimpleTypeKind.STRING_LITERAL,
                     value: "lazy",
                   },
                   {
-                    kind: "STRING_LITERAL",
+                    kind: SimpleTypeKind.STRING_LITERAL,
                     value: "auto",
                   },
-                  { kind: "STRING_LITERAL", value: "eager" },
+                  { kind: SimpleTypeKind.STRING_LITERAL, value: "eager" },
                 ],
               }) as SimpleType,
           ),
@@ -196,8 +199,8 @@ The value must be a comma-separated list of part mappings:
           getType: lazy(
             () =>
               ({
-                kind: "UNION",
-                types: [{ kind: "STRING" }, { kind: "NULL" }],
+                kind: SimpleTypeKind.UNION,
+                types: [{ kind: SimpleTypeKind.STRING }, { kind: "NULL" }],
               }) as SimpleType,
           ),
         });
@@ -211,7 +214,7 @@ The value must be a comma-separated list of part mappings:
     {
       builtIn: true,
       description: `This attribute specifies a "styleable" part on the element in your shadow tree.`,
-      getType: () => ({ kind: "STRING" }),
+      getType: () => ({ kind: SimpleTypeKind.STRING }),
       kind: "property",
       name: "part",
     },

@@ -1,9 +1,3 @@
-import {
-  isSimpleType,
-  SimpleType,
-  SimpleTypeAny,
-  toSimpleType,
-} from "ts-simple-type";
 import { TypeChecker } from "typescript";
 import {
   AnalyzerResult,
@@ -11,6 +5,13 @@ import {
   ComponentDefinition,
   ComponentFeatures,
 } from "web-component-analyzer";
+import {
+  isSimpleType,
+  SimpleType,
+  SimpleTypeAny,
+  SimpleTypeKind,
+  toSimpleType,
+} from "web-component-analyzer/simple-type.js";
 import { lazy } from "../util/general-util.js";
 import {
   HtmlDataCollection,
@@ -133,7 +134,7 @@ export function convertComponentFeaturesToHtml(
         const type = event.type?.();
 
         if (type == null) {
-          return { kind: "ANY" };
+          return { kind: SimpleTypeKind.ANY };
         }
 
         return isSimpleType(type) ? type : toSimpleType(type, checker);
@@ -146,13 +147,13 @@ export function convertComponentFeaturesToHtml(
       kind: "attribute",
       name: `on${event.name}`,
       description: event.jsDoc?.description,
-      getType: lazy(() => ({ kind: "STRING" }) as SimpleType),
+      getType: lazy(() => ({ kind: SimpleTypeKind.STRING }) as SimpleType),
       declaration: {
         attrName: `on${event.name}`,
         jsDoc: event.jsDoc,
         kind: "attribute",
         node: event.node,
-        type: () => ({ kind: "ANY" }),
+        type: () => ({ kind: SimpleTypeKind.ANY }),
       },
       builtIn,
       fromTagName,
@@ -210,7 +211,7 @@ export function convertComponentFeaturesToHtml(
         const type = member.type?.();
 
         if (type == null) {
-          return { kind: "ANY" } as SimpleTypeAny;
+          return { kind: SimpleTypeKind.ANY } as SimpleTypeAny;
         }
 
         return isSimpleType(type) ? type : toSimpleType(type, checker);

@@ -37,16 +37,16 @@ export function visitIndirectImportsFromSourceFile(
   // Check if we have traversed too deep
   if (inExternal && currentDepth >= (context.maxExternalDepth ?? Infinity)) {
     return;
-  } else if (
-    !inExternal &&
-    currentDepth >= (context.maxInternalDepth ?? Infinity)
-  ) {
+  }
+
+  if (!inExternal && currentDepth >= (context.maxInternalDepth ?? Infinity)) {
     return;
   }
 
   // Get all direct imports from the cache
   let directImports = context.directImportCache.get(sourceFile);
 
+  // TODO: very unsafe condition
   if (directImports == null) {
     // If the cache didn't have all direct imports, build up using the visitor function
     directImports = new Set<SourceFile>();
@@ -117,13 +117,19 @@ function visitDirectImports(
   node: Node,
   context: IVisitDependenciesContext,
 ): void {
-  if (node == null) return;
+  // TODO: again unsafe condition
+  if (node == null) {
+    return;
+  }
 
   // Handle top level imports/exports: (import "..."), (import { ... } from "..."), (export * from "...")
+
+  // TODO: change isTypeOnly to phaseModifier
   if (
     (context.ts.isImportDeclaration(node) && !node.importClause?.isTypeOnly) ||
     (context.ts.isExportDeclaration(node) && !node.isTypeOnly)
   ) {
+    // TOOO: unsafe condition with null
     if (
       node.moduleSpecifier != null &&
       context.ts.isStringLiteral(node.moduleSpecifier) &&
@@ -146,6 +152,7 @@ function visitDirectImports(
     node.expression.kind === context.ts.SyntaxKind.ImportKeyword
   ) {
     const moduleSpecifier = node.arguments[0];
+
     if (
       moduleSpecifier != null &&
       context.ts.isStringLiteralLike(moduleSpecifier)
@@ -158,6 +165,7 @@ function visitDirectImports(
 }
 
 interface MaybeModernProgram extends tsModule.Program {
+  // TODO: this is internal and probably should not be used
   getModuleResolutionCache?(): tsModule.ModuleResolutionCache | undefined;
 }
 
@@ -200,13 +208,15 @@ function emitDirectModuleImportWithName(
     const cache = (
       context.program as MaybeModernProgram
     ).getModuleResolutionCache?.();
-    let mode:
-      tsModule.ModuleKind.CommonJS | tsModule.ModuleKind.ESNext | undefined =
-      undefined;
+
+    let mode: tsModule.ResolutionMode | undefined = undefined;
+
+    // TODO: probably was checked before maybe throw?
     if (
       context.ts.isImportDeclaration(node) ||
       context.ts.isExportDeclaration(node)
     ) {
+      // TODO: another null, same condition was checked in visitDirectImports, maybe throw here?
       if (
         node.moduleSpecifier != null &&
         context.ts.isStringLiteral(node.moduleSpecifier) &&
@@ -220,20 +230,24 @@ function emitDirectModuleImportWithName(
       }
     }
 
+    const fileName = fromSourceFile.fileName;
+
     if (cache != null) {
       result = context.ts.resolveModuleNameFromCache(
         moduleSpecifier,
-        node.getSourceFile().fileName,
+        fromSourceFile.fileName,
         cache,
         mode,
       );
     }
+
+    // TODO: unsafe condition
     if (result == null) {
       // Result could not be found from the cache, try and resolve module without using the
       // cache.
       result = context.ts.resolveModuleName(
         moduleSpecifier,
-        node.getSourceFile().fileName,
+        fileName,
         context.program.getCompilerOptions(),
         context.ts.createCompilerHost(context.program.getCompilerOptions()),
       );

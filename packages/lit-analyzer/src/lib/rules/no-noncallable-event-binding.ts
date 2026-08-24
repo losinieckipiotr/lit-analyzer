@@ -1,9 +1,10 @@
 import {
   isAssignableToSimpleTypeKind,
   SimpleType,
+  SimpleTypeKind,
   typeToString,
   validateType,
-} from "ts-simple-type";
+} from "web-component-analyzer/simple-type.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
@@ -49,9 +50,13 @@ function isTypeBindableToEventListener(type: SimpleType): boolean {
 
   // Callable types can be used in the binding
   if (
-    isAssignableToSimpleTypeKind(type, ["FUNCTION", "METHOD", "UNKNOWN"], {
-      matchAny: true,
-    })
+    isAssignableToSimpleTypeKind(
+      type,
+      [SimpleTypeKind.FUNCTION, SimpleTypeKind.METHOD, SimpleTypeKind.UNKNOWN],
+      {
+        matchAny: true,
+      },
+    )
   ) {
     return true;
   }

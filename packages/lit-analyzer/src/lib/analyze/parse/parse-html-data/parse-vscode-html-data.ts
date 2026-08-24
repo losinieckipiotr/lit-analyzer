@@ -1,4 +1,3 @@
-import { SimpleType, SimpleTypeStringLiteral } from "ts-simple-type";
 import {
   HTMLDataV1,
   IAttributeData,
@@ -7,6 +6,11 @@ import {
   IValueSet,
 } from "vscode-html-languageservice";
 import { MarkupContent } from "vscode-languageserver-types";
+import {
+  SimpleType,
+  SimpleTypeKind,
+  SimpleTypeStringLiteral,
+} from "web-component-analyzer/simple-type.js";
 import { lazy } from "../../util/general-util.js";
 import {
   HtmlAttr,
@@ -36,7 +40,7 @@ function parseVscodeDataV1(
   config: ParseVscodeHtmlDataConfig,
 ): HtmlDataCollection {
   const valueSetTypeMap = valueSetsToTypeMap(data.valueSets || []);
-  valueSetTypeMap.set("v", { kind: "BOOLEAN" });
+  valueSetTypeMap.set("v", { kind: SimpleTypeKind.BOOLEAN });
 
   // Transfer existing typemap to new typemap
   if (config.typeMap != null) {
@@ -114,7 +118,7 @@ function tagDataToHtmlTagAttr(
     name,
     description: stringOrMarkupContentToString(description),
     fromTagName,
-    getType: lazy(() => type || { kind: "ANY" }),
+    getType: lazy(() => type || { kind: SimpleTypeKind.ANY }),
     builtIn: config.builtIn,
   };
 }
@@ -133,12 +137,12 @@ function valueSetsToTypeMap(valueSets: IValueSet[]): Map<string, SimpleType> {
 
 function attrValuesToUnion(attrValues: IValueData[]): SimpleType {
   return {
-    kind: "UNION",
+    kind: SimpleTypeKind.UNION,
     types: attrValues.map(
       (value) =>
         ({
           value: value.name,
-          kind: "STRING_LITERAL",
+          kind: SimpleTypeKind.STRING_LITERAL,
         }) as SimpleTypeStringLiteral,
     ),
   };
@@ -161,7 +165,7 @@ function attrsToEvents(htmlAttrs: HtmlAttr[]): HtmlEvent[] {
       name: htmlAttr.name.replace(/^on/, ""),
       description: htmlAttr.description,
       fromTagName: htmlAttr.fromTagName,
-      getType: lazy(() => ({ kind: "ANY" }) as SimpleType),
+      getType: lazy(() => ({ kind: SimpleTypeKind.ANY }) as SimpleType),
       builtIn: htmlAttr.builtIn,
     }));
 }

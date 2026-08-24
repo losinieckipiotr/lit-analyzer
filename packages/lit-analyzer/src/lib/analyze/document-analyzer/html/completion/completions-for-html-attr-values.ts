@@ -1,4 +1,7 @@
-import { isSimpleTypeLiteral, SimpleType } from "ts-simple-type";
+import {
+  isSimpleTypeLiteral,
+  SimpleType,
+} from "web-component-analyzer/simple-type.js";
 import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
 import { HtmlNodeAttrAssignmentKind } from "../../../types/html-node/html-node-attr-assignment-types.js";
 import {

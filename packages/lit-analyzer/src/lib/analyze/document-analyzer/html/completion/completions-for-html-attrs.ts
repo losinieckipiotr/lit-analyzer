@@ -1,9 +1,14 @@
-import { isAssignableToSimpleTypeKind, SimpleType } from "ts-simple-type";
+import {
+  isAssignableToSimpleTypeKind,
+  SimpleType,
+  SimpleTypeKind,
+} from "web-component-analyzer/simple-type.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../../constants.js";
+import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
 import {
   documentationForTarget,
   HtmlAttrTarget,
@@ -12,11 +17,10 @@ import {
   isHtmlProp,
 } from "../../../parse/parse-html-data/html-tag.js";
 import { HtmlNode } from "../../../types/html-node/html-node-types.js";
+import { LitCompletion } from "../../../types/lit-completion.js";
+import { lazy } from "../../../util/general-util.js";
 import { DocumentPositionContext } from "../../../util/get-position-context-in-document.js";
 import { iterableFilter, iterableMap } from "../../../util/iterable-util.js";
-import { lazy } from "../../../util/general-util.js";
-import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
-import { LitCompletion } from "../../../types/lit-completion.js";
 
 export function completionsForHtmlAttrs(
   htmlNode: HtmlNode,
@@ -109,9 +113,13 @@ function isAssignableToBoolean(
   type: SimpleType,
   { matchAny } = { matchAny: true },
 ): boolean {
-  return isAssignableToSimpleTypeKind(type, ["BOOLEAN", "BOOLEAN_LITERAL"], {
-    matchAny,
-  });
+  return isAssignableToSimpleTypeKind(
+    type,
+    [SimpleTypeKind.BOOLEAN, SimpleTypeKind.BOOLEAN_LITERAL],
+    {
+      matchAny,
+    },
+  );
 }
 
 function targetToCompletion(

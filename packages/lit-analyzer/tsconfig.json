@@ -1,11 +1,15 @@
 {
-	"extends": "../../tsconfig.json",
-	"include": ["./src"],
-	"exclude": [],
-	"compilerOptions": {
-		"rootDir": "./src",
-		"outDir": "./",
-		"resolveJsonModule": true,
-		"tsBuildInfoFile": "./.tsbuildinfo"
-	}
+  "extends": "../../tsconfig.json",
+  "include": ["./src"],
+  "exclude": [],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./",
+    "resolveJsonModule": true
+    // TODO: separate build for tests?
+    // "sourceMap": false,
+    // "declaration": false,
+    // "declarationMap": false,
+    // "tsBuildInfoFile": "./.tsbuildinfo"
+  }
 }

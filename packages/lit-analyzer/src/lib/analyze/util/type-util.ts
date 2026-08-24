@@ -1,4 +1,7 @@
-import { SimpleType, SimpleTypeUnion } from "ts-simple-type";
+import {
+  SimpleType,
+  SimpleTypeUnion,
+} from "web-component-analyzer/simple-type.js";
 
 const PRIMITIVE_STRING_ARRAY_TYPE_BRAND = Symbol("PRIMITIVE_STRING_ARRAY_TYPE");
 

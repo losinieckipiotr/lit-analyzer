@@ -1,13 +1,16 @@
+import { Expression, Type, TypeChecker } from "typescript";
 import {
   isSimpleType,
   SimpleType,
   SimpleTypeBooleanLiteral,
+  // SimpleTypeBooleanLiteral,
   SimpleTypeEnumMember,
+  SimpleTypeKind,
   SimpleTypeString,
+  // SimpleTypeString,
   SimpleTypeStringLiteral,
   toSimpleType,
-} from "ts-simple-type";
-import { Expression, Type, TypeChecker } from "typescript";
+} from "web-component-analyzer/simple-type.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
@@ -37,7 +40,7 @@ export function extractBindingTypes(
   const shouldRelaxTypeB = false; // Disable for now while collecting requirements
 
   // Infer the type of the RHS
-  //const typeBInferred = shouldRelaxTypeB ? ({ kind: "ANY" } as SimpleType) : inferTypeFromAssignment(assignment, checker);
+  //const typeBInferred = shouldRelaxTypeB ? ({ kind: SimpleTypeKind.ANY } as SimpleType) : inferTypeFromAssignment(assignment, checker);
   const typeBInferred = inferTypeFromAssignment(assignment, checker);
 
   // Convert typeB to SimpleType
@@ -56,7 +59,7 @@ export function extractBindingTypes(
 
   const typeA =
     htmlAttrTarget == null
-      ? ({ kind: "ANY" } as SimpleType)
+      ? ({ kind: SimpleTypeKind.ANY } as SimpleType)
       : htmlAttrTarget.getType();
 
   // Handle directives
@@ -80,12 +83,12 @@ export function inferTypeFromAssignment(
   switch (assignment.kind) {
     case HtmlNodeAttrAssignmentKind.STRING:
       return {
-        kind: "STRING_LITERAL",
+        kind: SimpleTypeKind.STRING_LITERAL,
         value: assignment.value,
       } as SimpleTypeStringLiteral;
     case HtmlNodeAttrAssignmentKind.BOOLEAN:
       return {
-        kind: "BOOLEAN_LITERAL",
+        kind: SimpleTypeKind.BOOLEAN_LITERAL,
         value: true,
       } as SimpleTypeBooleanLiteral;
     case HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION:
@@ -105,7 +108,7 @@ export function inferTypeFromAssignment(
         }
       }
 
-      return { kind: "STRING" } as SimpleTypeString;
+      return { kind: SimpleTypeKind.STRING } as SimpleTypeString;
   }
 }
 
@@ -146,17 +149,17 @@ export function relaxType(type: SimpleType): SimpleType {
     case "FUNCTION":
     case "CLASS":
       return {
-        kind: "ANY",
+        kind: SimpleTypeKind.ANY,
       };
 
     case "NUMBER_LITERAL":
-      return { kind: "NUMBER" };
+      return { kind: SimpleTypeKind.NUMBER };
     case "STRING_LITERAL":
-      return { kind: "STRING" };
+      return { kind: SimpleTypeKind.STRING };
     case "BOOLEAN_LITERAL":
-      return { kind: "BOOLEAN" };
+      return { kind: SimpleTypeKind.BOOLEAN };
     case "BIG_INT_LITERAL":
-      return { kind: "BIG_INT" };
+      return { kind: SimpleTypeKind.BIG_INT };
 
     case "ENUM_MEMBER":
       return {

@@ -84,6 +84,8 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
     allowJs: true,
     sourceMap: false,
     strict: true, // if strict = false, "undefined" and "null" will be removed from unions types.
+    // lib: [],
+    traceResolution: true,
   };
 
   const compilerHost: CompilerHost = {

@@ -1,5 +1,9 @@
-import { SimpleType, toSimpleType } from "ts-simple-type";
 import { Expression } from "typescript";
+import {
+  SimpleType,
+  SimpleTypeKind,
+  toSimpleType,
+} from "web-component-analyzer/simple-type.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
@@ -125,7 +129,7 @@ export function getDirective(
       case "styleMap":
         return {
           kind: functionName,
-          actualType: () => ({ kind: "STRING" }),
+          actualType: () => ({ kind: SimpleTypeKind.STRING }),
           args,
         };
 

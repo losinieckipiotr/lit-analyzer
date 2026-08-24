@@ -1,4 +1,8 @@
-import { isAssignableToSimpleTypeKind, typeToString } from "ts-simple-type";
+import {
+  isAssignableToSimpleTypeKind,
+  SimpleTypeKind,
+  typeToString,
+} from "web-component-analyzer/simple-type.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -22,12 +26,15 @@ const rule: RuleModule = {
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
 
     const { typeB } = extractBindingTypes(assignment, context);
-    const isAssignableToNull = isAssignableToSimpleTypeKind(typeB, "NULL");
+    const isAssignableToNull = isAssignableToSimpleTypeKind(
+      typeB,
+      SimpleTypeKind.NULL,
+    );
 
     // Test if removing "undefined" or "null" from typeB would work and suggest using "ifDefined".
     if (
       isAssignableToNull ||
-      isAssignableToSimpleTypeKind(typeB, "UNDEFINED")
+      isAssignableToSimpleTypeKind(typeB, SimpleTypeKind.UNDEFINED)
     ) {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),

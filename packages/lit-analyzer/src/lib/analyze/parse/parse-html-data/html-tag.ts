@@ -1,9 +1,4 @@
 import {
-  isAssignableToSimpleTypeKind,
-  SimpleType,
-  typeToString,
-} from "ts-simple-type";
-import {
   ComponentCssPart,
   ComponentCssProperty,
   ComponentDeclaration,
@@ -11,6 +6,12 @@ import {
   ComponentMember,
   ComponentSlot,
 } from "web-component-analyzer";
+import {
+  isAssignableToSimpleTypeKind,
+  SimpleType,
+  SimpleTypeKind,
+  typeToString,
+} from "web-component-analyzer/simple-type.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -129,7 +130,9 @@ export function isHtmlEvent(target: HtmlAttrTarget): target is HtmlEvent {
 
 export function litAttributeModifierForTarget(target: HtmlAttrTarget): string {
   if (isHtmlAttr(target)) {
-    if (isAssignableToSimpleTypeKind(target.getType(), "BOOLEAN")) {
+    if (
+      isAssignableToSimpleTypeKind(target.getType(), SimpleTypeKind.BOOLEAN)
+    ) {
       return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
     }
     return "";
@@ -274,7 +277,7 @@ export function targetKindAndTypeText(
 ): string {
   const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
 
-  if (isAssignableToSimpleTypeKind(target.getType(), "ANY")) {
+  if (isAssignableToSimpleTypeKind(target.getType(), SimpleTypeKind.ANY)) {
     return `${prefix}`;
   }
 

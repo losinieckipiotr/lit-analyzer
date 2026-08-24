@@ -1,8 +1,9 @@
 import {
   SimpleType,
+  SimpleTypeKind,
   SimpleTypeStringLiteral,
   SimpleTypeUnion,
-} from "ts-simple-type";
+} from "web-component-analyzer/simple-type.js";
 import { makePrimitiveArrayType } from "../util/type-util.js";
 
 const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {
@@ -265,17 +266,20 @@ function stringToSimpleType(
     }
 
     return {
-      kind: "UNION",
+      kind: SimpleTypeKind.UNION,
       types: (typeString as string[]).map(
         (value) =>
-          ({ kind: "STRING_LITERAL", value }) as SimpleTypeStringLiteral,
+          ({
+            kind: SimpleTypeKind.STRING_LITERAL,
+            value,
+          }) as SimpleTypeStringLiteral,
       ),
     };
   }
 
   if (typeString.includes("|")) {
     return {
-      kind: "UNION",
+      kind: SimpleTypeKind.UNION,
       types: typeString
         .split("|")
         .map((typeStr) => stringToSimpleType(typeStr)),
@@ -284,13 +288,13 @@ function stringToSimpleType(
 
   switch (typeString) {
     case "number":
-      return { kind: "NUMBER", name };
+      return { kind: SimpleTypeKind.NUMBER, name };
     case "boolean":
-      return { kind: "BOOLEAN", name };
+      return { kind: SimpleTypeKind.BOOLEAN, name };
     case "string":
-      return { kind: "STRING", name };
+      return { kind: SimpleTypeKind.STRING, name };
     default:
-      return { kind: "ANY", name };
+      return { kind: SimpleTypeKind.ANY, name };
   }
 }
 

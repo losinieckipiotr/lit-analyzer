@@ -1,9 +1,10 @@
+import { isAssignableToType as _isAssignableToType } from "web-component-analyzer/is-assignable-to-type.js";
 import {
-  isAssignableToType as _isAssignableToType,
   SimpleType,
   SimpleTypeComparisonOptions,
+  SimpleTypeKind,
   typeToString,
-} from "ts-simple-type";
+} from "web-component-analyzer/simple-type.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
@@ -99,10 +100,10 @@ export function isAssignableToTypeWithStringCoercion(
 
   switch (typeB.kind) {
     /*case "NULL":
-		 return _isAssignableToType(typeA, { kind: "STRING_LITERAL", value: "null" }, safeOptions);
+		 return _isAssignableToType(typeA, { kind: SimpleTypeKind.STRING_LITERAL, value: "null" }, safeOptions);
 
 		 case "UNDEFINED":
-		 return _isAssignableToType(typeA, { kind: "STRING_LITERAL", value: "undefined" }, safeOptions);
+		 return _isAssignableToType(typeA, { kind: SimpleTypeKind.STRING_LITERAL, value: "undefined" }, safeOptions);
 		 */
     case "ALIAS":
     case "FUNCTION":
@@ -120,7 +121,7 @@ export function isAssignableToTypeWithStringCoercion(
       return _isAssignableToType(
         typeA,
         {
-          kind: "STRING_LITERAL",
+          kind: SimpleTypeKind.STRING_LITERAL,
           value: "[object Object]",
         },
         safeOptions,
@@ -135,7 +136,7 @@ export function isAssignableToTypeWithStringCoercion(
         if (
           _isAssignableToType(
             typeA,
-            { kind: "BOOLEAN_LITERAL", value: true },
+            { kind: SimpleTypeKind.BOOLEAN_LITERAL, value: true },
             safeOptions,
           )
         ) {
@@ -150,7 +151,7 @@ export function isAssignableToTypeWithStringCoercion(
           _isAssignableToType(
             typeA,
             {
-              kind: "NUMBER_LITERAL",
+              kind: SimpleTypeKind.NUMBER_LITERAL,
               value: Number(typeB.value),
             },
             safeOptions,
@@ -168,13 +169,13 @@ export function isAssignableToTypeWithStringCoercion(
       return _isAssignableToType(
         typeA,
         {
-          kind: "UNION",
+          kind: SimpleTypeKind.UNION,
           types: [
             {
-              kind: "STRING_LITERAL",
+              kind: SimpleTypeKind.STRING_LITERAL,
               value: "true",
             },
-            { kind: "STRING_LITERAL", value: "false" },
+            { kind: SimpleTypeKind.STRING_LITERAL, value: "false" },
           ],
         },
         safeOptions,
@@ -188,7 +189,7 @@ export function isAssignableToTypeWithStringCoercion(
       return _isAssignableToType(
         typeA,
         {
-          kind: "STRING_LITERAL",
+          kind: SimpleTypeKind.STRING_LITERAL,
           value: String(typeB.value),
         },
         safeOptions,
@@ -197,7 +198,9 @@ export function isAssignableToTypeWithStringCoercion(
     case "NUMBER":
       // Test if a number coerced to string is possible
       // Example: value="${this.max}"
-      if (_isAssignableToType(typeA, { kind: "STRING" }, safeOptions)) {
+      if (
+        _isAssignableToType(typeA, { kind: SimpleTypeKind.STRING }, safeOptions)
+      ) {
         return true;
       }
       break;
@@ -209,7 +212,7 @@ export function isAssignableToTypeWithStringCoercion(
         _isAssignableToType(
           typeA,
           {
-            kind: "STRING_LITERAL",
+            kind: SimpleTypeKind.STRING_LITERAL,
             value: String(typeB.value),
           },
           safeOptions,
@@ -259,7 +262,7 @@ export function isAssignableInPrimitiveArray(
         // Make sure that the the value is assignable to the union
         if (
           !isAssignableToType(
-            { typeA, typeB: { kind: "STRING_LITERAL", value } },
+            { typeA, typeB: { kind: SimpleTypeKind.STRING_LITERAL, value } },
             context,
             { isAssignable: isAssignableToTypeWithStringCoercion },
           )

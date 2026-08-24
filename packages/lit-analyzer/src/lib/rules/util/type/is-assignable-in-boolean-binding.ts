@@ -1,4 +1,8 @@
-import { SimpleType, typeToString } from "ts-simple-type";
+import {
+  SimpleType,
+  SimpleTypeKind,
+  typeToString,
+} from "web-component-analyzer/simple-type.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
@@ -14,8 +18,12 @@ export function isAssignableInBooleanBinding(
     !isAssignableToType(
       {
         typeA: {
-          kind: "UNION",
-          types: [{ kind: "BOOLEAN" }, { kind: "UNDEFINED" }, { kind: "NULL" }],
+          kind: SimpleTypeKind.UNION,
+          types: [
+            { kind: SimpleTypeKind.BOOLEAN },
+            { kind: SimpleTypeKind.UNDEFINED },
+            { kind: SimpleTypeKind.NULL },
+          ],
         },
         typeB,
       },
@@ -31,7 +39,12 @@ export function isAssignableInBooleanBinding(
   }
 
   // Test if the user is trying to use the ? modifier on a non-boolean type.
-  if (!isAssignableToType({ typeA, typeB: { kind: "BOOLEAN" } }, context)) {
+  if (
+    !isAssignableToType(
+      { typeA, typeB: { kind: SimpleTypeKind.BOOLEAN } },
+      context,
+    )
+  ) {
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
       message: `You are using a boolean binding on a non boolean type '${typeToString(typeA)}'`,

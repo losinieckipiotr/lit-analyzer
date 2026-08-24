@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from "fs";
-import { SimpleType } from "ts-simple-type";
 import { HTMLDataV1 } from "vscode-html-languageservice";
+import {
+  SimpleType,
+  SimpleTypeKind,
+} from "web-component-analyzer/simple-type.js";
 import { LitAnalyzerConfig } from "../lit-analyzer-config.js";
 import {
   HtmlAttr,
@@ -66,7 +69,7 @@ export function getUserConfigHtmlCollection(
       ({
         name: attrName,
         kind: "attribute",
-        getType: lazy(() => ({ kind: "ANY" }) as SimpleType),
+        getType: lazy(() => ({ kind: SimpleTypeKind.ANY }) as SimpleType),
       }) as HtmlAttr,
   );
 
@@ -75,7 +78,7 @@ export function getUserConfigHtmlCollection(
       ({
         name: eventName,
         kind: "event",
-        getType: lazy(() => ({ kind: "ANY" }) as SimpleType),
+        getType: lazy(() => ({ kind: SimpleTypeKind.ANY }) as SimpleType),
       }) as HtmlEvent,
   );
 

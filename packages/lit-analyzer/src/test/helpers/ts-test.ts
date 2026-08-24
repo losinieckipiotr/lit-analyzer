@@ -8,14 +8,11 @@ type TestFunction = (
   implementation: ImplementationFn<unknown[]>,
 ) => void;
 
-const TS_MODULES_ALL = ["current", "5.2"] as const;
+const TS_MODULES_ALL = ["current", "5.2", "5.9"] as const;
 
 type TsModuleKind = (typeof TS_MODULES_ALL)[number];
 
-const TS_MODULES_DEFAULT: TsModuleKind[] = [
-  "current",
-  // "5.2"
-];
+const TS_MODULES_DEFAULT: TsModuleKind[] = ["current"];
 
 /**
  * Returns the name of the module to require for a specific ts module kind
@@ -25,6 +22,7 @@ function getTsModuleNameWithKind(kind: TsModuleKind | undefined): string {
   // Return the corresponding ts module
   switch (kind) {
     case "5.2":
+    case "5.9":
       return `typescript-${kind}`;
     case "current":
     case undefined:
