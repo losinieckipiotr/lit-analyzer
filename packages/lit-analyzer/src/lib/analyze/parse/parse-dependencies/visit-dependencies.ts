@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile } from "typescript";
 import tsServerModule from "typescript/lib/tsserverlibrary.js";
@@ -24,6 +25,13 @@ export function visitIndirectImportsFromSourceFile(
   sourceFile: SourceFile,
   context: IVisitDependenciesContext,
 ): void {
+  console.log("visitIndirectImportsFromSourceFile", {
+    filename: sourceFile.fileName,
+    depth: context.depth,
+    maxExternalDepth: context.maxExternalDepth,
+    maxInternalDepth: context.maxInternalDepth,
+  });
+
   const currentDepth = context.depth ?? 0;
 
   // Emit a visit. If this file has been seen already, the function will return false, and traversal will stop
@@ -34,12 +42,14 @@ export function visitIndirectImportsFromSourceFile(
   const inExternal =
     context.program.isSourceFileFromExternalLibrary(sourceFile);
 
+  // TODO: why to if instead one?
   // Check if we have traversed too deep
   if (inExternal && currentDepth >= (context.maxExternalDepth ?? Infinity)) {
     return;
-  }
-
-  if (!inExternal && currentDepth >= (context.maxInternalDepth ?? Infinity)) {
+  } else if (
+    !inExternal &&
+    currentDepth >= (context.maxInternalDepth ?? Infinity)
+  ) {
     return;
   }
 
@@ -119,16 +129,35 @@ function visitDirectImports(
 ): void {
   // TODO: again unsafe condition
   if (node == null) {
+    console.log("Node is null");
     return;
   }
 
   // Handle top level imports/exports: (import "..."), (import { ... } from "..."), (export * from "...")
 
+  const isImportDeclaration = context.ts.isImportDeclaration(node);
+
   // TODO: change isTypeOnly to phaseModifier
   if (
-    (context.ts.isImportDeclaration(node) && !node.importClause?.isTypeOnly) ||
+    (isImportDeclaration && !node.importClause?.isTypeOnly) ||
     (context.ts.isExportDeclaration(node) && !node.isTypeOnly)
   ) {
+    if (!node.moduleSpecifier) {
+      throw new Error("moduleSpecifier is null");
+    }
+
+    const isStringLiteral = context.ts.isStringLiteral(node.moduleSpecifier);
+
+    if (!isStringLiteral) {
+      throw new Error("grammar error");
+    }
+
+    const isParentSourceFile = context.ts.isSourceFile(node.parent);
+
+    if (!isParentSourceFile) {
+      throw new Error("parent is not source file");
+    }
+
     // TOOO: unsafe condition with null
     if (
       node.moduleSpecifier != null &&
@@ -152,7 +181,6 @@ function visitDirectImports(
     node.expression.kind === context.ts.SyntaxKind.ImportKeyword
   ) {
     const moduleSpecifier = node.arguments[0];
-
     if (
       moduleSpecifier != null &&
       context.ts.isStringLiteralLike(moduleSpecifier)
@@ -230,15 +258,21 @@ function emitDirectModuleImportWithName(
       }
     }
 
-    const fileName = fromSourceFile.fileName;
+    // console.log({
+    //   sourceFiles: context.program.getSourceFiles().map((sf) => sf.fileName),
+    // });
 
     if (cache != null) {
       result = context.ts.resolveModuleNameFromCache(
         moduleSpecifier,
-        fromSourceFile.fileName,
+        node.getSourceFile().fileName,
         cache,
         mode,
       );
+    }
+
+    if (result) {
+      console.log("RESOLVED FROM CACHE");
     }
 
     // TODO: unsafe condition
@@ -247,11 +281,18 @@ function emitDirectModuleImportWithName(
       // cache.
       result = context.ts.resolveModuleName(
         moduleSpecifier,
-        fileName,
+        node.getSourceFile().fileName,
         context.program.getCompilerOptions(),
         context.ts.createCompilerHost(context.program.getCompilerOptions()),
       );
     }
+
+    console.log({
+      moduleSpecifier,
+      fileName: fromSourceFile.fileName,
+      mode,
+      result,
+    });
   }
 
   if (result?.resolvedModule?.resolvedFileName != null) {

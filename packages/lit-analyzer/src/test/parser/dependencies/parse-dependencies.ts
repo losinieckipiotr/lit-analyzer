@@ -44,7 +44,7 @@ tsTest("Correctly finds all imports in a file", (t) => {
   ]);
 });
 
-tsTest(
+tsTest.only(
   "Correctly follows all project-internal imports with (default) maxInternalDepth=Infinity",
   (t) => {
     const { sourceFile, context } = prepareAnalyzer([
