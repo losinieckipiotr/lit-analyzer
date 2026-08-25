@@ -101,20 +101,10 @@
 		"fs-extra": "^11.4.0",
 		"globals": "^17.11.0",
 		"husky": "^4.2.5",
-		"lint-staged": "^17.3.0",
 		"prettier": "^3.9.6",
 		"typescript": "5.9.3",
 		"typescript-eslint": "^8.67.0",
 		"wireit": "^0.14.13"
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged"
-		}
-	},
-	"lint-staged": {
-		"*.{ts,js}": "eslint --fix",
-		"*.{ts,js,md,json}": "prettier --write"
 	},
 	"contributors": [
 		{
