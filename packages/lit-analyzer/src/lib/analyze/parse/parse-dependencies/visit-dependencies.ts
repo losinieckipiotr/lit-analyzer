@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile } from "typescript";
 import tsServerModule from "typescript/lib/tsserverlibrary.js";
@@ -25,13 +24,6 @@ export function visitIndirectImportsFromSourceFile(
   sourceFile: SourceFile,
   context: IVisitDependenciesContext,
 ): void {
-  console.log("visitIndirectImportsFromSourceFile", {
-    filename: sourceFile.fileName,
-    depth: context.depth,
-    maxExternalDepth: context.maxExternalDepth,
-    maxInternalDepth: context.maxInternalDepth,
-  });
-
   const currentDepth = context.depth ?? 0;
 
   // Emit a visit. If this file has been seen already, the function will return false, and traversal will stop
@@ -129,7 +121,6 @@ function visitDirectImports(
 ): void {
   // TODO: again unsafe condition
   if (node == null) {
-    console.log("Node is null");
     return;
   }
 
@@ -258,10 +249,6 @@ function emitDirectModuleImportWithName(
       }
     }
 
-    // console.log({
-    //   sourceFiles: context.program.getSourceFiles().map((sf) => sf.fileName),
-    // });
-
     if (cache != null) {
       result = context.ts.resolveModuleNameFromCache(
         moduleSpecifier,
@@ -269,10 +256,6 @@ function emitDirectModuleImportWithName(
         cache,
         mode,
       );
-    }
-
-    if (result) {
-      console.log("RESOLVED FROM CACHE");
     }
 
     // TODO: unsafe condition
@@ -286,13 +269,6 @@ function emitDirectModuleImportWithName(
         context.ts.createCompilerHost(context.program.getCompilerOptions()),
       );
     }
-
-    console.log({
-      moduleSpecifier,
-      fileName: fromSourceFile.fileName,
-      mode,
-      result,
-    });
   }
 
   if (result?.resolvedModule?.resolvedFileName != null) {
