@@ -62,7 +62,7 @@
       "dependencies": [
         "build"
       ],
-      "command": "ava -s --fail-fast --color"
+      "command": "ava --color"
     },
     "check-version": {
       "dependencies": [
