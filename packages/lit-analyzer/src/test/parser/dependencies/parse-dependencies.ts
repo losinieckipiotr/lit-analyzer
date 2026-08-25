@@ -3,15 +3,12 @@ import { isFacadeModule } from "../../../lib/analyze/parse/parse-dependencies/vi
 import { prepareAnalyzer } from "../../helpers/analyze.js";
 import { tsTest } from "../../helpers/ts-test.js";
 
-tsTest("Correctly finds all imports in a file", (t) => {
+tsTest.only("Correctly finds all imports in a file", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `` },
     { fileName: "file2.ts", text: `` },
     { fileName: "file3.ts", text: `` },
-    // TODO: tsc >= 6 does not resolve dynamic import from cache
-    // whole unit test depends on caching
-    // probably it should be tested by creating real files
-    // { fileName: "file4.ts", text: `` },
+    { fileName: "file4.ts", text: `` },
     {
       fileName: "file5.ts",
       text: `
@@ -19,10 +16,9 @@ tsTest("Correctly finds all imports in a file", (t) => {
 				import * as f2 from "./file2";
 				import { } from "./file3";
 
-        // TODO: see above
-				// (async () => {
-				// 	await import("file4");
-				// })();
+				(async () => {
+					await import("./file4");
+				})();
 		`,
       entry: true,
     },
@@ -38,23 +34,20 @@ tsTest("Correctly finds all imports in a file", (t) => {
     "file1.ts",
     "file2.ts",
     "file3.ts",
-    // TODO: see above
-    // "file4.ts",
+    "file4.ts",
     "file5.ts",
   ]);
 });
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip(
+tsTest(
   "Correctly follows all project-internal imports with (default) maxInternalDepth=Infinity",
   (t) => {
     const { sourceFile, context } = prepareAnalyzer([
       { fileName: "file1.ts", text: ` ` },
-      { fileName: "file2.ts", text: `import * from "file1"` },
-      { fileName: "file3.ts", text: `import * from "file2"` },
-      { fileName: "file4.ts", text: `import * from "file3"` },
-      { fileName: "file5.ts", text: `import * from "file4"`, entry: true },
+      { fileName: "file2.ts", text: `import * from "./file1"` },
+      { fileName: "file3.ts", text: `import * from "./file2"` },
+      { fileName: "file4.ts", text: `import * from "./file3"` },
+      { fileName: "file5.ts", text: `import * from "./file4"`, entry: true },
     ]);
 
     const dependencies = parseAllIndirectImports(sourceFile, context);
@@ -73,20 +66,18 @@ tsTest.skip(
   },
 );
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip(
+tsTest(
   "Correctly follows project-internal imports with maxInternalDepth=1",
   (t) => {
     const { sourceFile, context } = prepareAnalyzer([
       { fileName: "file1.ts", text: `export class MyClass { }` },
       {
         fileName: "file2.ts",
-        text: `import * from "file1";export class MyClass { }`,
+        text: `import * from "./file1";export class MyClass { }`,
       },
       {
         fileName: "file3.ts",
-        text: `import * from "file2";export class MyClass { }`,
+        text: `import * from "./file2";export class MyClass { }`,
         entry: true,
       },
     ]);
@@ -103,36 +94,34 @@ tsTest.skip(
   },
 );
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip(
+tsTest(
   "Correctly follows project-internal imports with maxInternalDepth=5",
   (t) => {
     const { sourceFile, context } = prepareAnalyzer([
       { fileName: "file1.ts", text: `export class MyClass { }` },
       {
         fileName: "file2.ts",
-        text: `import * from "file1";export class MyClass { }`,
+        text: `import * from "./file1";export class MyClass { }`,
       },
       {
         fileName: "file3.ts",
-        text: `import * from "file2";export class MyClass { }`,
+        text: `import * from "./file2";export class MyClass { }`,
       },
       {
         fileName: "file4.ts",
-        text: `import * from "file3";export class MyClass { }`,
+        text: `import * from "./file3";export class MyClass { }`,
       },
       {
         fileName: "file5.ts",
-        text: `import * from "file4";export class MyClass { }`,
+        text: `import * from "./file4";export class MyClass { }`,
       },
       {
         fileName: "file6.ts",
-        text: `import * from "file5";export class MyClass { }`,
+        text: `import * from "./file5";export class MyClass { }`,
       },
       {
         fileName: "file7.ts",
-        text: `import * from "file6";export class MyClass { }`,
+        text: `import * from "./file6";export class MyClass { }`,
         entry: true,
       },
     ]);
@@ -373,9 +362,7 @@ tsTest(
   },
 );
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip("Correctly handles recursive imports", (t) => {
+tsTest("Correctly handles recursive imports", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `import * from "file3"` },
     { fileName: "file2.ts", text: `import * from "file1"` },
@@ -391,9 +378,7 @@ tsTest.skip("Correctly handles recursive imports", (t) => {
   t.deepEqual(sortedFileNames, ["file1.ts", "file2.ts", "file3.ts"]);
 });
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip("Correctly follows both exports and imports", (t) => {
+tsTest("Correctly follows both exports and imports", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `` },
     { fileName: "file2.ts", text: `export * from "file1"` },
@@ -431,9 +416,7 @@ tsTest("Correctly identifies facade modules", (t) => {
   t.is(isFacadeModule(program.getSourceFile("file5.ts")!, context.ts), false);
 });
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip("Correctly follows facade modules one level", (t) => {
+tsTest("Correctly follows facade modules one level", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `export class MyClass { }` },
     {
@@ -459,9 +442,7 @@ tsTest.skip("Correctly follows facade modules one level", (t) => {
   t.deepEqual(sortedFileNames, ["file2.ts", "file3.ts", "file4.ts"]);
 });
 
-// TODO: tsc >= 6 does not resolve indirect imports from cache
-// probably it should be tested by creating real files
-tsTest.skip("Correctly follows facade modules multiple levels", (t) => {
+tsTest("Correctly follows facade modules multiple levels", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file0.ts", text: `export class MyClass { }` },
     {

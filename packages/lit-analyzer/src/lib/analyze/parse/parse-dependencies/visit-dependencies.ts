@@ -271,6 +271,13 @@ function emitDirectModuleImportWithName(
     }
   }
 
+  // if (!result?.resolvedModule) {
+  //   console.log(
+  //     `Could not resolve module: ${moduleSpecifier} from ${fromSourceFile.fileName}`,
+  //   );
+  //   console.log({ result });
+  // }
+
   if (result?.resolvedModule?.resolvedFileName != null) {
     const resolvedModule = result.resolvedModule;
     const sourceFile = context.program.getSourceFile(
