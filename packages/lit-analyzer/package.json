@@ -29,7 +29,8 @@
     "prepublishOnly": "npm test",
     "tsc": "wireit",
     "tsc:watch": "wireit",
-    "test": "wireit"
+    "test": "wireit",
+    "test:all": "wireit"
   },
   "wireit": {
     "tsc": {
@@ -53,6 +54,15 @@
      "dependencies": [
         "build"
       ],
+      "env": {
+        "#comment": "TsModuleKind from `/src/test/helpers/ts-test.ts`",
+        "TS_MODULE": "current"
+      },
+      "command": "ava --color"
+    },
+    "test:all": {
+      "#comment": "same as test but when env is not set all versions will be tested",
+      "dependencies": ["build"],
       "command": "ava --color"
     }
   },
