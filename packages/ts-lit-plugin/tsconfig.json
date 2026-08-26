@@ -2,8 +2,10 @@
   "extends": "../../tsconfig.json",
   "include": ["./src"],
   "compilerOptions": {
+    "noEmit": false,
     "rootDir": "./src",
     "outDir": "./lib",
-    "tsBuildInfoFile": "./.tsbuildinfo"
+    "types": ["node"],
+    "module": "nodenext",
   }
 }

@@ -5,6 +5,7 @@ import {
   makeConfig,
   VERSION,
 } from "lit-analyzer";
+import { dirname } from "path";
 import * as ts from "typescript";
 import { CompilerOptions } from "typescript";
 import * as tsServer from "typescript/lib/tsserverlibrary.js";
@@ -41,7 +42,7 @@ export function init({
       logger.debug(`Lit Analyzer: ${VERSION}`);
       logger.debug(`Web Component Analyzer: ${WCA_VERSION}`);
       logger.debug(`Running Typescript: ${typescript.version}`);
-      logger.debug(`DIRNAME: ${__dirname}`);
+      logger.debug(`DIRNAME: ${dirname(fileURLToPath(import.meta.url))}`);
       printDebugOnce = undefined;
     }
   };
@@ -148,4 +149,7 @@ function readLitAnalyzerConfigFromCompilerOptions(
   }
 
   return undefined;
+}
+function fileURLToPath(url: string): string {
+  throw new Error("Function not implemented.");
 }

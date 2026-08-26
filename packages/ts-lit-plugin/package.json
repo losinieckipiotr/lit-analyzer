@@ -1,6 +1,6 @@
 {
 	"name": "ts-lit-plugin",
-	"version": "2.0.2",
+	"version": "3.0.0",
 	"description": "Typescript plugin that adds type checking and code completion to lit-html",
 	"author": "runem",
 	"license": "MIT",
@@ -20,6 +20,7 @@
 		"tagged",
 		"template"
 	],
+	"type": "module",
 	"scripts": {
 		"watch": "tsc --watch",
 		"build": "wireit",
@@ -28,19 +29,9 @@
 	},
 	"wireit": {
 		"build": {
-			"dependencies": [
-				"../lit-analyzer:build"
-			],
-			"command": "tsc --build --pretty",
-			"files": [
-				"src/**/*",
-				"tsconfig.json"
-			],
-			"output": [
-				"lib",
-				"./tsbuildinfo"
-			],
-			"clean": "if-file-deleted"
+			"clean": true,
+			"command": "tsc --pretty",
+			"output": ["lib"]
 		},
 		"test": {
 			"dependencies": [
@@ -48,20 +39,19 @@
 			]
 		}
 	},
-	"main": "index.js",
+	"main": "lib/index.js",
 	"files": [
 		"/lib/",
 		"/html-documentation/"
 	],
 	"dependencies": {
-		"lit-analyzer": "^2.0.1",
-		"web-component-analyzer": "^2.0.0"
+		"lit-analyzer": "file:./vendor/lit-analyzer-3.0.1.tgz",
+		"web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.6.tgz"
 	},
 	"devDependencies": {
-		"@types/node": "^14.0.13",
+		"@types/node": "^26.3.0",
 		"esbuild": "^0.14.34",
-		"rimraf": "^3.0.2",
-		"typescript": "5.9.3",
+		"typescript": "6.0.3",
 		"wireit": "^0.14.13"
 	},
 	"contributors": [
