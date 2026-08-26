@@ -31,7 +31,9 @@
 		"build": {
 			"clean": true,
 			"command": "tsc --pretty",
-			"output": ["lib"]
+			"output": [
+				"lib"
+			]
 		},
 		"test": {
 			"dependencies": [
@@ -50,7 +52,6 @@
 	},
 	"devDependencies": {
 		"@types/node": "^26.3.0",
-		"esbuild": "^0.14.34",
 		"typescript": "6.0.3",
 		"wireit": "^0.14.13"
 	},
