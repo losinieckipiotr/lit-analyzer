@@ -1,6 +1,6 @@
 {
   "name": "lit-analyzer",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "CLI that type checks bindings in lit-html templates",
   "author": "runem",
   "license": "MIT",
@@ -86,7 +86,7 @@
     "vscode-html-languageservice": "^5.6.2"
   },
   "peerDependencies": {
-    "web-component-analyzer": "3.0.6"
+    "web-component-analyzer": "3.0.7"
   },
   "devDependencies": {
     "@types/node": "^26.3.0",
@@ -95,7 +95,7 @@
     "typescript": "6.0.3",
     "typescript-5.2": "npm:typescript@5.2.2",
     "typescript-5.9": "npm:typescript@5.9.3",
-    "web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.6.tgz",
+    "web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.7.tgz",
     "wireit": "^0.14.13"
     
   },
