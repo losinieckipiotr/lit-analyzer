@@ -1,7 +1,21 @@
 import test, { ImplementationFn } from "ava";
+import { createRequire } from "node:module";
 import { dirname } from "path";
 import * as tsModule from "typescript";
 import { setTypescriptModule } from "../../lib/analyze/ts-module.js";
+
+const require = createRequire(import.meta.url);
+
+// TODO: remove?
+// type AvaTypes = {
+//   true: (v: boolean) => void;
+//   is: (a: unknown, b: unknown) => void;
+//   deepEqual: (a: unknown, b: unknown) => void;
+// };
+
+// type ImplementationFn = (t: AvaTypes) => void | Promise<void>;
+
+// type TestFunction = (title: string, implementation: ImplementationFn) => void;
 
 type TestFunction = (
   title: string,
@@ -41,7 +55,6 @@ function getTsModuleNameWithKind(kind: TsModuleKind | undefined): string {
  * @param kind
  */
 function getTsModuleWithKind(kind: TsModuleKind | undefined): typeof tsModule {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require(getTsModuleNameWithKind(kind));
 }
 
@@ -158,6 +171,17 @@ function wrapAvaTest(testFunction: TestFunction): TestFunction {
     return setupTests(testFunction, title, implementation);
   };
 }
+
+// function testImpl(title: string, implementation: ImplementationFn): void {}
+
+// const test = Object.assign(testImpl, {
+//   only: (title: string, implementation: ImplementationFn) => {
+//     setupTests(testImpl, title, implementation);
+//   },
+//   skip: (title: string, implementation: ImplementationFn) => {
+//     setupTests(testImpl, title, implementation);
+//   },
+// });
 
 /**
  * Wrap the ava test module in these helper functions

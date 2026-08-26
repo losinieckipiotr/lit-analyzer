@@ -20,6 +20,7 @@
     "tagged",
     "template"
   ],
+  "type": "module",
   "bin": {
     "lit-analyzer": "cli.js"
   },

@@ -1,11 +1,10 @@
 {
-  "include": ["./**/*.ts"],
+  "include": ["**/*.ts"],
   "compilerOptions": {
-    "target": "es2022",
-    "module": "commonjs",
-    "outDir": "./lib",
+    "noEmit": true,
+    "target": "esnext",
+    "module": "nodenext",
     "strict": true,
-    "esModuleInterop": true,
     "experimentalDecorators": true,
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,

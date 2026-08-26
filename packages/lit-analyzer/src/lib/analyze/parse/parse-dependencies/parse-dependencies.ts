@@ -78,6 +78,7 @@ export function parseAllIndirectImports(
   visitIndirectImportsFromSourceFile(sourceFile, {
     project: context.project,
     program: context.program,
+    host: context.host,
     ts: context.ts,
     directImportCache: DIRECT_IMPORT_CACHE,
     maxExternalDepth:

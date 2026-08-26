@@ -8,7 +8,7 @@ import { LitIndexEntry } from "../../lib/analyze/document-analyzer/html/lit-html
 import { HtmlNodeAttrKind } from "../../lib/analyze/types/html-node/html-node-attr-types.js";
 import { HtmlNodeKind } from "../../lib/analyze/types/html-node/html-node-types.js";
 
-tsTest.skip(
+tsTest(
   "No entries are created for HTML-like template strings if the template tags are not named `html`.",
   (t) => {
     const { indexEntries } = getIndexEntries([
@@ -30,7 +30,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "No entries are created for elements that are not defined with `customElements`.",
   (t) => {
     const { indexEntries } = getIndexEntries([
@@ -51,7 +51,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "No entries are created for tags that don't match any definition.",
   (t) => {
     const { indexEntries } = getIndexEntries([
@@ -170,7 +170,7 @@ const assertEntryTargetsClass = ({
   assertIdentifiesClass({ t, identifier: target.node, sourceFile, className });
 };
 
-tsTest.skip(
+tsTest(
   "Element references can reference elements defined in the same file. (JS)",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -200,7 +200,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Element references can reference elements defined in the same file. (TS)",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -236,7 +236,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "An entry is created for elements that are not defined with `customElements` if they are added to `HTMLElementTagNameMap` in TS.",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -271,7 +271,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Element references can reference elements defined in a different file.",
   (t) => {
     const { indexEntries, program } = getIndexEntries([
@@ -321,7 +321,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute references are not created for attributes that don't map to known properties.",
   (t) => {
     const { indexEntries } = getIndexEntries([
@@ -440,7 +440,7 @@ const assertIsAttrRefTargetingClass = ({
   });
 };
 
-tsTest.skip(
+tsTest(
   "Attribute references can reference properties defined in the static `properties` getter.",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -485,7 +485,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute references can reference properties defined with a class field.",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -526,7 +526,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute references can reference properties defined with a setter.",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -567,7 +567,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute references can reference properties defined by assignment in the constructor.",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -611,7 +611,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute references can reference properties defined in `observedAttributes`.",
   (t) => {
     const { indexEntries, sourceFile } = getIndexEntries([
@@ -654,7 +654,7 @@ tsTest.skip(
   },
 );
 
-tsTest.skip("Boolean attribute references have the right kind.", (t) => {
+tsTest("Boolean attribute references have the right kind.", (t) => {
   const { indexEntries, sourceFile } = getIndexEntries([
     {
       fileName: "main.ts",
@@ -696,7 +696,7 @@ tsTest.skip("Boolean attribute references have the right kind.", (t) => {
   });
 });
 
-tsTest.skip("Attribute references have the right kind.", (t) => {
+tsTest("Attribute references have the right kind.", (t) => {
   const { indexEntries, sourceFile } = getIndexEntries([
     {
       fileName: "main.ts",
@@ -740,7 +740,7 @@ tsTest.skip("Attribute references have the right kind.", (t) => {
   });
 });
 
-tsTest.skip("Event listeners do not produce entries.", (t) => {
+tsTest("Event listeners do not produce entries.", (t) => {
   const { indexEntries } = getIndexEntries([
     {
       fileName: "main.ts",

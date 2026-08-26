@@ -1,17 +1,17 @@
 import { Program, SourceFile } from "typescript";
 import { DefaultLitAnalyzerContext } from "../../lib/analyze/default-lit-analyzer-context.js";
-import { LitAnalyzer } from "../../lib/analyze/lit-analyzer.js";
+import { LitIndexEntry } from "../../lib/analyze/document-analyzer/html/lit-html-document-analyzer.js";
 import {
   LitAnalyzerConfig,
   makeConfig,
 } from "../../lib/analyze/lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lib/analyze/lit-analyzer-context.js";
+import { LitAnalyzer } from "../../lib/analyze/lit-analyzer.js";
+import { LitCodeFix } from "../../lib/analyze/types/lit-code-fix.js";
 import { LitDiagnostic } from "../../lib/analyze/types/lit-diagnostic.js";
+import { Range } from "../../lib/analyze/types/range.js";
 import { compileFiles, TestFile } from "./compile-files.js";
 import { getCurrentTsModule } from "./ts-test.js";
-import { Range } from "../../lib/analyze/types/range.js";
-import { LitCodeFix } from "../../lib/analyze/types/lit-code-fix.js";
-import { LitIndexEntry } from "../../lib/analyze/document-analyzer/html/lit-html-document-analyzer.js";
 
 /**
  * Prepares both the Typescript program and the LitAnalyzer
@@ -27,12 +27,15 @@ export function prepareAnalyzer(
   sourceFile: SourceFile;
   context: LitAnalyzerContext;
 } {
-  const { program, sourceFile } = compileFiles(inputFiles);
+  const { program, sourceFile, compilerHost } = compileFiles(inputFiles);
 
   const context = new DefaultLitAnalyzerContext({
     ts: getCurrentTsModule(),
-    getProgram(): Program {
+    getProgram() {
       return program;
+    },
+    getHost() {
+      return compilerHost;
     },
   });
 

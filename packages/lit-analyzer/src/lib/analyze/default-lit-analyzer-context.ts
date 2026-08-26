@@ -57,6 +57,10 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
       : undefined;
   }
 
+  get host(): tsMod.CompilerHost | undefined {
+    return this.handler.getHost?.();
+  }
+
   get config(): LitAnalyzerConfig {
     return this._config;
   }

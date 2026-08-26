@@ -3,7 +3,7 @@ import { isFacadeModule } from "../../../lib/analyze/parse/parse-dependencies/vi
 import { prepareAnalyzer } from "../../helpers/analyze.js";
 import { tsTest } from "../../helpers/ts-test.js";
 
-tsTest.only("Correctly finds all imports in a file", (t) => {
+tsTest("Correctly finds all imports in a file", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `` },
     { fileName: "file2.ts", text: `` },

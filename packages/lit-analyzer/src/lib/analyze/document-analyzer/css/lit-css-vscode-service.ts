@@ -1,8 +1,6 @@
-import {
-  CompletionItemKind,
-  DiagnosticSeverity,
-  getCSSLanguageService,
-  getSCSSLanguageService,
+import type {
+  CompletionItemKind as CompletionItemKindT,
+  DiagnosticSeverity as DiagnosticSeverityT,
   IAtDirectiveData,
   ICSSDataProvider,
   IPropertyData,
@@ -10,6 +8,7 @@ import {
   IPseudoElementData,
   TextDocument,
 } from "vscode-css-languageservice";
+import * as vscodeCss from "vscode-css-languageservice";
 import { isRuleDisabled } from "../../lit-analyzer-config.js";
 import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
 import { CssDocument } from "../../parse/document/text-document/css-document/css-document.js";
@@ -32,8 +31,22 @@ import {
 import { iterableFilter, iterableMap } from "../../util/iterable-util.js";
 import { documentRangeToSFRange } from "../../util/range-util.js";
 
+const CompletionItemKind = vscodeCss.CompletionItemKind;
+
+const DiagnosticSeverityError: typeof DiagnosticSeverityT.Error = 1;
+const DiagnosticSeverityWarning: typeof DiagnosticSeverityT.Warning = 2;
+const DiagnosticSeverityInformation: typeof DiagnosticSeverityT.Information = 3;
+const DiagnosticSeverityHint: typeof DiagnosticSeverityT.Hint = 4;
+
+const DiagnosticSeverity = {
+  Error: DiagnosticSeverityError,
+  Warning: DiagnosticSeverityWarning,
+  Information: DiagnosticSeverityInformation,
+  Hint: DiagnosticSeverityHint,
+};
+
 function makeVscTextDocument(cssDocument: CssDocument): TextDocument {
-  return TextDocument.create(
+  return vscodeCss.TextDocument.create(
     "untitled://embedded.css",
     "css",
     1,
@@ -45,13 +58,13 @@ export class LitCssVscodeService {
   private dataProvider = new LitVscodeCSSDataProvider();
 
   private get cssService() {
-    return getCSSLanguageService({
+    return vscodeCss.getCSSLanguageService({
       customDataProviders: [this.dataProvider.provider],
     });
   }
 
   private get scssService() {
-    return getSCSSLanguageService({
+    return vscodeCss.getSCSSLanguageService({
       customDataProviders: [this.dataProvider.provider],
     });
   }
@@ -194,7 +207,7 @@ export class LitCssVscodeService {
           name: i.label,
           insert: i.label, //replacePrefix(i.label, positionContext.leftWord),
           kindModifiers:
-            i.kind === CompletionItemKind.Color ? "color" : undefined,
+            i.kind === vscodeCss.CompletionItemKind.Color ? "color" : undefined,
           documentation: lazy(() =>
             typeof i.documentation === "string" || i.documentation == null
               ? i.documentation
@@ -253,7 +266,7 @@ export class LitCssVscodeService {
   }
 }
 
-function translateCompletionItemKind(kind: CompletionItemKind): LitTargetKind {
+function translateCompletionItemKind(kind: CompletionItemKindT): LitTargetKind {
   switch (kind) {
     case CompletionItemKind.Method:
       return "memberFunctionElement";

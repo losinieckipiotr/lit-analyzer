@@ -25,6 +25,7 @@
 		"tagged",
 		"template"
 	],
+	"type": "module",
 	"scripts": {
 		"postpublish": "echo \"🎉 Published successfully! You can now publish the vscode extension seperately by running 'cd packages/vscode-lit-plugin && npm run publish'\"",
 		"dev": "cd dev && TSS_DEBUG=5999 code . --disable-extension runem.lit-plugin",
@@ -101,7 +102,7 @@
 		"fs-extra": "^11.4.0",
 		"globals": "^17.11.0",
 		"prettier": "^3.9.6",
-		"typescript": "5.9.3",
+		"typescript": "6.0.3",
 		"typescript-eslint": "^8.67.0",
 		"wireit": "^0.14.13"
 	},

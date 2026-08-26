@@ -3,17 +3,16 @@ import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import {
   Extension,
+  ModuleKind,
   ModuleResolutionCache,
-  ResolvedModule,
+  ResolvedModuleWithFailedLookupLocations,
+  ResolvedProjectReference,
+  StringLiteralLike,
   type CompilerHost,
   type CompilerOptions,
-  type ModuleResolutionHost,
   type Program,
-  type ResolvedModuleWithFailedLookupLocations,
-  type ResolvedProjectReference,
   type ScriptTarget,
   type SourceFile,
-  type StringLiteralLike,
 } from "typescript";
 import { getCurrentTsModule, getCurrentTsModuleDirectory } from "./ts-test.js";
 
@@ -26,7 +25,7 @@ export interface ITestFile {
 
 export type TestFile = ITestFile | string;
 
-class TestCompilerHost implements CompilerHost, Required<ModuleResolutionHost> {
+class TestCompilerHost implements CompilerHost {
   private ts = getCurrentTsModule();
   private files: ITestFile[];
   private includeLib: boolean = true; //files.find(file => file.includeLib) != null;
@@ -50,13 +49,13 @@ class TestCompilerHost implements CompilerHost, Required<ModuleResolutionHost> {
       )
       .map((file) => ({ ...file, fileName: file.fileName }));
 
-    const moduleResolutionCache = this.ts.createModuleResolutionCache(
+    const cache = this.ts.createModuleResolutionCache(
       this.getCurrentDirectory(),
       (fileName: string) => this.getCanonicalFileName(fileName),
       this.getCompilerOptions(),
     );
 
-    this.cache = moduleResolutionCache;
+    this.cache = cache;
   }
 
   private getCompilerOptions(): CompilerOptions {
@@ -192,20 +191,21 @@ class TestCompilerHost implements CompilerHost, Required<ModuleResolutionHost> {
     return false;
   }
 
-  realpath(path: string): string {
-    throw new Error("Method not implemented.");
-  }
+  // TODO: a lot of method can be removed now or throw errors
+  // realpath(path: string): string {
+  //   throw new Error("Method not implemented.");
+  // }
 
-  resolveModuleNames?(
-    moduleNames: string[],
-    containingFile: string,
-    reusedNames: string[] | undefined,
-    redirectedReference: ResolvedProjectReference | undefined,
-    options: CompilerOptions,
-    containingSourceFile?: SourceFile,
-  ): (ResolvedModule | undefined)[] {
-    throw new Error("Method not implemented.");
-  }
+  // resolveModuleNames?(
+  //   moduleNames: string[],
+  //   containingFile: string,
+  //   reusedNames: string[] | undefined,
+  //   redirectedReference: ResolvedProjectReference | undefined,
+  //   options: CompilerOptions,
+  //   containingSourceFile?: SourceFile,
+  // ): (ResolvedModule | undefined)[] {
+  //   throw new Error("Method not implemented.");
+  // }
 
   resolveModuleNameLiterals(
     moduleLiterals: readonly StringLiteralLike[],
@@ -215,36 +215,30 @@ class TestCompilerHost implements CompilerHost, Required<ModuleResolutionHost> {
     containingSourceFile: SourceFile,
     reusedNames: readonly StringLiteralLike[] | undefined,
   ): readonly ResolvedModuleWithFailedLookupLocations[] {
-    // console.log({
-    //   moduleLiterals,
-    //   containingFile,
-    //   redirectedReference,
-    //   options,
-    //   containingSourceFile,
-    //   reusedNames,
-    // });
-
-    const { files } = this;
+    const { files, cache } = this;
     const fileNames = files.map((file) => file.fileName);
+    const dirCache = cache.getOrCreateCacheForDirectory(
+      this.getCurrentDirectory(),
+    );
 
     const result: ResolvedModuleWithFailedLookupLocations[] = [];
 
     for (const moduleLiteral of moduleLiterals) {
       const text = moduleLiteral.getText();
 
-      // console.log({
-      //   moduleLiteral: text,
-      //   containingFile,
-      // });
-
-      const resModule: ResolvedModuleWithFailedLookupLocations = {
+      const resModule = {
         resolvedModule: {
           resolvedFileName: "",
-          isExternalLibraryImport: false,
-          resolvedUsingTsExtension: false,
+          originalPath: undefined,
           extension: Extension.Ts,
+          isExternalLibraryImport: false,
           packageId: undefined,
+          resolvedUsingTsExtension: false,
         },
+        failedLookupLocations: undefined,
+        affectingLocations: undefined,
+        resolutionDiagnostics: undefined,
+        alternateResult: undefined,
       };
 
       // local file
@@ -270,9 +264,10 @@ class TestCompilerHost implements CompilerHost, Required<ModuleResolutionHost> {
       }
 
       result.push(resModule);
-    }
 
-    console.log(...result);
+      const moduleName = text.replaceAll('"', "");
+      dirCache.set(moduleName, ModuleKind.ESNext, resModule);
+    }
 
     return result;
   }
@@ -288,6 +283,7 @@ class TestCompilerHost implements CompilerHost, Required<ModuleResolutionHost> {
 export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
   program: Program;
   sourceFile: SourceFile;
+  compilerHost: CompilerHost;
 } {
   const compilerHost = new TestCompilerHost(inputFiles);
 
@@ -295,6 +291,7 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
   const program = compilerHost.getProgram();
 
   // We need to overwrite this so the traversal of external modules can be tested.
+  // TODO: why is it here? if needed should be handled in the TestCompilerHost class.
   program.isSourceFileFromExternalLibrary = (
     sourceFile: SourceFile,
   ): boolean => {
@@ -310,5 +307,6 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
   return {
     program,
     sourceFile: entrySourceFile,
+    compilerHost,
   };
 }

@@ -1,6 +1,5 @@
 import * as tsMod from "typescript";
 import { Program, SourceFile } from "typescript";
-import * as tsServer from "typescript/lib/tsserverlibrary.js";
 import { LitAnalyzerConfig } from "./lit-analyzer-config.js";
 import { LitAnalyzerLogger } from "./lit-analyzer-logger.js";
 import { RuleCollection } from "./rule-collection.js";
@@ -12,7 +11,8 @@ import { AnalyzerHtmlStore } from "./store/analyzer-html-store.js";
 export interface LitAnalyzerContext {
   readonly ts: typeof tsMod;
   readonly program: Program;
-  readonly project: tsServer.server.Project | undefined;
+  readonly project: tsMod.server.Project | undefined;
+  readonly host: tsMod.CompilerHost | undefined;
   readonly config: LitAnalyzerConfig;
 
   // Stores
@@ -44,5 +44,6 @@ export interface LitAnalyzerContextBaseOptions {
 export interface LitPluginContextHandler {
   ts?: typeof tsMod;
   getProgram(): Program;
-  getProject?(): tsServer.server.Project;
+  getProject?(): tsMod.server.Project;
+  getHost?(): tsMod.CompilerHost;
 }

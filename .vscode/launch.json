@@ -1,16 +1,24 @@
 {
     "version": "0.2.0",
     "configurations": [
+      
+      // {
+      //   "name": "Extension Tests",
+      //   "type": "extensionHost",
+      //   "request": "launch",
+      //   "runtimeExecutable": "${execPath}",
+      //   "args": [
+      //     "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-lit-plugin",
+      //     "--extensionTestsPath=${workspaceFolder}/packages/vscode-lit-plugin/out/test/scripts/mocha-driver.js"
+      //   ],
+      //   "outFiles": ["${workspaceFolder}/packages/vscode-lit-plugin/out/test/**/*.js"]
+      // }
       {
-        "name": "Extension Tests",
-        "type": "extensionHost",
+        "name": "lit-analyzer-test-debug",
+        "type": "node",
         "request": "launch",
-        "runtimeExecutable": "${execPath}",
-        "args": [
-          "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-lit-plugin",
-          "--extensionTestsPath=${workspaceFolder}/packages/vscode-lit-plugin/out/test/scripts/mocha-driver.js"
-        ],
-        "outFiles": ["${workspaceFolder}/packages/vscode-lit-plugin/out/test/**/*.js"]
+        "program": "${workspaceFolder}/packages/lit-analyzer/lib/debug.js",
+        "cwd": "${workspaceFolder}/packages/lit-analyzer/lib/",
       }
     ]
   }

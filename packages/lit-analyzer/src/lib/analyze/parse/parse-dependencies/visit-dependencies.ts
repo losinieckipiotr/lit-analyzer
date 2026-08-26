@@ -1,11 +1,11 @@
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile } from "typescript";
-import tsServerModule from "typescript/lib/tsserverlibrary.js";
 
 interface IVisitDependenciesContext {
   program: Program;
+  host: tsModule.CompilerHost | undefined;
   ts: typeof tsModule;
-  project: tsServerModule.server.Project | undefined;
+  project: tsModule.server.Project | undefined;
   directImportCache: WeakMap<SourceFile, Set<SourceFile>>;
   emitIndirectImport(file: SourceFile, importedFrom?: SourceFile): boolean;
   emitDirectImport?(file: SourceFile): void;
@@ -258,6 +258,17 @@ function emitDirectModuleImportWithName(
       );
     }
 
+    let host: tsModule.CompilerHost;
+
+    if (context.host) {
+      host = context.host;
+    } else {
+      host = context.ts.createCompilerHost(
+        context.program.getCompilerOptions(),
+      );
+      throw new Error("creating new compiler host");
+    }
+
     // TODO: unsafe condition
     if (result == null) {
       // Result could not be found from the cache, try and resolve module without using the
@@ -266,17 +277,10 @@ function emitDirectModuleImportWithName(
         moduleSpecifier,
         node.getSourceFile().fileName,
         context.program.getCompilerOptions(),
-        context.ts.createCompilerHost(context.program.getCompilerOptions()),
+        host,
       );
     }
   }
-
-  // if (!result?.resolvedModule) {
-  //   console.log(
-  //     `Could not resolve module: ${moduleSpecifier} from ${fromSourceFile.fileName}`,
-  //   );
-  //   console.log({ result });
-  // }
 
   if (result?.resolvedModule?.resolvedFileName != null) {
     const resolvedModule = result.resolvedModule;
