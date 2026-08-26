@@ -7,8 +7,6 @@ import {
 } from "lit-analyzer";
 import { dirname } from "path";
 import * as ts from "typescript";
-import { CompilerOptions } from "typescript";
-import * as tsServer from "typescript/lib/tsserverlibrary.js";
 import { VERSION as WCA_VERSION } from "web-component-analyzer";
 import { decorateLanguageService } from "./decorate-language-service.js";
 import { logger } from "./logger.js";
@@ -28,7 +26,7 @@ export function init({
   typescript,
 }: {
   typescript: typeof ts;
-}): tsServer.server.PluginModule {
+}): ts.server.PluginModule {
   // Cache the typescript module
   setTypescriptModule(typescript);
 
@@ -48,7 +46,7 @@ export function init({
   };
 
   return {
-    create: (info: tsServer.server.PluginCreateInfo) => {
+    create: (info: ts.server.PluginCreateInfo) => {
       // Check if the language service is already decorated
       if ((info.languageService as any)[tsHtmlPluginSymbol] != null) {
         return info.languageService;
@@ -133,7 +131,7 @@ export function init({
  * Resolves the nearest tsconfig.json and returns the configuration seed within the plugins section for "ts-lit-plugin"
  */
 function readLitAnalyzerConfigFromCompilerOptions(
-  compilerOptions: CompilerOptions,
+  compilerOptions: ts.CompilerOptions,
 ): Partial<LitAnalyzerConfig> | undefined {
   // Finds the plugin section
   if ("plugins" in compilerOptions) {
