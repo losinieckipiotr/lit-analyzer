@@ -6,17 +6,6 @@ import { setTypescriptModule } from "../../lib/analyze/ts-module.js";
 
 const require = createRequire(import.meta.url);
 
-// TODO: remove?
-// type AvaTypes = {
-//   true: (v: boolean) => void;
-//   is: (a: unknown, b: unknown) => void;
-//   deepEqual: (a: unknown, b: unknown) => void;
-// };
-
-// type ImplementationFn = (t: AvaTypes) => void | Promise<void>;
-
-// type TestFunction = (title: string, implementation: ImplementationFn) => void;
-
 type TestFunction = (
   title: string,
   implementation: ImplementationFn<unknown[]>,
@@ -26,7 +15,7 @@ const TS_MODULES_ALL = ["current", "5.2", "5.9"] as const;
 
 type TsModuleKind = (typeof TS_MODULES_ALL)[number];
 
-const TS_MODULES_DEFAULT: TsModuleKind[] = ["current"];
+const TS_MODULES_DEFAULT: TsModuleKind[] = ["current", "5.2", "5.9"];
 
 /**
  * Returns the name of the module to require for a specific ts module kind
@@ -171,17 +160,6 @@ function wrapAvaTest(testFunction: TestFunction): TestFunction {
     return setupTests(testFunction, title, implementation);
   };
 }
-
-// function testImpl(title: string, implementation: ImplementationFn): void {}
-
-// const test = Object.assign(testImpl, {
-//   only: (title: string, implementation: ImplementationFn) => {
-//     setupTests(testImpl, title, implementation);
-//   },
-//   skip: (title: string, implementation: ImplementationFn) => {
-//     setupTests(testImpl, title, implementation);
-//   },
-// });
 
 /**
  * Wrap the ava test module in these helper functions
