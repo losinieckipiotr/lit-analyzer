@@ -51,7 +51,7 @@
       ]
     },
     "test": {
-     "dependencies": [
+      "dependencies": [
         "build"
       ],
       "env": {
@@ -62,7 +62,9 @@
     },
     "test:all": {
       "#comment": "same as test but when env is not set all versions will be tested",
-      "dependencies": ["build"],
+      "dependencies": [
+        "build"
+      ],
       "command": "ava --color"
     }
   },
@@ -85,12 +87,12 @@
     "web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.6.tgz"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.3.0",
     "ava": "^8.0.1",
     "tslib": "^2.0.0",
     "typescript": "6.0.3",
-    "typescript-5.9": "npm:typescript@5.9.3",
     "typescript-5.2": "npm:typescript@5.2.2",
+    "typescript-5.9": "npm:typescript@5.9.3",
     "wireit": "^0.14.13"
   },
   "ava": {
