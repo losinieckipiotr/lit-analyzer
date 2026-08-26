@@ -23,7 +23,6 @@
     "url": "https://github.com/runem/lit-analyzer.git"
   },
   "main": "bundle.js",
-  "type": "module",
   "scripts": {
     "watch": "tsc -watch -p ./",
     "package": "wireit",
@@ -43,7 +42,7 @@
         "../lit-analyzer:build",
         "make-built-dir"
       ],
-      "command": "tsc --build --pretty",
+      "command": "tsc --pretty",
       "files": [
         "src/**/*",
         "tsconfig.json"
@@ -176,12 +175,12 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.3.0",
     "@types/vscode": "^1.134.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.2",
     "fs-extra": "^11.4.0",
     "glob": "^13.0.6",
     "lit-analyzer": "^2.0.3",
     "mocha": "^11.8.0",
-    "vsce": "^2.7.0",
     "wireit": "^0.14.13"
   },
   "activationEvents": [

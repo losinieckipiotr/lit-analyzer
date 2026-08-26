@@ -9,5 +9,8 @@
 	"editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
 		"source.organizeImports": "always"
+	},
+	"search.exclude": {
+		"packages/*/lib": true
 	}
 }

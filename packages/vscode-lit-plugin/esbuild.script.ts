@@ -7,7 +7,7 @@ await esbuild.build({
   platform: "node",
   minify: true,
   target: "es2024",
-  format: "esm",
+  format: "cjs",
   color: true,
   external: ["vscode", "typescript"],
   mainFields: ["module", "main"],
@@ -21,7 +21,7 @@ await esbuild.build({
   external: ["typescript"],
   minify: true,
   target: "es2024",
-  format: "esm",
+  format: "cjs",
   color: true,
   mainFields: ["module", "main"],
 });

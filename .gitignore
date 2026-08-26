@@ -12,6 +12,7 @@ out
 *.vsix
 .wireit/
 .tsbuildinfo
+.*.png
 
 /packages/*/lib
 /packages/*/out

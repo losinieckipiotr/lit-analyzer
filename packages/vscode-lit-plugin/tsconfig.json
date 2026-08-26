@@ -3,7 +3,7 @@
   "include": ["./src"],
   "exclude": ["node_modules", "./src/test/fixtures"],
   "compilerOptions": {
-    "module": "esnext",
+    "module": "commonjs",
     "target": "es2024",
     "outDir": "./out",
     "lib": ["ES2024"],
