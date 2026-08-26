@@ -63,7 +63,7 @@
       "dependencies": [
         "build"
       ],
-      "command": "ava --color -s test/parser/dependencies/parse-dependencies.js"
+      "command": "ava --color -s --fail-fast test/parser/dependencies/parse-dependencies.js"
     },
     "check-version": {
       "dependencies": [

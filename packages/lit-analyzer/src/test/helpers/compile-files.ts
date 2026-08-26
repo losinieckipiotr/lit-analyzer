@@ -257,10 +257,15 @@ class TestCompilerHost implements CompilerHost {
         }
 
         if (!fileNames.includes(name)) {
-          throw new Error(`File not found: ${name}`);
+          // TODO: check node_modules
+          throw new Error(
+            `File '${name}' not found.\n${JSON.stringify({ text, fileNames }, null, 2)}`,
+          );
         }
 
         resModule.resolvedModule!.resolvedFileName = name;
+      } else {
+        throw new Error("not implemented");
       }
 
       result.push(resModule);
