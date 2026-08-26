@@ -1,10 +1,8 @@
-/* eslint-disable no-console */
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
+import * as fs from "fs";
+import * as path from "path";
 import {
+  CreateSourceFileOptions,
   Extension,
-  ModuleKind,
-  ModuleResolutionCache,
   ResolvedModuleWithFailedLookupLocations,
   ResolvedProjectReference,
   StringLiteralLike,
@@ -20,7 +18,6 @@ export interface ITestFile {
   fileName?: string;
   text: string;
   entry?: boolean;
-  // includeLib?: boolean;
 }
 
 export type TestFile = ITestFile | string;
@@ -28,8 +25,7 @@ export type TestFile = ITestFile | string;
 class TestCompilerHost implements CompilerHost {
   private ts = getCurrentTsModule();
   private files: ITestFile[];
-  private includeLib: boolean = true; //files.find(file => file.includeLib) != null;
-  private cache: ModuleResolutionCache;
+  private includeLib: boolean = true;
 
   constructor(inputFiles: TestFile[] | TestFile) {
     this.files = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
@@ -48,14 +44,6 @@ class TestCompilerHost implements CompilerHost {
             },
       )
       .map((file) => ({ ...file, fileName: file.fileName }));
-
-    const cache = this.ts.createModuleResolutionCache(
-      this.getCurrentDirectory(),
-      (fileName: string) => this.getCanonicalFileName(fileName),
-      this.getCompilerOptions(),
-    );
-
-    this.cache = cache;
   }
 
   private getCompilerOptions(): CompilerOptions {
@@ -66,22 +54,26 @@ class TestCompilerHost implements CompilerHost {
       target: ts.ScriptTarget.ESNext,
       allowJs: true,
       sourceMap: false,
-      strict: true, // if strict = false, "undefined" and "null" will be removed from unions types.
+      strict: true,
+      // useful for debugging
+      // traceResolution: true,
       // lib: [],
-      traceResolution: true,
     };
   }
 
   getEntryFile() {
     const { files } = this;
 
-    return files.find((file) => file.entry === true) || files[0];
+    const result = files.find((file) => file.entry === true) || files[0];
+
+    return result;
   }
 
   getProgram() {
     const { ts, files } = this;
 
-    return ts.createProgram({
+    const program = ts.createProgram({
+      // TODO: some old debug code, maybe not needed anymore
       //rootNames: [...files.map(file => file.fileName!), "node_modules/typescript/lib/lib.dom.d.ts"],
       // rootNames: [
       //   ...files.map((file) => file.fileName!),
@@ -91,10 +83,20 @@ class TestCompilerHost implements CompilerHost {
       options: this.getCompilerOptions(),
       host: this,
     });
+
+    // TODO: I still do not understand how it works and is this is good approach for testing
+    // We need to overwrite this so the traversal of external modules can be tested.
+    program.isSourceFileFromExternalLibrary = (
+      sourceFile: SourceFile,
+    ): boolean => {
+      return sourceFile.fileName.includes("node_modules");
+    };
+
+    return program;
   }
 
-  writeFile() {
-    // do nothing
+  fileExists(fileName: string): boolean {
+    return this.files.some((currentFile) => currentFile.fileName === fileName);
   }
 
   readFile(fileName: string): string | undefined {
@@ -111,17 +113,52 @@ class TestCompilerHost implements CompilerHost {
     if (includeLib) {
       fileName = fileName.match(/[/\\]/)
         ? fileName
-        : join(getCurrentTsModuleDirectory(), fileName);
+        : path.join(getCurrentTsModuleDirectory(), fileName);
     }
 
-    if (existsSync(fileName)) {
-      return readFileSync(fileName, "utf8").toString();
+    if (fs.existsSync(fileName)) {
+      return fs.readFileSync(fileName, "utf8").toString();
     } else {
       throw new Error(`File not found: ${fileName}`);
     }
   }
 
-  getSourceFile(fileName: string, languageVersion: ScriptTarget) {
+  trace(s: string): void {
+    // custom trace function, usefull in debugging
+    // eslint-disable-next-line no-console
+    console.log(s);
+  }
+
+  directoryExists(directoryName: string): boolean {
+    let result = false;
+
+    if (directoryName === "" || directoryName === "node_modules") {
+      result = true;
+    }
+
+    return result;
+  }
+
+  // ModuleResolutionHost - not implemented
+  // realpath?(path: string): string;
+
+  getCurrentDirectory(): string {
+    return "./";
+  }
+
+  getDirectories(directoryName: string): string[] {
+    const { ts } = this;
+
+    // note: this reads from file system
+    return ts.sys.getDirectories(directoryName);
+  }
+
+  getSourceFile(
+    fileName: string,
+    languageVersion: ScriptTarget | CreateSourceFileOptions,
+    _onError?: (message: string) => void,
+    _shouldCreateNewSourceFile?: boolean,
+  ): SourceFile | undefined {
     const { ts } = this;
 
     const sourceText = this.readFile(fileName);
@@ -129,8 +166,6 @@ class TestCompilerHost implements CompilerHost {
     if (sourceText === undefined) {
       return undefined;
     }
-
-    // console.log(`Creating source file: ${fileName}`);
 
     return ts.createSourceFile(
       fileName,
@@ -141,145 +176,129 @@ class TestCompilerHost implements CompilerHost {
     );
   }
 
-  fileExists(fileName: string) {
-    return this.files.some((currentFile) => currentFile.fileName === fileName);
-  }
+  // CompilerHost - not implemented
+  // getSourceFileByPath?(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
 
-  getCurrentDirectory() {
-    return "./";
-  }
+  // CompilerHost - not implemented
+  // getCancellationToken?(): CancellationToken;
 
-  getDirectories(directoryName: string) {
-    const { ts } = this;
-
-    return ts.sys.getDirectories(directoryName);
-  }
-
-  getDefaultLibFileName(options: CompilerOptions) {
+  getDefaultLibFileName(options: CompilerOptions): string {
     const { ts } = this;
 
     return ts.getDefaultLibFileName(options);
   }
 
-  getCanonicalFileName(fileName: string) {
+  // CompilerHost - not implemented
+  // getDefaultLibLocation?(): string;
+
+  writeFile(): void {
+    // do nothing
+  }
+
+  getCanonicalFileName(fileName: string): string {
     return this.useCaseSensitiveFileNames() ? fileName : fileName.toLowerCase();
   }
 
-  getNewLine() {
-    const { ts } = this;
-
-    return ts.sys.newLine;
-  }
-
-  useCaseSensitiveFileNames() {
+  useCaseSensitiveFileNames(): boolean {
     const { ts } = this;
 
     return ts.sys.useCaseSensitiveFileNames;
   }
 
-  trace(s: string) {
-    console.log("trace: ", s);
+  getNewLine(): string {
+    const { ts } = this;
+
+    return ts.sys.newLine;
   }
 
-  directoryExists(directoryName: string): boolean {
-    if (directoryName === "") {
-      console.log("directoryExists: ", { directoryName, result: true });
-      return true;
-    }
+  // CompilerHost - not implemented
+  // readDirectory?(
+  //   rootDir: string,
+  //   extensions: readonly string[],
+  //   excludes: readonly string[] | undefined,
+  //   includes: readonly string[],
+  //   depth?: number,
+  // ): string[] {}
 
-    console.log("directoryExists: ", { directoryName, result: false });
-    return false;
-  }
+  // CompilerHost - not implemented
+  // getModuleResolutionCache?(): ModuleResolutionCache | undefined;
 
-  // TODO: a lot of method can be removed now or throw errors
-  // realpath(path: string): string {
-  //   throw new Error("Method not implemented.");
-  // }
-
-  // resolveModuleNames?(
-  //   moduleNames: string[],
+  // CompilerHost - not implemented
+  // resolveTypeReferenceDirectives?(
+  //   typeReferenceDirectiveNames: string[] | readonly FileReference[],
   //   containingFile: string,
-  //   reusedNames: string[] | undefined,
   //   redirectedReference: ResolvedProjectReference | undefined,
   //   options: CompilerOptions,
-  //   containingSourceFile?: SourceFile,
-  // ): (ResolvedModule | undefined)[] {
-  //   throw new Error("Method not implemented.");
-  // }
+  //   containingFileMode?: ResolutionMode,
+  // ): (ResolvedTypeReferenceDirective | undefined)[] {}
 
   resolveModuleNameLiterals(
     moduleLiterals: readonly StringLiteralLike[],
+    // not used for now
     containingFile: string,
-    redirectedReference: ResolvedProjectReference | undefined,
-    options: CompilerOptions,
+    _redirectedReference: ResolvedProjectReference | undefined,
+    _options: CompilerOptions,
     containingSourceFile: SourceFile,
-    reusedNames: readonly StringLiteralLike[] | undefined,
+    _reusedNames: readonly StringLiteralLike[] | undefined,
   ): readonly ResolvedModuleWithFailedLookupLocations[] {
-    const { files, cache } = this;
+    const { files } = this;
     const fileNames = files.map((file) => file.fileName);
-    const dirCache = cache.getOrCreateCacheForDirectory(
-      this.getCurrentDirectory(),
-    );
 
     const result: ResolvedModuleWithFailedLookupLocations[] = [];
 
     for (const moduleLiteral of moduleLiterals) {
       const text = moduleLiteral.getText();
 
-      const resModule = {
-        resolvedModule: {
-          resolvedFileName: "",
-          originalPath: undefined,
-          extension: Extension.Ts,
-          isExternalLibraryImport: false,
-          packageId: undefined,
-          resolvedUsingTsExtension: false,
-        },
-        failedLookupLocations: undefined,
-        affectingLocations: undefined,
-        resolutionDiagnostics: undefined,
-        alternateResult: undefined,
-      };
-
-      // local file
-      if (text.startsWith('"./')) {
-        let name = text.replace('"./', "");
-
-        if (name.endsWith('"')) {
-          name = name.slice(0, -1);
-        } else {
-          throw new Error(`parsing error for: ${text}`);
-        }
-
-        // add .ts extension if not present
-        if (!name.endsWith(Extension.Ts)) {
-          name += Extension.Ts;
-        }
-
-        if (!fileNames.includes(name)) {
-          // TODO: check node_modules
-          throw new Error(
-            `File '${name}' not found.\n${JSON.stringify({ text, fileNames }, null, 2)}`,
-          );
-        }
-
-        resModule.resolvedModule!.resolvedFileName = name;
-      } else {
-        throw new Error("not implemented");
+      if (!text.startsWith('"')) {
+        throw new Error(`resolutuion for module '${text}' is not implemented`);
       }
 
-      result.push(resModule);
+      let name = text;
 
-      const moduleName = text.replaceAll('"', "");
-      dirCache.set(moduleName, ModuleKind.ESNext, resModule);
+      if (text.startsWith('"./')) {
+        name = text.replace('"./', "");
+      }
+
+      if (name.endsWith('"')) {
+        name = name.slice(0, -1);
+      } else {
+        throw new Error(`parsing error for: ${text}`);
+      }
+
+      if (!name.endsWith(Extension.Ts)) {
+        name += Extension.Ts;
+      }
+
+      if (!fileNames.includes(name)) {
+        result.push({ resolvedModule: undefined });
+      } else {
+        result.push({
+          resolvedModule: {
+            resolvedFileName: name,
+            extension: Extension.Ts,
+            isExternalLibraryImport: false,
+            packageId: undefined,
+            resolvedUsingTsExtension: false,
+          },
+        });
+      }
     }
 
     return result;
   }
 
-  getModuleResolutionCache(): ModuleResolutionCache {
-    return this.cache;
-  }
+  // CompilerHost - not implemented
+  // resolveTypeReferenceDirectiveReferences?<T extends FileReference | string>(
+  //   typeDirectiveReferences: readonly T[],
+  //   containingFile: string,
+  //   redirectedReference: ResolvedProjectReference | undefined,
+  //   options: CompilerOptions,
+  //   containingSourceFile: SourceFile | undefined,
+  //   reusedNames: readonly T[] | undefined,
+  // ): readonly ResolvedTypeReferenceDirectiveWithFailedLookupLocations[] {}
+
+  // from CompilerHost - not implemented
+  // jsDocParsingMode?: JSDocParsingMode;
 }
 
 /**
@@ -294,15 +313,6 @@ export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
 
   const entryFile = compilerHost.getEntryFile();
   const program = compilerHost.getProgram();
-
-  // We need to overwrite this so the traversal of external modules can be tested.
-  // TODO: why is it here? if needed should be handled in the TestCompilerHost class.
-  program.isSourceFileFromExternalLibrary = (
-    sourceFile: SourceFile,
-  ): boolean => {
-    const filename = sourceFile.fileName;
-    return filename.includes("node_modules");
-  };
 
   const entrySourceFile =
     entryFile.fileName != null

@@ -5,7 +5,7 @@ interface IVisitDependenciesContext {
   program: Program;
   host: tsModule.CompilerHost | undefined;
   ts: typeof tsModule;
-  project: tsModule.server.Project | undefined;
+  project: tsModule.LanguageServiceHost | undefined;
   directImportCache: WeakMap<SourceFile, Set<SourceFile>>;
   emitIndirectImport(file: SourceFile, importedFrom?: SourceFile): boolean;
   emitDirectImport?(file: SourceFile): void;
@@ -183,10 +183,10 @@ function visitDirectImports(
   node.forEachChild((child) => visitDirectImports(child, context));
 }
 
-interface MaybeModernProgram extends tsModule.Program {
-  // TODO: this is internal and probably should not be used
-  getModuleResolutionCache?(): tsModule.ModuleResolutionCache | undefined;
-}
+// interface MaybeModernProgram extends tsModule.Program {
+//   // TODO: this is internal and probably should not be used
+//   getModuleResolutionCache?(): tsModule.ModuleResolutionCache | undefined;
+// }
 
 /**
  * Resolves and emits a direct imported module
@@ -199,65 +199,19 @@ function emitDirectModuleImportWithName(
   node: Node,
   context: IVisitDependenciesContext,
 ) {
-  const fromSourceFile = node.getSourceFile();
+  //
 
   // Resolve the imported string
   let result: tsModule.ResolvedModuleWithFailedLookupLocations | undefined;
+  const { project } = context;
 
-  if (
-    context.project &&
-    "getResolvedModuleWithFailedLookupLocationsFromCache" in context.project
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { project } = context as { project: any };
+  if (project && project.getResolvedModuleWithFailedLookupLocationsFromCache) {
+    // TODO: not tested in units
     result = project.getResolvedModuleWithFailedLookupLocationsFromCache(
       moduleSpecifier,
-      fromSourceFile.fileName,
-    );
-  } else if (
-    "getResolvedModuleWithFailedLookupLocationsFromCache" in context.program
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { program } = context as { program: any };
-    result = program["getResolvedModuleWithFailedLookupLocationsFromCache"](
-      moduleSpecifier,
-      fromSourceFile.fileName,
+      node.getSourceFile().fileName,
     );
   } else {
-    const cache = (
-      context.program as MaybeModernProgram
-    ).getModuleResolutionCache?.();
-
-    let mode: tsModule.ResolutionMode | undefined = undefined;
-
-    // TODO: probably was checked before maybe throw?
-    if (
-      context.ts.isImportDeclaration(node) ||
-      context.ts.isExportDeclaration(node)
-    ) {
-      // TODO: another null, same condition was checked in visitDirectImports, maybe throw here?
-      if (
-        node.moduleSpecifier != null &&
-        context.ts.isStringLiteral(node.moduleSpecifier) &&
-        context.ts.isSourceFile(node.parent)
-      ) {
-        mode = tsModule.getModeForUsageLocation(
-          fromSourceFile,
-          node.moduleSpecifier,
-          context.program.getCompilerOptions(),
-        );
-      }
-    }
-
-    if (cache != null) {
-      result = context.ts.resolveModuleNameFromCache(
-        moduleSpecifier,
-        node.getSourceFile().fileName,
-        cache,
-        mode,
-      );
-    }
-
     let host: tsModule.CompilerHost;
 
     if (context.host) {

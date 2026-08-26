@@ -145,18 +145,22 @@ tsTest(
   },
 );
 
+// resolves more than needed? IDK if it is testing bug or real bug
 tsTest(
   "Correctly follows project-external imports with maxExternalDepth=1",
   (t) => {
     const { sourceFile, context } = prepareAnalyzer([
-      { fileName: "node_modules/file1.ts", text: `export class MyClass { }` },
+      {
+        fileName: "node_modules/file1.ts",
+        text: `export class MyClass { }`,
+      },
       {
         fileName: "node_modules/file2.ts",
         text: `import * from "./file1";export class MyClass { }`,
       },
       {
         fileName: "node_modules/file3.ts",
-        text: `import * from "./file2";export class MyClass { }`,
+        text: `import * from "file2";export class MyClass { }`,
         entry: true,
       },
     ]);
@@ -323,6 +327,7 @@ tsTest(
   },
 );
 
+// resolves more than needed? IDK if it is testing bug or real bug
 tsTest(
   "Correctly follows modules when going from internal to external module when second external module is a facade module",
   (t) => {
@@ -364,9 +369,9 @@ tsTest(
 
 tsTest("Correctly handles recursive imports", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
-    { fileName: "file1.ts", text: `import * from "file3"` },
-    { fileName: "file2.ts", text: `import * from "file1"` },
-    { fileName: "file3.ts", text: `import * from "file2"`, entry: true },
+    { fileName: "file1.ts", text: `import * from "./file3"` },
+    { fileName: "file2.ts", text: `import * from "./file1"` },
+    { fileName: "file3.ts", text: `import * from "./file2"`, entry: true },
   ]);
 
   const dependencies = parseAllIndirectImports(sourceFile, context);
@@ -381,8 +386,8 @@ tsTest("Correctly handles recursive imports", (t) => {
 tsTest("Correctly follows both exports and imports", (t) => {
   const { sourceFile, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `` },
-    { fileName: "file2.ts", text: `export * from "file1"` },
-    { fileName: "file3.ts", text: `import * from "file2"`, entry: true },
+    { fileName: "file2.ts", text: `export * from "./file1"` },
+    { fileName: "file3.ts", text: `import * from "./file2"`, entry: true },
   ]);
 
   const dependencies = parseAllIndirectImports(sourceFile, context);
@@ -397,15 +402,15 @@ tsTest("Correctly follows both exports and imports", (t) => {
 tsTest("Correctly identifies facade modules", (t) => {
   const { program, context } = prepareAnalyzer([
     { fileName: "file1.ts", text: `export class MyClass { }` },
-    { fileName: "file2.ts", text: `export * from "file1";` },
-    { fileName: "file3.ts", text: `import * from "file1";` },
+    { fileName: "file2.ts", text: `export * from "./file1";` },
+    { fileName: "file3.ts", text: `import * from "./file1";` },
     {
       fileName: "file4.ts",
-      text: `import * from "file1"; export * from "file2";`,
+      text: `import * from "./file1"; export * from "./file2";`,
     },
     {
       fileName: "file5.ts",
-      text: `import * from "file2"; export class MyClass { }"`,
+      text: `import * from "./file2"; export class MyClass { }"`,
     },
   ]);
 
@@ -421,12 +426,12 @@ tsTest("Correctly follows facade modules one level", (t) => {
     { fileName: "file1.ts", text: `export class MyClass { }` },
     {
       fileName: "file2.ts",
-      text: `import * from "file1"; export class MyClass { }`,
+      text: `import * from "./file1"; export class MyClass { }`,
     },
-    { fileName: "file3.ts", text: `import * from "file2";` },
+    { fileName: "file3.ts", text: `import * from "./file2";` },
     {
       fileName: "file4.ts",
-      text: `import * from "file3"; export class MyClass { }"`,
+      text: `import * from "./file3"; export class MyClass { }"`,
       entry: true,
     },
   ]);
@@ -447,13 +452,13 @@ tsTest("Correctly follows facade modules multiple levels", (t) => {
     { fileName: "file0.ts", text: `export class MyClass { }` },
     {
       fileName: "file1.ts",
-      text: `export * from "file0"; export class MyClass { }`,
+      text: `export * from "./file0"; export class MyClass { }`,
     },
-    { fileName: "file2.ts", text: `export * from "file1";` },
-    { fileName: "file3.ts", text: `import * from "file2";` },
+    { fileName: "file2.ts", text: `export * from "./file1";` },
+    { fileName: "file3.ts", text: `import * from "./file2";` },
     {
       fileName: "file4.ts",
-      text: `import * from "file3"; export class MyClass { }"`,
+      text: `import * from "./file3"; export class MyClass { }"`,
       entry: true,
     },
   ]);

@@ -42,7 +42,7 @@
       "command": "tsc --noEmit --watch --pretty"
     },
     "build": {
-      "clean": true,
+      "clean": false,
       "command": "tsc",
       "output": [
         "lib",
@@ -63,7 +63,7 @@
       "dependencies": [
         "build"
       ],
-      "command": "ava --color -s --fail-fast test/parser/dependencies/parse-dependencies.js"
+      "command": "ava --color -s --fail-fast test/indexer/index-entries.js"
     },
     "check-version": {
       "dependencies": [

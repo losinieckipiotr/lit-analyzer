@@ -7,12 +7,6 @@
     "outDir": "./",
     "resolveJsonModule": true,
     "noEmit": false,
-    "allowImportingTsExtensions": false,
-    "esModuleInterop": true
-    // TODO: separate build for tests?
-    // "sourceMap": false,
-    // "declaration": false,
-    // "declarationMap": false,
-    // "tsBuildInfoFile": "./.tsbuildinfo"
+    "allowImportingTsExtensions": false
   }
 }
