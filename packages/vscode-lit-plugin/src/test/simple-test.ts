@@ -1,11 +1,14 @@
 import * as assert from "assert";
 import { after } from "mocha";
 import * as path from "path";
+import { fileURLToPath } from "url";
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from "vscode";
 // import * as litPlugin from "../extension.js";
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 // wait until the TS language server is ready and diagnostics are produced
 async function getDiagnostics(docUri: vscode.Uri, retries = 1000) {
@@ -45,7 +48,7 @@ suite("Extension Test Suite", () => {
     );
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/missing-elem-type.ts"),
+        path.join(currentDir, "../../src/test/fixtures/missing-elem-type.ts"),
       ),
     );
     await vscode.window.showTextDocument(doc);
@@ -63,7 +66,7 @@ suite("Extension Test Suite", () => {
     config.update("lit-plugin.rules.no-missing-import", "error", true);
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/missing-import.ts"),
+        path.join(currentDir, "../../src/test/fixtures/missing-import.ts"),
       ),
     );
     const editor = await vscode.window.showTextDocument(doc);
@@ -100,7 +103,7 @@ suite("Extension Test Suite", () => {
   test("We generate completions", async () => {
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/completions.ts"),
+        path.join(currentDir, "../../src/test/fixtures/completions.ts"),
       ),
     );
     const editor = await vscode.window.showTextDocument(doc);

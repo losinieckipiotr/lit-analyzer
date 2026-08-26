@@ -23,6 +23,7 @@
     "url": "https://github.com/runem/lit-analyzer.git"
   },
   "main": "bundle.js",
+  "type": "module",
   "scripts": {
     "watch": "tsc -watch -p ./",
     "package": "wireit",
@@ -126,12 +127,12 @@
       "dependencies": [
         "../lit-analyzer:build"
       ],
-      "command": "node esbuild.script.mjs",
+      "command": "node esbuild.script.ts",
       "files": [
         "src/**/*",
         "../ts-lit-plugin/src/**/*",
         "../ts-lit-plugin/index.js",
-        "esbuild.script.mjs"
+        "esbuild.script.ts"
       ],
       "output": [
         "built/bundle.js",
@@ -164,20 +165,22 @@
         "built/package.json",
         "built/README.md"
       ],
-      "command": "node ./copy-to-built.js"
+      "command": "node ./copy-to-built.ts"
     }
   },
   "dependencies": {
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "devDependencies": {
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^26.2.0",
-    "@types/vscode": "^1.30.0",
-    "esbuild": "^0.14.36",
+    "@types/fs-extra": "^11.0.4",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^26.3.0",
+    "@types/vscode": "^1.134.0",
+    "esbuild": "^0.28.2",
+    "fs-extra": "^11.4.0",
     "glob": "^13.0.6",
     "lit-analyzer": "^2.0.3",
-    "mocha": "^9.1.4",
+    "mocha": "^11.8.0",
     "vsce": "^2.7.0",
     "wireit": "^0.14.13"
   },

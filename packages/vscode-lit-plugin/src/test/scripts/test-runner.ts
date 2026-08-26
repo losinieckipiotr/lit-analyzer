@@ -4,6 +4,7 @@
 // executes ./mocha-driver
 
 import * as path from "path";
+import { fileURLToPath } from "url";
 
 import { runTests } from "@vscode/test-electron";
 
@@ -14,10 +15,13 @@ async function main() {
     }
     // When testing the packaged-and-then-unzipped extension, we'll be handed the path to it.
     const extensionPath = path.resolve(process.argv[2]);
-    const extensionTestsPath = path.resolve(__dirname, "./mocha-driver");
+
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+    const extensionTestsPath = path.resolve(currentDir, "./mocha-driver");
 
     const fixturesDir = path.join(
-      __dirname,
+      currentDir,
       "..",
       "..",
       "..",

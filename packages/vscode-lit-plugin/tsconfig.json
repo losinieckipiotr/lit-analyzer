@@ -3,13 +3,15 @@
   "include": ["./src"],
   "exclude": ["node_modules", "./src/test/fixtures"],
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "outDir": "out",
-    "lib": ["es2019"],
+    "module": "esnext",
+    "target": "es2024",
+    "outDir": "./out",
+    "lib": ["ES2024"],
     "sourceMap": true,
     "rootDir": "src",
     "tsBuildInfoFile": "./.tsbuildinfo",
-    "types": ["mocha", "node"]
+    "types": ["mocha", "node"],
+    "esModuleInterop": true,
+    "noEmit": false
   }
 }

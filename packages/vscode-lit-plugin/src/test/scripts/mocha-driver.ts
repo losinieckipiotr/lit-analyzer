@@ -1,6 +1,7 @@
 import * as glob from "glob";
 import Mocha from "mocha";
 import * as path from "path";
+import { fileURLToPath } from "url";
 
 /**
  * Runs all tests in src/test that are named like *-test.ts with Mocha.
@@ -16,7 +17,9 @@ export async function run(): Promise<void> {
     timeout: 3_000,
   });
 
-  const testsRoot = path.join(__dirname, "..");
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+  const testsRoot = path.join(currentDir, "..");
   const files = glob.sync("**/*-test.js", { cwd: testsRoot });
   for (const file of files) {
     mocha.addFile(path.resolve(testsRoot, file));
