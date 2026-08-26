@@ -1,8 +1,8 @@
-import { getDiagnostics, getCodeFixesAtRange } from "../helpers/analyze.js";
+import { getCodeFixesAtRange, getDiagnostics } from "../helpers/analyze.js";
 import { hasDiagnostic, hasNoDiagnostics } from "../helpers/assert.js";
+import { TestFile } from "../helpers/compile-files.js";
 import { makeElement } from "../helpers/generate-test-file.js";
 import { tsTest } from "../helpers/ts-test.js";
-import { TestFile } from "../helpers/compile-files.js";
 
 tsTest("Report missing imports of custom elements", (t) => {
   const { diagnostics } = getDiagnostics(
@@ -18,7 +18,7 @@ tsTest(
     const { diagnostics } = getDiagnostics(
       [
         makeElement({}),
-        "import './my-element'; html`<my-element></my-element>`",
+        'import "./my-element"; html`<my-element></my-element>`',
       ],
       {
         rules: { "no-missing-import": true },
@@ -36,9 +36,9 @@ tsTest(
         makeElement({}),
         {
           fileName: "file2.ts",
-          text: "import './my-element'",
+          text: `import "./my-element"`,
         },
-        "import './file2'; html`<my-element></my-element>`",
+        'import "./file2"; html`<my-element></my-element>`',
       ],
       { rules: { "no-missing-import": true } },
     );

@@ -5,6 +5,7 @@ import noExpressionlessPropertyBindingRule from "./no-expressionless-property-bi
 import noIncompatiblePropertyType from "./no-incompatible-property-type.js";
 import noIncompatibleTypeBindingRule from "./no-incompatible-type-binding.js";
 import noInvalidAttributeName from "./no-invalid-attribute-name.js";
+import noInvalidBooleanBindingRule from "./no-invalid-boolean-binding.js";
 import noInvalidDirectiveBindingRule from "./no-invalid-directive-binding.js";
 import noInvalidTagName from "./no-invalid-tag-name.js";
 import noLegacyAttribute from "./no-legacy-attribute.js";
@@ -22,6 +23,7 @@ import noUnknownSlotRule from "./no-unknown-slot.js";
 import noUnknownTagName from "./no-unknown-tag-name.js";
 
 export const ALL_RULES: RuleModule[] = [
+  noInvalidBooleanBindingRule,
   noExpressionlessPropertyBindingRule,
   noUnintendedMixedBindingRule,
   noUnknownSlotRule,

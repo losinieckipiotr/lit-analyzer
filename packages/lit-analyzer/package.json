@@ -29,10 +29,7 @@
     "prepublishOnly": "npm test",
     "tsc": "wireit",
     "tsc:watch": "wireit",
-    "test": "wireit",
-    "test:ava": "wireit",
-    "test:all": "npm test",
-    "check-version": "wireit"
+    "test": "wireit"
   },
   "wireit": {
     "tsc": {
@@ -42,38 +39,21 @@
       "command": "tsc --noEmit --watch --pretty"
     },
     "build": {
-      "clean": false,
+      "clean": true,
       "command": "tsc",
       "output": [
         "lib",
         "test",
-        "scripts",
         "index.js",
         "index.d.ts",
         "index.d.ts.map"
       ]
     },
     "test": {
-      "dependencies": [
-        "test:ava",
-        "check-version"
-      ]
-    },
-    "test:ava": {
-      "dependencies": [
+     "dependencies": [
         "build"
       ],
-      "command": "ava --color -s --fail-fast test/indexer/index-entries.js"
-    },
-    "check-version": {
-      "dependencies": [
-        "build"
-      ],
-      "files": [
-        "package.json",
-        "scripts/check-version.js"
-      ],
-      "command": "node scripts/check-version.js"
+      "command": "ava --color"
     }
   },
   "main": "index.js",

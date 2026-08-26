@@ -282,7 +282,12 @@ tsTest(
 tsTest(
   "Boolean binding: Empty string literal is not assignable in a boolean attribute binding",
   (t) => {
-    const { diagnostics } = getDiagnostics('html`<input ?required="${""}" />`');
+    const { diagnostics } = getDiagnostics(
+      'html`<input ?required="${""}" />`',
+      {
+        rules: { "no-invalid-boolean-binding": "off" },
+      },
+    );
     hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
   },
 );
@@ -302,6 +307,9 @@ tsTest(
   (t) => {
     const { diagnostics } = getDiagnostics(
       'html`<input ?required="${{} as string}" />`',
+      {
+        rules: { "no-invalid-boolean-binding": "off" },
+      },
     );
     hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
   },

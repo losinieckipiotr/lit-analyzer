@@ -279,7 +279,7 @@ tsTest(
         fileName: "main.js",
         entry: true,
         text: `
-				import './some-element.js';
+				import "./some-element.js";
 
 				const html = x => x;
 				html\`<some-element></some-element>\`;
