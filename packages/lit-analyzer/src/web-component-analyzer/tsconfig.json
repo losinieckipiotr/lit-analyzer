@@ -1,0 +1,19 @@
+{
+	"include": ["src/**/*"],
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "nodenext",
+		"importHelpers": false,
+		"lib": ["esnext", "dom"],
+		"rootDir": "./src/",
+		"strict": true,
+		"noImplicitAny": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+		"noUnusedLocals": true,
+		"pretty": true,
+		"declaration": true,
+		"declarationMap": true,
+		"esModuleInterop": true
+	}
+}

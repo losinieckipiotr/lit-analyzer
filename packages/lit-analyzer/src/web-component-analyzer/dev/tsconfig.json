@@ -1,0 +1,13 @@
+{
+	"include": ["./src"],
+	"compilerOptions": {
+		"rootDir": ".",
+		"experimentalDecorators": true,
+		"useDefineForClassFields": false,
+		"target": "esnext",
+		"module": "esnext",
+		"lib": ["ESnext", "DOM"],
+		"strict": true,
+		"esModuleInterop": true
+	}
+}
