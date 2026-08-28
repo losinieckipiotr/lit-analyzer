@@ -1,7 +1,8 @@
 import {
   isAssignableToSimpleTypeKind,
   SimpleTypeKind,
-  typeToString,
+  simpleTypeToString,
+  toSimpleType,
 } from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -18,6 +19,7 @@ const rule: RuleModule = {
     priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
+    const checker = context.program.getTypeChecker();
     // Only validate "expression" kind bindings.
     if (assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION) return;
 
@@ -26,19 +28,21 @@ const rule: RuleModule = {
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
 
     const { typeB } = extractBindingTypes(assignment, context);
+    const typeBSimple = toSimpleType(typeB, checker);
+
     const isAssignableToNull = isAssignableToSimpleTypeKind(
-      typeB,
+      typeBSimple,
       SimpleTypeKind.NULL,
     );
 
     // Test if removing "undefined" or "null" from typeB would work and suggest using "ifDefined".
     if (
       isAssignableToNull ||
-      isAssignableToSimpleTypeKind(typeB, SimpleTypeKind.UNDEFINED)
+      isAssignableToSimpleTypeKind(typeBSimple, SimpleTypeKind.UNDEFINED)
     ) {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `This attribute binds the type '${typeToString(typeB)}' which can end up binding the string '${
+        message: `This attribute binds the type '${simpleTypeToString(typeBSimple)}' which can end up binding the string '${
           isAssignableToNull ? "null" : "undefined"
         }'.`,
         fixMessage: "Use the 'ifDefined' directive?",

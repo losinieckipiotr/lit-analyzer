@@ -47,7 +47,7 @@
 		"experimentalDecorators": true,
 		"useDefineForClassFields": false,
 		"target": "esnext",
-		"module": "esnext",
+		"module": "nodenext",
 		"allowJs": true,
 		"lib": ["esnext", "dom"],
 		"strict": true,

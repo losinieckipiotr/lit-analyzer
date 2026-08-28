@@ -1,15 +1,9 @@
 import { Expression, Type, TypeChecker } from "typescript";
 import {
-  isSimpleType,
   SimpleType,
-  SimpleTypeBooleanLiteral,
   // SimpleTypeBooleanLiteral,
   SimpleTypeEnumMember,
   SimpleTypeKind,
-  SimpleTypeString,
-  // SimpleTypeString,
-  SimpleTypeStringLiteral,
-  toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
 import {
   HtmlNodeAttrAssignment,
@@ -19,43 +13,27 @@ import { HtmlNodeAttrKind } from "../../../analyze/types/html-node/html-node-att
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { getDirective } from "../directive/get-directive.js";
 
-const cache = new WeakMap<
-  HtmlNodeAttrAssignment,
-  { typeA: SimpleType; typeB: SimpleType }
->();
+// TODO: disable cache for now
+// const cache = new WeakMap<
+//   HtmlNodeAttrAssignment,
+//   { typeA: SimpleType; typeB: SimpleType }
+// >();
 
 export function extractBindingTypes(
   assignment: HtmlNodeAttrAssignment,
   context: RuleModuleContext,
-): { typeA: SimpleType; typeB: SimpleType } {
-  if (cache.has(assignment)) {
-    return cache.get(assignment)!;
-  }
+): { typeA: SimpleType | Type; typeB: SimpleType | Type } {
+  // if (cache.has(assignment)) {
+  //   return cache.get(assignment)!;
+  // }
 
   const checker = context.program.getTypeChecker();
-
-  // Relax the type we are looking at an expression in javascript files
-  //const inJavascriptFile = request.file.fileName.endsWith(".js");
-  //const shouldRelaxTypeB = 1 !== 1 && inJavascriptFile && assignment.kind === HtmlNodeAttrAssignmentKind.EXPRESSION;
-  const shouldRelaxTypeB = false; // Disable for now while collecting requirements
-
-  // Infer the type of the RHS
-  //const typeBInferred = shouldRelaxTypeB ? ({ kind: SimpleTypeKind.ANY } as SimpleType) : inferTypeFromAssignment(assignment, checker);
-  const typeBInferred = inferTypeFromAssignment(assignment, checker);
-
-  // Convert typeB to SimpleType
-  let typeB = (() => {
-    const type = isSimpleType(typeBInferred)
-      ? typeBInferred
-      : toSimpleType(typeBInferred, checker);
-    return shouldRelaxTypeB ? relaxType(type) : type;
-  })();
+  let typeB: Type | SimpleType = inferTypeFromAssignment(assignment, checker);
 
   // Find a corresponding target for this attribute
   const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(
     assignment.htmlAttr,
   );
-  //if (htmlAttrTarget == null) return [];
 
   const typeA =
     htmlAttrTarget == null
@@ -65,32 +43,27 @@ export function extractBindingTypes(
   // Handle directives
   const directive = getDirective(assignment, context);
   const directiveType = directive?.actualType?.();
-  if (directiveType != null) {
+  if (directiveType) {
     typeB = directiveType;
   }
 
   // Cache the result
-  const result = { typeA, typeB };
-  cache.set(assignment, result);
+  // const result = { typeA, typeB };
+  // cache.set(assignment, result);
 
-  return result;
+  return { typeA, typeB };
 }
 
 export function inferTypeFromAssignment(
   assignment: HtmlNodeAttrAssignment,
   checker: TypeChecker,
-): SimpleType | Type {
+): Type {
   switch (assignment.kind) {
-    case HtmlNodeAttrAssignmentKind.STRING:
-      return {
-        kind: SimpleTypeKind.STRING_LITERAL,
-        value: assignment.value,
-      } as SimpleTypeStringLiteral;
+    case HtmlNodeAttrAssignmentKind.STRING: {
+      return checker.getStringLiteralType(assignment.value);
+    }
     case HtmlNodeAttrAssignmentKind.BOOLEAN:
-      return {
-        kind: SimpleTypeKind.BOOLEAN_LITERAL,
-        value: true,
-      } as SimpleTypeBooleanLiteral;
+      return checker.getTrueType();
     case HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION:
       return checker.getTypeAtLocation(assignment.expression);
     case HtmlNodeAttrAssignmentKind.EXPRESSION:
@@ -108,7 +81,7 @@ export function inferTypeFromAssignment(
         }
       }
 
-      return { kind: SimpleTypeKind.STRING } as SimpleTypeString;
+      return checker.getStringType();
   }
 }
 

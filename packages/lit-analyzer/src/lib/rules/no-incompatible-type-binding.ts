@@ -1,3 +1,4 @@
+import { toSimpleType } from "../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -8,8 +9,8 @@ import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { extractBindingTypes } from "./util/type/extract-binding-types.js";
 import { isAssignableInAttributeBinding } from "./util/type/is-assignable-in-attribute-binding.js";
 import { isAssignableInBooleanBinding } from "./util/type/is-assignable-in-boolean-binding.js";
-import { isAssignableInPropertyBinding } from "./util/type/is-assignable-in-property-binding.js";
 import { isAssignableInElementBinding } from "./util/type/is-assignable-in-element-binding.js";
+import { isAssignableInPropertyBinding } from "./util/type/is-assignable-in-property-binding.js";
 
 /**
  * This rule validate if the types of a binding are assignable.
@@ -21,11 +22,14 @@ const rule: RuleModule = {
   },
   visitHtmlAssignment(assignment, context) {
     const { htmlAttr } = assignment;
+    const checker = context.program.getTypeChecker();
 
     if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION) {
       // For element bindings we only care about the expression type
       const { typeB } = extractBindingTypes(assignment, context);
-      isAssignableInElementBinding(htmlAttr, typeB, context);
+      const typeBSimple = toSimpleType(typeB, checker);
+
+      isAssignableInElementBinding(htmlAttr, typeBSimple, context);
     }
 
     if (context.htmlStore.getHtmlAttrTarget(htmlAttr) == null) {

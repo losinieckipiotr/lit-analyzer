@@ -11,6 +11,9 @@
 		"source.organizeImports": "always"
 	},
 	"search.exclude": {
-		"packages/*/lib": true
+		"packages/*/lib": true,
+		"packages/*/out": true,
+		"packages/*/built": true,
+		"packages/*/dist": true
 	}
 }

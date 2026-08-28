@@ -1,4 +1,4 @@
-import { SimpleType, typeToString } from "../../../src/simple-type.js";
+import { SimpleType, simpleTypeToString } from "../../../src/simple-type.js";
 import { analyzeTextWithCurrentTsModule } from "../../helpers/analyze-text-with-current-ts-module.js";
 import { tsTest } from "../../helpers/ts-test.js";
 
@@ -6,8 +6,7 @@ tsTest(
   "Correctly discovers dispatched events and corresponding event types",
   t => {
     const {
-      results: [result],
-      program
+      results: [result]
     } = analyzeTextWithCurrentTsModule({
       includeLib: true,
       fileName: "test.d.ts",
@@ -34,10 +33,7 @@ tsTest(
         return;
       }
 
-      t.is(
-        typeToString(event.type!() as SimpleType, program.getTypeChecker()),
-        typeName
-      );
+      t.is(simpleTypeToString(event.type!() as SimpleType), typeName);
     };
 
     t.is(events.length, 5);

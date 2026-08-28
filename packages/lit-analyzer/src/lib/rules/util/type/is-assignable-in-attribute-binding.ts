@@ -1,9 +1,11 @@
+import { Type } from "typescript";
 import {
   isAssignableToType as _isAssignableToType,
   SimpleType,
   SimpleTypeComparisonOptions,
   SimpleTypeKind,
-  typeToString,
+  simpleTypeToString,
+  toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
 import {
   HtmlNodeAttrAssignment,
@@ -22,17 +24,23 @@ import { isAssignableToType } from "./is-assignable-to-type.js";
 
 export function isAssignableInAttributeBinding(
   htmlAttr: HtmlNodeAttr,
-  { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
+  { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
   context: RuleModuleContext,
 ): boolean | undefined {
   const { assignment } = htmlAttr;
+  const checker = context.program.getTypeChecker();
+  const typeASimple = toSimpleType(typeA, checker);
+  const typeBSimple = toSimpleType(typeB, checker);
+
   if (assignment == null) return undefined;
 
   if (assignment.kind === HtmlNodeAttrAssignmentKind.BOOLEAN) {
     if (!isAssignableToType({ typeA, typeB }, context)) {
+      const typeBSimpleStr = simpleTypeToString(typeBSimple);
+      const typeASimpleStr = simpleTypeToString(typeASimple);
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `Type '${typeToString(typeB)}' is not assignable to '${typeToString(typeA)}'`,
+        message: `Type '${typeBSimpleStr}' is not assignable to '${typeASimpleStr}'`,
       });
 
       return false;
@@ -48,7 +56,7 @@ export function isAssignableInAttributeBinding(
       // <script src>).
       const securitySystemResult = isAssignableBindingUnderSecuritySystem(
         htmlAttr,
-        { typeA, typeB },
+        toSimpleType(typeB, checker),
         context,
       );
       if (securitySystemResult !== undefined) {
@@ -72,9 +80,11 @@ export function isAssignableInAttributeBinding(
         isAssignable: isAssignableToTypeWithStringCoercion,
       })
     ) {
+      const typeBSimpleStr = simpleTypeToString(typeBSimple);
+      const typeASimpleStr = simpleTypeToString(typeASimple);
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `Type '${typeToString(typeB)}' is not assignable to '${typeToString(typeA)}'`,
+        message: `Type '${typeBSimpleStr}' is not assignable to '${typeASimpleStr}'`,
       });
 
       return false;
@@ -236,9 +246,10 @@ export function isAssignableToTypeWithStringCoercion(
  */
 export function isAssignableInPrimitiveArray(
   assignment: HtmlNodeAttrAssignment,
-  { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
+  { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
   context: RuleModuleContext,
 ): boolean | undefined {
+  const checker = context.program.getTypeChecker();
   // Only check "STRING" and "EXPRESSION" for now
   if (
     assignment.kind !== HtmlNodeAttrAssignmentKind.STRING &&
@@ -247,10 +258,16 @@ export function isAssignableInPrimitiveArray(
     return undefined;
   }
 
+  const typeASimple = toSimpleType(typeA, checker);
+  const typeBSimple = toSimpleType(typeB, checker);
+
   // Check if typeA is marked as a "primitive array type"
-  if (isPrimitiveArrayType(typeA) && typeB.kind === "STRING_LITERAL") {
+  if (
+    isPrimitiveArrayType(typeASimple) &&
+    typeBSimple.kind === "STRING_LITERAL"
+  ) {
     // Split a value like: "button listitem" into ["button", " ", "listitem"]
-    const valuesAndWhitespace = typeB.value.split(/(\s+)/g);
+    const valuesAndWhitespace = typeBSimple.value.split(/(\s+)/g);
     const valuesNotAssignable: string[] = [];
 
     const startOffset = assignment.location.start;
@@ -271,12 +288,13 @@ export function isAssignableInPrimitiveArray(
 
           // If the assignment kind is "STRING" we can report diagnostics directly on the value in the HTML
           if (assignment.kind === "STRING") {
+            const typeASimpleStr = simpleTypeToString(typeASimple);
             context.report({
               location: documentRangeToSFRange(assignment.htmlAttr.document, {
                 start: startOffset + offset,
                 end: startOffset + offset + value.length,
               }),
-              message: `The value '${value}' is not assignable to '${typeToString(typeA)}'`,
+              message: `The value '${value}' is not assignable to '${typeASimpleStr}'`,
             });
           }
         }
@@ -288,11 +306,12 @@ export function isAssignableInPrimitiveArray(
     // If the assignment kind as "EXPRESSION" report a single diagnostic on the attribute name
     if (assignment.kind === "EXPRESSION" && valuesNotAssignable.length > 0) {
       const multiple = valuesNotAssignable.length > 1;
+      const typeASimpleStr = simpleTypeToString(typeASimple);
       context.report({
         location: rangeFromHtmlNodeAttr(assignment.htmlAttr),
         message: `The value${multiple ? "s" : ""} ${valuesNotAssignable.map((v) => `'${v}'`).join(", ")} ${
           multiple ? "are" : "is"
-        } not assignable to '${typeToString(typeA)}'`,
+        } not assignable to '${typeASimpleStr}'`,
       });
     }
 

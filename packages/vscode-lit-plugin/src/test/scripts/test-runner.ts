@@ -9,11 +9,15 @@ import { runTests } from "@vscode/test-electron";
 
 async function main() {
   try {
-    if (process.argv.length !== 3) {
-      throw new Error(`Usage: node ${process.argv[1]} <path to extension>`);
-    }
     // When testing the packaged-and-then-unzipped extension, we'll be handed the path to it.
-    const extensionPath = path.resolve(process.argv[2]);
+
+    const EXTENSION_PATH = process.env["EXTENSION_PATH"];
+
+    if (!EXTENSION_PATH) {
+      throw new Error("EXTENSION_PATH environment variable is not set.");
+    }
+
+    const extensionPath = path.resolve(EXTENSION_PATH);
 
     const extensionTestsPath = path.resolve(__dirname, "./mocha-driver");
 
@@ -30,7 +34,7 @@ async function main() {
     await runTests({
       extensionDevelopmentPath: extensionPath,
       extensionTestsPath,
-      launchArgs: [fixturesDir],
+      launchArgs: [fixturesDir, "--disable-extensions"],
     });
 
     const inCI = !!process.env.CI;

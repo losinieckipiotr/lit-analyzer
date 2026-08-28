@@ -1,6 +1,7 @@
 import {
   isAssignableToSimpleTypeKind,
   SimpleTypeKind,
+  toSimpleType,
 } from "../../web-component-analyzer/src/api.js";
 import { LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER } from "../analyze/constants.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
@@ -21,6 +22,8 @@ const rule: RuleModule = {
     priority: "medium",
   },
   visitHtmlAssignment(assignment, context) {
+    const checker = context.program.getTypeChecker();
+
     // Don't validate boolean attribute bindings.
     if (assignment.kind === HtmlNodeAttrAssignmentKind.BOOLEAN) return;
 
@@ -30,24 +33,28 @@ const rule: RuleModule = {
 
     const { typeA, typeB } = extractBindingTypes(assignment, context);
 
+    const typeASimple = toSimpleType(typeA, checker);
+    const typeBSimple = toSimpleType(typeB, checker);
+
     // Return early if the attribute is like 'required=""' because this is assignable to boolean.
-    if (typeB.kind === "STRING_LITERAL" && typeB.value.length === 0) return;
+    if (typeBSimple.kind === "STRING_LITERAL" && typeBSimple.value.length === 0)
+      return;
 
     // Check that typeB is not of any|unknown type and typeB is assignable to boolean.
     // Report a diagnostic if typeB is assignable to boolean type because this would result in binding the boolean coerced to string.
     if (
-      !isAssignableToSimpleTypeKind(typeB, [
+      !isAssignableToSimpleTypeKind(typeBSimple, [
         SimpleTypeKind.ANY,
         SimpleTypeKind.UNKNOWN,
       ]) &&
       isAssignableToType(
-        { typeA: { kind: SimpleTypeKind.BOOLEAN }, typeB },
+        { typeA: { kind: SimpleTypeKind.BOOLEAN }, typeB: typeBSimple },
         context,
       )
     ) {
       // Don't emit error if typeB is assignable to typeA with string coercion.
       if (
-        isAssignableToType({ typeA, typeB }, context, {
+        isAssignableToType({ typeA, typeB: typeBSimple }, context, {
           isAssignable: isAssignableToTypeWithStringCoercion,
         })
       ) {
@@ -79,7 +86,7 @@ const rule: RuleModule = {
     // Report a diagnostic if typeA is assignable to boolean type because then
     //   we should probably be using a boolean binding instead of an attribute binding.
     else if (
-      !isAssignableToSimpleTypeKind(typeA, [
+      !isAssignableToSimpleTypeKind(typeASimple, [
         SimpleTypeKind.ANY,
         SimpleTypeKind.UNKNOWN,
       ]) &&

@@ -1,6 +1,6 @@
 import {
   SimpleType,
-  typeToString,
+  simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
@@ -15,10 +15,11 @@ import { isLitDirective } from "../directive/is-lit-directive.js";
  */
 export function isAssignableBindingUnderSecuritySystem(
   htmlAttr: HtmlNodeAttr,
-  { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
+  typeB: SimpleType,
   context: RuleModuleContext,
 ): boolean | undefined {
   const securityPolicy = context.config.securitySystem;
+
   switch (securityPolicy) {
     case "off":
       return undefined; // No security checks apply.
@@ -94,7 +95,7 @@ function checkClosureSecurityAssignability(
 
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${typeToString(typeB)}' is not assignable to '${overriddenTypes.join(" | ")}'. This is due to Closure Safe Type enforcement.`,
+      message: `Type '${simpleTypeToString(typeB)}' is not assignable to '${overriddenTypes.join(" | ")}'. This is due to Closure Safe Type enforcement.`,
     });
     return false;
   }

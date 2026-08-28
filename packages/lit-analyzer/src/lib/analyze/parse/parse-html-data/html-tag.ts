@@ -8,7 +8,7 @@ import {
   isAssignableToSimpleTypeKind,
   SimpleType,
   SimpleTypeKind,
-  typeToString,
+  simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
@@ -279,7 +279,7 @@ export function targetKindAndTypeText(
     return `${prefix}`;
   }
 
-  return `${prefix}: ${typeToString(target.getType())}`;
+  return `${prefix}: ${simpleTypeToString(target.getType())}`;
 }
 
 export function targetKindText(target: HtmlAttrTarget): string {

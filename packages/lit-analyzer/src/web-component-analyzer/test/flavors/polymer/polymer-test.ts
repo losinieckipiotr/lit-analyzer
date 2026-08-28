@@ -1,5 +1,6 @@
 import {
   isAssignableToSimpleTypeKind,
+  SimpleType,
   SimpleTypeKind
 } from "../../../src/simple-type.js";
 import { analyzeTextWithCurrentTsModule } from "../../helpers/analyze-text-with-current-ts-module.js";
@@ -8,8 +9,7 @@ import { getComponentProp } from "../../helpers/util.js";
 
 tsTest("Polymer components are correctly picked up", t => {
   const {
-    results: [result],
-    checker
+    results: [result]
   } = analyzeTextWithCurrentTsModule(`
 		class XCustom extends PolymerElement {
 			static get properties() {
@@ -37,9 +37,8 @@ tsTest("Polymer components are correctly picked up", t => {
   t.truthy(userProp);
   t.truthy(
     isAssignableToSimpleTypeKind(
-      userProp!.type!(),
-      SimpleTypeKind.STRING,
-      checker
+      userProp!.type!() as SimpleType,
+      SimpleTypeKind.STRING
     )
   );
   t.is(userProp!.attrName, "user");
@@ -48,9 +47,8 @@ tsTest("Polymer components are correctly picked up", t => {
   t.truthy(isHappyProp);
   t.truthy(
     isAssignableToSimpleTypeKind(
-      isHappyProp!.type!(),
-      SimpleTypeKind.BOOLEAN,
-      checker
+      isHappyProp!.type!() as SimpleType,
+      SimpleTypeKind.BOOLEAN
     )
   );
   t.is(isHappyProp!.attrName, "is-happy");
@@ -59,9 +57,8 @@ tsTest("Polymer components are correctly picked up", t => {
   t.truthy(countProp);
   t.truthy(
     isAssignableToSimpleTypeKind(
-      countProp!.type!(),
-      SimpleTypeKind.NUMBER,
-      checker
+      countProp!.type!() as SimpleType,
+      SimpleTypeKind.NUMBER
     )
   );
   t.is(countProp!.attrName, "count");

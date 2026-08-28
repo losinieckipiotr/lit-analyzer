@@ -16,12 +16,15 @@ const colorProvider = new ColorProvider();
 export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<void> {
+  // Get the TS extension
   const extension = vscode.extensions.getExtension(typeScriptExtensionId);
   if (!extension) {
     return;
   }
 
   await extension.activate();
+
+  // Get the API from the TS extension
   if (!extension.exports || !extension.exports.getAPI) {
     return;
   }
@@ -31,6 +34,8 @@ export async function activate(
     return;
   }
 
+  //
+
   // Subscribe to configuration change
   vscode.workspace.onDidChangeConfiguration(
     (e) => {
@@ -38,7 +43,8 @@ export async function activate(
         e.affectsConfiguration(configurationSection) ||
         e.affectsConfiguration(configurationExperimentalHtmlSection)
       ) {
-        synchronizeConfig(api);
+        // Configure the 'ts-lit-plugin' plugin
+        api.configurePlugin(tsLitPluginId, getConfig());
       }
     },
     undefined,
@@ -60,11 +66,7 @@ export async function activate(
   );
   context.subscriptions.push(registration);
 
-  synchronizeConfig(api);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-function synchronizeConfig(api: { configurePlugin: Function }) {
+  // Configure the 'ts-lit-plugin' plugin
   api.configurePlugin(tsLitPluginId, getConfig());
 }
 

@@ -5,6 +5,8 @@ import {
   LitElementPropertyConfig,
   SimpleType,
   SimpleTypeKind,
+  simpleTypeToString,
+  toSimpleType,
   typeToString,
 } from "../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../analyze/types/rule/rule-module-context.js";
@@ -82,6 +84,7 @@ function prepareSimpleAssignabilityTester(
 
     function getResult() {
       const checker = context.program.getTypeChecker();
+      const typeToCheckSimple = toSimpleType(typeToCheck, checker);
 
       switch (configType) {
         case SimpleTypeKind.STRING: {
@@ -109,28 +112,31 @@ function prepareSimpleAssignabilityTester(
           return false;
         }
         case SimpleTypeKind.NUMBER:
-          return isAssignableToSimpleTypeKind(typeToCheck, [
+          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
             SimpleTypeKind.NUMBER,
             SimpleTypeKind.NUMBER_LITERAL,
           ]);
 
         case SimpleTypeKind.BOOLEAN:
-          return isAssignableToSimpleTypeKind(typeToCheck, [
+          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
             SimpleTypeKind.BOOLEAN,
             SimpleTypeKind.BOOLEAN_LITERAL,
           ]);
         case SimpleTypeKind.ARRAY:
-          return isAssignableToSimpleTypeKind(typeToCheck, [
+          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
             SimpleTypeKind.ARRAY,
             SimpleTypeKind.TUPLE,
           ]);
         case SimpleTypeKind.OBJECT:
-          return isAssignableToSimpleTypeKind(typeToCheck, [
+          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
             SimpleTypeKind.OBJECT,
             SimpleTypeKind.INTERFACE,
           ]);
         case SimpleTypeKind.ANY:
-          return isAssignableToSimpleTypeKind(typeToCheck, SimpleTypeKind.ANY);
+          return isAssignableToSimpleTypeKind(
+            typeToCheckSimple,
+            SimpleTypeKind.ANY,
+          );
         default:
           return false;
       }
@@ -173,6 +179,7 @@ function validateLitPropertyConfig(
   typeToCheck: Type | SimpleType,
   context: RuleModuleContext,
 ) {
+  const checker = context.program.getTypeChecker();
   // Check if "type" is one of the built in default type converter hint
   if (typeof litConfig.type === "string" && !litConfig.hasConverter) {
     context.report({
@@ -224,9 +231,13 @@ function validateLitPropertyConfig(
       // If no suggesting can be provided, report that they are not assignable
       // The OBJECT @property type is an escape from this error
       else if (litConfig.type.kind !== "OBJECT") {
+        const configTypeString = simpleTypeToString(litConfig.type);
+        const typeToCheckString = isSimpleType(typeToCheck)
+          ? simpleTypeToString(typeToCheck)
+          : typeToString(typeToCheck, checker);
         context.report({
           location: rangeFromNode(node),
-          message: `@property type '${typeToString(litConfig.type)}' is not assignable to the actual type '${typeToString(typeToCheck)}'`,
+          message: `@property type '${configTypeString}' is not assignable to the actual type '${typeToCheckString}'`,
         });
       }
     }
@@ -266,9 +277,12 @@ function validateLitPropertyConfig(
         message: `Missing ${acceptedTypeText} on @property decorator for '${propName}'`,
       });
     } else {
+      const typeToCheckString = isSimpleType(typeToCheck)
+        ? simpleTypeToString(typeToCheck)
+        : typeToString(typeToCheck, checker);
       context.report({
         location: rangeFromNode(node),
-        message: `The built in converter doesn't handle the property type '${typeToString(typeToCheck)}'.`,
+        message: `The built in converter doesn't handle the property type '${typeToCheckString}'.`,
         fixMessage: `Please add '{attribute: false}' on @property decorator for '${propName}'`,
       });
     }

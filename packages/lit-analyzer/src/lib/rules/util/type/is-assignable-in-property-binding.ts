@@ -1,6 +1,8 @@
+import type { Type } from "typescript";
 import {
   SimpleType,
-  typeToString,
+  simpleTypeToString,
+  toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
@@ -10,12 +12,15 @@ import { isAssignableToType } from "./is-assignable-to-type.js";
 
 export function isAssignableInPropertyBinding(
   htmlAttr: HtmlNodeAttr,
-  { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
+  { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
   context: RuleModuleContext,
 ): boolean | undefined {
+  const checker = context.program.getTypeChecker();
+  const typeBSimple = toSimpleType(typeB, checker);
+  const typeASimple = toSimpleType(typeA, checker);
   const securitySystemResult = isAssignableBindingUnderSecuritySystem(
     htmlAttr,
-    { typeA, typeB },
+    typeBSimple,
     context,
   );
   if (securitySystemResult !== undefined) {
@@ -27,7 +32,7 @@ export function isAssignableInPropertyBinding(
   if (!isAssignableToType({ typeA, typeB }, context)) {
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${typeToString(typeB)}' is not assignable to '${typeToString(typeA)}'`,
+      message: `Type '${simpleTypeToString(typeBSimple)}' is not assignable to '${simpleTypeToString(typeASimple)}'`,
     });
 
     return false;

@@ -1,6 +1,6 @@
-import fs from "fs";
-// eslint-disable-next-line import/extensions
-import { copy, mkdirp } from "fs-extra/esm";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require("fs");
+const { copy, mkdirp } = require("fs-extra");
 
 /**
  * Copy files into the ./built directory.

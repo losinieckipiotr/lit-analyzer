@@ -9,8 +9,8 @@ import {
   isSimpleType,
   SimpleType,
   SimpleTypeKind,
-  toSimpleType,
-  typeToString
+  simpleTypeToString,
+  toSimpleType
 } from "../../simple-type.js";
 import { arrayDefined } from "../../util/array-util.js";
 import { markdownHighlight } from "../markdown/markdown-util.js";
@@ -262,7 +262,7 @@ function formatEntryRow(
       ? type
       : type == null
         ? ""
-        : formatType(type, checker);
+        : formatType(toSimpleType(type, checker));
 
   return `${markdownHighlight(name)}${typeText == null ? "" : ` {${typeText}}`}${comment == null ? "" : " - "}${comment || ""}`;
 }
@@ -272,11 +272,8 @@ function formatEntryRow(
  * @param type
  * @param checker
  */
-function formatType(
-  type: Type | SimpleType,
-  checker: TypeChecker
-): string | undefined {
-  return !isAssignableToSimpleTypeKind(type, SimpleTypeKind.ANY, checker)
-    ? markdownHighlight(typeToString(type, checker))
+function formatType(type: SimpleType): string | undefined {
+  return !isAssignableToSimpleTypeKind(type, SimpleTypeKind.ANY)
+    ? markdownHighlight(simpleTypeToString(type))
     : undefined;
 }

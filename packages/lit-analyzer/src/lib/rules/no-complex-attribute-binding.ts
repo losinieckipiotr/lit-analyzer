@@ -1,6 +1,7 @@
 import {
   isAssignableToPrimitiveType,
-  typeToString,
+  simpleTypeToString,
+  toSimpleType,
 } from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -19,6 +20,8 @@ const rule: RuleModule = {
     priority: "medium",
   },
   visitHtmlAssignment(assignment, context) {
+    const checker = context.program.getTypeChecker();
+
     // Only validate attribute bindings, because you are able to assign complex types in property bindings.
     const { htmlAttr } = assignment;
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
@@ -28,16 +31,18 @@ const rule: RuleModule = {
       return;
 
     const { typeA, typeB } = extractBindingTypes(assignment, context);
+    const typeASimple = toSimpleType(typeA, checker);
+    const typeBSimple = toSimpleType(typeB, checker);
 
     // Don't validate directives in this rule, because they are assignable even though they are complex types (functions).
-    if (isLitDirective(typeB)) return;
+    if (isLitDirective(typeBSimple)) return;
 
     // Only primitive types should be allowed as "typeB"
-    if (!isAssignableToPrimitiveType(typeB)) {
+    if (!isAssignableToPrimitiveType(typeBSimple)) {
       if (
         isAssignableBindingUnderSecuritySystem(
           htmlAttr,
-          { typeA, typeB },
+          typeBSimple,
           context,
         ) !== undefined
       ) {
@@ -46,7 +51,8 @@ const rule: RuleModule = {
         return;
       }
 
-      const message = `You are binding a non-primitive type '${typeToString(typeB)}'. This could result in binding the string "[object Object]".`;
+      const typeBStr = simpleTypeToString(typeBSimple);
+      const message = `You are binding a non-primitive type '${typeBStr}'. This could result in binding the string "[object Object]".`;
       const newModifier = ".";
 
       context.report({
@@ -67,8 +73,10 @@ const rule: RuleModule = {
     }
 
     // Only primitive types should be allowed as "typeA"
-    else if (!isAssignableToPrimitiveType(typeA)) {
-      const message = `You are assigning the primitive '${typeToString(typeB)}' to a non-primitive type '${typeToString(typeA)}'.`;
+    else if (!isAssignableToPrimitiveType(typeASimple)) {
+      const typeBStr = simpleTypeToString(typeBSimple);
+      const typeAStr = simpleTypeToString(typeASimple);
+      const message = `You are assigning the primitive '${typeBStr}' to a non-primitive type '${typeAStr}'.`;
       const newModifier = ".";
 
       context.report({

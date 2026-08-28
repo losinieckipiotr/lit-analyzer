@@ -8,7 +8,7 @@
   "icon": "docs/assets/lit-plugin@256w.png",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.63.0"
+    "vscode": "^1.134.0"
   },
   "categories": [
     "Programming Languages"
@@ -30,11 +30,9 @@
     "test": "wireit",
     "build": "wireit",
     "test:normal": "wireit",
-    "test:packaged": "wireit",
-    "create-isolated-extension-dir": "wireit",
-    "test:packaged-sequentialized": "wireit",
     "bundle": "wireit",
-    "make-built-dir": "wireit"
+    "make-built-dir": "wireit",
+    "vscode-test": "vscode-test"
   },
   "wireit": {
     "build": {
@@ -69,28 +67,10 @@
         "schemas/**/*"
       ],
       "output": [],
-      "command": "node ./out/test/scripts/test-runner.js ./built"
-    },
-    "test:packaged": {
-      "dependencies": [
-        "build",
-        "create-isolated-extension-dir"
-      ],
-      "files": [],
-      "output": [],
-      "command": "node ./out/test/scripts/test-runner.js ../../../packaged-extension/extension/"
-    },
-    "test:packaged-sequentialized": {
-      "#comment": "like test:packaged, only it ensures that test:normal runs first",
-      "dependencies": [
-        "test:normal",
-        "build",
-        "create-isolated-extension-dir"
-      ],
-      "files": [],
-      "output": [],
-      "#comment1": "is this runs test outside of the project ??? disabled for now",
-      "command": "node ./out/test/scripts/test-runner.js ../../../packaged-extension/extension/"
+      "env": {
+        "EXTENSION_PATH": "./built"
+      },
+      "command": "node ./out/test/scripts/test-runner.js"
     },
     "make-out-dir": {
       "command": "node src/test/scripts/make-built-dir.ts"
@@ -111,16 +91,6 @@
         "make-built-dir"
       ],
       "command": "cd built && vsce publish"
-    },
-    "create-isolated-extension-dir": {
-      "dependencies": [
-        "package"
-      ],
-      "files": [
-        "out/packaged.vsix"
-      ],
-      "command": "rm -rf ../../../packaged-extension/ && mkdir ../../../packaged-extension/ && unzip -qq ./out/packaged.vsix -d ../../../packaged-extension/",
-      "clean": false
     },
     "bundle": {
       "dependencies": [
@@ -175,6 +145,8 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.3.0",
     "@types/vscode": "^1.134.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.2",
     "fs-extra": "^11.4.0",

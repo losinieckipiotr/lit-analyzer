@@ -1,15 +1,21 @@
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import "./my-element-2";
+import "./my-element-2.js";
 
 /**
  * @event some-event - Fired when something happens
  */
 @customElement("my-element")
 export class MyElement extends LitElement {
+	@property({ type: String, attribute: "bval" })
+	bval: 'true' | 'false' = 'true';
+
 	@property({ attribute: "hell>o" }) test: number | undefined;
 
 	@property({ type: Date }) test2: number | undefined;
+
+	@property({ type: String })
+	test3: string | undefined;
 
 	@state() internal: number | undefined;
 
@@ -31,7 +37,14 @@ export class MyElement extends LitElement {
 	}
 
 	render() {
+		let input = document.createElement("input");
+		input.ariaExpanded = "true";
+
+		let b: boolean = true;
+
 		return html`
+			<my-element bval="${b}"></my-element>
+
 			<my-tsconfig-element size="large"></my-tsconfig-element>
 			<unknown-element @heheheh="${() => {}}" globalattribute></unknown-element>
 			<heheheh></heheheh>
@@ -39,7 +52,7 @@ export class MyElement extends LitElement {
 				<div slot=""></div>
 				<div slot="right"></div>
 			</my-element2>
-			<my-element></my-element>
+			<my-element .test3="${1}"></my-element>
 			<input @hehehehe="${() => {}}" />
 			<my-element @click="${() => {}}"></my-element>
 			<my-element @some-event=${this.onSomeEvent}></my-element>

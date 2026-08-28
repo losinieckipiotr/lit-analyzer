@@ -5,9 +5,8 @@ import {
   makeConfig,
   VERSION,
 } from "lit-analyzer";
-import { dirname } from "path";
-import * as ts from "typescript";
-import { VERSION as WCA_VERSION } from "web-component-analyzer";
+import * as ts_module from "typescript/lib/tsserverlibrary.js";
+// import { VERSION as WCA_VERSION } from "web-component-analyzer";
 import { decorateLanguageService } from "./decorate-language-service.js";
 import { logger } from "./logger.js";
 import { LitPluginContext } from "./ts-lit-plugin/lit-plugin-context.js";
@@ -25,8 +24,8 @@ let context: LitPluginContext | undefined = undefined;
 export function init({
   typescript,
 }: {
-  typescript: typeof ts;
-}): ts.server.PluginModule {
+  typescript: typeof ts_module;
+}): ts_module.server.PluginModule {
   // Cache the typescript module
   setTypescriptModule(typescript);
 
@@ -38,15 +37,16 @@ export function init({
   let printDebugOnce: Function | undefined = () => {
     if (logger.level >= LitAnalyzerLoggerLevel.DEBUG) {
       logger.debug(`Lit Analyzer: ${VERSION}`);
-      logger.debug(`Web Component Analyzer: ${WCA_VERSION}`);
+      // TODO?
+      // logger.debug(`Web Component Analyzer: ${WCA_VERSION}`);
       logger.debug(`Running Typescript: ${typescript.version}`);
-      logger.debug(`DIRNAME: ${dirname(fileURLToPath(import.meta.url))}`);
+      logger.debug(`DIRNAME: ${__dirname}`);
       printDebugOnce = undefined;
     }
   };
 
   return {
-    create: (info: ts.server.PluginCreateInfo) => {
+    create: (info: ts_module.server.PluginCreateInfo) => {
       // Check if the language service is already decorated
       if ((info.languageService as any)[tsHtmlPluginSymbol] != null) {
         return info.languageService;
@@ -131,7 +131,7 @@ export function init({
  * Resolves the nearest tsconfig.json and returns the configuration seed within the plugins section for "ts-lit-plugin"
  */
 function readLitAnalyzerConfigFromCompilerOptions(
-  compilerOptions: ts.CompilerOptions,
+  compilerOptions: ts_module.CompilerOptions,
 ): Partial<LitAnalyzerConfig> | undefined {
   // Finds the plugin section
   if ("plugins" in compilerOptions) {
@@ -147,7 +147,4 @@ function readLitAnalyzerConfigFromCompilerOptions(
   }
 
   return undefined;
-}
-function fileURLToPath(url: string): string {
-  throw new Error("Function not implemented.");
 }

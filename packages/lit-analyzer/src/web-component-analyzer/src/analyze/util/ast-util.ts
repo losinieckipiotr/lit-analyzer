@@ -1,5 +1,5 @@
-import type * as tsModule from "typescript";
-import type {
+import * as tsModule from "typescript";
+import {
   Declaration,
   Decorator,
   Identifier,
@@ -14,7 +14,8 @@ import type {
 } from "typescript";
 import {
   isAssignableToSimpleTypeKind,
-  SimpleTypeKind
+  SimpleTypeKind,
+  toSimpleType
 } from "../../simple-type.js";
 import { ModifierKind } from "../types/modifier-kind.js";
 import { VisibilityKind } from "../types/visibility-kind.js";
@@ -277,6 +278,7 @@ export function isPropertyRequired(
   ts: typeof tsModule
 ): boolean {
   const type = checker.getTypeAtLocation(property);
+  const typeSimple = toSimpleType(type, checker);
 
   // Properties in external modules don't have initializers, so we cannot infer if the property is required or not
   if (isNodeInDeclarationFile(property)) {
@@ -299,11 +301,10 @@ export function isPropertyRequired(
 
   // "any" or "unknown" should never be required
   if (
-    isAssignableToSimpleTypeKind(
-      type,
-      [SimpleTypeKind.ANY, SimpleTypeKind.UNKNOWN],
-      checker
-    )
+    isAssignableToSimpleTypeKind(typeSimple, [
+      SimpleTypeKind.ANY,
+      SimpleTypeKind.UNKNOWN
+    ])
   ) {
     return false;
   }
@@ -314,11 +315,10 @@ export function isPropertyRequired(
     return false;
   }
 
-  return !isAssignableToSimpleTypeKind(
-    type,
-    [SimpleTypeKind.UNDEFINED, SimpleTypeKind.NULL],
-    checker
-  );
+  return !isAssignableToSimpleTypeKind(typeSimple, [
+    SimpleTypeKind.UNDEFINED,
+    SimpleTypeKind.NULL
+  ]);
 }
 
 /**

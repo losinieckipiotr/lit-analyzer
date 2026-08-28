@@ -1,3 +1,4 @@
+import { Type } from "typescript";
 import {
   isAssignableToType as _isAssignableToType,
   SimpleType,
@@ -6,7 +7,7 @@ import {
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 
 export function isAssignableToType(
-  { typeA, typeB }: { typeA: SimpleType; typeB: SimpleType },
+  { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
   context: RuleModuleContext,
   options?: SimpleTypeComparisonOptions,
 ): boolean {

@@ -1,6 +1,6 @@
 import {
   SimpleType,
-  typeToString,
+  simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
@@ -25,12 +25,12 @@ export function isAssignableInElementBinding(
     if (isLit1Directive(type)) {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `Type '${typeToString(type)}' is a lit-html 1.0 directive, not a Lit 2 directive'`,
+        message: `Type '${simpleTypeToString(type)}' is a lit-html 1.0 directive, not a Lit 2 directive'`,
       });
     } else {
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `Type '${typeToString(type)}' is not a Lit 2 directive'`,
+        message: `Type '${simpleTypeToString(type)}' is not a Lit 2 directive'`,
       });
     }
     return false;

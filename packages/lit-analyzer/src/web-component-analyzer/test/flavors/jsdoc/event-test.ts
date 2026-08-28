@@ -4,7 +4,7 @@ import {
   isAssignableToSimpleTypeKind,
   SimpleType,
   SimpleTypeKind,
-  typeToString
+  simpleTypeToString
 } from "../../../src/simple-type.js";
 import { analyzeTextWithCurrentTsModule } from "../../helpers/analyze-text-with-current-ts-module.js";
 import { getCurrentTsModule, tsTest } from "../../helpers/ts-test.js";
@@ -110,10 +110,7 @@ tsTest("jsdoc: Discovers and correctly parses event types", t => {
     }
 
     //console.log(event.type());
-    t.is(
-      typeToString(event.type!() as SimpleType, program.getTypeChecker()),
-      typeName
-    );
+    t.is(simpleTypeToString(event.type!() as SimpleType), typeName);
     t.truthy(isAssignableToType(type, event.type!(), program));
   };
 

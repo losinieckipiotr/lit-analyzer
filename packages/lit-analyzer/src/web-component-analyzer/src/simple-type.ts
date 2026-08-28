@@ -35,7 +35,7 @@ export type SimpleTypeModifierKind =
   | "ASYNC"
   | "DEFAULT";
 
-// TODO: remove not needed kinds
+// TODO: use const object instead of enum
 export enum SimpleTypeKind {
   STRING_LITERAL = "STRING_LITERAL",
   NUMBER_LITERAL = "NUMBER_LITERAL",
@@ -1548,14 +1548,12 @@ interface ToSimpleTypeOptions {
 
 export function toSimpleType(
   type: Type | Node | SimpleType,
-  checker?: TypeChecker,
+  checker: TypeChecker,
   options: ToSimpleTypeOptions = {}
 ): SimpleType {
   if (isSimpleType(type)) {
     return type;
   }
-
-  checker = checker!;
 
   if (isNode(type)) {
     // "type" is a "Node", convert it to a "Type" and continue.
@@ -1715,27 +1713,12 @@ interface SimpleTypeKindComparisonOptions {
 }
 
 export function isAssignableToSimpleTypeKind(
-  type: Type | SimpleType,
+  type: SimpleType,
   kind: SimpleTypeKind | SimpleTypeKind[],
-  optionsOrChecker?: TypeChecker | SimpleTypeKindComparisonOptions,
   options: SimpleTypeKindComparisonOptions = {}
 ): boolean {
-  const checker = isTypeChecker(optionsOrChecker)
-    ? optionsOrChecker
-    : undefined;
-  options =
-    (isTypeChecker(optionsOrChecker) || optionsOrChecker == null
-      ? options
-      : optionsOrChecker) || {};
-
   if (!isSimpleType(type)) {
-    const result = isAssignableToSimpleTypeKind(
-      toSimpleType(type, checker!),
-      kind,
-      options
-    );
-
-    return result;
+    throw new Error("Expected a SimpleType");
   }
 
   const result = validateType(type, simpleType => {
@@ -1787,16 +1770,12 @@ function functionArgTypesToString(
     .join(", ");
 }
 
-export function typeToString(
-  type: SimpleType | Type,
-  checker?: TypeChecker
-): string {
+export function typeToString(type: Type, checker: TypeChecker): string {
   if (isSimpleType(type)) {
-    return simpleTypeToString(type);
+    throw new Error("Expected a Type that is not a SimpleType");
   }
 
-  // Use the typescript checker to return a string for a type
-  return checker!.typeToString(type);
+  return checker.typeToString(type);
 }
 
 function truncateAndJoinList(

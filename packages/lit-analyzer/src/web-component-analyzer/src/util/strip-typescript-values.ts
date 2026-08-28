@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Node, SourceFile, Type, TypeChecker } from "typescript";
-import { isSimpleType, typeToString } from "../simple-type.js";
+import { isSimpleType, simpleTypeToString } from "../simple-type.js";
 
 function isTypescriptNode(value: any): value is Node {
   return value instanceof Object && "kind" in value && "flags" in value;
@@ -45,7 +45,7 @@ export function stripTypescriptValues(
     }
     return `{TYPE:${checker.typeToString(input)}}`;
   } else if (isSimpleType(input)) {
-    return `{SIMPLE_TYPE:${typeToString(input)}}`;
+    return `{SIMPLE_TYPE:${simpleTypeToString(input)}}`;
   } else if (Array.isArray(input)) {
     return input.map(i => stripTypescriptValues(i, checker, seenValues));
   } else if (input instanceof Set) {

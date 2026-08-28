@@ -1,7 +1,6 @@
-import { Expression } from "typescript";
+import { Expression, Type } from "typescript";
 import {
   SimpleType,
-  SimpleTypeKind,
   toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
 import {
@@ -33,7 +32,7 @@ export interface UserDefinedDirectiveKind {
 
 interface Directive {
   kind: BuiltInDirectiveKind | UserDefinedDirectiveKind;
-  actualType?: () => SimpleType | undefined;
+  actualType?: () => SimpleType | Type | undefined;
   args: Expression[];
 }
 
@@ -59,11 +58,8 @@ export function getDirective(
         // This new type becomes the actual type of the expression
         const actualType = lazy(() => {
           if (args.length >= 1) {
-            const returnType = toSimpleType(
-              checker.getTypeAtLocation(args[0]),
-              checker,
-            );
-            return removeUndefinedFromType(returnType);
+            const returnType = checker.getTypeAtLocation(args[0]);
+            return removeUndefinedFromType(toSimpleType(returnType, checker));
           }
 
           return undefined;
@@ -81,7 +77,7 @@ export function getDirective(
         // The actual type will be the type of the first argument to live
         const actualType = lazy(() => {
           if (args.length >= 1) {
-            return toSimpleType(checker.getTypeAtLocation(args[0]), checker);
+            return checker.getTypeAtLocation(args[0]);
           }
 
           return undefined;
@@ -129,7 +125,7 @@ export function getDirective(
       case "styleMap":
         return {
           kind: functionName,
-          actualType: () => ({ kind: SimpleTypeKind.STRING }),
+          actualType: () => checker.getStringType(),
           args,
         };
 

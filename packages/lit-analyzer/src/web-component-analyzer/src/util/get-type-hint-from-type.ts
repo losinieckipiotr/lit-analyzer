@@ -3,6 +3,7 @@ import {
   isSimpleType,
   SimpleType,
   SimpleTypeAlias,
+  simpleTypeToString,
   typeToString
 } from "../simple-type.js";
 import { TransformerConfig } from "../transformers/transformer-config.js";
@@ -32,7 +33,7 @@ export function getTypeHintFromType(
         type = type.target;
       }
 
-      typeHint = typeToString(type);
+      typeHint = simpleTypeToString(type);
     } else {
       // Transform using Typescript natively, to avoid transforming all types to simple types (overhead).
       // The "InTypeAlias" flag expands the type.
@@ -44,7 +45,9 @@ export function getTypeHintFromType(
     }
   } else {
     // Transform types to string
-    typeHint = typeToString(type, checker);
+    typeHint = isSimpleType(type)
+      ? simpleTypeToString(type)
+      : typeToString(type, checker);
   }
 
   // Replace "anys" and "{}" with more human friendly representations

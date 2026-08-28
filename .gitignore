@@ -3,7 +3,8 @@ node_modules
 .vscode-test/
 *.txt
 *.tgz
-!/packages/lit-analyzer/vendor/*.tgz
+*.zip
+!vendor/*.tgz
 *.log
 todo.md
 .DS_Store

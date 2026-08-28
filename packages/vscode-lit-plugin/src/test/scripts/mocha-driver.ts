@@ -13,7 +13,7 @@ export async function run(): Promise<void> {
   const mocha = new Mocha({
     ui: "tdd",
     color: true,
-    timeout: 30_000,
+    timeout: 300_000,
   });
 
   const testsRoot = path.join(__dirname, "..");

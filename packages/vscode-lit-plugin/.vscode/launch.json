@@ -12,16 +12,19 @@
 			"runtimeExecutable": "${execPath}",
 			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
 			"outFiles": ["${workspaceFolder}/out/**/*.js"],
-			"preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm: build"
 		},
 		{
-			"name": "Extension Tests",
+			"name": "Extension Tests 2",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceFolder}", "--extensionTestsPath=${workspaceFolder}/out/test"],
-			"outFiles": ["${workspaceFolder}/out/test/**/*.js"],
-			"preLaunchTask": "npm: watch"
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/built",
+				"--extensionTestsPath=${workspaceFolder}/out/test/scripts/mocha-driver.js"
+		],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/out/**/*.js", "${workspaceFolder}/built/**/*.js"],
 		}
 	]
 }

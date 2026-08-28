@@ -1016,12 +1016,12 @@ function isAssignableToSimpleTypeInternal(
         return !isAssignableToSimpleTypeKind(
           typeB,
           [
-            "NULL",
-            "UNDEFINED",
-            "NEVER",
-            "VOID",
-            ...(options.config.strictNullChecks ? ["UNKNOWN"] : [])
-          ] as SimpleTypeKind[],
+            SimpleTypeKind.NULL,
+            SimpleTypeKind.UNDEFINED,
+            SimpleTypeKind.NEVER,
+            SimpleTypeKind.VOID,
+            ...(options.config.strictNullChecks ? [SimpleTypeKind.UNKNOWN] : [])
+          ],
           {
             matchAny: false
           }
@@ -1498,29 +1498,6 @@ interface TypeCheckerWithInternals extends TypeChecker {
 }
 
 export function isAssignableToType(
-  typeA: SimpleType,
-  typeB: SimpleType,
-  options?: SimpleTypeComparisonOptions
-): boolean;
-export function isAssignableToType(
-  typeA: SimpleType | Type | Node,
-  typeB: SimpleType | Type | Node,
-  checker: TypeChecker | Program,
-  options?: SimpleTypeComparisonOptions
-): boolean;
-export function isAssignableToType(
-  typeA: Type | Node,
-  typeB: Type | Node,
-  checker: TypeChecker | Program,
-  options?: SimpleTypeComparisonOptions
-): boolean;
-export function isAssignableToType(
-  typeA: Type | Node | SimpleType,
-  typeB: Type | Node | SimpleType,
-  checker: Program | TypeChecker,
-  options?: SimpleTypeComparisonOptions
-): boolean;
-export function isAssignableToType(
   typeA: Type | Node | SimpleType,
   typeB: Type | Node | SimpleType,
   checkerOrOptions?: TypeChecker | Program | SimpleTypeComparisonOptions,
@@ -1579,19 +1556,8 @@ export function isAssignableToType(
 
 //#region primitive type
 
-export function isAssignableToPrimitiveType(type: SimpleType): boolean;
-export function isAssignableToPrimitiveType(
-  type: Type | SimpleType,
-  checker: TypeChecker
-): boolean;
-export function isAssignableToPrimitiveType(
-  type: Type | SimpleType,
-  checkerOrOptions?: TypeChecker
-): boolean {
-  const checker = isTypeChecker(checkerOrOptions)
-    ? checkerOrOptions
-    : undefined;
-  return isAssignableToSimpleTypeKind(type, PRIMITIVE_TYPE_KINDS, checker!, {
+export function isAssignableToPrimitiveType(type: SimpleType): boolean {
+  return isAssignableToSimpleTypeKind(type, PRIMITIVE_TYPE_KINDS, {
     matchAny: true
   });
 }
