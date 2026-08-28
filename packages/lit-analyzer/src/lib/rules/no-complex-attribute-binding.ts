@@ -1,3 +1,4 @@
+import { UnionType } from "typescript";
 import {
   isAssignableToPrimitiveType,
   simpleTypeToString,
@@ -27,13 +28,22 @@ const rule: RuleModule = {
     if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION)
       return;
 
-    const { typeA, typeASimple, typeBSimple } = extractBindingTypes(
+    const { typeA, typeASimple, typeB, typeBSimple } = extractBindingTypes(
       assignment,
       context,
     );
 
     // Don't validate directives in this rule, because they are assignable even though they are complex types (functions).
     if (isLitDirective(typeBSimple)) return;
+
+    function isUnionPrimitive(type: UnionType) {
+      const { ts } = context;
+      const isEverryTypePrimitive = type.types.every((t) => {
+        return (t.flags & ts.TypeFlags.NonPrimitive) === 0;
+      });
+
+      return isEverryTypePrimitive;
+    }
 
     // Only primitive types should be allowed as "typeB"
     if (!isAssignableToPrimitiveType(typeBSimple)) {
@@ -46,6 +56,10 @@ const rule: RuleModule = {
       ) {
         // This is binding via a security sanitization system, let it do
         // this check. Apparently complex values are OK to assign here.
+        return;
+      }
+
+      if (typeB && typeB.isUnion() && isUnionPrimitive(typeB)) {
         return;
       }
 
@@ -71,20 +85,9 @@ const rule: RuleModule = {
     }
     // Only primitive types should be allowed as "typeA"
     else if (!isAssignableToPrimitiveType(typeASimple)) {
-      // typeA - declared attribute type
-      // typeB - the type of the binding expression
-
-      if (typeA && typeA.isUnion()) {
-        const { ts } = context;
-
-        const isEverryTypePrimitive = typeA.types.every((t) => {
-          return (t.flags & ts.TypeFlags.NonPrimitive) === 0;
-        });
-
-        if (isEverryTypePrimitive) {
-          // All types in the union are primitive, no need to report an error.
-          return;
-        }
+      // union is not primitive but all its members may be
+      if (typeA && typeA.isUnion() && isUnionPrimitive(typeA)) {
+        return;
       }
 
       const typeBStr = simpleTypeToString(typeBSimple);
