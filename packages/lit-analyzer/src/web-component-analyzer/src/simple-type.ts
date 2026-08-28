@@ -1721,7 +1721,7 @@ export function isAssignableToSimpleTypeKind(
     throw new Error("Expected a SimpleType");
   }
 
-  const result = validateType(type, simpleType => {
+  return validateType(type, simpleType => {
     if (
       Array.isArray(kind) &&
       or(kind, itemKind => simpleType.kind === itemKind)
@@ -1755,8 +1755,6 @@ export function isAssignableToSimpleTypeKind(
 
     return false;
   });
-
-  return result;
 }
 
 function functionArgTypesToString(

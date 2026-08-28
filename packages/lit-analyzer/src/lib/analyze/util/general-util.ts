@@ -1,8 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitHtmlAttributeModifier } from "../constants.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Newable<T> = { new (...args: any[]): T };
-
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 /**
@@ -25,15 +24,13 @@ export function parseLitAttrName(attributeName: string): {
   return { name, modifier: modifier as LitHtmlAttributeModifier };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-export function lazy<T extends Function>(func: T): T {
-  let called = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let value: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function lazy<T extends (...args: any[]) => any>(func: T): T {
+  // FIXME: disabled cache for now
+  // let called = false;
+  // let value: any;
   return ((...args: any[]) => {
-    if (called) return value;
-    called = true;
-    return (value = func(...args));
+    // if (called) return value;
+    // called = true;
+    return func(...args);
   }) as unknown as T;
 }

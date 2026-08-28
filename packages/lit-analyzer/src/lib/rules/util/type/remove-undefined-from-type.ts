@@ -11,14 +11,21 @@ export function removeUndefinedFromType(type: SimpleType): SimpleType {
         ...type,
         target: removeUndefinedFromType(type.target),
       };
-    case "UNION":
+    case "UNION": {
+      const filteredTypes = type.types.filter(
+        (t) => !isAssignableToSimpleTypeKind(t, SimpleTypeKind.UNDEFINED),
+      );
+
+      if (filteredTypes.length === 1) {
+        return filteredTypes[0];
+      }
+
       return {
         ...type,
-        types: type.types.filter(
-          (t) => !isAssignableToSimpleTypeKind(t, SimpleTypeKind.UNDEFINED),
-        ),
+        types: filteredTypes,
       };
+    }
+    default:
+      return type;
   }
-
-  return type;
 }

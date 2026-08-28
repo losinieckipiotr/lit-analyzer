@@ -1,6 +1,7 @@
 import { UnionType } from "typescript";
 import {
   isAssignableToPrimitiveType,
+  SimpleTypeKind,
   simpleTypeToString,
 } from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
@@ -61,6 +62,10 @@ const rule: RuleModule = {
 
       if (typeB && typeB.isUnion() && isUnionPrimitive(typeB)) {
         return;
+      } else if (typeBSimple.kind === SimpleTypeKind.UNION) {
+        if (typeBSimple.types.every((t) => isAssignableToPrimitiveType(t))) {
+          return;
+        }
       }
 
       const typeBStr = simpleTypeToString(typeBSimple);
@@ -88,6 +93,10 @@ const rule: RuleModule = {
       // union is not primitive but all its members may be
       if (typeA && typeA.isUnion() && isUnionPrimitive(typeA)) {
         return;
+      } else if (typeASimple.kind === SimpleTypeKind.UNION) {
+        if (typeASimple.types.every((t) => isAssignableToPrimitiveType(t))) {
+          return;
+        }
       }
 
       const typeBStr = simpleTypeToString(typeBSimple);

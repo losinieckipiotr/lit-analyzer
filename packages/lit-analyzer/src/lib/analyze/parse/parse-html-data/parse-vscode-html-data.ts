@@ -3,7 +3,6 @@ import {
   IAttributeData,
   ITagData,
   IValueData,
-  IValueSet,
 } from "vscode-html-languageservice";
 import { MarkupContent } from "vscode-languageserver-types";
 import {
@@ -11,7 +10,6 @@ import {
   SimpleTypeKind,
   SimpleTypeStringLiteral,
 } from "../../../../web-component-analyzer/src/api.js";
-import { lazy } from "../../util/general-util.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
@@ -39,36 +37,47 @@ function parseVscodeDataV1(
   data: HTMLDataV1,
   config: ParseVscodeHtmlDataConfig,
 ): HtmlDataCollection {
-  const valueSetTypeMap = valueSetsToTypeMap(data.valueSets || []);
+  const { valueSets = [], globalAttributes = [], tags = [] } = data;
+
+  const valueSetTypeMap = new Map(
+    valueSets.map((valueSet) => {
+      const { name, values } = valueSet;
+
+      return [name, attrValuesToUnion(values)];
+    }),
+  );
   valueSetTypeMap.set("v", { kind: SimpleTypeKind.BOOLEAN });
 
+  const { typeMap, builtIn } = config;
+
   // Transfer existing typemap to new typemap
-  if (config.typeMap != null) {
-    for (const [k, v] of config.typeMap.entries()) {
+  if (typeMap) {
+    for (const [k, v] of typeMap.entries()) {
       valueSetTypeMap.set(k, v);
     }
   }
 
-  const newConfig = {
-    ...config,
+  const newConfig: ParseVscodeHtmlDataConfig = {
     typeMap: valueSetTypeMap,
+    builtIn,
   };
 
-  const globalAttributes = (data.globalAttributes || []).map((tagDataAttr) =>
+  const globalAttributesParsed = globalAttributes.map((tagDataAttr) =>
     tagDataToHtmlTagAttr(tagDataAttr, newConfig),
   );
 
-  const globalEvents = attrsToEvents(globalAttributes).map((evt) => ({
-    ...evt,
-    global: true,
-  }));
+  const globalEvents = attrsToEvents(globalAttributesParsed).map((evt) => {
+    return Object.assign({}, evt, { global: true });
+  });
+
+  const tagsParsed = tags.map((tagData) =>
+    tagDataToHtmlTag(tagData, newConfig),
+  );
 
   return {
-    tags: (data.tags || []).map((tagData) =>
-      tagDataToHtmlTag(tagData, newConfig),
-    ),
+    tags: tagsParsed,
     global: {
-      attributes: globalAttributes,
+      attributes: globalAttributesParsed,
       events: globalEvents,
     },
   };
@@ -106,52 +115,61 @@ function tagDataToHtmlTagAttr(
 ): HtmlAttr {
   const { name, description, valueSet, values } = tagDataAttr;
 
-  const type =
-    valueSet != null
-      ? config.typeMap?.get(valueSet)
-      : values != null
-        ? attrValuesToUnion(values)
-        : undefined;
-
   return {
     kind: "attribute",
     name,
     description: stringOrMarkupContentToString(description),
     fromTagName,
-    getType: lazy(() => type || { kind: SimpleTypeKind.ANY }),
+    getType: () => {
+      let type: SimpleType | undefined;
+
+      if (valueSet) {
+        const mappedType = config.typeMap?.get(valueSet);
+
+        if (mappedType) {
+          type = mappedType;
+        } else {
+          if (values) {
+            const valuesUnion = attrValuesToUnion(values);
+            type = valuesUnion;
+          }
+        }
+      }
+
+      return type || { kind: SimpleTypeKind.ANY };
+    },
     builtIn: config.builtIn,
   };
 }
 
-function valueSetsToTypeMap(valueSets: IValueSet[]): Map<string, SimpleType> {
-  const entries = valueSets.map(
-    (valueSet) =>
-      [valueSet.name, attrValuesToUnion(valueSet.values)] as [
-        string,
-        SimpleType,
-      ],
+function attrValuesToUnion(attrValues: IValueData[]): SimpleType {
+  // FIXME: for now just filter undefined values in global attributes
+  const attrValuesFiltered = attrValues.filter(
+    ({ name }) => name !== "undefined",
   );
 
-  return new Map(entries);
-}
-
-function attrValuesToUnion(attrValues: IValueData[]): SimpleType {
   return {
     kind: SimpleTypeKind.UNION,
-    types: attrValues.map(
-      (value) =>
-        ({
-          value: value.name,
-          kind: SimpleTypeKind.STRING_LITERAL,
-        }) as SimpleTypeStringLiteral,
-    ),
+    types: attrValuesFiltered.map(({ name }) => {
+      if (name === "null") {
+        throw new Error(
+          "Attribute value 'null' is not allowed in union types.",
+        );
+      }
+      const stringLiteral: SimpleTypeStringLiteral = {
+        value: name,
+        kind: SimpleTypeKind.STRING_LITERAL,
+      };
+
+      return stringLiteral;
+    }),
   };
 }
 
 function stringOrMarkupContentToString(
   str: string | MarkupContent | undefined,
 ): string | undefined {
-  if (str == null || typeof str === "string") {
+  if (str === undefined || typeof str === "string") {
     return str;
   }
 
@@ -165,7 +183,7 @@ function attrsToEvents(htmlAttrs: HtmlAttr[]): HtmlEvent[] {
       name: htmlAttr.name.replace(/^on/, ""),
       description: htmlAttr.description,
       fromTagName: htmlAttr.fromTagName,
-      getType: lazy(() => ({ kind: SimpleTypeKind.ANY }) as SimpleType),
+      getType: () => ({ kind: SimpleTypeKind.ANY }),
       builtIn: htmlAttr.builtIn,
     }));
 }

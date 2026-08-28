@@ -196,13 +196,12 @@ The value must be a comma-separated list of part mappings:
           name: "value",
           builtIn: true,
           fromTagName: "input",
-          getType: lazy(
-            () =>
-              ({
-                kind: SimpleTypeKind.UNION,
-                types: [{ kind: SimpleTypeKind.STRING }, { kind: "NULL" }],
-              }) as SimpleType,
-          ),
+          getType: () => {
+            return {
+              kind: SimpleTypeKind.UNION,
+              types: [{ kind: SimpleTypeKind.STRING }, { kind: "NULL" }],
+            } as SimpleType;
+          },
         });
         break;
     }

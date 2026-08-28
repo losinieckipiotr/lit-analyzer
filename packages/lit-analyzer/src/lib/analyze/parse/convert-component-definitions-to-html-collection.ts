@@ -4,8 +4,6 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
   ComponentFeatures,
-  isSimpleType,
-  SimpleType,
   SimpleTypeAny,
   SimpleTypeKind,
   toSimpleType,
@@ -128,15 +126,15 @@ export function convertComponentFeaturesToHtml(
       declaration: event,
       description: event.jsDoc?.description,
       name: event.name,
-      getType: lazy(() => {
+      getType: () => {
         const type = event.type?.();
 
-        if (type == null) {
+        if (!type) {
           return { kind: SimpleTypeKind.ANY };
         }
 
-        return isSimpleType(type) ? type : toSimpleType(type, checker);
-      }),
+        return toSimpleType(type, checker);
+      },
       fromTagName,
       builtIn,
     });
@@ -145,7 +143,7 @@ export function convertComponentFeaturesToHtml(
       kind: "attribute",
       name: `on${event.name}`,
       description: event.jsDoc?.description,
-      getType: lazy(() => ({ kind: SimpleTypeKind.STRING }) as SimpleType),
+      getType: () => ({ kind: SimpleTypeKind.STRING }),
       declaration: {
         attrName: `on${event.name}`,
         jsDoc: event.jsDoc,
