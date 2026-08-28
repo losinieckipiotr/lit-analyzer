@@ -4,11 +4,14 @@
   "exclude": ["src/web-component-analyzer/dev"],
   "compilerOptions": {
     "types": ["node", "yargs"],
+    "lib": ["ESNext"],
     "rootDir": "src",
     "outDir": "dist",
     "resolveJsonModule": true,
     "noEmit": false,
     "allowImportingTsExtensions": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
 }

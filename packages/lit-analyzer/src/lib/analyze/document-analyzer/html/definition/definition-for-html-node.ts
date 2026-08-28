@@ -1,4 +1,4 @@
-import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
+import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
 import { HtmlNode } from "../../../types/html-node/html-node-types.js";
 import { LitDefinition } from "../../../types/lit-definition.js";
 import { getNodeIdentifier } from "../../../util/ast-util.js";

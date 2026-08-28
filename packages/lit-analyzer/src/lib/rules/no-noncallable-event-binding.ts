@@ -3,7 +3,6 @@ import {
   SimpleType,
   SimpleTypeKind,
   simpleTypeToString,
-  toSimpleType,
   validateType,
 } from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -21,14 +20,11 @@ const rule: RuleModule = {
     priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
-    const checker = context.program.getTypeChecker();
-
     // Only validate event listener bindings.
     const { htmlAttr } = assignment;
     if (htmlAttr.kind !== HtmlNodeAttrKind.EVENT_LISTENER) return;
 
-    const { typeB } = extractBindingTypes(assignment, context);
-    const typeBSimple = toSimpleType(typeB, checker);
+    const { typeBSimple } = extractBindingTypes(assignment, context);
 
     // Make sure that the expression given to the event listener binding a function or an object with "handleEvent" property.
     if (!isTypeBindableToEventListener(typeBSimple)) {

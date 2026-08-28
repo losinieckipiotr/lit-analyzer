@@ -1,16 +1,18 @@
 import { Expression, Type, TypeChecker } from "typescript";
 import {
+  isSimpleType,
   SimpleType,
   // SimpleTypeBooleanLiteral,
   SimpleTypeEnumMember,
   SimpleTypeKind,
+  toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
+import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../../../analyze/types/html-node/html-node-attr-types.js";
-import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { getDirective } from "../directive/get-directive.js";
 
 // TODO: disable cache for now
@@ -22,36 +24,65 @@ import { getDirective } from "../directive/get-directive.js";
 export function extractBindingTypes(
   assignment: HtmlNodeAttrAssignment,
   context: RuleModuleContext,
-): { typeA: SimpleType | Type; typeB: SimpleType | Type } {
+): {
+  typeA?: Type;
+  typeASimple: SimpleType;
+  typeB?: Type;
+  typeBSimple: SimpleType;
+} {
   // if (cache.has(assignment)) {
   //   return cache.get(assignment)!;
   // }
 
   const checker = context.program.getTypeChecker();
-  let typeB: Type | SimpleType = inferTypeFromAssignment(assignment, checker);
 
   // Find a corresponding target for this attribute
   const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(
     assignment.htmlAttr,
   );
 
-  const typeA =
+  const typeASimple =
     htmlAttrTarget == null
       ? ({ kind: SimpleTypeKind.ANY } as SimpleType)
       : htmlAttrTarget.getType();
 
-  // Handle directives
-  const directive = getDirective(assignment, context);
-  const directiveType = directive?.actualType?.();
+  const typeATemp = htmlAttrTarget?.declaration?.type?.();
+  let typeA: Type | undefined;
+
+  if (isSimpleType(typeATemp)) {
+    typeA = undefined;
+  } else {
+    typeA = typeATemp;
+  }
+
+  let typeB: Type | undefined;
+  let typeBSimple: SimpleType;
+
+  const directiveType = getDirective(assignment, context)?.actualType?.();
+
   if (directiveType) {
-    typeB = directiveType;
+    if (isSimpleType(directiveType)) {
+      typeB = undefined;
+      typeBSimple = directiveType;
+    } else {
+      typeB = directiveType;
+      typeBSimple = toSimpleType(typeB, checker);
+    }
+  } else {
+    typeB = inferTypeFromAssignment(assignment, checker);
+    typeBSimple = toSimpleType(typeB, checker);
   }
 
   // Cache the result
   // const result = { typeA, typeB };
   // cache.set(assignment, result);
 
-  return { typeA, typeB };
+  return {
+    typeA,
+    typeASimple,
+    typeB,
+    typeBSimple,
+  };
 }
 
 export function inferTypeFromAssignment(

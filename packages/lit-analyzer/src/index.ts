@@ -2,7 +2,6 @@ export * from "./lib/analyze/constants.js";
 
 export * from "./lib/analyze/default-lit-analyzer-context.js";
 export * from "./lib/analyze/lit-analyzer-config.js";
-export * from "./lib/analyze/lit-analyzer-context.js";
 export * from "./lib/analyze/lit-analyzer-logger.js";
 export * from "./lib/analyze/lit-analyzer.js";
 

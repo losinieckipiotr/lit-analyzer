@@ -1,5 +1,5 @@
 import { HtmlAttrTarget } from "../parse/parse-html-data/html-tag.js";
-import { AnalyzerHtmlStore } from "../store/analyzer-html-store.js";
+import { AnalyzerHtmlStore } from "../store/html-store/default-analyzer-html-store.js";
 import {
   HtmlNodeAttr,
   HtmlNodeAttrKind,

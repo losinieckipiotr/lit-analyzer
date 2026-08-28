@@ -5,7 +5,7 @@ import {
 } from "../flavors/analyzer-flavor.js";
 import { prepareRefineEmitMap } from "../util/get-refine-emit-map.js";
 import { refineFeature } from "./flavor/refine-feature.js";
-import { visitFeatures } from "./flavor/visit-features.js";
+import { VisitFeatureEmitMap, visitFeatures } from "./flavor/visit-features.js";
 import { mergeFeatures } from "./merge/merge-features.js";
 
 /**
@@ -24,8 +24,7 @@ export function discoverFeatures(
 
   const { collection, refineEmitMap } = prepareRefineEmitMap();
 
-  // Discovers features for "node" using flavors
-  visitFeatures(node, context, {
+  const emitMap: Partial<VisitFeatureEmitMap> = {
     event: event => refineFeature("event", event, context, refineEmitMap),
     member: memberResult =>
       refineFeature("member", memberResult, context, refineEmitMap),
@@ -35,7 +34,10 @@ export function discoverFeatures(
       refineFeature("cssproperty", cssProperty, context, refineEmitMap),
     method: method => refineFeature("method", method, context, refineEmitMap),
     slot: slot => refineFeature("slot", slot, context, refineEmitMap)
-  });
+  };
+
+  // Discovers features for "node" using flavors
+  visitFeatures(node, context, emitMap);
 
   // Merge features that were found
   const mergedCollection = mergeFeatures(collection, context);

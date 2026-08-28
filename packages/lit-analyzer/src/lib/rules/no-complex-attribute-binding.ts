@@ -1,7 +1,6 @@
 import {
   isAssignableToPrimitiveType,
   simpleTypeToString,
-  toSimpleType,
 } from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -20,8 +19,6 @@ const rule: RuleModule = {
     priority: "medium",
   },
   visitHtmlAssignment(assignment, context) {
-    const checker = context.program.getTypeChecker();
-
     // Only validate attribute bindings, because you are able to assign complex types in property bindings.
     const { htmlAttr } = assignment;
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
@@ -30,9 +27,10 @@ const rule: RuleModule = {
     if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION)
       return;
 
-    const { typeA, typeB } = extractBindingTypes(assignment, context);
-    const typeASimple = toSimpleType(typeA, checker);
-    const typeBSimple = toSimpleType(typeB, checker);
+    const { typeA, typeASimple, typeBSimple } = extractBindingTypes(
+      assignment,
+      context,
+    );
 
     // Don't validate directives in this rule, because they are assignable even though they are complex types (functions).
     if (isLitDirective(typeBSimple)) return;
@@ -71,9 +69,24 @@ const rule: RuleModule = {
         }),
       });
     }
-
     // Only primitive types should be allowed as "typeA"
     else if (!isAssignableToPrimitiveType(typeASimple)) {
+      // typeA - declared attribute type
+      // typeB - the type of the binding expression
+
+      if (typeA && typeA.isUnion()) {
+        const { ts } = context;
+
+        const isEverryTypePrimitive = typeA.types.every((t) => {
+          return (t.flags & ts.TypeFlags.NonPrimitive) === 0;
+        });
+
+        if (isEverryTypePrimitive) {
+          // All types in the union are primitive, no need to report an error.
+          return;
+        }
+      }
+
       const typeBStr = simpleTypeToString(typeBSimple);
       const typeAStr = simpleTypeToString(typeASimple);
       const message = `You are assigning the primitive '${typeBStr}' to a non-primitive type '${typeAStr}'.`;

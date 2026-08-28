@@ -149,6 +149,8 @@ export function getLitPropertyOptions(
   existingConfig: LitElementPropertyConfig = {}
 ): LitElementPropertyConfig {
   const { ts } = context;
+  // TODO:
+  // const checker = context.program.getTypeChecker();
   const result: LitElementPropertyConfig = { ...existingConfig };
   let attributeInitializer: Node | undefined;
   let typeInitializer: Node | undefined;

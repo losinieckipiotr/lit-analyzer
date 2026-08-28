@@ -1,20 +1,20 @@
 import { FormatCodeSettings, SourceFile } from "typescript";
 import { ComponentAnalyzer } from "./component-analyzer/component-analyzer.js";
+import { LitAnalyzerContext } from "./default-lit-analyzer-context.js";
 import { LitCssDocumentAnalyzer } from "./document-analyzer/css/lit-css-document-analyzer.js";
 import {
   LitHtmlDocumentAnalyzer,
   LitIndexEntry,
 } from "./document-analyzer/html/lit-html-document-analyzer.js";
 import { renameLocationsForTagName } from "./document-analyzer/html/rename-locations/rename-locations-for-tag-name.js";
-import { LitAnalyzerContext } from "./lit-analyzer-context.js";
 import { CssDocument } from "./parse/document/text-document/css-document/css-document.js";
 import { HtmlDocument } from "./parse/document/text-document/html-document/html-document.js";
 import { TextDocument } from "./parse/document/text-document/text-document.js";
 import { setTypescriptModule } from "./ts-module.js";
 import { LitClosingTagInfo } from "./types/lit-closing-tag-info.js";
 import { LitCodeFix } from "./types/lit-code-fix.js";
-import { LitCompletion } from "./types/lit-completion.js";
 import { LitCompletionDetails } from "./types/lit-completion-details.js";
+import { LitCompletion } from "./types/lit-completion.js";
 import { LitDefinition } from "./types/lit-definition.js";
 import { LitDiagnostic } from "./types/lit-diagnostic.js";
 import { LitFormatEdit } from "./types/lit-format-edit.js";

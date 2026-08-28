@@ -18,7 +18,7 @@ export type VisitFeatureEmitMap = {
  * @param context
  * @param emitMap
  */
-export function visitFeatures<ReturnType>(
+export function visitFeatures(
   node: Node,
   context: AnalyzerDeclarationVisitContext,
   emitMap: Partial<VisitFeatureEmitMap>
@@ -37,7 +37,7 @@ export function visitFeatures<ReturnType>(
  * @param visitMaps
  * @param emitMap
  */
-export function visitFeaturesWithVisitMaps<ReturnType>(
+export function visitFeaturesWithVisitMaps(
   node: Node,
   context: AnalyzerVisitContext,
   visitMaps: NonNullable<AnalyzerFlavor["discoverFeatures"]>[],

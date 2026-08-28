@@ -1,7 +1,6 @@
 import {
   isAssignableToSimpleTypeKind,
   SimpleTypeKind,
-  toSimpleType,
 } from "../../web-component-analyzer/src/api.js";
 import { LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER } from "../analyze/constants.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
@@ -22,8 +21,6 @@ const rule: RuleModule = {
     priority: "medium",
   },
   visitHtmlAssignment(assignment, context) {
-    const checker = context.program.getTypeChecker();
-
     // Don't validate boolean attribute bindings.
     if (assignment.kind === HtmlNodeAttrAssignmentKind.BOOLEAN) return;
 
@@ -31,10 +28,10 @@ const rule: RuleModule = {
     const { htmlAttr } = assignment;
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
 
-    const { typeA, typeB } = extractBindingTypes(assignment, context);
-
-    const typeASimple = toSimpleType(typeA, checker);
-    const typeBSimple = toSimpleType(typeB, checker);
+    const { typeASimple, typeBSimple } = extractBindingTypes(
+      assignment,
+      context,
+    );
 
     // Return early if the attribute is like 'required=""' because this is assignable to boolean.
     if (typeBSimple.kind === "STRING_LITERAL" && typeBSimple.value.length === 0)
@@ -54,9 +51,13 @@ const rule: RuleModule = {
     ) {
       // Don't emit error if typeB is assignable to typeA with string coercion.
       if (
-        isAssignableToType({ typeA, typeB: typeBSimple }, context, {
-          isAssignable: isAssignableToTypeWithStringCoercion,
-        })
+        isAssignableToType(
+          { typeA: typeASimple, typeB: typeBSimple },
+          context,
+          {
+            isAssignable: isAssignableToTypeWithStringCoercion,
+          },
+        )
       ) {
         return;
       }
@@ -93,7 +94,7 @@ const rule: RuleModule = {
       isAssignableToType(
         {
           typeA: { kind: SimpleTypeKind.BOOLEAN },
-          typeB: typeA,
+          typeB: typeASimple,
         },
         context,
       )

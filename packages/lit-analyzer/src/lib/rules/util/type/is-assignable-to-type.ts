@@ -4,7 +4,7 @@ import {
   SimpleType,
   SimpleTypeComparisonOptions,
 } from "../../../../web-component-analyzer/src/api.js";
-import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
+import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 
 export function isAssignableToType(
   { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },

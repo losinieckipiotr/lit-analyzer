@@ -151,7 +151,7 @@ export function convertComponentFeaturesToHtml(
         jsDoc: event.jsDoc,
         kind: "attribute",
         node: event.node,
-        type: () => ({ kind: SimpleTypeKind.ANY }),
+        type: () => checker.getAnyType(),
       },
       builtIn,
       fromTagName,
@@ -211,8 +211,8 @@ export function convertComponentFeaturesToHtml(
         if (type == null) {
           return { kind: SimpleTypeKind.ANY } as SimpleTypeAny;
         }
-
-        return isSimpleType(type) ? type : toSimpleType(type, checker);
+        // FIXME: this conversion is probably buggy
+        return toSimpleType(type, checker);
       }),
       builtIn,
       fromTagName,

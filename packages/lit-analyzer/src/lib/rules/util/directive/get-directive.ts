@@ -3,11 +3,11 @@ import {
   SimpleType,
   toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
+import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
-import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { lazy } from "../../../analyze/util/general-util.js";
 import { removeUndefinedFromType } from "../type/remove-undefined-from-type.js";
 import { isLitDirective } from "./is-lit-directive.js";

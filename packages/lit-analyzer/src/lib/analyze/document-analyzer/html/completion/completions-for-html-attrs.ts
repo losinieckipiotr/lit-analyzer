@@ -8,7 +8,7 @@ import {
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../../constants.js";
-import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
+import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
 import {
   documentationForTarget,
   HtmlAttrTarget,

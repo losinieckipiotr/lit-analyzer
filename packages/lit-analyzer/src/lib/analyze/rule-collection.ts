@@ -1,18 +1,45 @@
+import * as tsMod from "typescript";
+import { Program, SourceFile } from "typescript";
 import {
   ComponentDeclaration,
   ComponentDefinition,
 } from "../../web-component-analyzer/src/api.js";
-import { isRuleEnabled, LitAnalyzerRuleId } from "./lit-analyzer-config.js";
-import { LitAnalyzerContext } from "./lit-analyzer-context.js";
+import { LitAnalyzerContext } from "./default-lit-analyzer-context.js";
+import {
+  isRuleEnabled,
+  LitAnalyzerConfig,
+  LitAnalyzerRuleId,
+} from "./lit-analyzer-config.js";
+import { LitAnalyzerLogger } from "./lit-analyzer-logger.js";
 import { HtmlDocument } from "./parse/document/text-document/html-document/html-document.js";
+import { AnalyzerDefinitionStore } from "./store/analyzer-definition-store.js";
+import { AnalyzerDependencyStore } from "./store/analyzer-dependency-store.js";
+import { AnalyzerDocumentStore } from "./store/analyzer-document-store.js";
+import { AnalyzerHtmlStore } from "./store/html-store/default-analyzer-html-store.js";
 import { HtmlNodeAttr } from "./types/html-node/html-node-attr-types.js";
 import { HtmlNode, HtmlNodeKind } from "./types/html-node/html-node-types.js";
 import { RuleDiagnostic } from "./types/rule/rule-diagnostic.js";
-import { RuleModuleContext } from "./types/rule/rule-module-context.js";
 import {
   RuleModule,
   RuleModuleImplementation,
 } from "./types/rule/rule-module.js";
+
+export interface RuleModuleContext {
+  readonly ts: typeof tsMod;
+  readonly program: Program;
+  readonly file: SourceFile;
+
+  readonly htmlStore: AnalyzerHtmlStore;
+  readonly dependencyStore: AnalyzerDependencyStore;
+  readonly documentStore: AnalyzerDocumentStore;
+  readonly definitionStore: AnalyzerDefinitionStore;
+
+  readonly logger: LitAnalyzerLogger;
+  readonly config: LitAnalyzerConfig;
+
+  report(diagnostic: RuleDiagnostic): void;
+  break(): void;
+}
 
 export interface ReportedRuleDiagnostic {
   source: LitAnalyzerRuleId;

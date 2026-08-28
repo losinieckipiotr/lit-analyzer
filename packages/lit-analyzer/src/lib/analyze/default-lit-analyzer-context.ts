@@ -20,12 +20,8 @@ import {
   makeConfig,
 } from "./lit-analyzer-config.js";
 import {
-  LitAnalyzerContext,
-  LitAnalyzerContextBaseOptions,
-  LitPluginContextHandler,
-} from "./lit-analyzer-context.js";
-import {
   DefaultLitAnalyzerLogger,
+  LitAnalyzerLogger,
   LitAnalyzerLoggerLevel,
 } from "./lit-analyzer-logger.js";
 import {
@@ -34,12 +30,58 @@ import {
 } from "./parse/convert-component-definitions-to-html-collection.js";
 import { parseDependencies } from "./parse/parse-dependencies/parse-dependencies.js";
 import { RuleCollection } from "./rule-collection.js";
+import { AnalyzerDefinitionStore } from "./store/analyzer-definition-store.js";
+import { AnalyzerDependencyStore } from "./store/analyzer-dependency-store.js";
+import { AnalyzerDocumentStore } from "./store/analyzer-document-store.js";
 import { DefaultAnalyzerDefinitionStore } from "./store/definition-store/default-analyzer-definition-store.js";
 import { DefaultAnalyzerDependencyStore } from "./store/dependency-store/default-analyzer-dependency-store.js";
 import { DefaultAnalyzerDocumentStore } from "./store/document-store/default-analyzer-document-store.js";
-import { DefaultAnalyzerHtmlStore } from "./store/html-store/default-analyzer-html-store.js";
+import {
+  AnalyzerHtmlStore,
+  DefaultAnalyzerHtmlStore,
+} from "./store/html-store/default-analyzer-html-store.js";
 import { HtmlDataSourceKind } from "./store/html-store/html-data-source-merged.js";
 import { changedSourceFileIterator } from "./util/changed-source-file-iterator.js";
+
+export interface LitAnalyzerContext {
+  readonly ts: typeof tsMod;
+  readonly program: Program;
+  readonly project: tsMod.server.Project | undefined;
+  readonly host: tsMod.CompilerHost | undefined;
+  readonly config: LitAnalyzerConfig;
+
+  // Stores
+  readonly htmlStore: AnalyzerHtmlStore;
+  readonly dependencyStore: AnalyzerDependencyStore;
+  readonly documentStore: AnalyzerDocumentStore;
+  readonly definitionStore: AnalyzerDefinitionStore;
+
+  readonly logger: LitAnalyzerLogger;
+  readonly rules: RuleCollection;
+
+  readonly currentFile: SourceFile;
+  readonly currentRunningTime: number;
+  readonly isCancellationRequested: boolean;
+
+  updateConfig(config: LitAnalyzerConfig): void;
+  updateDependencies(file: SourceFile): void;
+  updateComponents(file: SourceFile): void;
+
+  setContextBase(contextBase: LitAnalyzerContextBaseOptions): void;
+}
+
+export interface LitAnalyzerContextBaseOptions {
+  file: SourceFile | undefined;
+  timeout?: number;
+  throwOnCancellation?: boolean;
+}
+
+export interface LitPluginContextHandler {
+  ts?: typeof tsMod;
+  getProgram(): Program;
+  getProject?(): tsMod.server.Project;
+  getHost?(): tsMod.CompilerHost;
+}
 
 export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
   protected componentSourceFileIterator = changedSourceFileIterator();

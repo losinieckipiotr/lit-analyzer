@@ -2,7 +2,7 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
 } from "../../../web-component-analyzer/src/api.js";
-import { LitAnalyzerContext } from "../lit-analyzer-context.js";
+import { LitAnalyzerContext } from "../default-lit-analyzer-context.js";
 import { ReportedRuleDiagnostic } from "../rule-collection.js";
 import { LitCodeFix } from "../types/lit-code-fix.js";
 import { LitDiagnostic } from "../types/lit-diagnostic.js";

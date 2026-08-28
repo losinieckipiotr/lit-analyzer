@@ -2,7 +2,6 @@ import {
   isAssignableToSimpleTypeKind,
   SimpleTypeKind,
   simpleTypeToString,
-  toSimpleType,
 } from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
@@ -19,7 +18,6 @@ const rule: RuleModule = {
     priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
-    const checker = context.program.getTypeChecker();
     // Only validate "expression" kind bindings.
     if (assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION) return;
 
@@ -27,8 +25,7 @@ const rule: RuleModule = {
     const { htmlAttr } = assignment;
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
 
-    const { typeB } = extractBindingTypes(assignment, context);
-    const typeBSimple = toSimpleType(typeB, checker);
+    const { typeBSimple } = extractBindingTypes(assignment, context);
 
     const isAssignableToNull = isAssignableToSimpleTypeKind(
       typeBSimple,

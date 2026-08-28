@@ -4,8 +4,8 @@ import {
   simpleTypeToString,
   toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
+import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
-import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
 import { isAssignableBindingUnderSecuritySystem } from "./is-assignable-binding-under-security-system.js";
 import { isAssignableToType } from "./is-assignable-to-type.js";

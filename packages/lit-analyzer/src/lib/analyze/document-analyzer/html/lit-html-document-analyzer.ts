@@ -1,15 +1,15 @@
 import { FormatCodeSettings } from "typescript";
-import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
+import { LitAnalyzerContext } from "../../default-lit-analyzer-context.js";
 import { HtmlDocument } from "../../parse/document/text-document/html-document/html-document.js";
 import {
-  isHTMLAttr,
   HtmlNodeAttr,
+  isHTMLAttr,
 } from "../../types/html-node/html-node-attr-types.js";
-import { isHTMLNode, HtmlNode } from "../../types/html-node/html-node-types.js";
+import { HtmlNode, isHTMLNode } from "../../types/html-node/html-node-types.js";
 import { LitClosingTagInfo } from "../../types/lit-closing-tag-info.js";
 import { LitCodeFix } from "../../types/lit-code-fix.js";
-import { LitCompletion } from "../../types/lit-completion.js";
 import { LitCompletionDetails } from "../../types/lit-completion-details.js";
+import { LitCompletion } from "../../types/lit-completion.js";
 import { LitDefinition } from "../../types/lit-definition.js";
 import { LitDiagnostic } from "../../types/lit-diagnostic.js";
 import { LitFormatEdit } from "../../types/lit-format-edit.js";

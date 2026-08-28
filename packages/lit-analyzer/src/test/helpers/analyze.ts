@@ -1,11 +1,13 @@
 import { Program, SourceFile } from "typescript";
-import { DefaultLitAnalyzerContext } from "../../lib/analyze/default-lit-analyzer-context.js";
+import {
+  DefaultLitAnalyzerContext,
+  LitAnalyzerContext,
+} from "../../lib/analyze/default-lit-analyzer-context.js";
 import { LitIndexEntry } from "../../lib/analyze/document-analyzer/html/lit-html-document-analyzer.js";
 import {
   LitAnalyzerConfig,
   makeConfig,
 } from "../../lib/analyze/lit-analyzer-config.js";
-import { LitAnalyzerContext } from "../../lib/analyze/lit-analyzer-context.js";
 import { LitAnalyzer } from "../../lib/analyze/lit-analyzer.js";
 import { LitCodeFix } from "../../lib/analyze/types/lit-code-fix.js";
 import { LitDiagnostic } from "../../lib/analyze/types/lit-diagnostic.js";

@@ -40,7 +40,7 @@
     },
     "build": {
       "command": "tsc",
-      "clean": true,
+      "clean": "if-file-deleted",
       "files": ["src/**/*.ts", "package.json", "tsconfig.json"],
       "output": [
         "dist"

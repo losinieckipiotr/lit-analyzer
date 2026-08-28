@@ -4,10 +4,10 @@ import {
   ComponentMember,
 } from "../../../../web-component-analyzer/src/api.js";
 import { LitAnalyzerRuleId } from "../../lit-analyzer-config.js";
+import { RuleModuleContext } from "../../rule-collection.js";
 import { HtmlNodeAttrAssignment } from "../html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../html-node/html-node-attr-types.js";
 import { HtmlNode } from "../html-node/html-node-types.js";
-import { RuleModuleContext } from "./rule-module-context.js";
 
 export type RuleModulePriority = "low" | "medium" | "high";
 

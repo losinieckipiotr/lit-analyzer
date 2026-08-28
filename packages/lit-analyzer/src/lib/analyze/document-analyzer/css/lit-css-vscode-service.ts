@@ -9,15 +9,15 @@ import type {
   TextDocument,
 } from "vscode-css-languageservice";
 import * as vscodeCss from "vscode-css-languageservice";
+import { LitAnalyzerContext } from "../../default-lit-analyzer-context.js";
 import { isRuleDisabled } from "../../lit-analyzer-config.js";
-import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
 import { CssDocument } from "../../parse/document/text-document/css-document/css-document.js";
 import {
   documentationForCssPart,
   documentationForCssProperty,
   documentationForHtmlTag,
 } from "../../parse/parse-html-data/html-tag.js";
-import { AnalyzerHtmlStore } from "../../store/analyzer-html-store.js";
+import { AnalyzerHtmlStore } from "../../store/html-store/default-analyzer-html-store.js";
 import { LitCompletion } from "../../types/lit-completion.js";
 import { LitDiagnostic } from "../../types/lit-diagnostic.js";
 import { LitQuickInfo } from "../../types/lit-quick-info.js";

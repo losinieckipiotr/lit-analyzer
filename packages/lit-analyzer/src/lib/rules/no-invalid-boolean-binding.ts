@@ -23,11 +23,18 @@ const rule: RuleModule = {
       return;
     }
 
-    const { typeA, typeB } = extractBindingTypes(assignment, context);
+    const { typeASimple, typeBSimple } = extractBindingTypes(
+      assignment,
+      context,
+    );
 
     // we care only about boolean attribute bindings for this rule?
     if (htmlAttr.modifier === LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER) {
-      isAssignableInBooleanBinding(htmlAttr, { typeA, typeB }, context);
+      isAssignableInBooleanBinding(
+        htmlAttr,
+        { typeA: typeASimple, typeB: typeBSimple },
+        context,
+      );
     }
   },
 };

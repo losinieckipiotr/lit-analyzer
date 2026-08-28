@@ -1,8 +1,9 @@
+import { LitAnalyzerContext } from "../default-lit-analyzer-context.js";
 import {
   litDiagnosticRuleSeverity,
   ruleIdCode,
 } from "../lit-analyzer-config.js";
-import { LitAnalyzerContext } from "../lit-analyzer-context.js";
+
 import { ReportedRuleDiagnostic } from "../rule-collection.js";
 import { LitDiagnostic } from "../types/lit-diagnostic.js";
 

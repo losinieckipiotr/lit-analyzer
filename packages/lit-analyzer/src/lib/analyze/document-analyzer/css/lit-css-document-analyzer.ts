@@ -1,7 +1,7 @@
-import { LitAnalyzerContext } from "../../lit-analyzer-context.js";
+import { LitAnalyzerContext } from "../../default-lit-analyzer-context.js";
 import { CssDocument } from "../../parse/document/text-document/css-document/css-document.js";
-import { LitCompletion } from "../../types/lit-completion.js";
 import { LitCompletionDetails } from "../../types/lit-completion-details.js";
+import { LitCompletion } from "../../types/lit-completion.js";
 import { LitDefinition } from "../../types/lit-definition.js";
 import { LitDiagnostic } from "../../types/lit-diagnostic.js";
 import { LitQuickInfo } from "../../types/lit-quick-info.js";

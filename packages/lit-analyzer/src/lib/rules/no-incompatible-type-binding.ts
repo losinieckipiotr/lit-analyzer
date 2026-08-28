@@ -1,4 +1,3 @@
-import { toSimpleType } from "../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -22,12 +21,10 @@ const rule: RuleModule = {
   },
   visitHtmlAssignment(assignment, context) {
     const { htmlAttr } = assignment;
-    const checker = context.program.getTypeChecker();
 
     if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION) {
       // For element bindings we only care about the expression type
-      const { typeB } = extractBindingTypes(assignment, context);
-      const typeBSimple = toSimpleType(typeB, checker);
+      const { typeBSimple } = extractBindingTypes(assignment, context);
 
       isAssignableInElementBinding(htmlAttr, typeBSimple, context);
     }
@@ -36,23 +33,38 @@ const rule: RuleModule = {
       return;
     }
 
-    const { typeA, typeB } = extractBindingTypes(assignment, context);
+    const { typeASimple, typeBSimple } = extractBindingTypes(
+      assignment,
+      context,
+    );
 
     // Validate types based on the binding in which they appear
     switch (htmlAttr.modifier) {
       case LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER:
-        isAssignableInBooleanBinding(htmlAttr, { typeA, typeB }, context);
+        isAssignableInBooleanBinding(
+          htmlAttr,
+          { typeA: typeASimple, typeB: typeBSimple },
+          context,
+        );
         break;
 
       case LIT_HTML_PROP_ATTRIBUTE_MODIFIER:
-        isAssignableInPropertyBinding(htmlAttr, { typeA, typeB }, context);
+        isAssignableInPropertyBinding(
+          htmlAttr,
+          { typeA: typeASimple, typeB: typeBSimple },
+          context,
+        );
         break;
 
       case LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER:
         break;
 
       default: {
-        isAssignableInAttributeBinding(htmlAttr, { typeA, typeB }, context);
+        isAssignableInAttributeBinding(
+          htmlAttr,
+          { typeA: typeASimple, typeB: typeBSimple },
+          context,
+        );
         break;
       }
     }

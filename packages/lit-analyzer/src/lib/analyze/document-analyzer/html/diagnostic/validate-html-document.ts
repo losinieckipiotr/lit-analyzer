@@ -1,4 +1,4 @@
-import { LitAnalyzerContext } from "../../../lit-analyzer-context.js";
+import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
 import { HtmlDocument } from "../../../parse/document/text-document/html-document/html-document.js";
 import { LitDiagnostic } from "../../../types/lit-diagnostic.js";
 import { convertRuleDiagnosticToLitDiagnostic } from "../../../util/rule-diagnostic-util.js";

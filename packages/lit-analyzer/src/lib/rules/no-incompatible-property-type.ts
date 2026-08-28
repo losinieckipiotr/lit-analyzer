@@ -9,7 +9,7 @@ import {
   toSimpleType,
   typeToString,
 } from "../../web-component-analyzer/src/api.js";
-import { RuleModuleContext } from "../analyze/types/rule/rule-module-context.js";
+import { RuleModuleContext } from "../analyze/rule-collection.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { joinArray } from "../analyze/util/array-util.js";
 import { lazy } from "../analyze/util/general-util.js";

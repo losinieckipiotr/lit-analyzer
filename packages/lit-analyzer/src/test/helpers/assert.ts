@@ -17,11 +17,11 @@ export function hasDiagnostic(
 export function hasNoDiagnostics(
   t: ExecutionContext,
   diagnostics: LitDiagnostic[],
-): void {
-  if (diagnostics.length !== 0) {
-    prettyLogDiagnostics(t, diagnostics);
-  }
-  t.is(diagnostics.length, 0);
+) {
+  const diagnosticsPretty = diagnostics.map(
+    (diagnostic) => `${diagnostic.source}: ${diagnostic.message}`,
+  );
+  return t.deepEqual(diagnosticsPretty, []);
 }
 
 function prettyLogDiagnostics(

@@ -31,7 +31,7 @@ tsTest(
   },
 );
 
-tsTest.only(
+tsTest(
   "Boolean assigned to 'true|'false' doesn't emit 'no-boolean-in-attribute-binding' warning",
   (t) => {
     const { diagnostics } = getDiagnostics(

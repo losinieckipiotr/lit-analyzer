@@ -7,12 +7,12 @@ import {
   simpleTypeToString,
   toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
+import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
-import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 import {
   documentRangeToSFRange,
   rangeFromHtmlNodeAttr,
