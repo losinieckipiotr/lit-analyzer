@@ -14,11 +14,11 @@
       //   "outFiles": ["${workspaceFolder}/packages/vscode-lit-plugin/out/test/**/*.js"]
       // }
       {
-        "name": "lit-analyzer-test-debug",
-        "type": "node",
+        "name": "Debug lit-analyzer test",
+        "type": "node-terminal",
         "request": "launch",
-        "program": "${workspaceFolder}/packages/lit-analyzer/lib/debug.js",
-        "cwd": "${workspaceFolder}/packages/lit-analyzer/lib/",
+        "cwd": "${workspaceFolder}/packages/lit-analyzer",
+        "command": "npm run test -- -s --fail-fast ./dist/test/rules/no-incompatible-property-type.js"
       }
     ]
   }

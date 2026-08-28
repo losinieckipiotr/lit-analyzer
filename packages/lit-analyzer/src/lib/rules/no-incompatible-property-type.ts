@@ -88,6 +88,8 @@ function prepareSimpleAssignabilityTester(
 
       switch (configType) {
         case SimpleTypeKind.STRING: {
+          const stringType = checker.getStringType();
+
           if (isSimpleType(typeToCheck)) {
             if (
               isAssignableToSimpleTypeKind(typeToCheck, [
@@ -99,13 +101,14 @@ function prepareSimpleAssignabilityTester(
             }
           } else {
             if (typeToCheck.isUnion()) {
-              const stringType = checker.getStringType();
               const result = checker.isTypeAssignableTo(
                 typeToCheck,
                 stringType,
               );
 
               return result;
+            } else {
+              return checker.isTypeAssignableTo(typeToCheck, stringType);
             }
           }
 
