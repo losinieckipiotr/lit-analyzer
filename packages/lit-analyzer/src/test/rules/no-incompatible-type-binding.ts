@@ -238,7 +238,22 @@ tsTest(
   "Attribute binding: Boolean type expression is assignable to 'true'|'false'",
   (t) => {
     const { diagnostics } = getDiagnostics(
-      'let b = true; html`<input aria-expanded="${b}" />`',
+      [
+        'import { html, LitElement, render } from "lit";',
+        'import { customElement, property } from "lit/decorators.js";',
+        "declare global {",
+        "  interface HTMLElementTagNameMap {",
+        '    "test-el": TestEl;',
+        "  }",
+        "}",
+        '@customElement("test-el")',
+        "class TestEl extends LitElement {",
+        '  @property({ type: String, attribute: "bval" })',
+        '  bval: "true" | "false" = "true";',
+        "}",
+        "let bval: boolean = true;",
+        "render(html`<test-el bval=${bval}></test-el>`, document.body);",
+      ].join("\n"),
       {
         rules: { "no-boolean-in-attribute-binding": false },
       },
