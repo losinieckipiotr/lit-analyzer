@@ -33,17 +33,21 @@ export const discoverFeatures: Partial<
       return parseJsDocForNode(
         node,
         ["csspart"],
-        (tagNode, { name, description }) => {
+        (_tagNode, { name, description }) => {
           if (name != null && name.length > 0) {
             return {
               name: name,
               jsDoc: description != null ? { description } : undefined
             };
           }
+
+          return undefined;
         },
         context
       );
     }
+
+    return undefined;
   },
   cssproperty: (
     node: Node,
@@ -56,7 +60,7 @@ export const discoverFeatures: Partial<
       return parseJsDocForNode(
         node,
         ["cssprop", "cssproperty", "cssvar", "cssvariable"],
-        (tagNode, { name, description, type, default: def }) => {
+        (_tagNode, { name, description, type, default: def }) => {
           if (name != null && name.length > 0) {
             return {
               name: name,
@@ -65,10 +69,13 @@ export const discoverFeatures: Partial<
               default: def
             };
           }
+
+          return undefined;
         },
         context
       );
     }
+    return undefined;
   },
   event: (
     node: Node,
@@ -99,10 +106,13 @@ export const discoverFeatures: Partial<
               node: tagNode
             };
           }
+
+          return undefined;
         },
         context
       );
     }
+    return undefined;
   },
   slot: (
     node: Node,
@@ -115,7 +125,7 @@ export const discoverFeatures: Partial<
       return parseJsDocForNode(
         node,
         ["slot"],
-        (tagNode, { name, type, description }) => {
+        (_tagNode, { name, type, description }) => {
           // Treat "-" as unnamed slot
           if (name === "-") {
             name = undefined;
@@ -156,6 +166,8 @@ export const discoverFeatures: Partial<
         context
       );
     }
+
+    return undefined;
   },
   member: (
     node: Node,
@@ -192,6 +204,8 @@ export const discoverFeatures: Partial<
               deprecated: undefined
             } as ComponentMemberProperty;
           }
+
+          return undefined;
         },
         context
       );
@@ -221,6 +235,8 @@ export const discoverFeatures: Partial<
               deprecated: undefined
             } as ComponentMemberAttribute;
           }
+
+          return undefined;
         },
         context
       );
@@ -231,5 +247,7 @@ export const discoverFeatures: Partial<
 
       return undefined;
     }
+
+    return undefined;
   }
 };

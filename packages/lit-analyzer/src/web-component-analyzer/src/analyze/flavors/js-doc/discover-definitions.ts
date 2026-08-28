@@ -34,4 +34,6 @@ export function discoverDefinitions(
       context
     );
   }
+
+  return undefined;
 }

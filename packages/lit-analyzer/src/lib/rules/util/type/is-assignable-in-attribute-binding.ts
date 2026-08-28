@@ -1,10 +1,10 @@
-import { isAssignableToType as _isAssignableToType } from "web-component-analyzer/is-assignable-to-type.js";
 import {
+  isAssignableToType as _isAssignableToType,
   SimpleType,
   SimpleTypeComparisonOptions,
   SimpleTypeKind,
   typeToString,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,

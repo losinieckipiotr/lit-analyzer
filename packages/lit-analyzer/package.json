@@ -1,6 +1,6 @@
 {
   "name": "lit-analyzer",
-  "version": "3.0.2",
+  "version": "3.0.4",
   "description": "CLI that type checks bindings in lit-html templates",
   "author": "runem",
   "license": "MIT",
@@ -20,7 +20,6 @@
     "tagged",
     "template"
   ],
-  "type": "module",
   "bin": {
     "lit-analyzer": "cli.js"
   },
@@ -40,14 +39,11 @@
       "command": "tsc --noEmit --watch --pretty"
     },
     "build": {
-      "clean": true,
       "command": "tsc",
+      "clean": true,
+      "files": ["src/**/*.ts", "package.json", "tsconfig.json"],
       "output": [
-        "lib",
-        "test",
-        "index.js",
-        "index.d.ts",
-        "index.d.ts.map"
+        "dist"
       ]
     },
     "test": {
@@ -82,22 +78,19 @@
     "didyoumean2": "^7.0.4",
     "fast-glob": "^3.2.11",
     "parse5": "^8.0.1",
+    "typescript": "6.0.3",
     "vscode-css-languageservice": "^6.3.10",
-    "vscode-html-languageservice": "^5.6.2"
-  },
-  "peerDependencies": {
-    "web-component-analyzer": "3.0.7"
+    "vscode-html-languageservice": "^5.6.2",
+    "yargs": "^18.1.0"
   },
   "devDependencies": {
     "@types/node": "^26.3.0",
+    "@types/yargs": "^17.0.35",
     "ava": "^8.0.1",
     "tslib": "^2.0.0",
-    "typescript": "6.0.3",
     "typescript-5.2": "npm:typescript@5.2.2",
     "typescript-5.9": "npm:typescript@5.9.3",
-    "web-component-analyzer": "file:./vendor/web-component-analyzer-3.0.7.tgz",
     "wireit": "^0.14.13"
-    
   },
   "ava": {
     "cache": false,
@@ -105,10 +98,10 @@
     "extensions": [
       "js"
     ],
-    "snapshotDir": "test/snapshots/results",
+    "snapshotDir": "dist/test/snapshots/results",
     "files": [
-      "test/**/*.js",
-      "!test/helpers/**/*"
+      "dist/test/**/*.js",
+      "!dist/test/helpers/**/*"
     ]
   },
   "contributors": [

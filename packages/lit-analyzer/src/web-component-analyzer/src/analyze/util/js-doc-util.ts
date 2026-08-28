@@ -307,6 +307,8 @@ export function getJsDocType(
       }
     }
   }
+
+  return undefined;
 }
 
 const JSDOC_TAGS_WITH_REQUIRED_NAME: string[] = [
@@ -385,6 +387,7 @@ function parseJsDocTagString(str: string): JsDocTagParsed {
       // Example: "  @mytag|"
       moveStr(tagResult[1]);
       jsDocTag.tag = tagResult[2];
+      return undefined;
     }
   };
 

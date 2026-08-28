@@ -3,7 +3,7 @@ import { HTMLDataV1 } from "vscode-html-languageservice";
 import {
   SimpleType,
   SimpleTypeKind,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../web-component-analyzer/src/api.js";
 import { LitAnalyzerConfig } from "../lit-analyzer-config.js";
 import {
   HtmlAttr,

@@ -5,13 +5,11 @@ import {
   ComponentEvent,
   ComponentMember,
   ComponentSlot,
-} from "web-component-analyzer";
-import {
   isAssignableToSimpleTypeKind,
   SimpleType,
   SimpleTypeKind,
   typeToString,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,

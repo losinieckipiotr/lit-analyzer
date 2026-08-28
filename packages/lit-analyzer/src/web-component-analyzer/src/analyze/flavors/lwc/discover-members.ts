@@ -42,6 +42,8 @@ export function discoverMembers(
   ) {
     return parsePropertyDecorator(node, context);
   }
+
+  return undefined;
 }
 
 /**

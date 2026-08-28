@@ -4,7 +4,7 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
   visitAllHeritageClauses,
-} from "web-component-analyzer";
+} from "../../../../web-component-analyzer/src/api.js";
 import { getDeclarationsInFile } from "../../util/component-util.js";
 import { AnalyzerDefinitionStore } from "../analyzer-definition-store.js";
 

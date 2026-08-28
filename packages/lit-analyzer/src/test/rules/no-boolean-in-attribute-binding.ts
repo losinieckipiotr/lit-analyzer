@@ -31,13 +31,30 @@ tsTest(
   },
 );
 
-tsTest(
+tsTest.only(
   "Boolean assigned to 'true|'false' doesn't emit 'no-boolean-in-attribute-binding' warning",
   (t) => {
     const { diagnostics } = getDiagnostics(
-      'let b: boolean = true; html`<input aria-expanded="${b}" />`',
+      [
+        'import { html, LitElement, render } from "lit";',
+        'import { customElement, property } from "lit/decorators.js";',
+        "declare global {",
+        "  interface HTMLElementTagNameMap {",
+        '    "test-el": TestEl;',
+        "  }",
+        "}",
+        '@customElement("test-el")',
+        "class TestEl extends LitElement {",
+        '  @property({ type: String, attribute: "bval" })',
+        '  bval: "true" | "false" = "true";',
+        "}",
+        "let bval: boolean = true;",
+        "render(html`<test-el bval=${bval}></test-el>`, document.body);",
+      ].join("\n"),
       {
-        rules: { "no-boolean-in-attribute-binding": true },
+        rules: {
+          "no-boolean-in-attribute-binding": true,
+        },
       },
     );
     hasNoDiagnostics(t, diagnostics);

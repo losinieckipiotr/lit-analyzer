@@ -692,6 +692,8 @@ function getTargetType(
   if (isObject(type, ts) && isObjectTypeReference(type, ts)) {
     return type.target;
   }
+
+  return undefined;
 }
 
 function getModifiersFromDeclaration(
@@ -757,14 +759,15 @@ export function isSimpleTypeLiteral(
 }
 
 export function isSimpleType(type: unknown): type is SimpleType {
-  return (
-    typeof type === "object" &&
-    type != null &&
-    "kind" in type &&
-    SIMPLE_TYPE_KINDS.find(
-      key => key === (type as { kind: SimpleTypeKind }).kind
-    ) != null
-  );
+  if (typeof type === "object" && type) {
+    const { kind } = type as { kind: SimpleTypeKind };
+
+    if (kind) {
+      return SIMPLE_TYPE_KINDS.includes(kind);
+    }
+  }
+
+  return false;
 }
 
 export function isSimpleTypePrimitive(
@@ -947,6 +950,8 @@ function primitiveLiteralToSimpleType(
         Math.floor(Math.random() * 100000000).toString()
     };
   }
+
+  return undefined;
 }
 
 function simplifySimpleTypes(types: SimpleType[]): SimpleType[] {
@@ -1240,6 +1245,8 @@ function toSimpleTypeInternal(
             ) as SimpleTypeFunction;
           }
         }
+
+        return undefined;
       })();
 
       const call = getSimpleFunctionFromCallSignatures(
@@ -1563,9 +1570,7 @@ export function toSimpleType(
   });
 }
 
-interface SimpleTypeBaseOptions {}
-
-export interface SimpleTypeComparisonOptions extends SimpleTypeBaseOptions {
+export interface SimpleTypeComparisonOptions {
   strict?: boolean;
   strictNullChecks?: boolean;
   strictFunctionTypes?: boolean;
@@ -1705,21 +1710,10 @@ function validateTypeInternal(
   return false;
 }
 
-interface SimpleTypeKindComparisonOptions extends SimpleTypeBaseOptions {
+interface SimpleTypeKindComparisonOptions {
   matchAny?: boolean;
 }
 
-export function isAssignableToSimpleTypeKind(
-  type: SimpleType,
-  kind: SimpleTypeKind | SimpleTypeKind[],
-  options?: SimpleTypeKindComparisonOptions
-): boolean;
-export function isAssignableToSimpleTypeKind(
-  type: Type | SimpleType,
-  kind: SimpleTypeKind | SimpleTypeKind[],
-  checker: TypeChecker,
-  options?: SimpleTypeKindComparisonOptions
-): boolean;
 export function isAssignableToSimpleTypeKind(
   type: Type | SimpleType,
   kind: SimpleTypeKind | SimpleTypeKind[],
@@ -1772,7 +1766,11 @@ export function isAssignableToSimpleTypeKind(
       case "ENUM_MEMBER": {
         return isAssignableToSimpleTypeKind(simpleType.type, kind, options);
       }
+
+      // TODO: what about other types?
     }
+
+    return false;
   });
 
   return result;
@@ -1789,11 +1787,6 @@ function functionArgTypesToString(
     .join(", ");
 }
 
-export function typeToString(simpleType: SimpleType): string;
-export function typeToString(
-  type: SimpleType | Type,
-  checker: TypeChecker
-): string;
 export function typeToString(
   type: SimpleType | Type,
   checker?: TypeChecker
@@ -1934,7 +1927,7 @@ function simpleTypeToStringInternal(
       );
     case "INTERFACE":
       if (type.name != null) return type.name;
-    // this fallthrough is intentional
+    // eslint-disable-next-line no-fallthrough
     case "OBJECT": {
       if (type.members == null || type.members.length === 0) {
         if (type.call == null && type.ctor == null) {

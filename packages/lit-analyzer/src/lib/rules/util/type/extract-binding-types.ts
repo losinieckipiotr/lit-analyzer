@@ -10,7 +10,7 @@ import {
   // SimpleTypeString,
   SimpleTypeStringLiteral,
   toSimpleType,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,

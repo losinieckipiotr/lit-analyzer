@@ -151,6 +151,8 @@ function findMemberToMerge(
       }
     }
   }
+
+  return undefined;
 }
 
 /**
@@ -181,6 +183,8 @@ function mergeMemberIntoMember<
       } else if (rightMember.kind === "property") {
         return rightMember.type ?? leftMember.type;
       }
+
+      return undefined;
     })(),
     typeHint: leftMember.typeHint ?? rightMember.typeHint,
     jsDoc: mergeJsDoc(leftMember.jsDoc, rightMember.jsDoc),

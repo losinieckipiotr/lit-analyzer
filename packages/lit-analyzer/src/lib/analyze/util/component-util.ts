@@ -3,7 +3,7 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
   visitAllHeritageClauses,
-} from "web-component-analyzer";
+} from "../../../web-component-analyzer/src/api.js";
 
 export function getDeclarationsInFile(
   definition: ComponentDefinition,

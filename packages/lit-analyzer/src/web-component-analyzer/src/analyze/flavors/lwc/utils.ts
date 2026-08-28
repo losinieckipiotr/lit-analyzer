@@ -92,6 +92,8 @@ function _isLwcComponent(
   if (v && v.length === 1) {
     return v[0] as ComponentRef;
   }
+
+  return undefined;
 }
 
 // Check if the Class inherits from lighning

@@ -1,9 +1,8 @@
-import htmlDataJson from "@vscode/web-custom-data/data/browsers.html-data.json" with { type: "json" };
 import { HTMLDataV1 } from "vscode-html-languageservice";
 import {
   SimpleType,
   SimpleTypeKind,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../web-component-analyzer/src/api.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
@@ -17,7 +16,8 @@ import {
 } from "./extra-html-data.js";
 
 export function getBuiltInHtmlCollection(): HtmlDataCollection {
-  const vscodeHtmlData = htmlDataJson as HTMLDataV1;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const vscodeHtmlData: HTMLDataV1 = require("@vscode/web-custom-data/data/browsers.html-data.json");
 
   const version = vscodeHtmlData.version;
   const globalAttributes = [...(vscodeHtmlData.globalAttributes ?? [])];

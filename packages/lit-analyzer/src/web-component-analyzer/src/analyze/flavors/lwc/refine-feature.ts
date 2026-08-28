@@ -45,6 +45,8 @@ function findClassDeclaration(
     }
     node = node.parent;
   }
+
+  return undefined;
 }
 
 function isLWCComponent(

@@ -1,7 +1,7 @@
 import {
   isAssignableToSimpleTypeKind,
   SimpleTypeKind,
-} from "web-component-analyzer/simple-type.js";
+} from "../../web-component-analyzer/src/api.js";
 import { LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER } from "../analyze/constants.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";

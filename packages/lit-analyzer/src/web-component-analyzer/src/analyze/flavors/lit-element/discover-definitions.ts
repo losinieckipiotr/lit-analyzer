@@ -59,10 +59,19 @@ export function discoverDefinitions(
       }
     }
 
-    return;
+    return undefined;
   }
 
+  // note: it did not return definitions from child nodes, was it a bug?
+  const results: DefinitionNodeResult[] = [];
+
   node.forEachChild(child => {
-    discoverDefinitions(child, context);
+    const result = discoverDefinitions(child, context);
+
+    if (result) {
+      results.push(...result);
+    }
   });
+
+  return results.length > 0 ? results : undefined;
 }

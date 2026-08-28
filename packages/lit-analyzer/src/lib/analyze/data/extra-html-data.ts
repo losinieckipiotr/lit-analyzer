@@ -3,7 +3,7 @@ import {
   SimpleTypeKind,
   SimpleTypeStringLiteral,
   SimpleTypeUnion,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../web-component-analyzer/src/api.js";
 import { makePrimitiveArrayType } from "../util/type-util.js";
 
 const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {

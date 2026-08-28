@@ -2,7 +2,7 @@ import {
   isAssignableToSimpleTypeKind,
   SimpleType,
   SimpleTypeKind,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 
 export function removeUndefinedFromType(type: SimpleType): SimpleType {
   switch (type.kind) {

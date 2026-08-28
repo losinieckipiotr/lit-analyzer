@@ -1,8 +1,8 @@
-import { isAssignableToType as _isAssignableToType } from "web-component-analyzer/is-assignable-to-type.js";
 import {
+  isAssignableToType as _isAssignableToType,
   SimpleType,
   SimpleTypeComparisonOptions,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../../../analyze/types/rule/rule-module-context.js";
 
 export function isAssignableToType(

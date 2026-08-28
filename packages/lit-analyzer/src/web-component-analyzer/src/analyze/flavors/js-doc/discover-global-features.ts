@@ -20,6 +20,8 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
       ) {
         return discoverFeatures.csspart?.(node, context);
       }
+
+      return undefined;
     },
     cssproperty: (
       node: Node,
@@ -31,6 +33,8 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
       ) {
         return discoverFeatures.cssproperty?.(node, context);
       }
+
+      return undefined;
     },
     event: (
       node: Node,
@@ -42,6 +46,8 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
       ) {
         return discoverFeatures.event?.(node, context);
       }
+
+      return undefined;
     },
     slot: (
       node: Node,
@@ -53,6 +59,8 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
       ) {
         return discoverFeatures.slot?.(node, context);
       }
+
+      return undefined;
     },
     member: (
       node: Node,
@@ -64,5 +72,7 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
       ) {
         return discoverFeatures?.member?.(node, context);
       }
+
+      return undefined;
     }
   };

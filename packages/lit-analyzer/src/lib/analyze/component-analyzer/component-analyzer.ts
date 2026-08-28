@@ -1,7 +1,7 @@
 import {
   ComponentDeclaration,
   ComponentDefinition,
-} from "web-component-analyzer";
+} from "../../../web-component-analyzer/src/api.js";
 import { LitAnalyzerContext } from "../lit-analyzer-context.js";
 import { ReportedRuleDiagnostic } from "../rule-collection.js";
 import { LitCodeFix } from "../types/lit-code-fix.js";

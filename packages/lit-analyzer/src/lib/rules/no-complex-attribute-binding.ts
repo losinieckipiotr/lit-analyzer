@@ -1,5 +1,7 @@
-import { isAssignableToPrimitiveType } from "web-component-analyzer/is-assignable-to-type.js";
-import { typeToString } from "web-component-analyzer/simple-type.js";
+import {
+  isAssignableToPrimitiveType,
+  typeToString,
+} from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";

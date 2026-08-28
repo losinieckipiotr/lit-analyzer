@@ -2,7 +2,7 @@ import {
   SimpleType,
   SimpleTypeKind,
   SimpleTypeUnion,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import {
   HtmlAttr,
   HtmlCssPart,

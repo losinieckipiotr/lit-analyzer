@@ -1,12 +1,14 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src"],
-  "exclude": [],
+  "include": ["src"],
+  "exclude": ["src/web-component-analyzer/dev"],
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./",
+    "types": ["node", "yargs"],
+    "rootDir": "src",
+    "outDir": "dist",
     "resolveJsonModule": true,
     "noEmit": false,
-    "allowImportingTsExtensions": false
-  }
+    "allowImportingTsExtensions": false,
+    "sourceMap": true
+  },
 }

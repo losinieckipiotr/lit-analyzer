@@ -10,7 +10,7 @@ import {
   SimpleType,
   SimpleTypeKind,
   SimpleTypeStringLiteral,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import { lazy } from "../../util/general-util.js";
 import {
   HtmlAttr,

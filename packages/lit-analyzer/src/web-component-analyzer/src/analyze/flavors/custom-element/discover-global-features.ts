@@ -45,6 +45,8 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
 
         return events;
       }
+
+      return undefined;
     },
     member: (
       node: Node,
@@ -79,5 +81,7 @@ export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =
 
         return members;
       }
+
+      return undefined;
     }
   };

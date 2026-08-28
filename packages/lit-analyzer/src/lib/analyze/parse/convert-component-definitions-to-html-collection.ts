@@ -4,14 +4,12 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
   ComponentFeatures,
-} from "web-component-analyzer";
-import {
   isSimpleType,
   SimpleType,
   SimpleTypeAny,
   SimpleTypeKind,
   toSimpleType,
-} from "web-component-analyzer/simple-type.js";
+} from "../../../web-component-analyzer/src/api.js";
 import { lazy } from "../util/general-util.js";
 import {
   HtmlDataCollection,
