@@ -1,15 +1,15 @@
-import type {
-  HTMLDataV1,
-  IAttributeData,
-  ITagData,
-  IValueData,
-} from "vscode-html-languageservice";
 import { MarkupContent } from "vscode-languageserver-types";
 import {
   SimpleType,
   SimpleTypeKind,
   SimpleTypeStringLiteral,
 } from "../../../../web-component-analyzer/src/api.js";
+import type {
+  HTMLDataV1,
+  IAttributeData,
+  ITagData,
+  IValueData,
+} from "../../data/html-data-types.js";
 import {
   HtmlAttr,
   HtmlDataCollection,

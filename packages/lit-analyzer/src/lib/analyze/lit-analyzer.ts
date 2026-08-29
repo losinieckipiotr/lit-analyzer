@@ -263,12 +263,7 @@ export class LitAnalyzer {
         this.context,
       );
     } else if (document instanceof HtmlDocument) {
-      return this.litHtmlDocumentAnalyzer.getCompletionDetailsAtOffset(
-        document,
-        offset,
-        name,
-        this.context,
-      );
+      return this.litHtmlDocumentAnalyzer.getCompletionDetailsAtOffset(name);
     }
     return;
   }

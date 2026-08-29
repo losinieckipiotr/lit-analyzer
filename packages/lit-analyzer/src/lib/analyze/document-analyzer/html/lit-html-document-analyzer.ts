@@ -37,12 +37,7 @@ export class LitHtmlDocumentAnalyzer {
   private vscodeHtmlService = new LitHtmlVscodeService();
   private completionsCache: LitCompletion[] = [];
 
-  getCompletionDetailsAtOffset(
-    document: HtmlDocument,
-    offset: DocumentOffset,
-    name: string,
-    context: LitAnalyzerContext,
-  ): LitCompletionDetails | undefined {
+  getCompletionDetailsAtOffset(name: string): LitCompletionDetails | undefined {
     const completionWithName = this.completionsCache.find(
       (completion) => completion.name === name,
     );

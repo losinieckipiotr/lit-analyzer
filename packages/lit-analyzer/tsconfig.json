@@ -13,5 +13,6 @@
     "sourceMap": true,
     "incremental": false,
     "tsBuildInfoFile": ".tsbuildinfo",
+    "noUnusedParameters": false
   },
 }

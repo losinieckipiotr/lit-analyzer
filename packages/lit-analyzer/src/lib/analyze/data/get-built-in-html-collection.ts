@@ -1,8 +1,8 @@
-import type { HTMLDataV1 } from "vscode-html-languageservice";
 import {
   SimpleType,
   SimpleTypeKind,
 } from "../../../web-component-analyzer/src/api.js";
+import type { HTMLDataV1 } from "../data/html-data-types.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
