@@ -3,7 +3,7 @@
   "private": true,
   "displayName": "lit-plugin",
   "description": "Syntax highlighting, type checking and code completion for lit-html",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "publisher": "runem",
   "icon": "docs/assets/lit-plugin@256w.png",
   "license": "MIT",
@@ -79,13 +79,8 @@
       "dependencies": [
         "../ts-lit-plugin:build"
       ],
+      "clean": true,
       "command": "node scripts/esbuild.script.ts",
-      "files": [
-        "src/**/*",
-        "../ts-lit-plugin/src/**/*",
-        "../ts-lit-plugin/index.js",
-        "scripts/esbuild.script.ts"
-      ],
       "output": [
         "built/bundle.js",
         "built/node_modules/ts-lit-plugin/lib/index.js"

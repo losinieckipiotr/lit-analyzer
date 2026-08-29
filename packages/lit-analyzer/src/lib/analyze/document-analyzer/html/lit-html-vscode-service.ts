@@ -1,5 +1,5 @@
 import type { FormatCodeSettings } from "typescript";
-import * as vsCode from "vscode-html-languageservice";
+import { getLanguageService, TextDocument } from "vscode-html-languageservice";
 import { HtmlDocument } from "../../parse/document/text-document/html-document/html-document.js";
 import { textPartsToRanges } from "../../parse/document/virtual-document/virtual-document.js";
 import { LitClosingTagInfo } from "../../types/lit-closing-tag-info.js";
@@ -10,10 +10,10 @@ import {
   makeDocumentRange,
 } from "../../util/range-util.js";
 
-const htmlService = vsCode.getLanguageService();
+const htmlService = getLanguageService();
 
-function makeVscTextDocument(htmlDocument: HtmlDocument): vsCode.TextDocument {
-  return vsCode.TextDocument.create(
+function makeVscTextDocument(htmlDocument: HtmlDocument): TextDocument {
+  return TextDocument.create(
     "untitled://embedded.html",
     "html",
     1,
@@ -21,7 +21,7 @@ function makeVscTextDocument(htmlDocument: HtmlDocument): vsCode.TextDocument {
   );
 }
 
-function makeVscHtmlDocument(vscTextDocument: vsCode.TextDocument) {
+function makeVscHtmlDocument(vscTextDocument: TextDocument) {
   return htmlService.parseHTMLDocument(vscTextDocument);
 }
 
@@ -66,7 +66,7 @@ export class LitHtmlVscodeService {
         typeof p === "string" ? p : `[#${"#".repeat(p.getText().length)}]`,
       )
       .join("");
-    const vscTextDocument = vsCode.TextDocument.create(
+    const vscTextDocument = TextDocument.create(
       "untitled://embedded.html",
       "html",
       1,
@@ -91,7 +91,7 @@ export class LitHtmlVscodeService {
     const hasLeadingNewline = originalHtml.startsWith("\n");
     const hasTrailingNewline = originalHtml.endsWith("\n");
 
-    const newHtml = `${hasLeadingNewline ? "\n" : ""}${vsCode.TextDocument.applyEdits(vscTextDocument, edits)}${hasTrailingNewline ? "\n" : ""}`;
+    const newHtml = `${hasLeadingNewline ? "\n" : ""}${TextDocument.applyEdits(vscTextDocument, edits)}${hasTrailingNewline ? "\n" : ""}`;
 
     const splitted = newHtml.split(/\[#+\]/);
 

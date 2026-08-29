@@ -19,21 +19,16 @@ async function getDiagnostics(docUri: vscode.Uri) {
   //   await new Promise((resolve) => setTimeout(resolve, 100));
   // }
 
-  const TIMEOUT = 60 * 1_000;
-  const step = 100;
+  const TIMEOUT = 3 * 1_000;
+  const INTERVAL = 100;
 
-  let retries = 0;
-  console.log("getDiagnostics()");
   const start = Date.now();
   while (Date.now() - start < TIMEOUT) {
-    console.log("getDiagnostics attempt", retries);
-
     const diagnostics = vscode.languages.getDiagnostics(docUri);
     if (diagnostics.length > 0) {
       return diagnostics;
     }
-    retries++;
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), step));
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), INTERVAL));
   }
 
   return [];

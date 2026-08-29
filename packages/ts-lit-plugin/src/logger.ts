@@ -2,8 +2,8 @@
 import { appendFileSync, writeFileSync } from "fs";
 import { DefaultLitAnalyzerLogger, LitAnalyzerLoggerLevel } from "lit-analyzer";
 import { join } from "path";
+import * as tsServer from "typescript";
 import { inspect } from "util";
-import * as tsServer from "typescript/lib/tsserverlibrary.js";
 
 const LOG_FILE_NAME = "lit-plugin.log";
 

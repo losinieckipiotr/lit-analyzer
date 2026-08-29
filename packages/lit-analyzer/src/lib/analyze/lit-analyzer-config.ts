@@ -1,4 +1,4 @@
-import { HTMLDataV1 } from "vscode-html-languageservice";
+import type { HTMLDataV1 } from "vscode-html-languageservice";
 import { LitDiagnosticSeverity } from "./types/lit-diagnostic.js";
 
 export type LitAnalyzerRuleSeverity =

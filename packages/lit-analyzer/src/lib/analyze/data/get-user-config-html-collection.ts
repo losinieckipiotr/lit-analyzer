@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "fs";
-import { HTMLDataV1 } from "vscode-html-languageservice";
+import type { HTMLDataV1 } from "vscode-html-languageservice";
 import {
   SimpleType,
   SimpleTypeKind,

@@ -23,10 +23,10 @@ async function main() {
     "./node_modules/typescript/lib/typescript.js",
     "./built/node_modules/typescript/lib/typescript.js",
   );
-  await copy(
-    "./node_modules/typescript/lib/tsserverlibrary.js",
-    "./built/node_modules/typescript/lib/tsserverlibrary.js",
-  );
+  // await copy(
+  //   "./node_modules/typescript/lib/tsserverlibrary.js",
+  //   "./built/node_modules/typescript/lib/tsserverlibrary.js",
+  // );
 
   // For the TS compiler plugin, it must be in node modules because that's
   // hard coded by the TS compiler's custom module resolution logic.
@@ -44,6 +44,10 @@ async function main() {
   fs.writeFileSync(
     "./built/node_modules/ts-lit-plugin/package.json",
     JSON.stringify(tsPluginPackageJson, null, 2),
+  );
+  await copy(
+    "../ts-lit-plugin/index.js",
+    "./built/node_modules/ts-lit-plugin/index.js",
   );
 
   const pluginPackageJsonFile = fs.readFileSync("./package.json", "utf-8");

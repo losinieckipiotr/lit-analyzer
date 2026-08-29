@@ -1,4 +1,4 @@
-import { HTMLDataV1 } from "vscode-html-languageservice";
+import type { HTMLDataV1 } from "vscode-html-languageservice";
 import {
   SimpleType,
   SimpleTypeKind,
@@ -7,8 +7,12 @@ import {
   HtmlAttr,
   HtmlDataCollection,
 } from "../parse/parse-html-data/html-tag.js";
+// FIXME:
+// "@vscode/web-custom-data": "^0.6.3",
+// @vscode/web-custom-data/data/browsers.html-data.json
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { lazy } from "../util/general-util.js";
+import { browsersHtmlData } from "./browsers-html-data.js";
 import {
   EXTRA_HTML5_EVENTS,
   hasTypeForAttrName,
@@ -16,9 +20,8 @@ import {
 } from "./extra-html-data.js";
 
 export function getBuiltInHtmlCollection(): HtmlDataCollection {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const vscodeHtmlData: HTMLDataV1 = require("@vscode/web-custom-data/data/browsers.html-data.json");
-
+  // FIXME: no type validation here
+  const vscodeHtmlData = browsersHtmlData as HTMLDataV1;
   const version = vscodeHtmlData.version;
   const globalAttributes = [...(vscodeHtmlData.globalAttributes ?? [])];
 

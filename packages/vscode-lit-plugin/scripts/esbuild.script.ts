@@ -22,9 +22,9 @@ async function build() {
     platform: "node",
     external: ["typescript"],
     minify: false,
-    sourcemap: "inline",
+    sourcemap: false,
     target: "es2024",
-    format: "esm",
+    format: "cjs",
     color: true,
     mainFields: ["module", "main"],
   });

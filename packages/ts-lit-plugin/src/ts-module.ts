@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/extensions
-import * as ts_module from "typescript/lib/tsserverlibrary";
+import * as ts_module from "typescript";
 
 export const tsModule: { ts: typeof ts_module } = { ts: ts_module };
 

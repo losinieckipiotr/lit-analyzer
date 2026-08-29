@@ -1,6 +1,6 @@
 {
   "name": "lit-analyzer",
-  "version": "3.0.4",
+  "version": "3.0.6",
   "description": "CLI that type checks bindings in lit-html templates",
   "author": "runem",
   "license": "MIT",
@@ -22,6 +22,7 @@
   ],
   "scripts": {
     "build": "wireit",
+    "build:test": "wireit",
     "prepublishOnly": "npm test",
     "tsc": "wireit",
     "tsc:watch": "wireit",
@@ -38,18 +39,26 @@
     "build": {
       "command": "tsc",
       "clean": true,
+      "output": [
+        "dist"
+      ]
+    },
+    "build:test": {
+      "clean": true,
+      "command": "tsc -p tsconfig-test.json",
       "files": [
         "src/**/*.ts",
         "package.json",
         "tsconfig.json"
       ],
       "output": [
-        "dist"
+        "out"
       ]
     },
     "test": {
       "dependencies": [
-        "build"
+        "build",
+        "build:test"
       ],
       "env": {
         "#comment": "TsModuleKind from `/src/test/helpers/ts-test.ts`",
@@ -66,8 +75,7 @@
     }
   },
   "types": "dist/index.d.ts",
-  "module": "dist/index.js",
-  "type": "module",
+  "main": "dist/index.js",
   "files": [
     "dist/lib",
     "dist/web-component-analyzer",
@@ -80,7 +88,6 @@
     "lit-analyzer": "cli.js"
   },
   "dependencies": {
-    "@vscode/web-custom-data": "^0.6.3",
     "chalk": "^6.0.0",
     "didyoumean2": "^7.0.4",
     "fast-glob": "^3.2.11",
@@ -106,10 +113,10 @@
     "extensions": [
       "js"
     ],
-    "snapshotDir": "dist/test/snapshots/results",
+    "snapshotDir": "out/test/snapshots/results",
     "files": [
-      "dist/test/**/*.js",
-      "!dist/test/helpers/**/*"
+      "out/test/**/*.js",
+      "!out/test/helpers/**/*"
     ]
   },
   "contributors": [

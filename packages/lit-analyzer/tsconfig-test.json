@@ -1,17 +1,18 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src"],
-  "exclude": ["src/web-component-analyzer/dev", "src/web-component-analyzer/scripts", "src/web-component-analyzer/test"],
+  "exclude": ["src/web-component-analyzer/dev", "src/web-component-analyzer/scripts"],
   "compilerOptions": {
     "types": ["node", "yargs"],
     "lib": ["ESNext"],
+    "module": "nodenext",
     "rootDir": "src",
-    "outDir": "dist",
+    "outDir": "out",
     "resolveJsonModule": true,
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "sourceMap": true,
     "incremental": false,
-    "tsBuildInfoFile": ".tsbuildinfo",
+    "tsBuildInfoFile": ".tsbuildinfo-test",
   },
 }

@@ -5,7 +5,6 @@ import {
   SourceFile,
   TypeChecker,
 } from "typescript";
-import * as tsServer from "typescript/lib/tsserverlibrary.js";
 import {
   analyzeHTMLElement,
   analyzeSourceFile,
@@ -96,7 +95,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     return this.handler.getProgram();
   }
 
-  get project(): tsServer.server.Project | undefined {
+  get project(): tsMod.server.Project | undefined {
     return this.handler.getProject != null
       ? this.handler.getProject()
       : undefined;
