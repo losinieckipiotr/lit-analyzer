@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src"],
-  "exclude": ["src/web-component-analyzer/dev"],
+  "exclude": ["src/web-component-analyzer/dev", "src/web-component-analyzer/scripts", "src/web-component-analyzer/test"],
   "compilerOptions": {
     "types": ["node", "yargs"],
     "lib": ["ESNext"],

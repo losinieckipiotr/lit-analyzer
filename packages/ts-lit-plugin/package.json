@@ -46,7 +46,7 @@
 		"/html-documentation/"
 	],
 	"dependencies": {
-		"lit-analyzer": "file:./vendor/lit-analyzer-3.0.3.tgz"
+		"lit-analyzer": "file:../lit-analyzer"
 	},
 	"devDependencies": {
 		"@types/node": "^26.3.0",

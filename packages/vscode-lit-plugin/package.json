@@ -151,17 +151,10 @@
     "esbuild": "^0.28.2",
     "fs-extra": "^11.4.0",
     "glob": "^13.0.6",
-    "lit-analyzer": "^2.0.3",
+    "lit-analyzer": "file:../lit-analyzer",
     "mocha": "^11.8.0",
     "wireit": "^0.14.13"
   },
-  "activationEvents": [
-    "onCommand:lit-plugin.analyze",
-    "onLanguage:javascript",
-    "onLanguage:javascriptreact",
-    "onLanguage:typescript",
-    "onLanguage:typescriptreact"
-  ],
   "contributors": [
     {
       "name": "Rune Mehlsen",

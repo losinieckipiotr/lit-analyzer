@@ -20,9 +20,6 @@
     "tagged",
     "template"
   ],
-  "bin": {
-    "lit-analyzer": "cli.js"
-  },
   "scripts": {
     "build": "wireit",
     "prepublishOnly": "npm test",
@@ -68,14 +65,19 @@
       "command": "ava --color"
     }
   },
-  "main": "index.js",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "files": [
-    "/lib/",
-    "index.js",
-    "index.d.ts",
-    "index.d.ts.map",
+    "dist/lib",
+    "dist/web-component-analyzer",
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/index.d.ts.map",
     "cli.js"
   ],
+  "bin": {
+    "lit-analyzer": "cli.js"
+  },
   "dependencies": {
     "@vscode/web-custom-data": "^0.6.3",
     "chalk": "^6.0.0",
