@@ -5,6 +5,7 @@
   "compilerOptions": {
     "types": ["node", "yargs"],
     "lib": ["ESNext"],
+    "module": "nodenext",
     "rootDir": "src",
     "outDir": "dist",
     "resolveJsonModule": true,
@@ -12,6 +13,6 @@
     "allowImportingTsExtensions": false,
     "sourceMap": true,
     "incremental": true,
-    "tsBuildInfoFile": "dist/.tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo",
   },
 }

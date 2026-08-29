@@ -1,4 +1,4 @@
 {
-	"js/ts.tsserver.log": "verbose",
+	"js/ts.tsserver.log": "normal",
 	"js/ts.tsdk.path": "./node_modules/typescript/lib",
 }

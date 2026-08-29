@@ -40,8 +40,10 @@
 			]
 		}
 	},
-	"main": "lib/index.js",
+	"module": "lib/index.js",
+	"main": "index.js",
 	"files": [
+		"index.js",
 		"/lib/",
 		"/html-documentation/"
 	],

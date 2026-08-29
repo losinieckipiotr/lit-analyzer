@@ -1,7 +1,8 @@
-import * as tsModuleType from "typescript";
+// eslint-disable-next-line import/extensions
+import * as ts_module from "typescript/lib/tsserverlibrary";
 
-export const tsModule: { ts: typeof tsModuleType } = { ts: tsModuleType };
+export const tsModule: { ts: typeof ts_module } = { ts: ts_module };
 
-export function setTypescriptModule(newModule: typeof tsModuleType): void {
+export function setTypescriptModule(newModule: typeof ts_module): void {
   tsModule.ts = newModule;
 }

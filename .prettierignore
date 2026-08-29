@@ -20,6 +20,6 @@ out
 /packages/*/.wireit
 /packages/*/lib
 /packages/*/out
-/packages/*/scripts
-/packages/*/test
-/packages/*/index.*
+/packages/*/dist
+/packages/*/built
+

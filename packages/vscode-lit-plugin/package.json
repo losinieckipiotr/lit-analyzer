@@ -3,12 +3,12 @@
   "private": true,
   "displayName": "lit-plugin",
   "description": "Syntax highlighting, type checking and code completion for lit-html",
-  "version": "1.4.3",
+  "version": "2.0.0",
   "publisher": "runem",
   "icon": "docs/assets/lit-plugin@256w.png",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.134.0"
+    "vscode": "^1.113.0"
   },
   "categories": [
     "Programming Languages"
@@ -25,21 +25,21 @@
   "main": "bundle.js",
   "scripts": {
     "watch": "tsc -watch -p ./",
-    "package": "wireit",
     "readme": "readme generate -i readme.blueprint.md -c readme.config.json",
-    "test": "wireit",
     "build": "wireit",
+    "test": "wireit",
     "test:normal": "wireit",
+    "make-out-dir": "wireit",
     "bundle": "wireit",
-    "make-built-dir": "wireit",
-    "vscode-test": "vscode-test"
+    "package": "wireit",
+    "copy-to-built": "wireit"
   },
   "wireit": {
     "build": {
       "dependencies": [
-        "../lit-analyzer:build",
-        "make-built-dir"
+        "make-out-dir"
       ],
+      "clean": false,
       "command": "tsc --pretty",
       "files": [
         "src/**/*",
@@ -50,8 +50,7 @@
         "out/**/*.d.ts",
         "out/**/*.d.ts.map",
         ".tsbuildinfo"
-      ],
-      "clean": true
+      ]
     },
     "test": {
       "dependencies": [
@@ -60,7 +59,8 @@
     },
     "test:normal": {
       "dependencies": [
-        "build"
+        "build",
+        "copy-to-built"
       ],
       "files": [
         "package.json",
@@ -73,12 +73,28 @@
       "command": "node ./out/test/scripts/test-runner.js"
     },
     "make-out-dir": {
-      "command": "node src/test/scripts/make-built-dir.ts"
+      "command": "node src/test/scripts/make-out-dir.ts"
+    },
+    "bundle": {
+      "dependencies": [
+        "../ts-lit-plugin:build"
+      ],
+      "command": "node scripts/esbuild.script.ts",
+      "files": [
+        "src/**/*",
+        "../ts-lit-plugin/src/**/*",
+        "../ts-lit-plugin/index.js",
+        "scripts/esbuild.script.ts"
+      ],
+      "output": [
+        "built/bundle.js",
+        "built/node_modules/ts-lit-plugin/lib/index.js"
+      ]
     },
     "package": {
       "dependencies": [
         "make-out-dir",
-        "make-built-dir"
+        "copy-to-built"
       ],
       "files": [],
       "output": [
@@ -86,31 +102,8 @@
       ],
       "command": "cd built && vsce package -o ../out/packaged.vsix"
     },
-    "publish": {
+    "copy-to-built": {
       "dependencies": [
-        "make-built-dir"
-      ],
-      "command": "cd built && vsce publish"
-    },
-    "bundle": {
-      "dependencies": [
-        "../lit-analyzer:build"
-      ],
-      "command": "node esbuild.script.ts",
-      "files": [
-        "src/**/*",
-        "../ts-lit-plugin/src/**/*",
-        "../ts-lit-plugin/index.js",
-        "esbuild.script.ts"
-      ],
-      "output": [
-        "built/bundle.js",
-        "built/node_modules/ts-lit-plugin/index.js"
-      ]
-    },
-    "make-built-dir": {
-      "dependencies": [
-        "../ts-lit-plugin:build",
         "bundle"
       ],
       "files": [
@@ -121,7 +114,7 @@
         "docs/**",
         "README.md",
         "LICENSE.md",
-        "copy-to-built.js"
+        "scripts/copy-to-built.ts"
       ],
       "output": [
         "built/docs",
@@ -134,17 +127,23 @@
         "built/package.json",
         "built/README.md"
       ],
-      "command": "node ./copy-to-built.ts"
+      "command": "node scripts/copy-to-built.ts"
     }
   },
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact"
+  ],
   "dependencies": {
     "typescript": "6.0.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.3.0",
-    "@types/vscode": "^1.134.0",
+    "@types/node": "^26.4.0",
+    "@types/vscode": "^1.113.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
@@ -155,23 +154,6 @@
     "mocha": "^11.8.0",
     "wireit": "^0.14.13"
   },
-  "contributors": [
-    {
-      "name": "Rune Mehlsen",
-      "url": "https://twitter.com/runemehlsen",
-      "img": "https://avatars2.githubusercontent.com/u/5372940?s=460&v=4"
-    },
-    {
-      "name": "Andreas Mehlsen",
-      "url": "https://twitter.com/andreasmehlsen",
-      "img": "https://avatars1.githubusercontent.com/u/6267397?s=460&v=4"
-    },
-    {
-      "name": "You?",
-      "img": "https://joeschmoe.io/api/v1/random",
-      "url": "https://github.com/runem/lit-analyzer/blob/master/CONTRIBUTING.md"
-    }
-  ],
   "contributes": {
     "commands": [
       {

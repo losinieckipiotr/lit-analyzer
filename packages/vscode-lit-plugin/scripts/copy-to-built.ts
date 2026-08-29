@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const fs = require("fs");
-const { copy, mkdirp } = require("fs-extra");
+import * as fs from "fs";
+import { copy, mkdirp } from "fs-extra";
 
 /**
  * Copy files into the ./built directory.
@@ -50,6 +49,7 @@ async function main() {
   const pluginPackageJsonFile = fs.readFileSync("./package.json", "utf-8");
   const pluginPackageJson = JSON.parse(pluginPackageJsonFile) as {
     dependencies: Record<string, string>;
+    type: "module" | "commonjs";
   };
   // vsce is _very_ picky about the directories in node_modules matching the
   // extension's package.json, so we need an entry for ts-lit-plugin or it

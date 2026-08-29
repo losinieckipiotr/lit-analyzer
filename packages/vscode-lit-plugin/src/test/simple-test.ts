@@ -8,7 +8,7 @@ import * as vscode from "vscode";
 // import * as litPlugin from "../extension.js";
 
 // wait until the TS language server is ready and diagnostics are produced
-async function getDiagnostics(docUri: vscode.Uri, retries = 1000) {
+async function getDiagnostics(docUri: vscode.Uri) {
   // for (let i = 0; i < retries; i++) {
   //   const diagnostics = vscode.languages.getDiagnostics(docUri);
   //   if (diagnostics.length > 0) {
@@ -18,11 +18,25 @@ async function getDiagnostics(docUri: vscode.Uri, retries = 1000) {
   //   // Maybe we can listen for the event that displays and hides the "initializing TS/JS language features" message?
   //   await new Promise((resolve) => setTimeout(resolve, 100));
   // }
-  // throw new Error("No diagnostics found");
 
-  const diagnostics = await vscode.languages.getDiagnostics(docUri);
+  const TIMEOUT = 60 * 1_000;
+  const step = 100;
 
-  return diagnostics;
+  let retries = 0;
+  console.log("getDiagnostics()");
+  const start = Date.now();
+  while (Date.now() - start < TIMEOUT) {
+    console.log("getDiagnostics attempt", retries);
+
+    const diagnostics = vscode.languages.getDiagnostics(docUri);
+    if (diagnostics.length > 0) {
+      return diagnostics;
+    }
+    retries++;
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), step));
+  }
+
+  return [];
 }
 
 suite("Extension Test Suite", () => {
@@ -60,16 +74,12 @@ suite("Extension Test Suite", () => {
 
     const extension = vscode.extensions.getExtension("runem.lit-plugin");
 
-    const isActive = extension?.isActive;
-
     // await extension?.activate();
+
+    const isActive = extension?.isActive;
 
     assert.ok(isActive, "Expected the extension to be active");
   });
-
-  // test("Placeholder test", () => {
-  //   const extension = vscode.extensions.getExtension("runem.lit-plugin");
-  // });
 
   test("We produce a diagnostic", async () => {
     const config = vscode.workspace.getConfiguration();
@@ -133,7 +143,7 @@ suite("Extension Test Suite", () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     assert.rejects(
-      getDiagnostics(doc.uri, 3),
+      getDiagnostics(doc.uri),
       "Expected rejection as no diagnostics will be found.",
     );
   });

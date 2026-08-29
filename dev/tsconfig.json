@@ -51,7 +51,7 @@
 		"allowJs": true,
 		"lib": ["esnext", "dom"],
 		"strict": true,
-		"esModuleInterop": true,
-		"noEmit": true
-	}
+		"noEmit": true,
+	},
+	"include": ["src"]
 }

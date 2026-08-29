@@ -17,8 +17,5 @@ out
 
 /packages/*/lib
 /packages/*/out
-/packages/*/scripts
-/packages/*/test
-/packages/*/index.*
 
 /packages/vscode-lit-plugin/built

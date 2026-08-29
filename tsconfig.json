@@ -3,7 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "target": "esnext",
-    "module": "nodenext",
+    "module":"esnext",
+    "types": ["node"],
     "strict": true,
     "experimentalDecorators": true,
     "noUnusedLocals": true,

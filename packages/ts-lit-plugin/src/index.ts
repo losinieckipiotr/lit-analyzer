@@ -5,7 +5,8 @@ import {
   makeConfig,
   VERSION,
 } from "lit-analyzer";
-import * as ts_module from "typescript/lib/tsserverlibrary.js";
+// eslint-disable-next-line import/extensions
+import * as ts_module from "typescript/lib/tsserverlibrary";
 // import { VERSION as WCA_VERSION } from "web-component-analyzer";
 import { decorateLanguageService } from "./decorate-language-service.js";
 import { logger } from "./logger.js";

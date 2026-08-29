@@ -31,7 +31,11 @@ async function main() {
       "fixtures",
     );
     // Download VS Code, unzip it and run the integration test
+
+    // const vscodeExecutablePath = await downloadAndUnzipVSCode("1.113.0");
+
     await runTests({
+      // vscodeExecutablePath,
       extensionDevelopmentPath: extensionPath,
       extensionTestsPath,
       launchArgs: [fixturesDir, "--disable-extensions"],

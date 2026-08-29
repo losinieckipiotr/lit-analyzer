@@ -85,7 +85,9 @@
 			"command": "prettier --check **/*.ts"
 		},
 		"prettier:write": {
-			"dependencies": ["eslint:fix"],
+			"dependencies": [
+				"eslint:fix"
+			],
 			"command": "prettier --write **/*.ts"
 		},
 		"package": {
@@ -95,6 +97,7 @@
 		}
 	},
 	"devDependencies": {
+		"@types/node": "^26.4.0",
 		"@vscode/test-electron": "^2.3.8",
 		"eslint": "^9.39.5",
 		"eslint-config-prettier": "^10.1.8",
