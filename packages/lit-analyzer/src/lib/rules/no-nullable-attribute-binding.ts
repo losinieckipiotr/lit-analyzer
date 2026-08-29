@@ -18,6 +18,7 @@ const rule: RuleModule = {
     priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
+    const ANY_TYPE_FLAG = context.ts.TypeFlags.Any;
     const checker = context.program.getTypeChecker();
     // Only validate "expression" kind bindings.
     if (assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION) return;
@@ -34,6 +35,10 @@ const rule: RuleModule = {
     if (typeB) {
       const typeBArr = [typeB].flat();
 
+      if (typeBArr.length === 1 && typeBArr[0].flags === ANY_TYPE_FLAG) {
+        return;
+      }
+
       isAssignableToNull = typeBArr.every((t) =>
         checker.isTypeAssignableTo(checker.getNullType(), t),
       );
@@ -45,6 +50,7 @@ const rule: RuleModule = {
       if (typeBSimple.kind === SimpleTypeKind.UNION) {
         throw new Error("not implemented");
       }
+
       isAssignableToNull = isAssignableToSimpleTypeKind(
         typeBSimple,
         SimpleTypeKind.NULL,
