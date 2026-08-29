@@ -1,16 +1,10 @@
 import { Expression, Type } from "typescript";
-import {
-  SimpleType,
-  toSimpleType,
-} from "../../../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { lazy } from "../../../analyze/util/general-util.js";
-import { removeUndefinedFromType } from "../type/remove-undefined-from-type.js";
-import { isLitDirective } from "./is-lit-directive.js";
 
 export type BuiltInDirectiveKind =
   | "ifDefined"
@@ -32,7 +26,7 @@ export interface UserDefinedDirectiveKind {
 
 interface Directive {
   kind: BuiltInDirectiveKind | UserDefinedDirectiveKind;
-  actualType?: () => SimpleType | Type | undefined;
+  actualType?: () => Type | Type[] | undefined;
   args: Expression[];
 }
 
@@ -56,14 +50,26 @@ export function getDirective(
         // Example: html`<img src="${ifDefined(imageUrl)}">`;
         // Take the argument to ifDefined and remove undefined from the type union (if possible).
         // This new type becomes the actual type of the expression
-        const actualType = lazy(() => {
+        const actualType = () => {
           if (args.length >= 1) {
             const returnType = checker.getTypeAtLocation(args[0]);
-            return removeUndefinedFromType(toSimpleType(returnType, checker));
+
+            if (returnType.isUnion()) {
+              const filteredTypes = returnType.types.filter(
+                (t) => (t.flags & ts.TypeFlags.Undefined) === 0,
+              );
+              if (filteredTypes.length === 1) {
+                return filteredTypes[0];
+              } else {
+                return filteredTypes;
+              }
+            }
+
+            return checker.getAnyType();
           }
 
           return undefined;
-        });
+        };
 
         return {
           kind: "ifDefined",
@@ -93,26 +99,19 @@ export function getDirective(
       case "guard": {
         // Example: html`<img src="${guard([imageUrl], () => Math.random() > 0.5 ? imageUrl : "nothing.png")}>`;
         // The return type of the function becomes the actual type of the expression
-        const actualType = lazy(() => {
+        const actualType = () => {
           if (args.length >= 2) {
-            let returnFunctionType = toSimpleType(
-              checker.getTypeAtLocation(args[1]),
-              checker,
-            );
-            if (
-              "call" in returnFunctionType &&
-              returnFunctionType.call != null
-            ) {
-              returnFunctionType = returnFunctionType.call;
-            }
+            const returnFunctionType = checker.getTypeAtLocation(args[1]);
 
-            if (returnFunctionType.kind === "FUNCTION") {
-              return returnFunctionType.returnType;
+            const callSignatures = returnFunctionType.getCallSignatures();
+
+            if (callSignatures.length > 0) {
+              return returnFunctionType;
             }
           }
 
           return undefined;
-        });
+        };
 
         return {
           kind: "guard",
@@ -144,31 +143,41 @@ export function getDirective(
       default:
         // Grab the type of the expression and get a SimpleType
         if (assignment.kind === HtmlNodeAttrAssignmentKind.EXPRESSION) {
-          const typeB = toSimpleType(
-            checker.getTypeAtLocation(assignment.expression),
-            checker,
-          );
+          const typeB = checker.getTypeAtLocation(assignment.expression);
+          const typeBString = checker.typeToString(typeB);
+          const callSignatures = typeB.getCallSignatures();
 
-          if (isLitDirective(typeB)) {
-            // Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
-            // Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>
-            // Read more: https://github.com/Polymer/lit-html/pull/1151
-            const actualType =
-              typeB.kind === "GENERIC_ARGUMENTS" &&
-              typeB.target.name === "DirectiveFn" &&
-              typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
-                ? () => typeB.typeArguments[0]
-                : undefined;
-
-            // Now we have an unknown (user defined) directive.
+          if (callSignatures.length > 0) {
             return {
               kind: {
-                name: functionName,
+                name: typeBString,
               },
               args,
-              actualType,
+              actualType: () => typeB,
             };
           }
+
+          // FIXME: not implemented, now we should support only lit 3
+          // if (isLitDirective(typeB)) {
+          //   // Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
+          //   // Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>
+          //   // Read more: https://github.com/Polymer/lit-html/pull/1151
+          //   const actualType =
+          //     typeB.kind === "GENERIC_ARGUMENTS" &&
+          //     typeB.target.name === "DirectiveFn" &&
+          //     typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
+          //       ? () => typeB.typeArguments[0]
+          //       : undefined;
+
+          //   // Now we have an unknown (user defined) directive.
+          //   return {
+          //     kind: {
+          //       name: functionName,
+          //     },
+          //     args,
+          //     actualType,
+          //   };
+          // }
         }
     }
   }

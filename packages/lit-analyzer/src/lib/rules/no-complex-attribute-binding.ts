@@ -1,4 +1,4 @@
-import { UnionType } from "typescript";
+import { Type, UnionType } from "typescript";
 import {
   isAssignableToPrimitiveType,
   SimpleTypeKind,
@@ -46,6 +46,12 @@ const rule: RuleModule = {
       return isEverryTypePrimitive;
     }
 
+    function isAllTypesPrimitive(type: Type[]) {
+      return type.every(
+        (t) => (t.flags & context.ts.TypeFlags.NonPrimitive) === 0,
+      );
+    }
+
     // Only primitive types should be allowed as "typeB"
     if (!isAssignableToPrimitiveType(typeBSimple)) {
       if (
@@ -60,7 +66,11 @@ const rule: RuleModule = {
         return;
       }
 
-      if (typeB && typeB.isUnion() && isUnionPrimitive(typeB)) {
+      if (Array.isArray(typeB)) {
+        if (isAllTypesPrimitive(typeB)) {
+          return;
+        }
+      } else if (typeB && typeB.isUnion() && isUnionPrimitive(typeB)) {
         return;
       } else if (typeBSimple.kind === SimpleTypeKind.UNION) {
         if (typeBSimple.types.every((t) => isAssignableToPrimitiveType(t))) {
@@ -90,8 +100,11 @@ const rule: RuleModule = {
     }
     // Only primitive types should be allowed as "typeA"
     else if (!isAssignableToPrimitiveType(typeASimple)) {
-      // union is not primitive but all its members may be
-      if (typeA && typeA.isUnion() && isUnionPrimitive(typeA)) {
+      if (Array.isArray(typeA)) {
+        if (isAllTypesPrimitive(typeA)) {
+          return;
+        }
+      } else if (typeA && typeA.isUnion() && isUnionPrimitive(typeA)) {
         return;
       } else if (typeASimple.kind === SimpleTypeKind.UNION) {
         if (typeASimple.types.every((t) => isAssignableToPrimitiveType(t))) {

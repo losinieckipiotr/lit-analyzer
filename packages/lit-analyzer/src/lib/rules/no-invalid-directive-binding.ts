@@ -1,7 +1,3 @@
-import {
-  isAssignableToType,
-  SimpleTypeKind,
-} from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -17,6 +13,7 @@ const rule: RuleModule = {
     priority: "high",
   },
   visitHtmlAssignment(assignment, context) {
+    const checker = context.program.getTypeChecker();
     const { htmlAttr } = assignment;
 
     // Only validate expression because this is where directives can be used.
@@ -50,14 +47,21 @@ const rule: RuleModule = {
             case HtmlNodeAttrKind.ATTRIBUTE: {
               // Make sure that only strings are passed in when using the live directive in attribute bindings
               const typeB = directive.actualType?.();
-              if (
-                typeB != null &&
-                !isAssignableToType({ kind: SimpleTypeKind.STRING }, typeB)
-              ) {
-                context.report({
-                  location: rangeFromHtmlNodeAttr(htmlAttr),
-                  message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`,
-                });
+              if (typeB) {
+                if (Array.isArray(typeB)) {
+                  throw new Error(
+                    'The "live" directive received an array type in an attribute binding, which is not implemented.',
+                  );
+                }
+
+                if (
+                  !checker.isTypeAssignableTo(typeB, checker.getStringType())
+                ) {
+                  context.report({
+                    location: rangeFromHtmlNodeAttr(htmlAttr),
+                    message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`,
+                  });
+                }
               }
 
               break;

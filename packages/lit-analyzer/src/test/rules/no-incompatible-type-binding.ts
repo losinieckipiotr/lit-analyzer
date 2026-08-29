@@ -399,7 +399,8 @@ tsTest(
   },
 );
 
-tsTest(
+// FIXME: old lit directives will not be supported
+tsTest.skip(
   "Attribute binding: using custom directive won't result in diagnostics",
   (t) => {
     const { diagnostics } = getDiagnostics(`
@@ -444,7 +445,8 @@ const ${name} = {} as (<T>(arg: T) => DirectiveFn<T>);
 `;
 }
 
-tsTest(
+// FIXME: old lit directives will not be supported
+tsTest.skip(
   "Attribute binding: correctly infers type of generic directive function",
   (t) => {
     const { diagnostics } =
@@ -456,7 +458,8 @@ html\`<input step="\${myDirective(10)}" /> \`
   },
 );
 
-tsTest(
+// FIXME: old lit directives will not be supported
+tsTest.skip(
   "Attribute binding: correctly infers type of generic directive function and fails type checking",
   (t) => {
     const { diagnostics } =

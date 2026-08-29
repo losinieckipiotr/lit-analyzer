@@ -19,8 +19,7 @@ export function isAssignableInElementBinding(
   type: SimpleType,
   context: RuleModuleContext,
 ): boolean | undefined {
-  // TODO (justinfagnani): is there a better way to determine if the
-  // type *contains* any, rather than *is* any?
+  // TODO: now we have lit 3
   if (!isLit2Directive(type) && type.kind !== "ANY") {
     if (isLit1Directive(type)) {
       context.report({

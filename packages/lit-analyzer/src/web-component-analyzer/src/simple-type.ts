@@ -1547,10 +1547,17 @@ interface ToSimpleTypeOptions {
 }
 
 export function toSimpleType(
-  type: Type | Node | SimpleType,
+  type: Type | Type[] | Node | SimpleType,
   checker: TypeChecker,
   options: ToSimpleTypeOptions = {}
 ): SimpleType {
+  if (Array.isArray(type)) {
+    return {
+      kind: SimpleTypeKind.UNION,
+      types: type.map(t => toSimpleType(t, checker, options))
+    };
+  }
+
   if (isSimpleType(type)) {
     return type;
   }

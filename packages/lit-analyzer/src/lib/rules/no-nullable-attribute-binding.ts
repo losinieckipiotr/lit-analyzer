@@ -32,14 +32,14 @@ const rule: RuleModule = {
     let isAssignableToUndefined: boolean;
 
     if (typeB) {
-      isAssignableToNull = checker.isTypeAssignableTo(
-        checker.getNullType(),
-        typeB,
+      const typeBArr = [typeB].flat();
+
+      isAssignableToNull = typeBArr.every((t) =>
+        checker.isTypeAssignableTo(checker.getNullType(), t),
       );
 
-      isAssignableToUndefined = checker.isTypeAssignableTo(
-        checker.getUndefinedType(),
-        typeB,
+      isAssignableToUndefined = typeBArr.every((t) =>
+        checker.isTypeAssignableTo(checker.getUndefinedType(), t),
       );
     } else {
       if (typeBSimple.kind === SimpleTypeKind.UNION) {

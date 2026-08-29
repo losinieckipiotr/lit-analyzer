@@ -5,14 +5,19 @@ import {
 } from "../../../../web-component-analyzer/src/api.js";
 
 export function removeUndefinedFromType(type: SimpleType): SimpleType {
-  switch (type.kind) {
-    case "ALIAS":
+  const { kind } = type;
+
+  switch (kind) {
+    case "ALIAS": {
+      const { target } = type;
       return {
         ...type,
-        target: removeUndefinedFromType(type.target),
+        target: removeUndefinedFromType(target),
       };
+    }
     case "UNION": {
-      const filteredTypes = type.types.filter(
+      const { types } = type;
+      const filteredTypes = types.filter(
         (t) => !isAssignableToSimpleTypeKind(t, SimpleTypeKind.UNDEFINED),
       );
 

@@ -25,9 +25,9 @@ export function extractBindingTypes(
   assignment: HtmlNodeAttrAssignment,
   context: RuleModuleContext,
 ): {
-  typeA?: Type;
+  typeA?: Type | Type[];
   typeASimple: SimpleType;
-  typeB?: Type;
+  typeB?: Type | Type[];
   typeBSimple: SimpleType;
 } {
   // if (cache.has(assignment)) {
@@ -47,7 +47,7 @@ export function extractBindingTypes(
       : htmlAttrTarget.getType();
 
   const typeATemp = htmlAttrTarget?.declaration?.type?.();
-  let typeA: Type | undefined;
+  let typeA: Type | Type[] | undefined;
 
   if (isSimpleType(typeATemp)) {
     typeA = undefined;
@@ -55,19 +55,14 @@ export function extractBindingTypes(
     typeA = typeATemp;
   }
 
-  let typeB: Type | undefined;
+  let typeB: Type | Type[] | undefined;
   let typeBSimple: SimpleType;
 
   const directiveType = getDirective(assignment, context)?.actualType?.();
 
   if (directiveType) {
-    if (isSimpleType(directiveType)) {
-      typeB = undefined;
-      typeBSimple = directiveType;
-    } else {
-      typeB = directiveType;
-      typeBSimple = toSimpleType(typeB, checker);
-    }
+    typeB = directiveType;
+    typeBSimple = toSimpleType(typeB, checker);
   } else {
     typeB = inferTypeFromAssignment(assignment, checker);
     typeBSimple = toSimpleType(typeB, checker);
