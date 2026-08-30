@@ -1,4 +1,3 @@
-import { MarkupContent } from "vscode-languageserver-types";
 import {
   SimpleType,
   SimpleTypeKind,
@@ -9,6 +8,7 @@ import type {
   IAttributeData,
   ITagData,
   IValueData,
+  MarkupContent,
 } from "../../data/html-data-types.js";
 import {
   HtmlAttr,

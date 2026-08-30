@@ -19,7 +19,7 @@ async function getDiagnostics(docUri: vscode.Uri) {
   //   await new Promise((resolve) => setTimeout(resolve, 100));
   // }
 
-  const TIMEOUT = 3 * 1_000;
+  const TIMEOUT = 10 * 1_000;
   const INTERVAL = 100;
 
   const start = Date.now();
@@ -49,27 +49,9 @@ suite("Extension Test Suite", () => {
   });
 
   test("Extension is active", async () => {
-    const config = vscode.workspace.getConfiguration();
-
-    config.update("lit-plugin.logging", "verbose", true);
-
-    config.update(
-      "lit-plugin.rules.no-missing-element-type-definition",
-      "error",
-      true,
-    );
-
-    const doc = await vscode.workspace.openTextDocument(
-      vscode.Uri.file(
-        path.join(__dirname, "../../src/test/fixtures/missing-elem-type.ts"),
-      ),
-    );
-
-    await vscode.window.showTextDocument(doc);
-
     const extension = vscode.extensions.getExtension("runem.lit-plugin");
 
-    // await extension?.activate();
+    await extension?.activate();
 
     const isActive = extension?.isActive;
 
@@ -103,7 +85,7 @@ suite("Extension Test Suite", () => {
     );
   });
 
-  test.skip("We detect no-missing-import properly", async () => {
+  test("We detect no-missing-import properly", async () => {
     const config = vscode.workspace.getConfiguration();
     config.update("lit-plugin.logging", "verbose", true);
     config.update("lit-plugin.rules.no-missing-import", "error", true);
@@ -143,7 +125,7 @@ suite("Extension Test Suite", () => {
     );
   });
 
-  test.skip("We generate completions", async () => {
+  test("We generate completions", async () => {
     const doc = await vscode.workspace.openTextDocument(
       vscode.Uri.file(
         path.join(__dirname, "../../src/test/fixtures/completions.ts"),

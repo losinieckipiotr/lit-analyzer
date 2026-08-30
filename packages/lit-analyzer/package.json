@@ -93,7 +93,6 @@
     "fast-glob": "^3.2.11",
     "parse5": "^8.0.1",
     "typescript": "6.0.3",
-    "vscode-css-languageservice": "^6.3.10",
     "yargs": "^18.1.0"
   },
   "devDependencies": {

@@ -220,7 +220,6 @@ function emitDirectModuleImportWithName(
       host = context.ts.createCompilerHost(
         context.program.getCompilerOptions(),
       );
-      throw new Error("creating new compiler host");
     }
 
     // TODO: unsafe condition
