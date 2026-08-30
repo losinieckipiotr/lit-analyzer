@@ -4,13 +4,14 @@ node_modules
 *.txt
 *.tgz
 *.zip
-!vendor/*.tgz
+!release/*.tgz
 *.log
 todo.md
 .DS_Store
 dist
 out
 *.vsix
+!release/*.vsix
 .wireit/
 .tsbuildinfo
 .*.png
