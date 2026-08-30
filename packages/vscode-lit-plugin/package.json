@@ -68,7 +68,7 @@
       ],
       "output": [],
       "env": {
-        "EXTENSION_PATH": "./built"
+        "EXTENSION_PATH": "built"
       },
       "command": "node ./out/test/scripts/test-runner.js"
     },
