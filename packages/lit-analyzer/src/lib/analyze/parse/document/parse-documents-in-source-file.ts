@@ -4,7 +4,6 @@ import {
   IHtmlNodeStyleTag,
 } from "../../types/html-node/html-node-types.js";
 import { SourceFilePosition } from "../../types/range.js";
-import { arrayFlat } from "../../util/array-util.js";
 import {
   documentRangeToSFRange,
   intersects,
@@ -56,15 +55,15 @@ export function parseDocumentsInSourceFile(
   if (result == null) return undefined;
 
   if (Array.isArray(result)) {
-    return arrayFlat(
-      result.map((document) => {
+    return result
+      .map((document) => {
         const res = unpackHtmlDocument(document, position);
         return [
           document,
           ...(res == null ? [] : Array.isArray(res) ? res : [res]),
         ];
-      }),
-    );
+      })
+      .flat();
   } else {
     const nestedDocuments = unpackHtmlDocument(result, position);
     if (position != null && nestedDocuments != null) {

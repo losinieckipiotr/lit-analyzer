@@ -2,7 +2,6 @@ import fastGlob from "fast-glob";
 import { existsSync, lstatSync } from "fs";
 import { join } from "path";
 import { Diagnostic, Program, SourceFile } from "typescript";
-import { arrayFlat } from "../analyze/util/array-util.js";
 import { CompileResult, compileTypescript } from "./compile.js";
 import { LitAnalyzerCliConfig } from "./lit-analyzer-cli-config.js";
 
@@ -68,7 +67,7 @@ export async function analyzeGlobs(
 async function expandGlobs(globs: string | string[]): Promise<string[]> {
   globs = Array.isArray(globs) ? globs : [globs];
 
-  return arrayFlat(
+  return (
     await Promise.all(
       globs.map((g) => {
         try {
@@ -91,6 +90,6 @@ async function expandGlobs(globs: string | string[]): Promise<string[]> {
           followSymbolicLinks: false,
         });
       }),
-    ),
-  );
+    )
+  ).flat();
 }

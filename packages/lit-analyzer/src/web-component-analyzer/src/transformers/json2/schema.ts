@@ -249,6 +249,7 @@ export interface MethodDoc extends FunctionLike {
  *  - Should it not extend ClassDoc so it doesn't has a superclass?
  *  - What's TypeScript's exact definition?
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface MixinDoc extends ClassDoc {}
 
 export interface VariableDoc {

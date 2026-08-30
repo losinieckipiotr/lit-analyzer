@@ -8,6 +8,7 @@ type TestFunction = (
 ) => void;
 
 function getTsModuleWithKind() {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   return require("typescript") as typeof ts;
 }
 

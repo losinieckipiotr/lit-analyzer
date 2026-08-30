@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   LitAnalyzerConfig,
   LitAnalyzerLoggerLevel,
   makeConfig,
   VERSION,
 } from "lit-analyzer";
-// eslint-disable-next-line import/extensions
 import * as ts_module from "typescript";
 // import { VERSION as WCA_VERSION } from "web-component-analyzer";
 import { decorateLanguageService } from "./decorate-language-service.js";
@@ -49,6 +47,7 @@ export function init({
   return {
     create: (info: ts_module.server.PluginCreateInfo) => {
       // Check if the language service is already decorated
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((info.languageService as any)[tsHtmlPluginSymbol] != null) {
         return info.languageService;
       }
@@ -83,6 +82,7 @@ export function init({
         );
 
         // Save that we've extended this service to prevent extending it again
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (decoratedService as any)[tsHtmlPluginSymbol] = plugin;
 
         return decoratedService;

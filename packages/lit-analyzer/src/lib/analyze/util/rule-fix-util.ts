@@ -4,11 +4,10 @@ import {
   SourceFile,
 } from "typescript";
 import { tsModule } from "../ts-module.js";
-import { LitCodeFix } from "../types/lit-code-fix.js";
 import { LitCodeFixAction } from "../types/lit-code-fix-action.js";
-import { RuleFix } from "../types/rule/rule-fix.js";
+import { LitCodeFix } from "../types/lit-code-fix.js";
 import { RuleFixAction } from "../types/rule/rule-fix-action.js";
-import { arrayFlat } from "./array-util.js";
+import { RuleFix } from "../types/rule/rule-fix.js";
 import {
   documentRangeToSFRange,
   makeSourceFileRange,
@@ -20,7 +19,7 @@ export function converRuleFixToLitCodeFix(codeFix: RuleFix): LitCodeFix {
   return {
     name: "",
     message: codeFix.message,
-    actions: arrayFlat(codeFix.actions.map(ruleFixActionConverter)),
+    actions: codeFix.actions.map(ruleFixActionConverter).flat(),
   };
 }
 

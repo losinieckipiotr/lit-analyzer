@@ -23,7 +23,6 @@ import { LitQuickInfo } from "./types/lit-quick-info.js";
 import { LitRenameInfo } from "./types/lit-rename-info.js";
 import { LitRenameLocation } from "./types/lit-rename-location.js";
 import { DocumentOffset, Range, SourceFilePosition } from "./types/range.js";
-import { arrayFlat } from "./util/array-util.js";
 import { getNodeAtPosition, nodeIntersects } from "./util/ast-util.js";
 import { iterableFirst } from "./util/iterable-util.js";
 import {
@@ -49,8 +48,8 @@ export class LitAnalyzer {
 
     this.context.updateComponents(file);
 
-    return arrayFlat(
-      documents.map((document) => {
+    return documents
+      .map((document) => {
         if (document instanceof CssDocument) {
           return [];
         } else if (document instanceof HtmlDocument) {
@@ -58,8 +57,8 @@ export class LitAnalyzer {
         }
 
         return [];
-      }),
-    );
+      })
+      .flat();
   }
 
   getDefinitionAtPosition(
@@ -425,8 +424,8 @@ export class LitAnalyzer {
 
     const documents = this.getDocumentsInFile(file);
 
-    return arrayFlat(
-      documents.map((document) => {
+    return documents
+      .map((document) => {
         if (document instanceof CssDocument) {
           return [];
         } else if (document instanceof HtmlDocument) {
@@ -437,8 +436,8 @@ export class LitAnalyzer {
         }
 
         return [];
-      }),
-    );
+      })
+      .flat();
   }
 
   private getDocumentAndOffsetAtPosition(

@@ -24,6 +24,8 @@ export default defineConfig([
       "packages/vscode-lit-plugin/built",
       "packages/vscode-lit-plugin/.vscode",
       "packages/vscode-lit-plugin/.vscode-test",
+      "packages/lit-analyzer/dist",
+      "packages/lit-analyzer/src/web-component-analyzer/dev",
     ],
   },
   {

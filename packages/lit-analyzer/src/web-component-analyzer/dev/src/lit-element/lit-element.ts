@@ -18,45 +18,45 @@ type Color = "blue" | "red";
  */
 @customElement("my-lit-element")
 export class MyElement extends LitElement {
-	/**
-	 * This is my prop
-	 * @deprecated
-	 * @attr
-	 */
-	myProp2 = "hello";
-	@property({ attribute: "my-attr3" }) myProp3 = 12;
-	@property({ attribute: false }) myProp4 = 12;
-	@property() myDate = new Date();
-	/**
-	 * This is a great property!
-	 */
-	@property() myProp1?: { hej: string; rune: string } = {
-		hej: "string",
-		rune: "hello"
-	};
+  /**
+   * This is my prop
+   * @deprecated
+   * @attr
+   */
+  myProp2 = "hello";
+  @property({ attribute: "my-attr3" }) myProp3 = 12;
+  @property({ attribute: false }) myProp4 = 12;
+  @property() myDate = new Date();
+  /**
+   * This is a great property!
+   */
+  @property() myProp1?: { hej: string; rune: string } = {
+    hej: "string",
+    rune: "hello"
+  };
 
-	@property() hello = false;
+  @property() hello = false;
 
-	@property() myProp5: Color = "red";
+  @property() myProp5: Color = "red";
 
-	static get properties() {
-		return {
-			/**
-			 * This is a comment
-			 * @type {red|green}
-			 * @private
-			 */
-			myProp1: {
-				type: Object
-			}
-		};
-	}
+  static get properties() {
+    return {
+      /**
+       * This is a comment
+       * @type {red|green}
+       * @private
+       */
+      myProp1: {
+        type: Object
+      }
+    };
+  }
 
-	static get observedAttributes() {
-		return ["attr1", "attr2"];
-	}
+  static get observedAttributes() {
+    return ["attr1", "attr2"];
+  }
 
-	render() {}
+  render() {}
 
-	@property({ type: String }) set value(str: string) {}
+  @property({ type: String }) set value(str: string) {}
 }

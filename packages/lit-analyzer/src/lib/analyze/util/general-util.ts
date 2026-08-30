@@ -24,13 +24,18 @@ export function parseLitAttrName(attributeName: string): {
   return { name, modifier: modifier as LitHtmlAttributeModifier };
 }
 
-export function lazy<T extends (...args: any[]) => any>(func: T): T {
+export function lazy<T extends (...args: unknown[]) => unknown>(func: T): T {
   // FIXME: disabled cache for now
   // let called = false;
-  // let value: any;
-  return ((...args: any[]) => {
-    // if (called) return value;
-    // called = true;
+  // let value: unknown;
+
+  return ((...args: unknown[]) => {
+    // if (!called) {
+    //   called = true;
+    //   value = func(...args);
+    // }
+
+    // return value;
     return func(...args);
-  }) as unknown as T;
+  }) as T;
 }
