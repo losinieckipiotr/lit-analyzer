@@ -52,6 +52,5 @@
 		"lib": ["esnext", "dom"],
 		"strict": true,
 		"noEmit": true,
-	},
-	"include": ["src"]
+	}
 }

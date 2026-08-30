@@ -48,10 +48,11 @@ suite("Extension Test Suite", () => {
   });
 
   test("We produce a diagnostic", async () => {
+    // const extension = vscode.extensions.getExtension("runem.lit-plugin");
+    // await extension?.activate();
+
     const config = vscode.workspace.getConfiguration();
-
     config.update("lit-plugin.logging", "verbose", true);
-
     config.update(
       "lit-plugin.rules.no-missing-element-type-definition",
       "error",

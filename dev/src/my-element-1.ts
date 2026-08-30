@@ -40,6 +40,8 @@ export class MyElement extends LitElement {
 	}
 
 	render() {
+		const el = document.querySelector("my-element");
+
 		let input = document.createElement("input");
 		input.ariaExpanded = "true";
 
