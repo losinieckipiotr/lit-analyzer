@@ -18,7 +18,7 @@
         "type": "node-terminal",
         "request": "launch",
         "cwd": "${workspaceFolder}/packages/lit-analyzer",
-        "command": "npm run test -- -s --fail-fast ./dist/test/rules/no-invalid-directive-binding.js"
+        "command": "npm run test -- -s --fail-fast ./out/test/rules/no-missing-element-type-definition.js"
       }
     ]
   }

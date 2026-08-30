@@ -20,7 +20,7 @@ tsTest(
 );
 
 tsTest(
-  "'no-missing-element-type-definition' reports no diagnostic when element is not in HTMLElementTagNameMap",
+  "'no-missing-element-type-definition' reports no diagnostic when element is in HTMLElementTagNameMap",
   (t) => {
     const { diagnostics } = getDiagnostics(
       `
@@ -32,6 +32,31 @@ tsTest(
 			}
 		}
 	`,
+      {
+        rules: { "no-missing-element-type-definition": true },
+      },
+    );
+
+    hasNoDiagnostics(t, diagnostics);
+  },
+);
+
+tsTest(
+  "'no-missing-element-type-definition' reports no diagnostic when LitElement is in HTMLElementTagNameMap",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      [
+        'import { html, LitElement, render } from "lit";',
+        'import { customElement, property } from "lit/decorators.js";',
+        "declare global {",
+        "  interface HTMLElementTagNameMap {",
+        '    "test-el": TestEl',
+        "  }",
+        "}",
+        '@customElement("test-el")',
+        "class TestEl extends LitElement { }",
+        'customElements.define("test-el", TestEl)',
+      ].join("\n"),
       {
         rules: { "no-missing-element-type-definition": true },
       },
