@@ -233,6 +233,9 @@ function handleAnalyzeCommand() {
 
       defaultAnalyzeGlob = glob;
 
+      // FIXME: check if lit-analyzer is installed with valid version
+      // it won't work with tsc 6/7
+
       const cliCommand = `npx lit-analyzer "${glob}"`;
       const terminal = vscode.window.createTerminal("lit-analyzer");
       terminal.sendText(cliCommand, true);

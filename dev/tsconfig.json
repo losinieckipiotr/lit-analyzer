@@ -51,7 +51,9 @@
 		"allowJs": true,
 		"lib": ["esnext", "dom"],
 		"strict": true,
-		"noEmit": true,
+		"noEmit": false,
+		"outDir": "dist",
+		"rootDir": "src"
 	},
 	"include": ["src"]
 }
