@@ -13,6 +13,7 @@ tsTest(
       {
         rules: { "no-missing-element-type-definition": true },
       },
+      true, // include lib.dom.d.ts file with HTMLElementTagNameMap
     );
 
     hasDiagnostic(t, diagnostics, "no-missing-element-type-definition");
@@ -35,6 +36,7 @@ tsTest(
       {
         rules: { "no-missing-element-type-definition": true },
       },
+      true, // include lib.dom.d.ts file with HTMLElementTagNameMap
     );
 
     hasNoDiagnostics(t, diagnostics);
@@ -60,6 +62,7 @@ tsTest(
       {
         rules: { "no-missing-element-type-definition": true },
       },
+      true, // include lib.dom.d.ts file with HTMLElementTagNameMap
     );
 
     hasNoDiagnostics(t, diagnostics);

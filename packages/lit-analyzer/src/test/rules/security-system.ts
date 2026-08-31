@@ -1,6 +1,25 @@
-import { getDiagnostics } from "../helpers/analyze.js";
+import { getDiagnostics as _getDiagnostics } from "../helpers/analyze.js";
 import { hasDiagnostic, hasNoDiagnostics } from "../helpers/assert.js";
 import { tsTest } from "../helpers/ts-test.js";
+
+/**
+ * Overrides the getDiagnostics function to always include 'lib.dom.d.ts'
+ */
+const getDiagnostics = (...args: Parameters<typeof _getDiagnostics>) => {
+  const [inputFiles, config, includeLib, ...rest] = args;
+
+  if (includeLib !== undefined) {
+    throw new Error("includeLib argument is forced to true");
+  }
+
+  if (rest.length > 0) {
+    const unknownArg: never[] = rest;
+
+    throw new Error(`Unknown argument: ${unknownArg}`);
+  }
+
+  return _getDiagnostics(inputFiles, config, true);
+};
 
 const preface = `
   class TrustedResourceUrl {};
@@ -60,6 +79,7 @@ let testName =
 tsTest(testName, (t) => {
   const { diagnostics } = getDiagnostics(
     preface + "html`<script src=${trustedResourceUrl}></script>`",
+    {},
   );
   hasDiagnostic(t, diagnostics, "no-complex-attribute-binding");
 });
@@ -69,6 +89,7 @@ testName =
 tsTest(testName, (t) => {
   const { diagnostics } = getDiagnostics(
     preface + "html`<script .src=${trustedResourceUrl}></script>`",
+    {},
   );
   hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
 });

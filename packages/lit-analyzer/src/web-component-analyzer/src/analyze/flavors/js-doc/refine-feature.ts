@@ -7,7 +7,6 @@ import {
 import { JsDoc } from "../../types/js-doc.js";
 import { VisibilityKind } from "../../types/visibility-kind.js";
 import { parseSimpleJsDocTypeExpression } from "../../util/js-doc-util.js";
-import { lazy } from "../../util/lazy.js";
 import { AnalyzerFlavor } from "../analyzer-flavor.js";
 
 /**
@@ -166,9 +165,15 @@ function applyJsDocAttribute<
     // @attr jsdoc tag can also include the type of attribute
     if (parsed.type != null && result.typeHint == null) {
       result.typeHint = parsed.type;
+
       result.type =
         feature.type ??
-        lazy(() => parseSimpleJsDocTypeExpression(parsed.type || "", context));
+        (() =>
+          parseSimpleJsDocTypeExpression(
+            attributeTag.node,
+            parsed.type || "",
+            context
+          ));
     }
 
     return result;
@@ -295,7 +300,12 @@ function applyJsDocType<
         typeHint: parsed.type,
         type:
           feature.type ??
-          lazy(() => parseSimpleJsDocTypeExpression(parsed.type || "", context))
+          (() =>
+            parseSimpleJsDocTypeExpression(
+              typeTag.node,
+              parsed.type || "",
+              context
+            ))
       };
     }
   }

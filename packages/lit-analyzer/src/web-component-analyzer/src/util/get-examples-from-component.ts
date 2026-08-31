@@ -1,5 +1,5 @@
 import { ComponentDeclaration } from "../analyze/types/component-declaration.js";
-import { JsDocTag } from "../analyze/types/js-doc.js";
+import { JSDocTagInternal } from "../analyze/types/js-doc.js";
 
 export interface Example {
   lang?: string;
@@ -25,7 +25,7 @@ export function getExamplesFromComponent(
  * Returns an example based on a jsdoc tag
  * @param tag
  */
-function exampleFromJsDocTag(tag: JsDocTag): Example {
+function exampleFromJsDocTag(tag: JSDocTagInternal): Example {
   const { code, lang, description } = discoverCodeFromExampleText(
     tag.comment || ""
   );

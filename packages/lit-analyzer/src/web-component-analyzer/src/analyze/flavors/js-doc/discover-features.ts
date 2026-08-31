@@ -94,15 +94,12 @@ export const discoverFeatures: Partial<
             return {
               name: name,
               jsDoc: description != null ? { description } : undefined,
-              type:
-                type != null
-                  ? lazy(
-                      () =>
-                        parseSimpleJsDocTypeExpression(type, context) || {
-                          kind: "ANY"
-                        }
-                    )
-                  : undefined,
+              type: type
+                ? () =>
+                    parseSimpleJsDocTypeExpression(tagNode, type, context) || {
+                      kind: "ANY"
+                    }
+                : undefined,
               typeHint: type,
               node: tagNode
             };
@@ -126,7 +123,7 @@ export const discoverFeatures: Partial<
       return parseJsDocForNode(
         node,
         ["slot"],
-        (_tagNode, { name, type, description }) => {
+        (tagNode, { name, type, description }) => {
           // Treat "-" as unnamed slot
           if (name === "-") {
             name = undefined;
@@ -135,7 +132,7 @@ export const discoverFeatures: Partial<
           // Grab the type from jsdoc and use it to find permitted tag names
           // Example: @slot {"div"|"span"} myslot
           const permittedTagNameType = type
-            ? parseSimpleJsDocTypeExpression(type, context)
+            ? parseSimpleJsDocTypeExpression(tagNode, type, context)
             : undefined;
 
           const permittedTagNames: string[] | undefined = (() => {
@@ -195,12 +192,6 @@ export const discoverFeatures: Partial<
         ["prop", "property"],
         (tagNode, { name, default: def, type, description }) => {
           if (name != null && name.length > 0) {
-            if (!tagNode) {
-              throw new Error(
-                "Tag node is required for component member property"
-              );
-            }
-
             const member: ComponentMemberProperty = {
               priority,
               kind: "property",
@@ -208,7 +199,8 @@ export const discoverFeatures: Partial<
               jsDoc: description != null ? { description } : undefined,
               typeHint: type,
               type: () =>
-                (type && parseSimpleJsDocTypeExpression(type, context)) ||
+                (type &&
+                  parseSimpleJsDocTypeExpression(tagNode, type, context)) ||
                 checker.getAnyType(),
               node: tagNode,
               default: def,
@@ -238,9 +230,9 @@ export const discoverFeatures: Partial<
               jsDoc: description != null ? { description } : undefined,
               type: lazy(
                 () =>
-                  (type && parseSimpleJsDocTypeExpression(type, context)) || {
-                    kind: "ANY"
-                  }
+                  (type &&
+                    parseSimpleJsDocTypeExpression(tagNode, type, context)) ||
+                  checker.getAnyType()
               ),
               typeHint: type,
               node: tagNode,

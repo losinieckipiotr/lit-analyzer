@@ -2,6 +2,7 @@ import * as tsModule from "typescript";
 import {
   JSDoc,
   JSDocParameterTag,
+  JSDocTag,
   JSDocTypeTag,
   Node,
   Program,
@@ -15,9 +16,8 @@ import {
   toSimpleType
 } from "../../simple-type.js";
 import { arrayDefined } from "../../util/array-util.js";
-import { JsDoc, JsDocTag, JsDocTagParsed } from "../types/js-doc.js";
+import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "../types/js-doc.js";
 import { getLeadingCommentForNode } from "./ast-util.js";
-import { lazy } from "./lazy.js";
 import { getLibTypeWithName } from "./type-util.js";
 
 /**
@@ -51,14 +51,14 @@ export function getJsDoc(
   const jsDocNode = getJSDocNode(node, ts);
 
   // If we couldn't find jsdoc, find and parse the jsdoc string ourselves
-  if (jsDocNode == null) {
+  if (!jsDocNode) {
     const leadingComment = getLeadingCommentForNode(node, ts);
 
-    if (leadingComment != null) {
-      const jsDoc = parseJsDocString(leadingComment);
+    if (leadingComment) {
+      const jsDoc = parseJsDocString(node, leadingComment);
 
       // Return this jsdoc if we don't have to filter by tag name
-      if (jsDoc == null || tagNames == null || tagNames.length === 0) {
+      if (!jsDoc || !tagNames || tagNames.length === 0) {
         return jsDoc;
       }
 
@@ -121,12 +121,15 @@ export function getJsDoc(
                   ? node.comment.replace(/^\s*-\s*/, "").trim()
                   : "";
 
-              return {
+              const extendedTag: JSDocTagInternal = {
+                ...node,
                 node,
                 tag,
                 comment,
-                parsed: lazy(() => parseJsDocTagString(fullComment))
+                parsed: () => parseJsDocTagString(fullComment)
               };
+
+              return extendedTag;
             })
           )
   };
@@ -140,6 +143,7 @@ export function getJsDoc(
  * @param context
  */
 export function parseSimpleJsDocTypeExpression(
+  tagNode: JSDocTag,
   str: string,
   context: { program: Program; ts: typeof tsModule }
 ): Type | SimpleType {
@@ -175,7 +179,7 @@ export function parseSimpleJsDocTypeExpression(
   // Match
   //  {  string  }
   if (str.startsWith(" ") || str.endsWith(" ")) {
-    return parseSimpleJsDocTypeExpression(str.trim(), context);
+    return parseSimpleJsDocTypeExpression(tagNode, str.trim(), context);
   }
 
   // Match:
@@ -186,7 +190,11 @@ export function parseSimpleJsDocTypeExpression(
       types: str
         .split("|")
         .map(str => {
-          const childType = parseSimpleJsDocTypeExpression(str, context);
+          const childType = parseSimpleJsDocTypeExpression(
+            tagNode,
+            str,
+            context
+          );
 
           if (isSimpleType(childType)) {
             // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
@@ -214,7 +222,11 @@ export function parseSimpleJsDocTypeExpression(
 
   if (prefixMatch != null) {
     const modifier = prefixMatch[1];
-    const type = parseSimpleJsDocTypeExpression(prefixMatch[3], context);
+    const type = parseSimpleJsDocTypeExpression(
+      tagNode,
+      prefixMatch[3],
+      context
+    );
 
     switch (modifier) {
       case "?":
@@ -241,7 +253,7 @@ export function parseSimpleJsDocTypeExpression(
   //  {(......)}
   const parenMatch = str.match(/^\((.+)\)$/);
   if (parenMatch != null) {
-    return parseSimpleJsDocTypeExpression(parenMatch[1], context);
+    return parseSimpleJsDocTypeExpression(tagNode, parenMatch[1], context);
   }
 
   // Match
@@ -261,7 +273,7 @@ export function parseSimpleJsDocTypeExpression(
     return {
       kind: SimpleTypeKind.ARRAY,
       type: toSimpleType(
-        parseSimpleJsDocTypeExpression(arrayMatch[1], context),
+        parseSimpleJsDocTypeExpression(tagNode, arrayMatch[1], context),
         checker
       )
     };
@@ -290,11 +302,14 @@ export function parseSimpleJsDocTypeExpression(
     return {
       kind: SimpleTypeKind.GENERIC_ARGUMENTS,
       target: toSimpleType(
-        parseSimpleJsDocTypeExpression(genericArgsMatch[1], context),
+        parseSimpleJsDocTypeExpression(tagNode, genericArgsMatch[1], context),
         checker
       ),
       typeArguments: typeArgStrings.map(typeArg =>
-        toSimpleType(parseSimpleJsDocTypeExpression(typeArg, context), checker)
+        toSimpleType(
+          parseSimpleJsDocTypeExpression(tagNode, typeArg, context),
+          checker
+        )
       )
     };
   }
@@ -322,7 +337,11 @@ export function getJsDocType(
       );
 
       if (parsedJsDoc.type != null) {
-        return parseSimpleJsDocTypeExpression(parsedJsDoc.type, context);
+        return parseSimpleJsDocTypeExpression(
+          typeJsDocTag.node,
+          parsedJsDoc.type,
+          context
+        );
       }
     }
   }
@@ -505,88 +524,91 @@ function parseJsDocTagString(str: string): JsDocTagParsed {
  * Parses an entire jsdoc string
  * @param doc
  */
-function parseJsDocString(doc: string): JsDoc | undefined {
-  // Prepare lines
-  const lines = doc.split("\n").map(line => line.trim());
-  let description = "";
-  let readDescription = true;
-  let currentTag = "";
-  const tags: JsDocTag[] = [];
+function parseJsDocString(_node: Node, doc: string): JsDoc | undefined {
+  return undefined;
 
-  /**
-   * Parsing will add to "currentTag" and commit it when necessary
-   */
-  const commitCurrentTag = () => {
-    if (currentTag.length > 0) {
-      const tagToCommit = currentTag;
+  // // Prepare lines
+  // const lines = doc.split("\n").map(line => line.trim());
+  // let description = "";
+  // let readDescription = true;
+  // let currentTag = "";
+  // const tags: JSDocTagInternal[] = [];
 
-      const tagMatch = tagToCommit.match(/^@(\S+)\s*/);
+  // /**
+  //  * Parsing will add to "currentTag" and commit it when necessary
+  //  */
+  // const commitCurrentTag = () => {
+  //   if (currentTag.length > 0) {
+  //     const tagToCommit = currentTag;
 
-      if (tagMatch != null) {
-        tags.push({
-          parsed: lazy(() => parseJsDocTagString(tagToCommit)),
-          node: undefined,
-          tag: tagMatch[1],
-          comment: tagToCommit.substr(tagMatch[0].length)
-        });
-      }
-      currentTag = "";
-    }
-  };
+  //     const tagMatch = tagToCommit.match(/^@(\S+)\s*/);
 
-  // Parse all lines one by one
-  for (const line of lines) {
-    // Don't parse the last line ("*/")
-    if (line.match(/\*\//)) {
-      continue;
-    }
+  //     if (tagMatch != null) {
+  //       throw new Error("not implemented");
+  //       // tags.push({
+  //       //   parsed: () => parseJsDocTagString(tagToCommit),
+  //       //   node: undefined,
+  //       //   tag: tagMatch[1],
+  //       //   comment: tagToCommit.substr(tagMatch[0].length)
+  //       // });
+  //     }
+  //     currentTag = "";
+  //   }
+  // };
 
-    // Match a line like: "* @mytag description"
-    const tagCommentMatch = line.match(/(^\s*\*\s*)@\s*/);
-    if (tagCommentMatch != null) {
-      // Commit current tag (if any has been read). Now "currentTag" will reset.
-      commitCurrentTag();
-      // Add everything on the line from "@"
-      currentTag += line.substr(tagCommentMatch[1].length);
-      // We hit a jsdoc tag, so don't read description anymore
-      readDescription = false;
-    } else if (!readDescription) {
-      // If we are not reading the description, we are currently reading a multiline tag
-      const commentMatch = line.match(/^\s*\*\s*/);
-      if (commentMatch != null) {
-        currentTag += "\n" + line.substr(commentMatch[0].length);
-      }
-    } else {
-      // Read everything after "*" into the description if we are currently reading the description
+  // // Parse all lines one by one
+  // for (const line of lines) {
+  //   // Don't parse the last line ("*/")
+  //   if (line.match(/\*\//)) {
+  //     continue;
+  //   }
 
-      // If we are on the first line, add everything after "/*"
-      const startLineMatch = line.match(/^\s*\/\*\*/);
-      if (startLineMatch != null) {
-        description += line.substr(startLineMatch[0].length);
-      }
+  //   // Match a line like: "* @mytag description"
+  //   const tagCommentMatch = line.match(/(^\s*\*\s*)@\s*/);
+  //   if (tagCommentMatch != null) {
+  //     // Commit current tag (if any has been read). Now "currentTag" will reset.
+  //     commitCurrentTag();
+  //     // Add everything on the line from "@"
+  //     currentTag += line.substr(tagCommentMatch[1].length);
+  //     // We hit a jsdoc tag, so don't read description anymore
+  //     readDescription = false;
+  //   } else if (!readDescription) {
+  //     // If we are not reading the description, we are currently reading a multiline tag
+  //     const commentMatch = line.match(/^\s*\*\s*/);
+  //     if (commentMatch != null) {
+  //       currentTag += "\n" + line.substr(commentMatch[0].length);
+  //     }
+  //   } else {
+  //     // Read everything after "*" into the description if we are currently reading the description
 
-      // Add everything after "*" into the current description
-      const commentMatch = line.match(/^\s*\*\s*/);
-      if (commentMatch != null) {
-        if (description.length > 0) {
-          description += "\n";
-        }
-        description += line.substr(commentMatch[0].length);
-      }
-    }
-  }
+  //     // If we are on the first line, add everything after "/*"
+  //     const startLineMatch = line.match(/^\s*\/\*\*/);
+  //     if (startLineMatch != null) {
+  //       description += line.substr(startLineMatch[0].length);
+  //     }
 
-  // Commit a tag if we were currently parsing one
-  commitCurrentTag();
+  //     // Add everything after "*" into the current description
+  //     const commentMatch = line.match(/^\s*\*\s*/);
+  //     if (commentMatch != null) {
+  //       if (description.length > 0) {
+  //         description += "\n";
+  //       }
+  //       description += line.substr(commentMatch[0].length);
+  //     }
+  //   }
+  // }
 
-  if (description.length === 0 && tags.length === 0) {
-    return undefined;
-  }
+  // // Commit a tag if we were currently parsing one
+  // commitCurrentTag();
 
-  return {
-    description: unescapeJSDoc(description),
-    tags
-  };
+  // if (description.length === 0 && tags.length === 0) {
+  //   return undefined;
+  // }
+
+  // return {
+  //   description: unescapeJSDoc(description),
+  //   tags
+  // };
 }
 
 /**

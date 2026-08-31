@@ -26,7 +26,7 @@ tsTest(
     ]);
 
     const entries = Array.from(indexEntries);
-    t.is(entries.length, 0);
+    t.deepEqual(entries, []);
   },
 );
 
@@ -47,7 +47,7 @@ tsTest(
     ]);
 
     const entries = Array.from(indexEntries);
-    t.is(entries.length, 0);
+    t.deepEqual(entries, []);
   },
 );
 
@@ -75,7 +75,7 @@ tsTest(
     ]);
 
     const entries = Array.from(indexEntries);
-    t.is(entries.length, 0);
+    t.deepEqual(entries, []);
   },
 );
 

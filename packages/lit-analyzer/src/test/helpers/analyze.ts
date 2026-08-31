@@ -23,13 +23,17 @@ import { getCurrentTsModule } from "./ts-test.js";
 export function prepareAnalyzer(
   inputFiles: TestFile[] | TestFile,
   config: Partial<LitAnalyzerConfig> = {},
+  includeLib: boolean = false,
 ): {
   analyzer: LitAnalyzer;
   program: Program;
   sourceFile: SourceFile;
   context: LitAnalyzerContext;
 } {
-  const { program, sourceFile, compilerHost } = compileFiles(inputFiles);
+  const { program, sourceFile, compilerHost } = compileFiles(
+    inputFiles,
+    includeLib,
+  );
 
   const context = new DefaultLitAnalyzerContext({
     ts: getCurrentTsModule(),
@@ -61,8 +65,13 @@ export function prepareAnalyzer(
 export function getDiagnostics(
   inputFiles: TestFile[] | TestFile,
   config: Partial<LitAnalyzerConfig> = {},
+  includeLib: boolean = false,
 ): { diagnostics: LitDiagnostic[]; program: Program; sourceFile: SourceFile } {
-  const { analyzer, sourceFile, program } = prepareAnalyzer(inputFiles, config);
+  const { analyzer, sourceFile, program } = prepareAnalyzer(
+    inputFiles,
+    config,
+    includeLib,
+  );
 
   return {
     diagnostics: analyzer.getDiagnosticsInFile(sourceFile),
@@ -82,7 +91,11 @@ export function getCodeFixesAtRange(
   range: Range,
   config: Partial<LitAnalyzerConfig> = {},
 ): { codeFixes: LitCodeFix[]; program: Program; sourceFile: SourceFile } {
-  const { analyzer, sourceFile, program } = prepareAnalyzer(inputFiles, config);
+  const { analyzer, sourceFile, program } = prepareAnalyzer(
+    inputFiles,
+    config,
+    false,
+  );
 
   return {
     codeFixes: analyzer.getCodeFixesAtPositionRange(sourceFile, range),
@@ -103,7 +116,11 @@ export function getIndexEntries(
   program: Program;
   sourceFile: SourceFile;
 } {
-  const { analyzer, sourceFile, program } = prepareAnalyzer(inputFiles, config);
+  const { analyzer, sourceFile, program } = prepareAnalyzer(
+    inputFiles,
+    config,
+    false,
+  );
 
   return {
     indexEntries: analyzer.indexFile(sourceFile),

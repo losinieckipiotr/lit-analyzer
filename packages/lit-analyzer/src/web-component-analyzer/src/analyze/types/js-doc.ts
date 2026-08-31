@@ -11,8 +11,8 @@ export interface JsDocTagParsed {
   namespace?: string;
 }
 
-export interface JsDocTag {
-  node?: JSDocTag;
+export interface JSDocTagInternal {
+  node: JSDocTag;
   comment?: string;
   tag: string;
   parsed: () => JsDocTagParsed;
@@ -21,5 +21,5 @@ export interface JsDocTag {
 export interface JsDoc {
   node?: JSDoc;
   description?: string;
-  tags?: JsDocTag[];
+  tags?: JSDocTagInternal[];
 }

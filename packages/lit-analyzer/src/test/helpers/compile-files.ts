@@ -25,9 +25,11 @@ export type TestFile = ITestFile | string;
 class TestCompilerHost implements CompilerHost {
   private ts = getCurrentTsModule();
   private files: ITestFile[];
-  private includeLib: boolean = true;
 
-  constructor(inputFiles: TestFile[] | TestFile) {
+  constructor(
+    inputFiles: TestFile[] | TestFile,
+    private includeLib: boolean,
+  ) {
     this.files = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
       .map((file) =>
         typeof file === "string"
@@ -57,7 +59,8 @@ class TestCompilerHost implements CompilerHost {
       strict: true,
       // useful for debugging
       // traceResolution: true,
-      // lib: [],
+      // lib: includeLib ? undefined : [],
+      lib: [],
     };
   }
 
@@ -70,16 +73,13 @@ class TestCompilerHost implements CompilerHost {
   }
 
   getProgram() {
-    const { ts, files } = this;
+    const { ts, files, includeLib } = this;
 
     const program = ts.createProgram({
-      // TODO: some old debug code, maybe not needed anymore
-      //rootNames: [...files.map(file => file.fileName!), "node_modules/typescript/lib/lib.dom.d.ts"],
-      // rootNames: [
-      //   ...files.map((file) => file.fileName!),
-      //   ...(includeLib ? ["node_modules/typescript/lib/lib.dom.d.ts"] : []),
-      // ],
-      rootNames: files.map((file) => file.fileName!),
+      rootNames: [
+        ...files.map((file) => file.fileName!),
+        ...(includeLib ? ["node_modules/typescript/lib/lib.dom.d.ts"] : []),
+      ],
       options: this.getCompilerOptions(),
       host: this,
     });
@@ -304,12 +304,15 @@ class TestCompilerHost implements CompilerHost {
 /**
  * Compiles 'virtual' files with Typescript
  */
-export function compileFiles(inputFiles: TestFile[] | TestFile = []): {
+export function compileFiles(
+  inputFiles: TestFile[] | TestFile = [],
+  includeLib: boolean = false,
+): {
   program: Program;
   sourceFile: SourceFile;
   compilerHost: CompilerHost;
 } {
-  const compilerHost = new TestCompilerHost(inputFiles);
+  const compilerHost = new TestCompilerHost(inputFiles, includeLib);
 
   const entryFile = compilerHost.getEntryFile();
   const program = compilerHost.getProgram();
