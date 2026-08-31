@@ -115,3 +115,29 @@ tsTest(
     hasNoDiagnostics(t, diagnostics);
   },
 );
+
+tsTest(
+  "'no-incompatible-property-type' is not emitted for optional string types",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      [
+        'import { html, LitElement, render } from "lit";',
+        'import { customElement, property } from "lit/decorators.js";',
+        "declare global {",
+        "  interface HTMLElementTagNameMap {",
+        '    "test-el": TestEl',
+        "  }",
+        "}",
+        '@customElement("test-el")',
+        "class TestEl extends LitElement {",
+        "  @property({ type: String })",
+        "  ostr?: string;",
+        "}",
+        'customElements.define("test-el", TestEl)',
+      ].join("\n"),
+      { rules: { "no-incompatible-property-type": "on" } },
+    );
+
+    hasNoDiagnostics(t, diagnostics);
+  },
+);

@@ -10,6 +10,14 @@ export class MyElement extends LitElement {
 	@property({ type: String, attribute: "bval" })
 	bval: 'true' | 'false' = 'true';
 
+	/**
+	 * Number property representing some numeric value
+	 */
+	@property({ type: Number })
+	num: number = 1;
+
+
+
 	@property({ type: Boolean })
 	disabled: boolean = false;
 
@@ -17,8 +25,8 @@ export class MyElement extends LitElement {
 
 	@property({ type: Date }) test2: number | undefined;
 
-	@property({ type: String })
-	test3: string | undefined;
+	@property({ type: Number })
+	ostr?: number;
 
 	@state() internal: number | undefined;
 
@@ -51,7 +59,9 @@ export class MyElement extends LitElement {
 
 		return html`
 			<my-element bval="${b}"></my-element>
+			<my-element num=${1}></my-element>
 			<my-element ?disabled=${"true"}></my-element>
+			<my-element .ostr=${123}></my-element>
 
 			<my-tsconfig-element size="large"></my-tsconfig-element>
 			<unknown-element @heheheh="${() => {}}" globalattribute></unknown-element>

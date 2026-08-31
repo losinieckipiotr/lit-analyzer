@@ -1,18 +1,15 @@
-import { Node, Type } from "typescript";
+import { Node, Type, TypeChecker } from "typescript";
 import {
-  isAssignableToSimpleTypeKind,
   isSimpleType,
   LitElementPropertyConfig,
   SimpleType,
   SimpleTypeKind,
   simpleTypeToString,
-  toSimpleType,
   typeToString,
 } from "../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { joinArray } from "../analyze/util/array-util.js";
-import { lazy } from "../analyze/util/general-util.js";
 import { rangeFromNode } from "../analyze/util/range-util.js";
 
 const rule: RuleModule = {
@@ -71,108 +68,48 @@ function toLitPropertyTypeString(simpleTypeKind: SimpleTypeKind): string {
   }
 }
 
-function prepareSimpleAssignabilityTester(
-  typeToCheck: SimpleType | Type,
-  context: RuleModuleContext,
-): {
-  isAssignableTo: (kind: SimpleTypeKind) => boolean;
-  acceptedTypeKinds: () => SimpleTypeKind[];
-} {
-  // Test assignments to all possible type kinds
-  const _isAssignableToCache = new Map<SimpleTypeKind, boolean>();
-
-  function isAssignableTo(configType: SimpleTypeKind): boolean {
-    if (_isAssignableToCache.has(configType)) {
-      return _isAssignableToCache.get(configType)!;
-    }
-
-    function getResult() {
-      const checker = context.program.getTypeChecker();
-      const typeToCheckSimple = toSimpleType(typeToCheck, checker);
-
-      switch (configType) {
-        case SimpleTypeKind.STRING: {
-          const stringType = checker.getStringType();
-
-          if (isSimpleType(typeToCheck)) {
-            if (
-              isAssignableToSimpleTypeKind(typeToCheck, [
-                SimpleTypeKind.STRING,
-                SimpleTypeKind.STRING_LITERAL,
-              ])
-            ) {
-              return true;
-            }
-          } else {
-            if (typeToCheck.isUnion()) {
-              const result = checker.isTypeAssignableTo(
-                typeToCheck,
-                stringType,
-              );
-
-              return result;
-            } else {
-              return checker.isTypeAssignableTo(typeToCheck, stringType);
-            }
-          }
-
-          return false;
-        }
-        case SimpleTypeKind.NUMBER:
-          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
-            SimpleTypeKind.NUMBER,
-            SimpleTypeKind.NUMBER_LITERAL,
-          ]);
-
-        case SimpleTypeKind.BOOLEAN:
-          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
-            SimpleTypeKind.BOOLEAN,
-            SimpleTypeKind.BOOLEAN_LITERAL,
-          ]);
-        case SimpleTypeKind.ARRAY:
-          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
-            SimpleTypeKind.ARRAY,
-            SimpleTypeKind.TUPLE,
-          ]);
-        case SimpleTypeKind.OBJECT:
-          return isAssignableToSimpleTypeKind(typeToCheckSimple, [
-            SimpleTypeKind.OBJECT,
-            SimpleTypeKind.INTERFACE,
-          ]);
-        case SimpleTypeKind.ANY:
-          return isAssignableToSimpleTypeKind(
-            typeToCheckSimple,
-            SimpleTypeKind.ANY,
-          );
-        default:
-          return false;
-      }
-    }
-
-    const result = getResult();
-
-    _isAssignableToCache.set(configType, result);
-
-    return result;
+function isAssignableTo(
+  typeToCheckOptional: SimpleType | Type,
+  configType: SimpleTypeKind,
+  checker: TypeChecker,
+): boolean {
+  if (isSimpleType(typeToCheckOptional)) {
+    throw new Error("not implemented");
   }
 
-  // Collect type kinds that can be used in as "type" in the @property decorator
-  const acceptedTypeKinds = lazy(() => {
-    return (
-      [
-        "STRING",
-        "NUMBER",
-        "BOOLEAN",
-        "ARRAY",
-        "OBJECT",
-        "ANY",
-      ] as SimpleTypeKind[]
-    )
-      .filter((kind) => kind !== "ANY")
-      .filter((kind) => isAssignableTo(kind));
-  });
+  // allow optional properties
+  const typeToCheck = checker.getNonNullableType(typeToCheckOptional);
 
-  return { acceptedTypeKinds, isAssignableTo };
+  switch (configType) {
+    case SimpleTypeKind.STRING: {
+      const stringType = checker.getStringType();
+
+      if (typeToCheck.isUnion()) {
+        const result = checker.isTypeAssignableTo(typeToCheck, stringType);
+
+        return result;
+      } else {
+        return checker.isTypeAssignableTo(typeToCheck, stringType);
+      }
+    }
+    case SimpleTypeKind.NUMBER:
+      return checker.isTypeAssignableTo(typeToCheck, checker.getNumberType());
+
+    case SimpleTypeKind.BOOLEAN:
+      return checker.isTypeAssignableTo(typeToCheck, checker.getBooleanType());
+    case SimpleTypeKind.ARRAY: {
+      return checker.isArrayType(typeToCheck);
+    }
+    case SimpleTypeKind.OBJECT:
+      return checker.isTypeAssignableTo(
+        typeToCheck,
+        checker.getNonPrimitiveType(),
+      );
+    case SimpleTypeKind.ANY:
+      return true;
+    default:
+      return false;
+  }
 }
 
 /**
@@ -186,7 +123,6 @@ function validateLitPropertyConfig(
   typeToCheck: Type | SimpleType,
   context: RuleModuleContext,
 ) {
-  const checker = context.program.getTypeChecker();
   // Check if "type" is one of the built in default type converter hint
   if (typeof litConfig.type === "string" && !litConfig.hasConverter) {
     context.report({
@@ -209,20 +145,26 @@ function validateLitPropertyConfig(
     return;
   }
 
-  const { acceptedTypeKinds, isAssignableTo } =
-    prepareSimpleAssignabilityTester(typeToCheck, context);
+  const checker = context.program.getTypeChecker();
+
+  // Collect type kinds that can be used in as "type" in the @property decorator
+  const getAcceptedTypeKinds = () => {
+    return (
+      ["STRING", "NUMBER", "BOOLEAN", "ARRAY", "OBJECT"] as SimpleTypeKind[]
+    ).filter((kind) => isAssignableTo(typeToCheck, kind, checker));
+  };
 
   // Test the @property type against the actual type if a type has been provided
-  if (litConfig.type != null) {
+  if (litConfig.type) {
     // Report error if the @property type is not assignable to the actual type
-    if (
-      !isAssignableTo(litConfig.type.kind) &&
-      !isAssignableTo(SimpleTypeKind.ANY)
-    ) {
+
+    if (!isAssignableTo(typeToCheck, litConfig.type.kind, checker)) {
       // Suggest what to use instead
-      if (acceptedTypeKinds().length >= 1) {
+
+      const acceptedTypeKindsList = getAcceptedTypeKinds();
+      if (acceptedTypeKindsList.length >= 1) {
         const potentialKindText = joinArray(
-          acceptedTypeKinds().map(
+          acceptedTypeKindsList.map(
             (kind) => `'${toLitPropertyTypeString(kind)}'`,
           ),
           ", ",
@@ -233,11 +175,10 @@ function validateLitPropertyConfig(
           location: rangeFromNode(node),
           message: `@property type should be ${potentialKindText} instead of '${toLitPropertyTypeString(litConfig.type.kind)}'`,
         });
-      }
+      } else if (litConfig.type.kind !== "OBJECT") {
+        // If no suggesting can be provided, report that they are not assignable
+        // The OBJECT @property type is an escape from this error
 
-      // If no suggesting can be provided, report that they are not assignable
-      // The OBJECT @property type is an escape from this error
-      else if (litConfig.type.kind !== "OBJECT") {
         const configTypeString = simpleTypeToString(litConfig.type);
         const typeToCheckString = isSimpleType(typeToCheck)
           ? simpleTypeToString(typeToCheck)
@@ -252,26 +193,23 @@ function validateLitPropertyConfig(
 
   // If no type has been specified, suggest what to use as the @property type
   else if (litConfig.attribute !== false) {
-    // Don't do anything if there are multiple possibilities for a type.
-    if (isAssignableTo(SimpleTypeKind.ANY)) {
-      return;
-    }
+    const acceptedTypeKindsList = getAcceptedTypeKinds();
 
     // Don't report errors because String conversion is default
-    else if (isAssignableTo(SimpleTypeKind.STRING)) {
+    if (isAssignableTo(typeToCheck, SimpleTypeKind.STRING, checker)) {
       return;
     }
 
     // Suggest what to use instead if there are multiple accepted @property types for this property
-    else if (acceptedTypeKinds().length > 0) {
+    else if (acceptedTypeKindsList.length > 0) {
       // Suggest types to use and include "{attribute: false}" if the @property type is ARRAY or OBJECT
       const acceptedTypeText = joinArray(
         [
-          ...acceptedTypeKinds().map(
+          ...acceptedTypeKindsList.map(
             (kind) => `'{type: ${toLitPropertyTypeString(kind)}}'`,
           ),
-          ...(isAssignableTo(SimpleTypeKind.ARRAY) ||
-          isAssignableTo(SimpleTypeKind.OBJECT)
+          ...(isAssignableTo(typeToCheck, SimpleTypeKind.ARRAY, checker) ||
+          isAssignableTo(typeToCheck, SimpleTypeKind.OBJECT, checker)
             ? ["'{attribute: false}'"]
             : []),
         ],

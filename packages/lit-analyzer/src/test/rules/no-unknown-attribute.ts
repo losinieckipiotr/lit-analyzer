@@ -19,7 +19,7 @@ tsTest("Report unknown attributes on known element", (t) => {
   hasDiagnostic(t, diagnostics, "no-unknown-attribute");
 });
 
-tsTest("Don't report unknown attributes", (t) => {
+tsTest("Don't report known global attributes", (t) => {
   const { diagnostics } = getDiagnostics("html`<input required />`", {
     rules: { "no-unknown-attribute": true },
   });
