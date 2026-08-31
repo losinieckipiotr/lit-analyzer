@@ -6,14 +6,12 @@ import {
 import { CustomElementFlavor } from "./flavors/custom-element/custom-element-flavor.js";
 import { JsDocFlavor } from "./flavors/js-doc/js-doc-flavor.js";
 import { LitElementFlavor } from "./flavors/lit-element/lit-element-flavor.js";
-import { LwcFlavor } from "./flavors/lwc/lwc-flavor.js";
 import { ComponentDeclaration } from "./types/component-declaration.js";
 
 export const VERSION = "<@VERSION@>";
 
 export const DEFAULT_FLAVORS: AnalyzerFlavor[] = [
   new LitElementFlavor(),
-  new LwcFlavor(),
   new CustomElementFlavor(),
   new JsDocFlavor()
 ];
