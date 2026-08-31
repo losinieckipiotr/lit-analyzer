@@ -7,7 +7,6 @@
 		"target": "esnext",
 		"module": "esnext",
 		"lib": ["ESnext", "DOM"],
-		"strict": true,
-		"esModuleInterop": false
+		"strict": true
 	}
 }

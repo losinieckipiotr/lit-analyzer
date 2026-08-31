@@ -25,16 +25,20 @@ const rule: RuleModule = {
       member.kind !== "property" ||
       member.modifiers?.has("static") ||
       member.meta == null
-    )
+    ) {
       return;
+    }
 
     if (
       (member.meta.node?.type ?? member.node)?.getSourceFile() !== context.file
-    )
+    ) {
       return;
+    }
+
+    const checker = context.program.getTypeChecker();
 
     // Grab the type and fallback to "any"
-    const type = member.type?.() || { kind: SimpleTypeKind.ANY };
+    const type = member.type?.() || checker.getAnyType();
 
     const node =
       member.meta.node?.type ||

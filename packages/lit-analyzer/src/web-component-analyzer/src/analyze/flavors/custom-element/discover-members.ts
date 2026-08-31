@@ -4,7 +4,6 @@ import {
   Node,
   ReturnStatement
 } from "typescript";
-import { toSimpleType } from "../../../simple-type.js";
 import { ComponentMember } from "../../types/features/component-member.js";
 import {
   getMemberVisibilityFromNode,
@@ -15,7 +14,6 @@ import {
 import { getJsDoc } from "../../util/js-doc-util.js";
 import { lazy } from "../../util/lazy.js";
 import { isNamePrivate } from "../../util/text-util.js";
-import { relaxType } from "../../util/type-util.js";
 import { AnalyzerDeclarationVisitContext } from "../analyzer-flavor.js";
 
 /**
@@ -180,10 +178,13 @@ export function discoverMembers(
               kind: "property",
               propName,
               default: def,
-              type: () =>
-                relaxType(
-                  toSimpleType(checker.getTypeAtLocation(right), checker)
-                ),
+              type: () => {
+                // TODO: no relaxing type?
+                // return relaxType(
+                //   toSimpleType(checker.getTypeAtLocation(right), checker)
+                // );
+                return checker.getTypeAtLocation(right);
+              },
               jsDoc: getJsDoc(assignment.parent, ts),
               visibility: isNamePrivate(propName) ? "private" : undefined
             });

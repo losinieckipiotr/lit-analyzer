@@ -95,10 +95,7 @@ const LIB_TYPE_CACHE: WeakMap<
 > = new Map();
 
 /**
- * Return a Typescript library type with a specific name
- * @param name
- * @param ts
- * @param program
+ * Return a Typescript library type with a specific name.
  */
 export function getLibTypeWithName(
   name: string,

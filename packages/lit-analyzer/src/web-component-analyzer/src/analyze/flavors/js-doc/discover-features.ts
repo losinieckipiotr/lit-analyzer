@@ -1,5 +1,6 @@
 import { Node } from "typescript";
 import {
+  isSimpleType,
   SimpleTypeKind,
   SimpleTypeStringLiteral
 } from "../../../simple-type.js";
@@ -133,27 +134,35 @@ export const discoverFeatures: Partial<
 
           // Grab the type from jsdoc and use it to find permitted tag names
           // Example: @slot {"div"|"span"} myslot
-          const permittedTagNameType =
-            type == null
-              ? undefined
-              : parseSimpleJsDocTypeExpression(type, context);
+          const permittedTagNameType = type
+            ? parseSimpleJsDocTypeExpression(type, context)
+            : undefined;
+
           const permittedTagNames: string[] | undefined = (() => {
-            if (permittedTagNameType == null) {
+            if (!permittedTagNameType) {
               return undefined;
             }
 
-            switch (permittedTagNameType.kind) {
-              case SimpleTypeKind.STRING_LITERAL:
+            if (isSimpleType(permittedTagNameType)) {
+              switch (permittedTagNameType.kind) {
+                case SimpleTypeKind.STRING_LITERAL:
+                  return [permittedTagNameType.value];
+                case SimpleTypeKind.UNION:
+                  return permittedTagNameType.types
+                    .filter(
+                      (type): type is SimpleTypeStringLiteral =>
+                        type.kind === SimpleTypeKind.STRING_LITERAL
+                    )
+                    .map(type => type.value);
+                default:
+                  return undefined;
+              }
+            } else {
+              if (permittedTagNameType.isStringLiteral()) {
                 return [permittedTagNameType.value];
-              case SimpleTypeKind.UNION:
-                return permittedTagNameType.types
-                  .filter(
-                    (type): type is SimpleTypeStringLiteral =>
-                      type.kind === SimpleTypeKind.STRING_LITERAL
-                  )
-                  .map(type => type.value);
-              default:
-                return undefined;
+              }
+
+              throw new Error("fixme");
             }
           })();
 
@@ -179,30 +188,37 @@ export const discoverFeatures: Partial<
     ) {
       const priority = getNodeSourceFileLang(node) === "js" ? "high" : "medium";
 
+      const checker = context.program.getTypeChecker();
+
       const properties = parseJsDocForNode(
         node,
         ["prop", "property"],
         (tagNode, { name, default: def, type, description }) => {
           if (name != null && name.length > 0) {
-            return {
+            if (!tagNode) {
+              throw new Error(
+                "Tag node is required for component member property"
+              );
+            }
+
+            const member: ComponentMemberProperty = {
               priority,
               kind: "property",
               propName: name,
               jsDoc: description != null ? { description } : undefined,
               typeHint: type,
-              type: lazy(
-                () =>
-                  (type && parseSimpleJsDocTypeExpression(type, context)) || {
-                    kind: "ANY"
-                  }
-              ),
+              type: () =>
+                (type && parseSimpleJsDocTypeExpression(type, context)) ||
+                checker.getAnyType(),
               node: tagNode,
               default: def,
               visibility: undefined,
               reflect: undefined,
               required: undefined,
               deprecated: undefined
-            } as ComponentMemberProperty;
+            };
+
+            return member;
           }
 
           return undefined;

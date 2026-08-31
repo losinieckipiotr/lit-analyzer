@@ -4,13 +4,15 @@ import {
   JSDocParameterTag,
   JSDocTypeTag,
   Node,
-  Program
+  Program,
+  Type
 } from "typescript";
 import {
+  isSimpleType,
   SIMPLE_TYPES,
   SimpleType,
   SimpleTypeKind,
-  SimpleTypeStringLiteral
+  toSimpleType
 } from "../../simple-type.js";
 import { arrayDefined } from "../../util/array-util.js";
 import { JsDoc, JsDocTag, JsDocTagParsed } from "../types/js-doc.js";
@@ -140,28 +142,31 @@ export function getJsDoc(
 export function parseSimpleJsDocTypeExpression(
   str: string,
   context: { program: Program; ts: typeof tsModule }
-): SimpleType {
+): Type | SimpleType {
+  const checker = context.program.getTypeChecker();
+
   // Fail safe if "str" is somehow undefined
   if (str == null) {
-    return SIMPLE_TYPES.ANY;
+    return checker.getAnyType();
   }
 
   // Parse normal types
   switch (str.toLowerCase()) {
     case "undefined":
-      return SIMPLE_TYPES.UNDEFINED;
+      return checker.getUndefinedType();
     case "null":
-      return SIMPLE_TYPES.NULL;
+      return checker.getNullType();
     case "string":
-      return SIMPLE_TYPES.STRING;
+      return checker.getStringType();
     case "number":
-      return SIMPLE_TYPES.NUMBER;
+      return checker.getNumberType();
     case "boolean":
-      return SIMPLE_TYPES.BOOLEAN;
+      return checker.getBooleanType();
     case "array":
+      // TODO: checker.getTypeAtLocation(type), checker
       return SIMPLE_TYPES.ARRAY;
     case "object":
-      return SIMPLE_TYPES.OBJECT;
+      return checker.getNonPrimitiveType();
     case "any":
     case "*":
       return SIMPLE_TYPES.ANY;
@@ -178,19 +183,26 @@ export function parseSimpleJsDocTypeExpression(
   if (str.includes("|")) {
     return {
       kind: SimpleTypeKind.UNION,
-      types: str.split("|").map(str => {
-        const childType = parseSimpleJsDocTypeExpression(str, context);
+      types: str
+        .split("|")
+        .map(str => {
+          const childType = parseSimpleJsDocTypeExpression(str, context);
 
-        // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
-        if (childType.kind === SimpleTypeKind.ANY) {
-          return {
-            kind: SimpleTypeKind.STRING_LITERAL,
-            value: str
-          } as SimpleTypeStringLiteral;
-        }
+          if (isSimpleType(childType)) {
+            // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
+            if (childType.kind === SimpleTypeKind.ANY) {
+              return checker.getStringLiteralType(str);
+            }
+          } else {
+            // note: it may be not correct, but this type should be created by us
+            if (childType.flags === checker.getAnyType().flags) {
+              return checker.getStringLiteralType(str);
+            }
+          }
 
-        return childType;
-      })
+          return childType;
+        })
+        .map(type => toSimpleType(type, checker))
     };
   }
 
@@ -203,6 +215,7 @@ export function parseSimpleJsDocTypeExpression(
   if (prefixMatch != null) {
     const modifier = prefixMatch[1];
     const type = parseSimpleJsDocTypeExpression(prefixMatch[3], context);
+
     switch (modifier) {
       case "?":
         return {
@@ -211,7 +224,7 @@ export function parseSimpleJsDocTypeExpression(
             {
               kind: SimpleTypeKind.NULL
             },
-            type
+            toSimpleType(type, checker)
           ]
         };
       case "!":
@@ -219,7 +232,7 @@ export function parseSimpleJsDocTypeExpression(
       case "...":
         return {
           kind: SimpleTypeKind.ARRAY,
-          type
+          type: toSimpleType(type, checker)
         };
     }
   }
@@ -247,7 +260,10 @@ export function parseSimpleJsDocTypeExpression(
   if (arrayMatch != null) {
     return {
       kind: SimpleTypeKind.ARRAY,
-      type: parseSimpleJsDocTypeExpression(arrayMatch[1], context)
+      type: toSimpleType(
+        parseSimpleJsDocTypeExpression(arrayMatch[1], context),
+        checker
+      )
     };
   }
 
@@ -273,9 +289,12 @@ export function parseSimpleJsDocTypeExpression(
 
     return {
       kind: SimpleTypeKind.GENERIC_ARGUMENTS,
-      target: parseSimpleJsDocTypeExpression(genericArgsMatch[1], context),
+      target: toSimpleType(
+        parseSimpleJsDocTypeExpression(genericArgsMatch[1], context),
+        checker
+      ),
       typeArguments: typeArgStrings.map(typeArg =>
-        parseSimpleJsDocTypeExpression(typeArg, context)
+        toSimpleType(parseSimpleJsDocTypeExpression(typeArg, context), checker)
       )
     };
   }
@@ -292,7 +311,7 @@ export function parseSimpleJsDocTypeExpression(
 export function getJsDocType(
   jsDoc: JsDoc,
   context: { program: Program; ts: typeof tsModule }
-): SimpleType | undefined {
+): Type | SimpleType | undefined {
   if (jsDoc.tags != null) {
     const typeJsDocTag = jsDoc.tags.find(t => t.tag === "type");
 
