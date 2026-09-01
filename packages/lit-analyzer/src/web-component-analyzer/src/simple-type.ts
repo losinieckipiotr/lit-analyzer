@@ -1979,3 +1979,15 @@ export function simpleTypeToString(type: SimpleType): string {
 }
 
 //#endregion
+
+//#region New utils
+
+export function getUnionType(
+  types: Type[],
+  simpleTypeContext: SimpleTypeContext
+): Type {
+  throw new Error("not implemented");
+  // return types.map(type => checker.typeToString(type)).join(" | ");
+}
+
+//#endregion

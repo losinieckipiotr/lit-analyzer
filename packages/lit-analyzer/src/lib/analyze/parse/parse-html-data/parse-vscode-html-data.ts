@@ -1,5 +1,8 @@
 import { Type, TypeChecker } from "typescript";
-import { SimpleTypeContext } from "../../../../web-component-analyzer/src/simple-type.js";
+import {
+  getUnionType,
+  SimpleTypeContext,
+} from "../../../../web-component-analyzer/src/simple-type.js";
 import type {
   HTMLDataV1,
   IAttributeData,
@@ -38,6 +41,26 @@ function parseVscodeDataV1(
 ): HtmlDataCollection {
   const { checker } = simpleTypeContext;
   const { valueSets = [], globalAttributes = [], tags = [] } = data;
+
+  function attrValuesToUnion(attrValues: IValueData[]): Type {
+    // FIXME: for now just filter undefined values in global attributes
+    const attrValuesFiltered = attrValues.filter(
+      ({ name }) => name !== "undefined",
+    );
+
+    const { checker } = simpleTypeContext;
+
+    const types = attrValuesFiltered.map(({ name }) => {
+      if (name === "null") {
+        throw new Error(
+          "Attribute value 'null' is not allowed in union types.",
+        );
+      }
+      return checker.getStringLiteralType(name);
+    });
+
+    return getUnionType(types, simpleTypeContext);
+  }
 
   const valueSetTypeMap = new Map(
     valueSets.map((valueSet) => {
@@ -98,7 +121,6 @@ function parseVscodeDataV1(
 
   function tagDataToHtmlTag(
     tagData: ITagData,
-    checker: TypeChecker,
     config: ParseVscodeHtmlDataConfig,
   ): HtmlTag {
     const { name, description } = tagData;
@@ -133,7 +155,7 @@ function parseVscodeDataV1(
   );
 
   const tagsParsed = tags.map((tagData) =>
-    tagDataToHtmlTag(tagData, checker, newConfig),
+    tagDataToHtmlTag(tagData, newConfig),
   );
 
   return {
@@ -143,32 +165,6 @@ function parseVscodeDataV1(
       events: globalEvents,
     },
   };
-}
-
-function attrValuesToUnion(attrValues: IValueData[]): Type {
-  throw new Error("Not implemented");
-
-  // FIXME: for now just filter undefined values in global attributes
-  // const attrValuesFiltered = attrValues.filter(
-  //   ({ name }) => name !== "undefined",
-  // );
-
-  // return {
-  //   kind: SimpleTypeKind.UNION,
-  //   types: attrValuesFiltered.map(({ name }) => {
-  //     if (name === "null") {
-  //       throw new Error(
-  //         "Attribute value 'null' is not allowed in union types.",
-  //       );
-  //     }
-  //     const stringLiteral: SimpleTypeStringLiteral = {
-  //       value: name,
-  //       kind: SimpleTypeKind.STRING_LITERAL,
-  //     };
-
-  //     return stringLiteral;
-  //   }),
-  // };
 }
 
 function stringOrMarkupContentToString(

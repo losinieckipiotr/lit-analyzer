@@ -1,5 +1,8 @@
-import { Type, UnionType } from "typescript";
-import { SimpleTypeContext } from "../../../../web-component-analyzer/src/simple-type.js";
+import { Type } from "typescript";
+import {
+  getUnionType,
+  SimpleTypeContext,
+} from "../../../../web-component-analyzer/src/simple-type.js";
 import {
   HtmlAttr,
   HtmlCssPart,
@@ -556,19 +559,13 @@ function mergeRelatedTypeToUnion(
   typeB: Type,
   simpleTypeContext: SimpleTypeContext,
 ): Type {
-  const { checker, ts } = simpleTypeContext;
+  const { ts } = simpleTypeContext;
 
   if (typeA.flags & ts.TypeFlags.Any && typeB.flags & ts.TypeFlags.Any) {
     return typeA;
   }
 
-  const union: UnionType = {
-    ...checker.getAnyType(),
-    flags: ts.TypeFlags.Union,
-    types: [typeA, typeB],
-  };
-
-  return union;
+  return getUnionType([typeA, typeB], simpleTypeContext);
 }
 
 function mergeNamedRelated<T extends { name: string; related?: T[] }>(

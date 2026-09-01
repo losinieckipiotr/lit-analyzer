@@ -1,4 +1,3 @@
-import { UnionType } from "typescript";
 import type { HTMLDataV1 } from "../data/html-data-types.js";
 import {
   HtmlAttr,
@@ -7,7 +6,10 @@ import {
 // FIXME:
 // "@vscode/web-custom-data": "^0.6.3",
 // @vscode/web-custom-data/data/browsers.html-data.json
-import { SimpleTypeContext } from "../../../web-component-analyzer/src/simple-type.js";
+import {
+  getUnionType,
+  SimpleTypeContext,
+} from "../../../web-component-analyzer/src/simple-type.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { browsersHtmlData } from "./browsers-html-data.js";
 import {
@@ -23,6 +25,8 @@ export function getBuiltInHtmlCollection(
   const vscodeHtmlData = browsersHtmlData as HTMLDataV1;
   const version = vscodeHtmlData.version;
   const globalAttributes = [...(vscodeHtmlData.globalAttributes ?? [])];
+
+  const { checker } = simpleTypeContext;
 
   // Modify valueSets
   const valueSets = (vscodeHtmlData.valueSets || []).map((valueSet) => {
@@ -134,8 +138,6 @@ The value must be a comma-separated list of part mappings:
     },
   );
 
-  const { checker, ts } = simpleTypeContext;
-
   // Parse vscode html data
   const result = parseVscodeHtmlData(
     {
@@ -160,13 +162,10 @@ The value must be a comma-separated list of part mappings:
           builtIn: true,
           fromTagName: "textarea",
           getType: () => {
-            const union: UnionType = {
-              ...checker.getAnyType(),
-              flags: ts.TypeFlags.Union,
-              types: [checker.getStringType(), checker.getNullType()],
-            };
-
-            return union;
+            return getUnionType(
+              [checker.getStringType(), checker.getNullType()],
+              simpleTypeContext,
+            );
           },
         });
         break;
@@ -178,17 +177,14 @@ The value must be a comma-separated list of part mappings:
           builtIn: true,
           fromTagName: "img",
           getType: () => {
-            const union: UnionType = {
-              ...checker.getAnyType(),
-              flags: ts.TypeFlags.Union,
-              types: [
+            return getUnionType(
+              [
                 checker.getStringLiteralType("lazy"),
                 checker.getStringLiteralType("auto"),
                 checker.getStringLiteralType("eager"),
               ],
-            };
-
-            return union;
+              simpleTypeContext,
+            );
           },
         });
         break;
@@ -200,13 +196,10 @@ The value must be a comma-separated list of part mappings:
           builtIn: true,
           fromTagName: "input",
           getType: () => {
-            const union: UnionType = {
-              ...checker.getAnyType(),
-              flags: ts.TypeFlags.Union,
-              types: [checker.getStringType(), checker.getNullType()],
-            };
-
-            return union;
+            return getUnionType(
+              [checker.getStringType(), checker.getNullType()],
+              simpleTypeContext,
+            );
           },
         });
         break;

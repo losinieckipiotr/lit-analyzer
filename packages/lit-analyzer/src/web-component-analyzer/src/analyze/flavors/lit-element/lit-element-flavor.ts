@@ -9,6 +9,7 @@ import {
 } from "typescript";
 import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import { ComponentMember } from "../../types/features/component-member.js";
+import { ComponentMethod } from "../../types/features/component-method.js";
 import { LitElementPropertyConfig } from "../../types/features/lit-element-property-config.js";
 import {
   getDecorators,
@@ -32,113 +33,117 @@ import {
   getLitPropertyOptions,
   getLitPropertyType
 } from "./parse-lit-property-configuration.js";
-import { refineFeature } from "./refine-feature.js";
 
 /**
  * Flavors for analyzing LitElement related features: https://lit-element.polymer-project.org/
  */
 export class LitElementFlavor implements AnalyzerFlavor {
-  excludeNode(node: Node, context: AnalyzerVisitContext): boolean | undefined {
-    if (context.config.analyzeDependencies) {
-      return undefined;
-    }
+  excludeNode = excludeNodeLitElement;
+  discoverDefinitions = discoverDefinitionsLitElement;
 
-    // Exclude lit element related super classes if "analyzeLib" is false
-    const declName = getNodeName(node, context);
-    if (declName != null) {
-      return declName === "LitElement" || declName === "UpdatingElement";
-    } else {
-      const fileName = node.getSourceFile().fileName;
+  discoverFeatures = {
+    member: discoverMembersLitElement
+  };
 
-      return (
-        fileName.includes("/lit-element.") ||
-        fileName.endsWith("/updating-element.")
-      );
-    }
+  refineFeature = {
+    method: refineFeatureLitElement
+  };
+}
+
+function excludeNodeLitElement(
+  node: Node,
+  context: AnalyzerVisitContext
+): boolean | undefined {
+  if (context.config.analyzeDependencies) {
+    return undefined;
   }
 
-  /**
-   * Visits lit-element related definitions.
-   * Specifically it finds the usage of the @customElement decorator.
-   */
-  discoverDefinitions(
-    node: Node,
-    context: AnalyzerVisitContext
-  ): DefinitionNodeResult[] | undefined {
-    const { ts, checker } = context;
+  // Exclude lit element related super classes if "analyzeLib" is false
+  const declName = getNodeName(node, context);
+  if (declName != null) {
+    return declName === "LitElement" || declName === "UpdatingElement";
+  } else {
+    const fileName = node.getSourceFile().fileName;
 
-    // @customElement("my-element")
-    if (ts.isClassDeclaration(node)) {
-      // Visit all decorators on the class
-      for (const decorator of getDecorators(node, context)) {
-        const callExpression = decorator.expression;
+    return (
+      fileName.includes("/lit-element.") ||
+      fileName.endsWith("/updating-element.")
+    );
+  }
+}
 
-        // Find "@customElement"
-        if (
-          ts.isCallExpression(callExpression) &&
-          ts.isIdentifier(callExpression.expression)
-        ) {
-          const decoratorIdentifierName = callExpression.expression.escapedText;
+/**
+ * Visits lit-element related definitions.
+ * Specifically it finds the usage of the @customElement decorator.
+ */
+function discoverDefinitionsLitElement(
+  node: Node,
+  context: AnalyzerVisitContext
+): DefinitionNodeResult[] | undefined {
+  const { ts, checker } = context;
 
-          // Decorators called "customElement"
-          if (decoratorIdentifierName === "customElement") {
-            // Resolve the value of the first argument. This is the tag name.
-            const unresolvedTagNameNode = callExpression.arguments[0];
-            const resolvedTagNameNode = resolveNodeValue(
-              unresolvedTagNameNode,
+  // @customElement("my-element")
+  if (ts.isClassDeclaration(node)) {
+    // Visit all decorators on the class
+    for (const decorator of getDecorators(node, context)) {
+      const callExpression = decorator.expression;
+
+      // Find "@customElement"
+      if (
+        ts.isCallExpression(callExpression) &&
+        ts.isIdentifier(callExpression.expression)
+      ) {
+        const decoratorIdentifierName = callExpression.expression.escapedText;
+
+        // Decorators called "customElement"
+        if (decoratorIdentifierName === "customElement") {
+          // Resolve the value of the first argument. This is the tag name.
+          const unresolvedTagNameNode = callExpression.arguments[0];
+          const resolvedTagNameNode = resolveNodeValue(unresolvedTagNameNode, {
+            ts,
+            checker,
+            strict: true
+          });
+          const identifier = getNodeIdentifier(node, context);
+
+          if (
+            resolvedTagNameNode != null &&
+            typeof resolvedTagNameNode.value === "string"
+          ) {
+            return [
               {
-                ts,
-                checker,
-                strict: true
+                tagName: resolvedTagNameNode.value,
+                tagNameNode: resolvedTagNameNode.node,
+                identifierNode: identifier
               }
-            );
-            const identifier = getNodeIdentifier(node, context);
-
-            if (
-              resolvedTagNameNode != null &&
-              typeof resolvedTagNameNode.value === "string"
-            ) {
-              return [
-                {
-                  tagName: resolvedTagNameNode.value,
-                  tagNameNode: resolvedTagNameNode.node,
-                  identifierNode: identifier
-                }
-              ];
-            }
+            ];
           }
         }
       }
-
-      return undefined;
     }
 
-    // note: it did not return definitions from child nodes, was it a bug?
-    const results: DefinitionNodeResult[] = [];
-
-    node.forEachChild(child => {
-      const result = this.discoverDefinitions(child, context);
-
-      if (result) {
-        results.push(...result);
-      }
-    });
-
-    return results.length > 0 ? results : undefined;
+    return undefined;
   }
 
-  discoverFeatures = {
-    member: discoverMembers
-  };
+  // note: it did not return definitions from child nodes, was it a bug?
+  const results: DefinitionNodeResult[] = [];
 
-  refineFeature = refineFeature;
+  node.forEachChild(child => {
+    const result = discoverDefinitionsLitElement(child, context);
+
+    if (result) {
+      results.push(...result);
+    }
+  });
+
+  return results.length > 0 ? results : undefined;
 }
 
 /**
  * Parses lit-related declaration members.
  * This is primary by looking at the "@property" decorator and the "static get properties()".
  */
-function discoverMembers(
+function discoverMembersLitElement(
   node: Node,
   context: AnalyzerDeclarationVisitContext
 ): ComponentMember[] | undefined {
@@ -426,4 +431,30 @@ function parseStaticProperties(
   }
 
   return memberResults;
+}
+
+const LIT_ELEMENT_PROTECTED_METHODS = [
+  "render",
+  "requestUpdate",
+  "firstUpdated",
+  "updated",
+  "update",
+  "shouldUpdate",
+  "hasUpdated",
+  "updateComplete"
+];
+
+function refineFeatureLitElement(
+  method: ComponentMethod,
+  context: AnalyzerVisitContext
+): ComponentMethod | undefined {
+  // This is temporary, but for now we force lit-element named methods to be protected
+  if (LIT_ELEMENT_PROTECTED_METHODS.includes(method.name)) {
+    return {
+      ...method,
+      visibility: "protected"
+    };
+  }
+
+  return method;
 }

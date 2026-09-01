@@ -55,9 +55,12 @@ export function getDirective(
             const returnType = checker.getTypeAtLocation(args[0]);
 
             if (returnType.isUnion()) {
+              // TODO: consider returnType.getNonNullableType();
+
               const filteredTypes = returnType.types.filter(
                 (t) => (t.flags & ts.TypeFlags.Undefined) === 0,
               );
+
               if (filteredTypes.length === 1) {
                 return filteredTypes[0];
               } else {

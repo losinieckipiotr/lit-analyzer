@@ -45,112 +45,15 @@ const rule: RuleModule = {
   },
 };
 
-enum LitPropertyType {
-  String = "String",
-  Number = "Number",
-  Boolean = "Boolean",
-  Array = "Array",
-  Object = "Object",
-  Any = "Any",
-}
-
-function typeToLitPropertyType(
-  type: Type,
-  checker: TypeChecker,
-): LitPropertyType {
-  // const typeStr = checker.typeToString(type);
-
-  throw new Error("not implemented");
-
-  // switch (typeStr) {
-  //   case "string":
-  //     return LitPropertyType.String;
-  //   case "number":
-  //     return LitPropertyType.Number;
-  //   case "boolean":
-  //     return LitPropertyType.Boolean;
-  //   case "any[]":
-  //     return LitPropertyType.Array;
-  //   case "object":
-  //     return LitPropertyType.Object;
-  //   case "any":
-  //     return LitPropertyType.Any;
-  //   default:
-  //     throw new Error(`Unsupported type: ${typeStr}`);
-  // }
-}
-
-// function simpleTypeKindToLitPropertyType(
-//   simpleTypeKind: SimpleTypeKind,
-// ): LitPropertyType {
-//   switch (simpleTypeKind) {
-//     case "STRING":
-//       return LitPropertyType.String;
-//     case "NUMBER":
-//       return LitPropertyType.Number;
-//     case "BOOLEAN":
-//       return LitPropertyType.Boolean;
-//     case "ARRAY":
-//       return LitPropertyType.Array;
-//     case "OBJECT":
-//       return LitPropertyType.Object;
-//     case "ANY":
-//       return LitPropertyType.Any;
-//     default: {
-//       throw new Error(`Unsupported simple type kind: ${simpleTypeKind}`);
-//     }
-//   }
-// }
-
 function isAssignableTo(
   typeToCheckOptional: Type,
-  configType: LitPropertyType,
+  configType: Type,
   checker: TypeChecker,
 ): boolean {
   // allow optional properties
   const typeToCheck = checker.getNonNullableType(typeToCheckOptional);
 
-  switch (configType) {
-    case LitPropertyType.String: {
-      const stringType = checker.getStringType();
-
-      if (typeToCheck.isUnion()) {
-        const result = checker.isTypeAssignableTo(typeToCheck, stringType);
-
-        return result;
-      } else {
-        return checker.isTypeAssignableTo(typeToCheck, stringType);
-      }
-    }
-    case LitPropertyType.Number:
-      return checker.isTypeAssignableTo(typeToCheck, checker.getNumberType());
-
-    case LitPropertyType.Boolean:
-      return checker.isTypeAssignableTo(typeToCheck, checker.getBooleanType());
-    case LitPropertyType.Array: {
-      return checker.isArrayType(typeToCheck);
-    }
-    case LitPropertyType.Object:
-      return checker.isTypeAssignableTo(
-        typeToCheck,
-        checker.getNonPrimitiveType(),
-      );
-    case LitPropertyType.Any:
-      return true;
-    default:
-      return false;
-  }
-}
-
-// Collect type kinds that can be used in as "type" in the @property decorator
-function getAcceptedTypeKinds(typeToCheck: Type, checker: TypeChecker) {
-  return [
-    LitPropertyType.String,
-    LitPropertyType.Number,
-    LitPropertyType.Boolean,
-    LitPropertyType.Array,
-    LitPropertyType.Object,
-  ].filter((kind) => isAssignableTo(typeToCheck, kind, checker));
+  return checker.isTypeAssignableTo(typeToCheck, configType);
 }
 
 /**
@@ -190,21 +93,56 @@ function validateLitPropertyConfig(
 
   const checker = context.program.getTypeChecker();
 
+  // Collect type kinds that can be used in as "type" in the @property decorator
+  function getAcceptedTypeKinds(typeToCheck: Type): string[] {
+    const results: string[] = [];
+
+    const stringType = checker.getStringType();
+    const numberType = checker.getNumberType();
+    const booleanType = checker.getBooleanType();
+    const arrayTypeStr = "Any[]";
+    const objectType = checker.getNonPrimitiveType();
+
+    if (checker.isTypeAssignableTo(typeToCheck, stringType)) {
+      results.push(checker.typeToString(stringType));
+    }
+
+    if (checker.isTypeAssignableTo(typeToCheck, numberType)) {
+      results.push(checker.typeToString(numberType));
+    }
+
+    if (checker.isTypeAssignableTo(typeToCheck, booleanType)) {
+      results.push(checker.typeToString(booleanType));
+    }
+
+    if (checker.isArrayLikeType(typeToCheck)) {
+      results.push(arrayTypeStr);
+    }
+
+    if (checker.isTypeAssignableTo(typeToCheck, objectType)) {
+      results.push(checker.typeToString(objectType));
+    }
+
+    return results;
+  }
+
   // TODO: should be removed when simple type will be removed
   if (isSimpleType(typeToCheck)) {
     throw new Error("not implemented");
   }
 
+  const configType = litConfig.type;
+
   // Test the @property type against the actual type if a type has been provided
-  if (litConfig.type) {
-    const configType = typeToLitPropertyType(litConfig.type, checker);
+  if (configType) {
+    // const configType = typeToLitPropertyType(litConfig.type, checker);
 
     if (isAssignableTo(typeToCheck, configType, checker)) {
       return;
     }
 
     // Suggest what to use instead
-    const acceptedTypeKindsList = getAcceptedTypeKinds(typeToCheck, checker);
+    const acceptedTypeKindsList = getAcceptedTypeKinds(typeToCheck);
 
     // Report error if the @property type is not assignable to the actual type
     let message: string;
@@ -243,10 +181,10 @@ function validateLitPropertyConfig(
 
   // continue validation if the attribute is not disabled
   if (litConfig.attribute !== false) {
-    const acceptedTypeKindsList = getAcceptedTypeKinds(typeToCheck, checker);
+    const acceptedTypeKindsList = getAcceptedTypeKinds(typeToCheck);
 
     // Don't report errors because String conversion is default
-    if (isAssignableTo(typeToCheck, LitPropertyType.String, checker)) {
+    if (isAssignableTo(typeToCheck, checker.getStringType(), checker)) {
       return;
     }
 
@@ -262,15 +200,11 @@ function validateLitPropertyConfig(
         (kind) => `'{type: ${kind}}'`,
       );
 
-      const isAssignableToArray = isAssignableTo(
+      const isAssignableToArray = checker.isArrayLikeType(typeToCheck);
+
+      const isAssignableToObject = checker.isTypeAssignableTo(
         typeToCheck,
-        LitPropertyType.Array,
-        checker,
-      );
-      const isAssignableToObject = isAssignableTo(
-        typeToCheck,
-        LitPropertyType.Object,
-        checker,
+        checker.getNonPrimitiveType(),
       );
 
       if (isAssignableToArray || isAssignableToObject) {
