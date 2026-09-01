@@ -1,8 +1,5 @@
-import {
-  SimpleType,
-  SimpleTypeKind,
-  SimpleTypeStringLiteral,
-} from "../../../../web-component-analyzer/src/api.js";
+import { Type, TypeChecker } from "typescript";
+import { SimpleTypeContext } from "../../../../web-component-analyzer/src/simple-type.js";
 import type {
   HTMLDataV1,
   IAttributeData,
@@ -19,24 +16,27 @@ import {
 
 export interface ParseVscodeHtmlDataConfig {
   builtIn?: boolean;
-  typeMap?: Map<string, SimpleType>;
+  typeMap?: Map<string, Type>;
 }
 
 export function parseVscodeHtmlData(
   data: HTMLDataV1,
+  simpleTypeContext: SimpleTypeContext,
   config: ParseVscodeHtmlDataConfig = {},
 ): HtmlDataCollection {
   switch (data.version) {
     case 1:
     case 1.1:
-      return parseVscodeDataV1(data, config);
+      return parseVscodeDataV1(data, simpleTypeContext, config);
   }
 }
 
 function parseVscodeDataV1(
   data: HTMLDataV1,
+  simpleTypeContext: SimpleTypeContext,
   config: ParseVscodeHtmlDataConfig,
 ): HtmlDataCollection {
+  const { checker } = simpleTypeContext;
   const { valueSets = [], globalAttributes = [], tags = [] } = data;
 
   const valueSetTypeMap = new Map(
@@ -46,7 +46,7 @@ function parseVscodeDataV1(
       return [name, attrValuesToUnion(values)];
     }),
   );
-  valueSetTypeMap.set("v", { kind: SimpleTypeKind.BOOLEAN });
+  valueSetTypeMap.set("v", checker.getBooleanType());
 
   const { typeMap, builtIn } = config;
 
@@ -62,16 +62,78 @@ function parseVscodeDataV1(
     builtIn,
   };
 
+  function tagDataToHtmlTagAttr(
+    tagDataAttr: IAttributeData,
+    config: ParseVscodeHtmlDataConfig,
+    fromTagName?: string,
+  ): HtmlAttr {
+    const { name, description, valueSet, values } = tagDataAttr;
+
+    return {
+      kind: "attribute",
+      name,
+      description: stringOrMarkupContentToString(description),
+      fromTagName,
+      getType: () => {
+        let type: Type | undefined;
+
+        if (valueSet) {
+          const mappedType = config.typeMap?.get(valueSet);
+
+          if (mappedType) {
+            type = mappedType;
+          } else {
+            if (values) {
+              const valuesUnion = attrValuesToUnion(values);
+              type = valuesUnion;
+            }
+          }
+        }
+
+        return type || checker.getAnyType();
+      },
+      builtIn: config.builtIn,
+    };
+  }
+
+  function tagDataToHtmlTag(
+    tagData: ITagData,
+    checker: TypeChecker,
+    config: ParseVscodeHtmlDataConfig,
+  ): HtmlTag {
+    const { name, description } = tagData;
+
+    const attributes = tagData.attributes.map((tagDataAttr) =>
+      tagDataToHtmlTagAttr(tagDataAttr, config, name),
+    );
+
+    const events = attrsToEvents(attributes, checker);
+
+    return {
+      tagName: name,
+      description: stringOrMarkupContentToString(description),
+      attributes,
+      events,
+      properties: [],
+      slots: [],
+      builtIn: config.builtIn,
+      cssParts: [],
+      cssProperties: [],
+    };
+  }
+
   const globalAttributesParsed = globalAttributes.map((tagDataAttr) =>
     tagDataToHtmlTagAttr(tagDataAttr, newConfig),
   );
 
-  const globalEvents = attrsToEvents(globalAttributesParsed).map((evt) => {
-    return Object.assign({}, evt, { global: true });
-  });
+  const globalEvents = attrsToEvents(globalAttributesParsed, checker).map(
+    (evt) => {
+      return Object.assign({}, evt, { global: true });
+    },
+  );
 
   const tagsParsed = tags.map((tagData) =>
-    tagDataToHtmlTag(tagData, newConfig),
+    tagDataToHtmlTag(tagData, checker, newConfig),
   );
 
   return {
@@ -83,87 +145,30 @@ function parseVscodeDataV1(
   };
 }
 
-function tagDataToHtmlTag(
-  tagData: ITagData,
-  config: ParseVscodeHtmlDataConfig,
-): HtmlTag {
-  const { name, description } = tagData;
+function attrValuesToUnion(attrValues: IValueData[]): Type {
+  throw new Error("Not implemented");
 
-  const attributes = tagData.attributes.map((tagDataAttr) =>
-    tagDataToHtmlTagAttr(tagDataAttr, config, name),
-  );
-
-  const events = attrsToEvents(attributes);
-
-  return {
-    tagName: name,
-    description: stringOrMarkupContentToString(description),
-    attributes,
-    events,
-    properties: [],
-    slots: [],
-    builtIn: config.builtIn,
-    cssParts: [],
-    cssProperties: [],
-  };
-}
-
-function tagDataToHtmlTagAttr(
-  tagDataAttr: IAttributeData,
-  config: ParseVscodeHtmlDataConfig,
-  fromTagName?: string,
-): HtmlAttr {
-  const { name, description, valueSet, values } = tagDataAttr;
-
-  return {
-    kind: "attribute",
-    name,
-    description: stringOrMarkupContentToString(description),
-    fromTagName,
-    getType: () => {
-      let type: SimpleType | undefined;
-
-      if (valueSet) {
-        const mappedType = config.typeMap?.get(valueSet);
-
-        if (mappedType) {
-          type = mappedType;
-        } else {
-          if (values) {
-            const valuesUnion = attrValuesToUnion(values);
-            type = valuesUnion;
-          }
-        }
-      }
-
-      return type || { kind: SimpleTypeKind.ANY };
-    },
-    builtIn: config.builtIn,
-  };
-}
-
-function attrValuesToUnion(attrValues: IValueData[]): SimpleType {
   // FIXME: for now just filter undefined values in global attributes
-  const attrValuesFiltered = attrValues.filter(
-    ({ name }) => name !== "undefined",
-  );
+  // const attrValuesFiltered = attrValues.filter(
+  //   ({ name }) => name !== "undefined",
+  // );
 
-  return {
-    kind: SimpleTypeKind.UNION,
-    types: attrValuesFiltered.map(({ name }) => {
-      if (name === "null") {
-        throw new Error(
-          "Attribute value 'null' is not allowed in union types.",
-        );
-      }
-      const stringLiteral: SimpleTypeStringLiteral = {
-        value: name,
-        kind: SimpleTypeKind.STRING_LITERAL,
-      };
+  // return {
+  //   kind: SimpleTypeKind.UNION,
+  //   types: attrValuesFiltered.map(({ name }) => {
+  //     if (name === "null") {
+  //       throw new Error(
+  //         "Attribute value 'null' is not allowed in union types.",
+  //       );
+  //     }
+  //     const stringLiteral: SimpleTypeStringLiteral = {
+  //       value: name,
+  //       kind: SimpleTypeKind.STRING_LITERAL,
+  //     };
 
-      return stringLiteral;
-    }),
-  };
+  //     return stringLiteral;
+  //   }),
+  // };
 }
 
 function stringOrMarkupContentToString(
@@ -176,14 +181,17 @@ function stringOrMarkupContentToString(
   return str.value;
 }
 
-function attrsToEvents(htmlAttrs: HtmlAttr[]): HtmlEvent[] {
+function attrsToEvents(
+  htmlAttrs: HtmlAttr[],
+  checker: TypeChecker,
+): HtmlEvent[] {
   return htmlAttrs
     .filter((htmlAttr) => htmlAttr.name.startsWith("on"))
     .map((htmlAttr) => ({
       name: htmlAttr.name.replace(/^on/, ""),
       description: htmlAttr.description,
       fromTagName: htmlAttr.fromTagName,
-      getType: () => ({ kind: SimpleTypeKind.ANY }),
+      getType: () => checker.getAnyType(),
       builtIn: htmlAttr.builtIn,
     }));
 }

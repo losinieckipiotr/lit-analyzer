@@ -15,36 +15,27 @@ import {
 import { HtmlNodeAttrKind } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { getDirective } from "../directive/get-directive.js";
 
-// TODO: disable cache for now
-// const cache = new WeakMap<
-//   HtmlNodeAttrAssignment,
-//   { typeA: SimpleType; typeB: SimpleType }
-// >();
-
 export function extractBindingTypes(
   assignment: HtmlNodeAttrAssignment,
   context: RuleModuleContext,
 ): {
-  typeA?: Type | Type[];
+  typeA?: Type;
   typeASimple: SimpleType;
-  typeB?: Type | Type[];
+  typeB?: Type;
   typeBSimple: SimpleType;
 } {
-  // if (cache.has(assignment)) {
-  //   return cache.get(assignment)!;
-  // }
-
   const checker = context.program.getTypeChecker();
+
+  const simpleTypeContext = { checker, ts: context.ts };
 
   // Find a corresponding target for this attribute
   const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(
     assignment.htmlAttr,
   );
 
-  const typeASimple =
-    htmlAttrTarget == null
-      ? ({ kind: SimpleTypeKind.ANY } as SimpleType)
-      : htmlAttrTarget.getType();
+  const typeASimple: SimpleType = !htmlAttrTarget
+    ? { kind: SimpleTypeKind.ANY }
+    : toSimpleType(htmlAttrTarget.getType(), simpleTypeContext);
 
   const typeATemp = htmlAttrTarget?.declaration?.type?.();
   let typeA: Type | Type[] | undefined;
@@ -62,15 +53,11 @@ export function extractBindingTypes(
 
   if (directiveType) {
     typeB = directiveType;
-    typeBSimple = toSimpleType(typeB, checker);
+    typeBSimple = toSimpleType(typeB, simpleTypeContext);
   } else {
     typeB = inferTypeFromAssignment(assignment, checker);
-    typeBSimple = toSimpleType(typeB, checker);
+    typeBSimple = toSimpleType(typeB, simpleTypeContext);
   }
-
-  // Cache the result
-  // const result = { typeA, typeB };
-  // cache.set(assignment, result);
 
   return {
     typeA,

@@ -1,6 +1,6 @@
 import { SimpleTypeKind } from "../../../src/simple-type.js";
 import { analyzeTextWithCurrentTsModule } from "../../helpers/analyze-text-with-current-ts-module.js";
-import { tsTest } from "../../helpers/ts-test.js";
+import { getCurrentTsModule, tsTest } from "../../helpers/ts-test.js";
 import { assertHasMembers } from "../../helpers/util.js";
 
 tsTest("Property assignments in the constructor are picked up", t => {
@@ -37,6 +37,8 @@ tsTest("Property assignments in the constructor are picked up", t => {
   });
 
   const { members = [] } = result.componentDefinitions[0]?.declaration || {};
+
+  const ts = getCurrentTsModule();
 
   assertHasMembers(
     members,
@@ -112,7 +114,7 @@ tsTest("Property assignments in the constructor are picked up", t => {
       }
     ],
     t,
-    checker
+    { checker, ts }
   );
 });
 
@@ -146,6 +148,8 @@ tsTest("Property assignments in the constructor are correctly merged", t => {
 
   const { members = [] } = result.componentDefinitions[0]?.declaration || {};
 
+  const ts = getCurrentTsModule();
+
   assertHasMembers(
     members,
     [
@@ -166,7 +170,7 @@ tsTest("Property assignments in the constructor are correctly merged", t => {
       }
     ],
     t,
-    checker
+    { checker, ts }
   );
 });
 
@@ -194,6 +198,8 @@ tsTest(
 
     const { members = [] } = result.componentDefinitions[0]?.declaration || {};
 
+    const ts = getCurrentTsModule();
+
     assertHasMembers(
       members,
       [
@@ -212,7 +218,7 @@ tsTest(
         }
       ],
       t,
-      checker
+      { checker, ts }
     );
   }
 );

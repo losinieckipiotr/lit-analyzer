@@ -1,4 +1,4 @@
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import { ComponentDeclaration } from "../../types/component-declaration.js";
 
 /**

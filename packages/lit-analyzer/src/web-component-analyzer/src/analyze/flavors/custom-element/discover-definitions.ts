@@ -1,5 +1,5 @@
 import { Node } from "typescript";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import { getInterfaceKeys, resolveNodeValue } from "../../util/ast-util.js";
 import { DefinitionNodeResult } from "../analyzer-flavor.js";
 

@@ -1,4 +1,4 @@
-import { AnalyzerVisitContext } from "../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../flavors/analyzer-flavor.js";
 
 /**
  * Executes functions in a function map until some function returns a non-undefined value.

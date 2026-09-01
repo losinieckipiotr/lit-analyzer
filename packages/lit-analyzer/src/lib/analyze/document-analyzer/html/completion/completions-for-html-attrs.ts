@@ -1,5 +1,6 @@
 import {
   isAssignableToSimpleTypeKind,
+  isSimpleType,
   SimpleType,
   SimpleTypeKind,
 } from "../../../../../web-component-analyzer/src/api.js";
@@ -61,9 +62,15 @@ export function completionsForHtmlAttrs(
       htmlStore.getAllAttributesForTag(htmlNode),
       (prop) => !alreadyUsedAttrNames.includes(prop.name),
     );
-    const booleanAttributes = iterableFilter(unusedAttrs, (prop) =>
-      isAssignableToBoolean(prop.getType()),
-    );
+    const booleanAttributes = iterableFilter(unusedAttrs, (prop) => {
+      const type = prop.getType();
+
+      if (!isSimpleType(type)) {
+        throw new Error("Attribute type must be a SimpleType instance.");
+      }
+
+      return isAssignableToBoolean(type);
+    });
     return Array.from(
       iterableMap(booleanAttributes, (attr) =>
         targetToCompletion(attr, {
@@ -132,7 +139,11 @@ function targetToCompletion(
 ): LitCompletion {
   if (modifier == null) {
     if (isHtmlAttr(target)) {
-      if (isAssignableToBoolean(target.getType(), { matchAny: false })) {
+      const type = target.getType();
+      if (!isSimpleType(type)) {
+        throw new Error("Attribute type must be a SimpleType instance.");
+      }
+      if (isAssignableToBoolean(type, { matchAny: false })) {
         modifier = LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
       } else {
         modifier = "";

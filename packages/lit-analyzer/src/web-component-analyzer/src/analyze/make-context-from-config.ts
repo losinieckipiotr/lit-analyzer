@@ -1,10 +1,10 @@
 import * as tsModule from "typescript";
-import { AnalyzerVisitContext } from "./analyzer-visit-context.js";
 import {
   DEFAULT_COMPONENT_DECLARATION_CACHE,
   DEFAULT_FEATURE_COLLECTION_CACHE,
   DEFAULT_FLAVORS
 } from "./constants.js";
+import { AnalyzerVisitContext } from "./flavors/analyzer-flavor.js";
 import { AnalyzerOptions } from "./types/analyzer-options.js";
 import { ALL_COMPONENT_FEATURES } from "./types/features/component-feature.js";
 

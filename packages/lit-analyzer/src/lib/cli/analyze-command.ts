@@ -1,12 +1,13 @@
 import chalk from "chalk";
 import { appendFileSync, writeFileSync } from "fs";
+import * as tsModule from "typescript";
 import { Program, SourceFile } from "typescript";
 import { DefaultLitAnalyzerContext } from "../analyze/default-lit-analyzer-context.js";
-import { LitAnalyzer } from "../analyze/lit-analyzer.js";
 import {
   LitAnalyzerConfig,
   makeConfig,
 } from "../analyze/lit-analyzer-config.js";
+import { LitAnalyzer } from "../analyze/lit-analyzer.js";
 import { analyzeGlobs } from "./analyze-globs.js";
 import { readLitAnalyzerConfigFromTsConfig } from "./compile.js";
 import { CodeDiagnosticFormatter } from "./format/code-diagnostic-formatter.js";
@@ -36,11 +37,13 @@ function printText(text: string, config: LitAnalyzerCliConfig) {
  * @param cliConfig
  */
 export async function analyzeCommand(
+  ts: typeof tsModule,
   globs: string[],
   cliConfig: LitAnalyzerCliConfig,
 ): Promise<boolean> {
   let program: Program | undefined = undefined;
   const context = new DefaultLitAnalyzerContext({
+    ts,
     getProgram() {
       return program!;
     },

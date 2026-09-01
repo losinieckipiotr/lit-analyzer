@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import {
   ComponentMember,
   ComponentMemberReflectKind

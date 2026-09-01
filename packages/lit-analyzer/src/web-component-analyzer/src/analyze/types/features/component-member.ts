@@ -1,5 +1,4 @@
 import { Node, Type } from "typescript";
-import { SimpleType } from "../../../simple-type.js";
 import { PriorityKind } from "../../flavors/analyzer-flavor.js";
 import { ModifierKind } from "../modifier-kind.js";
 import { VisibilityKind } from "../visibility-kind.js";
@@ -17,7 +16,7 @@ export interface ComponentMemberBase extends ComponentFeatureBase {
   priority?: PriorityKind;
 
   typeHint?: string;
-  type: undefined | (() => Type | SimpleType);
+  type: undefined | (() => Type);
 
   meta?: LitElementPropertyConfig;
 

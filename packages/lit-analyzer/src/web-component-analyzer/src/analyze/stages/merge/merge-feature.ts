@@ -1,4 +1,4 @@
-import { SIMPLE_TYPES } from "../../../simple-type.js";
+import { TypeChecker } from "typescript";
 import { ComponentCssPart } from "../../types/features/component-css-part.js";
 import { ComponentCssProperty } from "../../types/features/component-css-property.js";
 import { ComponentEvent } from "../../types/features/component-event.js";
@@ -69,7 +69,10 @@ export function mergeMethods(methods: ComponentMethod[]): ComponentMethod[] {
  * Merges multiple events
  * @param events
  */
-export function mergeEvents(events: ComponentEvent[]): ComponentEvent[] {
+export function mergeEvents(
+  events: ComponentEvent[],
+  checker: TypeChecker
+): ComponentEvent[] {
   return mergeNamedEntries(
     events,
     event => event.name,
@@ -81,7 +84,7 @@ export function mergeEvents(events: ComponentEvent[]): ComponentEvent[] {
           ? left.type()
           : right.type != null
             ? right.type()
-            : SIMPLE_TYPES.ANY;
+            : checker.getAnyType();
 
       return {
         ...left,

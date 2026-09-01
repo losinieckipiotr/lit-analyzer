@@ -1,10 +1,4 @@
-import {
-  SimpleType,
-  SimpleTypeKind,
-  SimpleTypeStringLiteral,
-  SimpleTypeUnion,
-} from "../../../web-component-analyzer/src/api.js";
-import { makePrimitiveArrayType } from "../util/type-util.js";
+import { Type } from "typescript";
 
 const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {
   onafterprint: "string",
@@ -250,52 +244,54 @@ export function hasTypeForAttrName(attrName: string): boolean {
   );
 }
 
-export function html5TagAttrType(attrName: string): SimpleType {
-  return stringToSimpleType(HTML_5_ATTR_TYPES[attrName] || "", attrName);
+export function html5TagAttrType(attrName: string): Type {
+  return stringToType(HTML_5_ATTR_TYPES[attrName] || "", attrName);
 }
 
-function stringToSimpleType(
+function stringToType(
   typeString: string | string[] | [string[]],
   name?: string,
-): SimpleType {
-  if (Array.isArray(typeString)) {
-    if (Array.isArray(typeString[0])) {
-      return makePrimitiveArrayType(
-        stringToSimpleType(typeString[0]) as SimpleTypeUnion,
-      );
-    }
+): Type {
+  throw new Error(`Not implemented`);
 
-    return {
-      kind: SimpleTypeKind.UNION,
-      types: (typeString as string[]).map(
-        (value) =>
-          ({
-            kind: SimpleTypeKind.STRING_LITERAL,
-            value,
-          }) as SimpleTypeStringLiteral,
-      ),
-    };
-  }
+  // if (Array.isArray(typeString)) {
+  //   if (Array.isArray(typeString[0])) {
+  //     return makePrimitiveArrayType(
+  //       stringToType(typeString[0]),
+  //     );
+  //   }
 
-  if (typeString.includes("|")) {
-    return {
-      kind: SimpleTypeKind.UNION,
-      types: typeString
-        .split("|")
-        .map((typeStr) => stringToSimpleType(typeStr)),
-    };
-  }
+  //   return {
+  //     kind: SimpleTypeKind.UNION,
+  //     types: (typeString as string[]).map(
+  //       (value) =>
+  //         ({
+  //           kind: SimpleTypeKind.STRING_LITERAL,
+  //           value,
+  //         }) as SimpleTypeStringLiteral,
+  //     ),
+  //   };
+  // }
 
-  switch (typeString) {
-    case "number":
-      return { kind: SimpleTypeKind.NUMBER, name };
-    case "boolean":
-      return { kind: SimpleTypeKind.BOOLEAN, name };
-    case "string":
-      return { kind: SimpleTypeKind.STRING, name };
-    default:
-      return { kind: SimpleTypeKind.ANY, name };
-  }
+  // if (typeString.includes("|")) {
+  //   return {
+  //     kind: SimpleTypeKind.UNION,
+  //     types: typeString
+  //       .split("|")
+  //       .map((typeStr) => stringToType(typeStr)),
+  //   };
+  // }
+
+  // switch (typeString) {
+  //   case "number":
+  //     return { kind: SimpleTypeKind.NUMBER, name };
+  //   case "boolean":
+  //     return { kind: SimpleTypeKind.BOOLEAN, name };
+  //   case "string":
+  //     return { kind: SimpleTypeKind.STRING, name };
+  //   default:
+  //     return { kind: SimpleTypeKind.ANY, name };
+  // }
 }
 
 /**

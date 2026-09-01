@@ -1,5 +1,6 @@
-import { Node, SourceFile } from "typescript";
-import { AnalyzerVisitContext } from "../analyzer-visit-context.js";
+import * as tsModule from "typescript";
+import { Node, Program, SourceFile, TypeChecker } from "typescript";
+import { AnalyzerConfig } from "../types/analyzer-config.js";
 import {
   ComponentDeclaration,
   ComponentDeclarationKind,
@@ -8,7 +9,6 @@ import {
 import { ComponentCssPart } from "../types/features/component-css-part.js";
 import { ComponentCssProperty } from "../types/features/component-css-property.js";
 import { ComponentEvent } from "../types/features/component-event.js";
-import { ComponentFeature } from "../types/features/component-feature.js";
 import { ComponentMember } from "../types/features/component-member.js";
 import { ComponentMethod } from "../types/features/component-method.js";
 import { ComponentSlot } from "../types/features/component-slot.js";
@@ -23,6 +23,24 @@ export interface DefinitionNodeResult {
   declarationNode?: Node; // Where to find the node that contains the implementation of the component
 
   analyzerFlavor?: AnalyzerFlavor;
+}
+
+/**
+ * This context is used in the entire analyzer.
+ * A new instance of this is created whenever the analyzer runs.
+ */
+export interface AnalyzerVisitContext {
+  checker: TypeChecker;
+  program: Program;
+  ts: typeof tsModule;
+  config: AnalyzerConfig;
+  flavors: AnalyzerFlavor[];
+  emitContinue?(): void;
+  cache: {
+    featureCollection: WeakMap<Node, ComponentFeatureCollection>;
+    componentDeclarationCache: WeakMap<Node, ComponentDeclaration>;
+    general: Map<unknown, unknown>;
+  };
 }
 
 export interface FeatureVisitReturnTypeMap {
@@ -43,26 +61,47 @@ export interface ComponentFeatureCollection {
   cssParts: ComponentCssPart[];
 }
 
-export interface AnalyzerDeclarationVisitContext extends AnalyzerVisitContext {
-  //getDefinition: () => ComponentDefinition;
-  getDeclaration: () => ComponentDeclaration;
-  declarationNode: Node;
-  sourceFile: SourceFile;
-}
+type Optional<T> = T | undefined;
 
 export type FeatureDiscoverVisitMap<Context extends AnalyzerVisitContext> = {
-  [K in ComponentFeature]: (
+  member?: (node: Node, context: Context) => Optional<ComponentMember[]>;
+  method?: (node: Node, context: Context) => Optional<ComponentMethod[]>;
+  cssproperty?: (
     node: Node,
     context: Context
-  ) => FeatureVisitReturnTypeMap[K][] | undefined;
+  ) => Optional<ComponentCssProperty[]>;
+  csspart?: (node: Node, context: Context) => Optional<ComponentCssPart[]>;
+  event?: (node: Node, context: Context) => Optional<ComponentEvent[]>;
+  slot?: (node: Node, context: Context) => Optional<ComponentSlot[]>;
 };
 
-export type FeatureRefineVisitMap = {
-  [K in ComponentFeature]: (
-    feature: FeatureVisitReturnTypeMap[K],
+type OptionalOrArray<T> = T | T[] | undefined;
+
+type FeatureRefineVisitMap = {
+  member?: (
+    feature: ComponentMember,
     context: AnalyzerVisitContext
-  ) =>
-    FeatureVisitReturnTypeMap[K] | FeatureVisitReturnTypeMap[K][] | undefined;
+  ) => OptionalOrArray<ComponentMember>;
+  method?: (
+    feature: ComponentMethod,
+    context: AnalyzerVisitContext
+  ) => OptionalOrArray<ComponentMethod>;
+  cssproperty?: (
+    feature: ComponentCssProperty,
+    context: AnalyzerVisitContext
+  ) => OptionalOrArray<ComponentCssProperty>;
+  csspart?: (
+    feature: ComponentCssPart,
+    context: AnalyzerVisitContext
+  ) => OptionalOrArray<ComponentCssPart>;
+  event?: (
+    feature: ComponentEvent,
+    context: AnalyzerVisitContext
+  ) => OptionalOrArray<ComponentEvent>;
+  slot?: (
+    feature: ComponentSlot,
+    context: AnalyzerVisitContext
+  ) => OptionalOrArray<ComponentSlot>;
 };
 
 export interface InheritanceResult {
@@ -71,23 +110,33 @@ export interface InheritanceResult {
   declarationKind?: ComponentDeclarationKind;
 }
 
+export interface AnalyzerDeclarationVisitContext extends AnalyzerVisitContext {
+  // TODO: why is it commented out?
+  // getDefinition: () => ComponentDefinition;
+  getDeclaration: () => ComponentDeclaration;
+  declarationNode: Node;
+  sourceFile: SourceFile;
+}
+
 export interface AnalyzerFlavor {
   excludeNode?(node: Node, context: AnalyzerVisitContext): boolean | undefined;
+
   discoverDefinitions?(
     node: Node,
     context: AnalyzerVisitContext
   ): DefinitionNodeResult[] | undefined;
+
   discoverInheritance?(
     node: Node,
     context: AnalyzerVisitContext
   ): InheritanceResult | undefined;
-  discoverFeatures?: Partial<
-    FeatureDiscoverVisitMap<AnalyzerDeclarationVisitContext>
-  >;
-  discoverGlobalFeatures?: Partial<
-    FeatureDiscoverVisitMap<AnalyzerVisitContext>
-  >;
-  refineFeature?: Partial<FeatureRefineVisitMap>;
+
+  discoverFeatures?: FeatureDiscoverVisitMap<AnalyzerDeclarationVisitContext>;
+
+  discoverGlobalFeatures?: FeatureDiscoverVisitMap<AnalyzerVisitContext>;
+
+  refineFeature?: FeatureRefineVisitMap;
+
   refineDeclaration?(
     declaration: ComponentDeclaration,
     context: AnalyzerDeclarationVisitContext

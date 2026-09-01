@@ -1,6 +1,6 @@
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
 import {
   AnalyzerDeclarationVisitContext,
+  AnalyzerVisitContext,
   FeatureVisitReturnTypeMap
 } from "../../flavors/analyzer-flavor.js";
 import {

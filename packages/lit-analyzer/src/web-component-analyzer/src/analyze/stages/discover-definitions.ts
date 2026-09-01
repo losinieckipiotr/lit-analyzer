@@ -1,5 +1,5 @@
 import { Node, SourceFile } from "typescript";
-import { AnalyzerVisitContext } from "../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../flavors/analyzer-flavor.js";
 import { ComponentDeclaration } from "../types/component-declaration.js";
 import { ComponentDefinition } from "../types/component-definition.js";
 import { getSymbol, resolveSymbolDeclarations } from "../util/ast-util.js";
@@ -54,7 +54,9 @@ function analyzeAndDedupeDefinitions(
   sourceFile: SourceFile,
   context: AnalyzerVisitContext
 ): Map<ComponentDefinition, Set<Node>> {
-  if (sourceFile == null) return new Map();
+  if (!sourceFile) {
+    return new Map();
+  }
 
   // Keep a map of "tag name" ==> "definition"
   const tagNameDefinitionMap: Map<string, ComponentDefinition> = new Map();

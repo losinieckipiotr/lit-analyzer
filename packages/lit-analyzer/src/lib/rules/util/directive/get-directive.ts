@@ -26,7 +26,7 @@ export interface UserDefinedDirectiveKind {
 
 interface Directive {
   kind: BuiltInDirectiveKind | UserDefinedDirectiveKind;
-  actualType?: () => Type | Type[] | undefined;
+  actualType?: () => Type | undefined;
   args: Expression[];
 }
 
@@ -61,7 +61,9 @@ export function getDirective(
               if (filteredTypes.length === 1) {
                 return filteredTypes[0];
               } else {
-                return filteredTypes;
+                returnType.types = filteredTypes;
+
+                return returnType;
               }
             }
 

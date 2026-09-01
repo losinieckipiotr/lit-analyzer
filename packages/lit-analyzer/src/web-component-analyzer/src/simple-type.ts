@@ -776,13 +776,6 @@ export function isSimpleTypePrimitive(
   return PRIMITIVE_TYPE_KINDS.includes(type.kind);
 }
 
-interface ToSimpleTypeInternalOptions {
-  cache: WeakMap<Type, SimpleType>;
-  checker: TypeChecker;
-  ts: typeof tsModule;
-  eager?: boolean;
-}
-
 function getRealSymbolName(
   symbol: ESSymbol,
   ts: typeof tsModule
@@ -800,6 +793,13 @@ function getRealSymbolName(
   }
 
   return name;
+}
+
+interface ToSimpleTypeInternalOptions {
+  cache: WeakMap<Type, SimpleType>;
+  checker: TypeChecker;
+  ts: typeof tsModule;
+  eager?: boolean;
 }
 
 function getTypeParameters(
@@ -1546,15 +1546,22 @@ interface ToSimpleTypeOptions {
   cache?: WeakMap<Type, SimpleType>;
 }
 
+export type SimpleTypeContext = {
+  checker: TypeChecker;
+  ts: typeof tsModule;
+};
+
 export function toSimpleType(
   type: Type | Type[] | Node | SimpleType,
-  checker: TypeChecker,
+  context: SimpleTypeContext,
   options: ToSimpleTypeOptions = {}
 ): SimpleType {
+  const { checker, ts } = context;
+
   if (Array.isArray(type)) {
     return {
       kind: SimpleTypeKind.UNION,
-      types: type.map(t => toSimpleType(t, checker, options))
+      types: type.map(t => toSimpleType(t, { checker, ts }, options))
     };
   }
 
@@ -1564,14 +1571,18 @@ export function toSimpleType(
 
   if (isNode(type)) {
     // "type" is a "Node", convert it to a "Type" and continue.
-    return toSimpleType(checker.getTypeAtLocation(type), checker);
+    return toSimpleType(
+      checker.getTypeAtLocation(type),
+      { checker, ts },
+      options
+    );
   }
 
   return toSimpleTypeCached(type, {
     checker,
     eager: options.eager,
     cache: options.cache || DEFAULT_TYPE_CACHE,
-    ts: getTypescriptModule()
+    ts: ts
   });
 }
 
@@ -1583,6 +1594,7 @@ export interface SimpleTypeComparisonOptions {
   isAssignable?: (
     typeA: SimpleType,
     typeB: SimpleType,
+    simpleTypeContext: SimpleTypeContext,
     options: SimpleTypeComparisonOptions
   ) => boolean | undefined | void;
   debug?: boolean;

@@ -1,5 +1,5 @@
 import { Node } from "typescript";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 
 /**
  * Uses flavors to determine if a node should be excluded from the output

@@ -1,4 +1,5 @@
-import { Type } from "typescript";
+import * as tsMod from "typescript";
+import { Type, TypeChecker } from "typescript";
 import {
   isAssignableToType as _isAssignableToType,
   SimpleType,
@@ -17,10 +18,13 @@ import {
   documentRangeToSFRange,
   rangeFromHtmlNodeAttr,
 } from "../../../analyze/util/range-util.js";
-import { isPrimitiveArrayType } from "../../../analyze/util/type-util.js";
 import { isLitDirective } from "../directive/is-lit-directive.js";
 import { isAssignableBindingUnderSecuritySystem } from "./is-assignable-binding-under-security-system.js";
 import { isAssignableToType } from "./is-assignable-to-type.js";
+
+function isPrimitiveArrayType(type: SimpleType): boolean {
+  throw new Error("not implemented");
+}
 
 export function isAssignableInAttributeBinding(
   htmlAttr: HtmlNodeAttr,
@@ -29,8 +33,11 @@ export function isAssignableInAttributeBinding(
 ): boolean | undefined {
   const { assignment } = htmlAttr;
   const checker = context.program.getTypeChecker();
-  const typeASimple = toSimpleType(typeA, checker);
-  const typeBSimple = toSimpleType(typeB, checker);
+  const simpleTypeContext = { checker, ts: context.ts };
+
+  // TODO: use native types
+  const typeASimple = toSimpleType(typeA, simpleTypeContext);
+  const typeBSimple = toSimpleType(typeB, simpleTypeContext);
 
   if (assignment == null) return undefined;
 
@@ -56,7 +63,7 @@ export function isAssignableInAttributeBinding(
       // <script src>).
       const securitySystemResult = isAssignableBindingUnderSecuritySystem(
         htmlAttr,
-        toSimpleType(typeB, checker),
+        toSimpleType(typeB, simpleTypeContext),
         context,
       );
       if (securitySystemResult !== undefined) {
@@ -95,15 +102,13 @@ export function isAssignableInAttributeBinding(
 }
 
 /**
- * Assignability check that simulates string coercion
- * This is used to type check attribute bindings
- * @param typeA
- * @param typeB
- * @param options
+ * Assignability check that simulates string coercion.
+ * This is used to type check attribute bindings.
  */
 export function isAssignableToTypeWithStringCoercion(
   typeA: SimpleType,
   typeB: SimpleType,
+  simpleTypeContext: { checker: TypeChecker; ts: typeof tsMod },
   options: SimpleTypeComparisonOptions,
 ): boolean | undefined {
   const safeOptions = { ...options, isAssignable: undefined };
@@ -134,6 +139,7 @@ export function isAssignableToTypeWithStringCoercion(
           kind: SimpleTypeKind.STRING_LITERAL,
           value: "[object Object]",
         },
+        simpleTypeContext,
         safeOptions,
       );
 
@@ -147,6 +153,7 @@ export function isAssignableToTypeWithStringCoercion(
           _isAssignableToType(
             typeA,
             { kind: SimpleTypeKind.BOOLEAN_LITERAL, value: true },
+            simpleTypeContext,
             safeOptions,
           )
         ) {
@@ -164,6 +171,7 @@ export function isAssignableToTypeWithStringCoercion(
               kind: SimpleTypeKind.NUMBER_LITERAL,
               value: Number(typeB.value),
             },
+            simpleTypeContext,
             safeOptions,
           )
         ) {
@@ -188,6 +196,7 @@ export function isAssignableToTypeWithStringCoercion(
             { kind: SimpleTypeKind.STRING_LITERAL, value: "false" },
           ],
         },
+        simpleTypeContext,
         safeOptions,
       );
 
@@ -202,6 +211,7 @@ export function isAssignableToTypeWithStringCoercion(
           kind: SimpleTypeKind.STRING_LITERAL,
           value: String(typeB.value),
         },
+        simpleTypeContext,
         safeOptions,
       );
 
@@ -209,7 +219,12 @@ export function isAssignableToTypeWithStringCoercion(
       // Test if a number coerced to string is possible
       // Example: value="${this.max}"
       if (
-        _isAssignableToType(typeA, { kind: SimpleTypeKind.STRING }, safeOptions)
+        _isAssignableToType(
+          typeA,
+          { kind: SimpleTypeKind.STRING },
+          simpleTypeContext,
+          safeOptions,
+        )
       ) {
         return true;
       }
@@ -225,6 +240,7 @@ export function isAssignableToTypeWithStringCoercion(
             kind: SimpleTypeKind.STRING_LITERAL,
             value: String(typeB.value),
           },
+          simpleTypeContext,
           safeOptions,
         )
       ) {
@@ -250,6 +266,8 @@ export function isAssignableInPrimitiveArray(
   context: RuleModuleContext,
 ): boolean | undefined {
   const checker = context.program.getTypeChecker();
+  const simpleTypeContext = { checker, ts: context.ts };
+
   // Only check "STRING" and "EXPRESSION" for now
   if (
     assignment.kind !== HtmlNodeAttrAssignmentKind.STRING &&
@@ -258,8 +276,8 @@ export function isAssignableInPrimitiveArray(
     return undefined;
   }
 
-  const typeASimple = toSimpleType(typeA, checker);
-  const typeBSimple = toSimpleType(typeB, checker);
+  const typeASimple = toSimpleType(typeA, simpleTypeContext);
+  const typeBSimple = toSimpleType(typeB, simpleTypeContext);
 
   // Check if typeA is marked as a "primitive array type"
   if (

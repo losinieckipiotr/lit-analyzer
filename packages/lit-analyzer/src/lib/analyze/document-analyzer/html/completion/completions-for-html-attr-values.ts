@@ -1,4 +1,5 @@
 import {
+  isSimpleType,
   isSimpleTypeLiteral,
   SimpleType,
 } from "../../../../../web-component-analyzer/src/api.js";
@@ -47,7 +48,13 @@ export function completionsForHtmlAttrValues(
     }
   }
 
-  const options = getOptionsFromType(htmlTagMember.getType());
+  const type = htmlTagMember.getType();
+
+  if (!isSimpleType(type)) {
+    throw new Error("Attribute type must be a SimpleType instance.");
+  }
+
+  const options = getOptionsFromType(type);
 
   return options.map(
     (option) =>

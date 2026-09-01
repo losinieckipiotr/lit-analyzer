@@ -1,10 +1,8 @@
 import { existsSync, readFileSync } from "fs";
-import {
-  SimpleType,
-  SimpleTypeKind,
-} from "../../../web-component-analyzer/src/api.js";
+import { SimpleTypeContext } from "../../../web-component-analyzer/src/simple-type.js";
 import type { HTMLDataV1 } from "../data/html-data-types.js";
 import { LitAnalyzerConfig } from "../lit-analyzer-config.js";
+import { LitAnalyzerLogger } from "../lit-analyzer-logger.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
@@ -15,22 +13,34 @@ import {
   mergeHtmlTags,
 } from "../parse/parse-html-data/html-tag.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
-import { lazy } from "../util/general-util.js";
 
 export function getUserConfigHtmlCollection(
+  simpleTypeContext: SimpleTypeContext,
+  logger: LitAnalyzerLogger,
   config: LitAnalyzerConfig,
 ): HtmlDataCollection {
+  const {
+    customHtmlData: configCustomHtmlData,
+    globalTags,
+    globalAttributes,
+    globalEvents,
+  } = config;
+
+  const { checker } = simpleTypeContext;
+
   const collection = (() => {
     let collection: HtmlDataCollection = { tags: [], global: {} };
-    for (const customHtmlData of Array.isArray(config.customHtmlData)
-      ? config.customHtmlData
-      : [config.customHtmlData]) {
+
+    for (const customHtmlData of Array.isArray(configCustomHtmlData)
+      ? configCustomHtmlData
+      : [configCustomHtmlData]) {
       try {
         const data: HTMLDataV1 =
           typeof customHtmlData === "string" && existsSync(customHtmlData)
             ? JSON.parse(readFileSync(customHtmlData, "utf8").toString())
             : customHtmlData;
-        const parsedCollection = parseVscodeHtmlData(data);
+
+        const parsedCollection = parseVscodeHtmlData(data, simpleTypeContext);
         collection = {
           tags: mergeHtmlTags([...collection.tags, ...parsedCollection.tags]),
           global: {
@@ -45,13 +55,18 @@ export function getUserConfigHtmlCollection(
           },
         };
       } catch (e) {
-        //logger.error("Error parsing user configuration 'customHtmlData'", e, customHtmlData);
+        logger.error(
+          "Error parsing user configuration 'customHtmlData'",
+          e,
+          customHtmlData,
+        );
       }
     }
+
     return collection;
   })();
 
-  const tags = config.globalTags.map(
+  const tags = globalTags.map(
     (tagName) =>
       ({
         tagName: tagName,
@@ -64,23 +79,24 @@ export function getUserConfigHtmlCollection(
       }) as HtmlTag,
   );
 
-  const attrs = config.globalAttributes.map(
-    (attrName) =>
-      ({
-        name: attrName,
-        kind: "attribute",
-        getType: lazy(() => ({ kind: SimpleTypeKind.ANY }) as SimpleType),
-      }) as HtmlAttr,
-  );
+  const attrs = globalAttributes.map((attrName) => {
+    const attr: HtmlAttr = {
+      name: attrName,
+      kind: "attribute",
+      getType: () => checker.getAnyType(),
+    };
 
-  const events = config.globalEvents.map(
-    (eventName) =>
-      ({
-        name: eventName,
-        kind: "event",
-        getType: lazy(() => ({ kind: SimpleTypeKind.ANY }) as SimpleType),
-      }) as HtmlEvent,
-  );
+    return attr;
+  });
+
+  const events = globalEvents.map((eventName) => {
+    const htmlEvent: HtmlEvent = {
+      name: eventName,
+      getType: () => checker.getAnyType(),
+    };
+
+    return htmlEvent;
+  });
 
   return {
     tags: [...tags, ...collection.tags],

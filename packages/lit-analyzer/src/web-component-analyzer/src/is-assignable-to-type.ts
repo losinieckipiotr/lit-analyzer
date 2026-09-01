@@ -1,4 +1,5 @@
-import { Node, Program, Type, TypeChecker } from "typescript";
+import * as tsMod from "typescript";
+import { Node, Type, TypeChecker } from "typescript";
 import {
   and,
   DEFAULT_GENERIC_PARAMETER_TYPE,
@@ -48,6 +49,11 @@ interface IsAssignableToSimpleTypeInternalOptions {
   depth: number;
 }
 
+type SimpleTypeContext = {
+  checker: TypeChecker;
+  ts: typeof tsMod;
+};
+
 /**
  * Returns if typeB is assignable to typeA.
  * @param typeA Type A
@@ -57,6 +63,7 @@ interface IsAssignableToSimpleTypeInternalOptions {
 export function isAssignableToSimpleType(
   typeA: SimpleType,
   typeB: SimpleType,
+  simpleTypeContext: SimpleTypeContext,
   config?: SimpleTypeComparisonOptions
 ): boolean {
   const userCache = config?.cache;
@@ -75,7 +82,7 @@ export function isAssignableToSimpleType(
   const cache = DEFAULT_RESULT_CACHE.get(cacheKey) || new WeakMap();
   DEFAULT_RESULT_CACHE.set(cacheKey, cache);
 
-  return isAssignableToSimpleTypeCached(typeA, typeB, {
+  return isAssignableToSimpleTypeCached(typeA, typeB, simpleTypeContext, {
     config,
     operations: { value: 0 },
     depth: 0,
@@ -91,6 +98,7 @@ export function isAssignableToSimpleType(
 function isAssignableToSimpleTypeCached(
   typeA: SimpleType,
   typeB: SimpleType,
+  simpleTypeContext: SimpleTypeContext,
   options: IsAssignableToSimpleTypeInternalOptions
 ): boolean {
   let typeACache = options.cache.get(typeA)!;
@@ -109,20 +117,25 @@ function isAssignableToSimpleTypeCached(
   }
 
   // Call "isAssignableToSimpleTypeInternal" with a mutated options object
-  const result = isAssignableToSimpleTypeInternal(typeA, typeB, {
-    depth: options.depth,
-    operations: options.operations,
-    genericParameterMapA: options.genericParameterMapA,
-    genericParameterMapB: options.genericParameterMapB,
-    config: options.config,
-    insideType: options.insideType,
-    comparingTypes: options.comparingTypes,
-    cache: options.cache,
-    preventCaching: () => {
-      options.preventCaching();
-      preventCaching = true;
+  const result = isAssignableToSimpleTypeInternal(
+    typeA,
+    typeB,
+    simpleTypeContext,
+    {
+      depth: options.depth,
+      operations: options.operations,
+      genericParameterMapA: options.genericParameterMapA,
+      genericParameterMapB: options.genericParameterMapB,
+      config: options.config,
+      insideType: options.insideType,
+      comparingTypes: options.comparingTypes,
+      cache: options.cache,
+      preventCaching: () => {
+        options.preventCaching();
+        preventCaching = true;
+      }
     }
-  });
+  );
 
   if (!preventCaching) {
     /*if (options.config.debug) {
@@ -200,6 +213,7 @@ function getTupleLengthType(tuple: SimpleTypeTuple): SimpleType {
 function isAssignableToSimpleTypeInternal(
   typeA: SimpleType,
   typeB: SimpleType,
+  simpleTypeContext: SimpleTypeContext,
   options: IsAssignableToSimpleTypeInternalOptions
 ): boolean {
   // It's assumed that the "options" parameter is already an unique reference that is safe to mutate.
@@ -210,7 +224,7 @@ function isAssignableToSimpleTypeInternal(
 
   // Handle debugging nested calls to isAssignable
   if (options.config.debug === true) {
-    logDebugHeader(typeA, typeB, options);
+    logDebugHeader(typeA, typeB, simpleTypeContext, options);
   }
 
   if (
@@ -279,7 +293,12 @@ function isAssignableToSimpleTypeInternal(
 
   // Make it possible to overwrite default behavior by running user defined logic for comparing types
   if (options.config.isAssignable != null) {
-    const result = options.config.isAssignable(typeA, typeB, options.config);
+    const result = options.config.isAssignable(
+      typeA,
+      typeB,
+      simpleTypeContext,
+      options.config
+    );
     if (result != null) {
       //options.preventCaching();
       return result;
@@ -320,7 +339,12 @@ function isAssignableToSimpleTypeInternal(
           DEFAULT_GENERIC_PARAMETER_TYPE
       );
       return and(types, childTypeB =>
-        isAssignableToSimpleTypeCached(typeA, childTypeB, options)
+        isAssignableToSimpleTypeCached(
+          typeA,
+          childTypeB,
+          simpleTypeContext,
+          options
+        )
       );
     }
 
@@ -349,6 +373,7 @@ function isAssignableToSimpleTypeInternal(
         return isAssignableToSimpleTypeCached(
           typeA,
           { kind: SimpleTypeKind.NEVER },
+          simpleTypeContext,
           options
         );
       }
@@ -364,18 +389,33 @@ function isAssignableToSimpleTypeInternal(
       }
 
       if (combined.kind !== "INTERSECTION") {
-        return isAssignableToSimpleTypeCached(typeA, combined, options);
+        return isAssignableToSimpleTypeCached(
+          typeA,
+          combined,
+          simpleTypeContext,
+          options
+        );
       }
 
       // An intersection type I is assignable to a type T if any type in I is assignable to T.
       return or(combined.types, memberB =>
-        isAssignableToSimpleTypeCached(typeA, memberB, options)
+        isAssignableToSimpleTypeCached(
+          typeA,
+          memberB,
+          simpleTypeContext,
+          options
+        )
       );
     }
 
     // [typeB] (expand)
     case "ALIAS": {
-      return isAssignableToSimpleTypeCached(typeA, typeB.target, options);
+      return isAssignableToSimpleTypeCached(
+        typeA,
+        typeB.target,
+        simpleTypeContext,
+        options
+      );
     }
 
     // [typeB] (expand)
@@ -399,10 +439,15 @@ function isAssignableToSimpleTypeInternal(
         );
       }
 
-      return isAssignableToSimpleTypeCached(typeA, typeB.target, {
-        ...options,
-        genericParameterMapB: updatedGenericParameterMapB
-      });
+      return isAssignableToSimpleTypeCached(
+        typeA,
+        typeB.target,
+        simpleTypeContext,
+        {
+          ...options,
+          genericParameterMapB: updatedGenericParameterMapB
+        }
+      );
     }
 
     // [typeB] (expand)
@@ -428,7 +473,12 @@ function isAssignableToSimpleTypeInternal(
         );
       }
 
-      return isAssignableToSimpleTypeCached(typeA, realTypeB, options);
+      return isAssignableToSimpleTypeCached(
+        typeA,
+        realTypeB,
+        simpleTypeContext,
+        options
+      );
     }
   }
 
@@ -438,13 +488,23 @@ function isAssignableToSimpleTypeInternal(
   switch (typeB.kind) {
     // [typeB] (compare)
     case "ENUM_MEMBER": {
-      return isAssignableToSimpleTypeCached(typeA, typeB.type, options);
+      return isAssignableToSimpleTypeCached(
+        typeA,
+        typeB.type,
+        simpleTypeContext,
+        options
+      );
     }
 
     // [typeB] (compare)
     case "ENUM": {
       return and(typeB.types, childTypeB =>
-        isAssignableToSimpleTypeCached(typeA, childTypeB, options)
+        isAssignableToSimpleTypeCached(
+          typeA,
+          childTypeB,
+          simpleTypeContext,
+          options
+        )
       );
     }
 
@@ -478,7 +538,12 @@ function isAssignableToSimpleTypeInternal(
   switch (typeA.kind) {
     // [typeA] (expand)
     case "ALIAS": {
-      return isAssignableToSimpleTypeCached(typeA.target, typeB, options);
+      return isAssignableToSimpleTypeCached(
+        typeA.target,
+        typeB,
+        simpleTypeContext,
+        options
+      );
     }
 
     // [typeA] (expand)
@@ -504,7 +569,12 @@ function isAssignableToSimpleTypeInternal(
         );
       }
 
-      return isAssignableToSimpleTypeCached(realTypeA, typeB, options);
+      return isAssignableToSimpleTypeCached(
+        realTypeA,
+        typeB,
+        simpleTypeContext,
+        options
+      );
     }
 
     // [typeA] (expand)
@@ -528,10 +598,15 @@ function isAssignableToSimpleTypeInternal(
         );
       }
 
-      return isAssignableToSimpleTypeCached(typeA.target, typeB, {
-        ...options,
-        genericParameterMapA: updatedGenericParameterMapA
-      });
+      return isAssignableToSimpleTypeCached(
+        typeA.target,
+        typeB,
+        simpleTypeContext,
+        {
+          ...options,
+          genericParameterMapA: updatedGenericParameterMapA
+        }
+      );
     }
 
     // [typeA] (expand)
@@ -546,7 +621,12 @@ function isAssignableToSimpleTypeInternal(
           typeB === DEFAULT_GENERIC_PARAMETER_TYPE
       );
       return or(types, childTypeA =>
-        isAssignableToSimpleTypeCached(childTypeA, typeB, options)
+        isAssignableToSimpleTypeCached(
+          childTypeA,
+          typeB,
+          simpleTypeContext,
+          options
+        )
       );
     }
 
@@ -569,6 +649,7 @@ function isAssignableToSimpleTypeInternal(
         return isAssignableToSimpleTypeCached(
           { kind: SimpleTypeKind.NEVER },
           typeB,
+          simpleTypeContext,
           options
         );
       }
@@ -584,12 +665,22 @@ function isAssignableToSimpleTypeInternal(
       }
 
       if (combined.kind !== "INTERSECTION") {
-        return isAssignableToSimpleTypeCached(combined, typeB, options);
+        return isAssignableToSimpleTypeCached(
+          combined,
+          typeB,
+          simpleTypeContext,
+          options
+        );
       }
 
       // A type T is assignable to an intersection type I if T is assignable to each type in I.
       return and(combined.types, memberA =>
-        isAssignableToSimpleTypeCached(memberA, typeB, options)
+        isAssignableToSimpleTypeCached(
+          memberA,
+          typeB,
+          simpleTypeContext,
+          options
+        )
       );
     }
   }
@@ -618,10 +709,20 @@ function isAssignableToSimpleTypeInternal(
     // [typeA] (compare)
     case "ARRAY": {
       if (typeB.kind === "ARRAY") {
-        return isAssignableToSimpleTypeCached(typeA.type, typeB.type, options);
+        return isAssignableToSimpleTypeCached(
+          typeA.type,
+          typeB.type,
+          simpleTypeContext,
+          options
+        );
       } else if (typeB.kind === "TUPLE") {
         return and(typeB.members, memberB =>
-          isAssignableToSimpleTypeCached(typeA.type, memberB.type, options)
+          isAssignableToSimpleTypeCached(
+            typeA.type,
+            memberB.type,
+            simpleTypeContext,
+            options
+          )
         );
       }
 
@@ -631,7 +732,12 @@ function isAssignableToSimpleTypeInternal(
     // [typeA] (compare)
     case "ENUM": {
       return or(typeA.types, childTypeA =>
-        isAssignableToSimpleTypeCached(childTypeA, typeB, options)
+        isAssignableToSimpleTypeCached(
+          childTypeA,
+          typeB,
+          simpleTypeContext,
+          options
+        )
       );
     }
 
@@ -659,7 +765,12 @@ function isAssignableToSimpleTypeInternal(
         return true;
       }
 
-      return isAssignableToSimpleTypeCached(typeA.type, typeB, options);
+      return isAssignableToSimpleTypeCached(
+        typeA.type,
+        typeB,
+        simpleTypeContext,
+        options
+      );
     }
 
     // [typeA] (compare)
@@ -700,7 +811,12 @@ function isAssignableToSimpleTypeInternal(
     case "FUNCTION":
     case "METHOD": {
       if ("call" in typeB && typeB.call != null) {
-        return isAssignableToSimpleTypeCached(typeA, typeB.call, options);
+        return isAssignableToSimpleTypeCached(
+          typeA,
+          typeB.call,
+          simpleTypeContext,
+          options
+        );
       }
 
       if (typeB.kind !== "FUNCTION" && typeB.kind !== "METHOD") return false;
@@ -734,6 +850,7 @@ function isAssignableToSimpleTypeInternal(
           !isAssignableToSimpleTypeCached(
             typeA.returnType,
             typeB.returnType,
+            simpleTypeContext,
             options
           )
         ) {
@@ -754,6 +871,7 @@ function isAssignableToSimpleTypeInternal(
           !isAssignableToSimpleTypeCached(
             typeAThisParam.type,
             typeBThisParam.type,
+            simpleTypeContext,
             options
           )
         ) {
@@ -923,7 +1041,14 @@ function isAssignableToSimpleTypeInternal(
 
           // Strict is off, therefore start by checking the covariant.
           // The contravariant relationship will be checked afterwards resulting in bivariant behavior
-          if (isAssignableToSimpleTypeCached(paramAType, paramBType, options)) {
+          if (
+            isAssignableToSimpleTypeCached(
+              paramAType,
+              paramBType,
+              simpleTypeContext,
+              options
+            )
+          ) {
             // Continue to next parameter
             continue;
           }
@@ -983,7 +1108,12 @@ function isAssignableToSimpleTypeInternal(
 
         // Contravariant
         if (
-          !isAssignableToSimpleTypeCached(paramBType, paramAType, newOptions)
+          !isAssignableToSimpleTypeCached(
+            paramBType,
+            paramAType,
+            simpleTypeContext,
+            newOptions
+          )
         ) {
           return false;
         }
@@ -1033,7 +1163,12 @@ function isAssignableToSimpleTypeInternal(
         case "METHOD":
           return (
             typeA.call != null &&
-            isAssignableToSimpleTypeCached(typeA.call, typeB, options)
+            isAssignableToSimpleTypeCached(
+              typeA.call,
+              typeB,
+              simpleTypeContext,
+              options
+            )
           );
 
         case "INTERFACE":
@@ -1085,7 +1220,12 @@ function isAssignableToSimpleTypeInternal(
 
             if (typeB.ctor != null && typeB.kind !== "CLASS") {
               if (
-                !isAssignableToSimpleTypeCached(typeA.ctor, typeB.ctor, options)
+                !isAssignableToSimpleTypeCached(
+                  typeA.ctor,
+                  typeB.ctor,
+                  simpleTypeContext,
+                  options
+                )
               ) {
                 return false;
               }
@@ -1115,7 +1255,12 @@ function isAssignableToSimpleTypeInternal(
 
             if (typeB.call != null) {
               if (
-                !isAssignableToSimpleTypeCached(typeA.call, typeB.call, options)
+                !isAssignableToSimpleTypeCached(
+                  typeA.call,
+                  typeB.call,
+                  simpleTypeContext,
+                  options
+                )
               ) {
                 return false;
               }
@@ -1165,6 +1310,7 @@ function isAssignableToSimpleTypeInternal(
               return isAssignableToSimpleTypeCached(
                 memberA.type,
                 memberB.type,
+                simpleTypeContext,
                 options
               );
             }
@@ -1203,6 +1349,7 @@ function isAssignableToSimpleTypeInternal(
         !isAssignableToSimpleTypeCached(
           getTupleLengthType(typeA),
           getTupleLengthType(typeB),
+          simpleTypeContext,
           options
         )
       ) {
@@ -1216,6 +1363,7 @@ function isAssignableToSimpleTypeInternal(
           return isAssignableToSimpleTypeCached(
             typeA.members[typeA.members.length - 1].type,
             memberB.type,
+            simpleTypeContext,
             options
           );
         });
@@ -1228,6 +1376,7 @@ function isAssignableToSimpleTypeInternal(
         return isAssignableToSimpleTypeCached(
           memberA.type,
           memberB.type,
+          simpleTypeContext,
           options
         );
       });
@@ -1237,7 +1386,12 @@ function isAssignableToSimpleTypeInternal(
     case "PROMISE": {
       return (
         typeB.kind === "PROMISE" &&
-        isAssignableToSimpleTypeCached(typeA.type, typeB.type, options)
+        isAssignableToSimpleTypeCached(
+          typeA.type,
+          typeB.type,
+          simpleTypeContext,
+          options
+        )
       );
     }
 
@@ -1389,6 +1543,7 @@ function resolveType(
 function logDebugHeader(
   typeA: SimpleType,
   typeB: SimpleType,
+  simpleTypeContext: SimpleTypeContext,
   options: IsAssignableToSimpleTypeInternalOptions
 ): void {
   const silentConfig = {
@@ -1399,7 +1554,12 @@ function logDebugHeader(
   };
   let result: boolean | string;
   try {
-    result = isAssignableToSimpleType(typeA, typeB, silentConfig);
+    result = isAssignableToSimpleType(
+      typeA,
+      typeB,
+      simpleTypeContext,
+      silentConfig
+    );
   } catch (e) {
     result = (e as Error).message;
   }
@@ -1493,24 +1653,16 @@ const PRIMITIVE_TYPE_TO_LITERAL_MAP = {
 
 //#region type
 
-interface TypeCheckerWithInternals extends TypeChecker {
-  isTypeAssignableTo(source: Type, target: Type): boolean;
-}
-
 export function isAssignableToType(
   typeA: Type | Node | SimpleType,
   typeB: Type | Node | SimpleType,
-  checkerOrOptions?: TypeChecker | Program | SimpleTypeComparisonOptions,
+  { checker, ts }: { checker: TypeChecker; ts: typeof tsMod },
+  checkerOrOptions?: SimpleTypeComparisonOptions,
   options?: SimpleTypeComparisonOptions
 ): boolean {
   if (typeA === typeB) return true;
 
-  // Get the correct TypeChecker
-  const checker = isTypeChecker(checkerOrOptions)
-    ? checkerOrOptions
-    : isProgram(checkerOrOptions)
-      ? checkerOrOptions.getTypeChecker()
-      : undefined;
+  const simpleTypeContext = { checker, ts };
 
   // Get the correct options. Potentially merge user given options with program options.
   options = {
@@ -1528,28 +1680,24 @@ export function isAssignableToType(
   typeA = isNode(typeA) ? checker!.getTypeAtLocation(typeA) : typeA;
   typeB = isNode(typeB) ? checker!.getTypeAtLocation(typeB) : typeB;
 
-  // Use native "isTypeAssignableTo" if both types are native TS-types and "isTypeAssignableTo" is exposed on TypeChecker
-  if (
-    !isSimpleType(typeA) &&
-    !isSimpleType(typeB) &&
-    checker != null &&
-    (checker as TypeCheckerWithInternals).isTypeAssignableTo != null
-  ) {
-    return (checker as TypeCheckerWithInternals).isTypeAssignableTo(
-      typeB as Type,
-      typeA as Type
-    );
+  if (!isSimpleType(typeA) && !isSimpleType(typeB)) {
+    return checker.isTypeAssignableTo(typeB, typeA);
   }
 
   // Convert the TS types to SimpleTypes
   const simpleTypeA = isSimpleType(typeA)
     ? typeA
-    : toSimpleType(typeA as Type, checker!);
+    : toSimpleType(typeA, simpleTypeContext);
   const simpleTypeB = isSimpleType(typeB)
     ? typeB
-    : toSimpleType(typeB as Type, checker!);
+    : toSimpleType(typeB, simpleTypeContext);
 
-  return isAssignableToSimpleType(simpleTypeA, simpleTypeB, options);
+  return isAssignableToSimpleType(
+    simpleTypeA,
+    simpleTypeB,
+    simpleTypeContext,
+    options
+  );
 }
 
 //#endregion

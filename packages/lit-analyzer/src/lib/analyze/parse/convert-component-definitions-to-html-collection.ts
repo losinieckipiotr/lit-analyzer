@@ -1,14 +1,11 @@
+import * as tsMod from "typescript";
 import { TypeChecker } from "typescript";
 import {
   AnalyzerResult,
   ComponentDeclaration,
   ComponentDefinition,
   ComponentFeatures,
-  SimpleTypeAny,
-  SimpleTypeKind,
-  toSimpleType,
 } from "../../../web-component-analyzer/src/api.js";
-import { lazy } from "../util/general-util.js";
 import {
   HtmlDataCollection,
   HtmlDataFeatures,
@@ -18,6 +15,7 @@ import {
 export interface AnalyzeResultConversionOptions {
   addDeclarationPropertiesAsAttributes?: boolean;
   checker: TypeChecker;
+  ts: typeof tsMod;
 }
 
 export function convertAnalyzeResultToHtmlCollection(
@@ -36,6 +34,7 @@ export function convertAnalyzeResultToHtmlCollection(
     result.globalFeatures == null
       ? {}
       : convertComponentFeaturesToHtml(result.globalFeatures, {
+          ts: options.ts,
           checker: options.checker,
         });
 
@@ -49,6 +48,7 @@ export function convertComponentDeclarationToHtmlTag(
   declaration: ComponentDeclaration | undefined,
   definition: ComponentDefinition | undefined,
   {
+    ts,
     checker,
     addDeclarationPropertiesAsAttributes,
   }: AnalyzeResultConversionOptions,
@@ -80,6 +80,7 @@ export function convertComponentDeclarationToHtmlTag(
     builtIn,
     description: declaration.jsDoc?.description,
     ...convertComponentFeaturesToHtml(declaration, {
+      ts,
       checker,
       builtIn,
       fromTagName: tagName,
@@ -104,13 +105,19 @@ export function convertComponentDeclarationToHtmlTag(
   return htmlTag;
 }
 
-export function convertComponentFeaturesToHtml(
+function convertComponentFeaturesToHtml(
   features: ComponentFeatures,
   {
+    ts,
     checker,
     builtIn,
     fromTagName,
-  }: { checker: TypeChecker; builtIn?: boolean; fromTagName?: string },
+  }: {
+    ts: typeof tsMod;
+    checker: TypeChecker;
+    builtIn?: boolean;
+    fromTagName?: string;
+  },
 ): HtmlDataFeatures {
   const result: HtmlDataFeatures = {
     attributes: [],
@@ -130,10 +137,10 @@ export function convertComponentFeaturesToHtml(
         const type = event.type?.();
 
         if (!type) {
-          return { kind: SimpleTypeKind.ANY };
+          return checker.getAnyType();
         }
 
-        return toSimpleType(type, checker);
+        return type;
       },
       fromTagName,
       builtIn,
@@ -143,7 +150,7 @@ export function convertComponentFeaturesToHtml(
       kind: "attribute",
       name: `on${event.name}`,
       description: event.jsDoc?.description,
-      getType: () => ({ kind: SimpleTypeKind.STRING }),
+      getType: () => checker.getStringType(),
       declaration: {
         attrName: `on${event.name}`,
         jsDoc: event.jsDoc,
@@ -203,15 +210,15 @@ export function convertComponentFeaturesToHtml(
     const base = {
       declaration: member,
       description: member.jsDoc?.description,
-      getType: lazy(() => {
+      getType: () => {
         const type = member.type?.();
 
-        if (type == null) {
-          return { kind: SimpleTypeKind.ANY } as SimpleTypeAny;
+        if (!type) {
+          return checker.getAnyType();
         }
-        // FIXME: this conversion is probably buggy
-        return toSimpleType(type, checker);
-      }),
+
+        return type;
+      },
       builtIn,
       fromTagName,
     };

@@ -1,10 +1,9 @@
 import * as tsModule from "typescript";
-import { Node, Program } from "typescript";
+import { Node, Program, Type } from "typescript";
 import {
   SimpleType,
   SimpleTypeEnumMember,
-  SimpleTypeKind,
-  toSimpleType
+  SimpleTypeKind
 } from "../../simple-type.js";
 
 /**
@@ -88,7 +87,6 @@ export function relaxType(type: SimpleType): SimpleType {
 // Only search in "lib.dom.d.ts" performance reasons for now
 const LIB_FILE_NAMES = ["lib.dom.d.ts"];
 
-// Map "tsModule => name => SimpleType"
 const LIB_TYPE_CACHE: WeakMap<
   typeof tsModule,
   Map<string, SimpleType | undefined>
@@ -100,7 +98,7 @@ const LIB_TYPE_CACHE: WeakMap<
 export function getLibTypeWithName(
   name: string,
   { ts, program }: { program: Program; ts: typeof tsModule }
-): SimpleType | undefined {
+): Type | undefined {
   const nameTypeCache = LIB_TYPE_CACHE.get(ts) || new Map();
 
   if (nameTypeCache.has(name)) {
@@ -110,6 +108,9 @@ export function getLibTypeWithName(
   }
 
   let node: Node | undefined;
+
+  // FIXME: Do we just want to resolve type here?
+  // there is function for this on checker
 
   for (const libFileName of LIB_FILE_NAMES) {
     const sourceFile =
@@ -135,15 +136,7 @@ export function getLibTypeWithName(
   }
 
   const checker = program.getTypeChecker();
-  let type = node == null ? undefined : toSimpleType(node, checker);
-
-  if (type != null) {
-    // Apparently Typescript wraps the type in "generic arguments" when take the type from the interface declaration
-    // Remove "generic arguments" here
-    if (type.kind === "GENERIC_ARGUMENTS") {
-      type = type.target;
-    }
-  }
+  const type = node == null ? undefined : checker.getTypeAtLocation(node);
 
   nameTypeCache.set(name, type);
 

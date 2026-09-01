@@ -1,6 +1,8 @@
 import { arrayFlat } from "../../../util/array-util.js";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
-import { ComponentFeatureCollection } from "../../flavors/analyzer-flavor.js";
+import {
+  AnalyzerVisitContext,
+  ComponentFeatureCollection
+} from "../../flavors/analyzer-flavor.js";
 import {
   mergeCssParts,
   mergeCssProperties,
@@ -36,10 +38,12 @@ export function mergeFeatures(
     return mergeFeatures(collection, context);
   }
 
+  const { checker } = context;
+
   return {
     cssParts: mergeCssParts(collection.cssParts),
     cssProperties: mergeCssProperties(collection.cssProperties),
-    events: mergeEvents(collection.events),
+    events: mergeEvents(collection.events, checker),
     members: mergeMembers(collection.members, context),
     methods: mergeMethods(collection.methods),
     slots: mergeSlots(collection.slots)

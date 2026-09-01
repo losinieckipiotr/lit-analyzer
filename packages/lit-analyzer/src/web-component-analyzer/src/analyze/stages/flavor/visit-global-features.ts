@@ -1,6 +1,6 @@
 import { Node } from "typescript";
 import { arrayDefined } from "../../../util/array-util.js";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import {
   VisitFeatureEmitMap,
   visitFeaturesWithVisitMaps

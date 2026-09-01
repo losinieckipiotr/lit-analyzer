@@ -1,3 +1,4 @@
+import * as tsModule from "typescript";
 import { Program, Type, TypeChecker } from "typescript";
 import { AnalyzerResult } from "../../analyze/types/analyzer-result.js";
 import { ComponentDefinition } from "../../analyze/types/component-definition.js";
@@ -174,7 +175,9 @@ function typeToVscodeValuePart(
   type: SimpleType | Type,
   checker: TypeChecker
 ): { valueSet: "v" } | { values: HtmlDataAttrValue[] } | undefined {
-  const simpleType = isSimpleType(type) ? type : toSimpleType(type, checker);
+  const simpleType = isSimpleType(type)
+    ? type
+    : toSimpleType(type, { checker, ts: tsModule });
 
   switch (simpleType.kind) {
     case "BOOLEAN":
@@ -262,7 +265,7 @@ function formatEntryRow(
       ? type
       : type == null
         ? ""
-        : formatType(toSimpleType(type, checker));
+        : formatType(toSimpleType(type, { checker, ts: tsModule }));
 
   return `${markdownHighlight(name)}${typeText == null ? "" : ` {${typeText}}`}${comment == null ? "" : " - "}${comment || ""}`;
 }

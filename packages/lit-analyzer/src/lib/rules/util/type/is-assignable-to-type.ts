@@ -11,11 +11,15 @@ export function isAssignableToType(
   context: RuleModuleContext,
   options?: SimpleTypeComparisonOptions,
 ): boolean {
+  const simpleTypeContext = {
+    checker: context.program.getTypeChecker(),
+    ts: context.ts,
+  };
   const inJsFile = context.file.fileName.endsWith(".js");
   const expandedOptions = {
     ...(inJsFile ? { strict: false } : {}),
     options: context.ts,
     ...(options || {}),
   };
-  return _isAssignableToType(typeA, typeB, context.program, expandedOptions);
+  return _isAssignableToType(typeA, typeB, simpleTypeContext, expandedOptions);
 }

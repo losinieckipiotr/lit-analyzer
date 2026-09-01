@@ -1,8 +1,5 @@
-import {
-  SimpleType,
-  SimpleTypeKind,
-  SimpleTypeUnion,
-} from "../../../../web-component-analyzer/src/api.js";
+import { Type, UnionType } from "typescript";
+import { SimpleTypeContext } from "../../../../web-component-analyzer/src/simple-type.js";
 import {
   HtmlAttr,
   HtmlCssPart,
@@ -22,7 +19,6 @@ import {
   mergeHtmlTags,
   NamedHtmlDataCollection,
 } from "../../parse/parse-html-data/html-tag.js";
-import { lazy } from "../../util/general-util.js";
 import { iterableDefined } from "../../util/iterable-util.js";
 import { HtmlDataSource } from "./html-data-source.js";
 
@@ -34,6 +30,8 @@ export enum HtmlDataSourceKind {
 }
 
 export class HtmlDataSourceMerged {
+  constructor(private simpleTypeContext: SimpleTypeContext) {}
+
   private subclassExtensions = new Map<string, HtmlTag>();
 
   private htmlDataSources: HtmlDataSource[] = (() => {
@@ -285,7 +283,10 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.attrs.has(tagName)) {
       this.relatedForTagName.attrs.set(
         tagName,
-        mergeRelatedMembers(this.iterateAllAttributesForNode(tagName)),
+        mergeRelatedMembers(
+          this.iterateAllAttributesForNode(tagName),
+          this.simpleTypeContext,
+        ),
       );
     }
 
@@ -296,7 +297,10 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.props.has(tagName)) {
       this.relatedForTagName.props.set(
         tagName,
-        mergeRelatedMembers(this.iterateAllPropertiesForNode(tagName)),
+        mergeRelatedMembers(
+          this.iterateAllPropertiesForNode(tagName),
+          this.simpleTypeContext,
+        ),
       );
     }
 
@@ -307,7 +311,10 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.events.has(tagName)) {
       this.relatedForTagName.events.set(
         tagName,
-        mergeRelatedEvents(this.iterateAllEventsForNode(tagName)),
+        mergeRelatedEvents(
+          this.iterateAllEventsForNode(tagName),
+          this.simpleTypeContext,
+        ),
       );
     }
 
@@ -509,6 +516,7 @@ export class HtmlDataSourceMerged {
 
 function mergeRelatedMembers<T extends HtmlMember>(
   members: Iterable<T>,
+  simpleTypeContext: SimpleTypeContext,
 ): ReadonlyMap<string, T> {
   const mergedMembers = new Map<string, T>();
   for (const member of members) {
@@ -520,15 +528,19 @@ function mergeRelatedMembers<T extends HtmlMember>(
       mergedMembers.set(name, member);
     } else {
       const prevType = existingMember.getType;
+
       mergedMembers.set(name, {
         ...existingMember,
         description: undefined,
         required: existingMember.required && member.required,
         builtIn: existingMember.required && member.required,
         fromTagName: existingMember.fromTagName || member.fromTagName,
-        getType: lazy(() =>
-          mergeRelatedTypeToUnion(prevType(), member.getType()),
-        ),
+        getType: () =>
+          mergeRelatedTypeToUnion(
+            prevType(),
+            member.getType(),
+            simpleTypeContext,
+          ),
         related:
           existingMember.related == null
             ? [existingMember, member]
@@ -540,35 +552,23 @@ function mergeRelatedMembers<T extends HtmlMember>(
 }
 
 function mergeRelatedTypeToUnion(
-  typeA: SimpleType,
-  typeB: SimpleType,
-): SimpleType {
-  if (typeA.kind === typeB.kind) {
-    switch (typeA.kind) {
-      case "ANY":
-        return typeA;
-    }
+  typeA: Type,
+  typeB: Type,
+  simpleTypeContext: SimpleTypeContext,
+): Type {
+  const { checker, ts } = simpleTypeContext;
+
+  if (typeA.flags & ts.TypeFlags.Any && typeB.flags & ts.TypeFlags.Any) {
+    return typeA;
   }
 
-  switch (typeA.kind) {
-    case "UNION":
-      if (
-        typeB.kind === "ANY" &&
-        typeA.types.find((t) => t.kind === "ANY") != null
-      ) {
-        return typeA;
-      } else {
-        return {
-          ...typeA,
-          types: [...typeA.types, typeB],
-        };
-      }
-  }
-
-  return {
-    kind: SimpleTypeKind.UNION,
+  const union: UnionType = {
+    ...checker.getAnyType(),
+    flags: ts.TypeFlags.Union,
     types: [typeA, typeB],
-  } as SimpleTypeUnion;
+  };
+
+  return union;
 }
 
 function mergeNamedRelated<T extends { name: string; related?: T[] }>(
@@ -618,6 +618,7 @@ function mergeRelatedCssProperties(
 
 function mergeRelatedEvents(
   events: Iterable<HtmlEvent>,
+  simpleTypeContext: SimpleTypeContext,
 ): ReadonlyMap<string, HtmlEvent> {
   const mergedAttrs = new Map<string, HtmlEvent>();
   for (const event of events) {
@@ -633,9 +634,13 @@ function mergeRelatedEvents(
         ...existingEvent,
         global: existingEvent.global && event.global,
         description: undefined,
-        getType: lazy(() =>
-          mergeRelatedTypeToUnion(prevType(), event.getType()),
-        ),
+        getType: () =>
+          mergeRelatedTypeToUnion(
+            prevType(),
+            event.getType(),
+            simpleTypeContext,
+          ),
+
         related:
           existingEvent.related == null
             ? [existingEvent, event]

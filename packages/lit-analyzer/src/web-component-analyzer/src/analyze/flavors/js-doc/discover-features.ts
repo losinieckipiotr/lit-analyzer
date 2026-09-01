@@ -4,7 +4,7 @@ import {
   SimpleTypeKind,
   SimpleTypeStringLiteral
 } from "../../../simple-type.js";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import { ComponentCssPart } from "../../types/features/component-css-part.js";
 import { ComponentCssProperty } from "../../types/features/component-css-property.js";
 import { ComponentEvent } from "../../types/features/component-event.js";
@@ -86,6 +86,7 @@ export const discoverFeatures: Partial<
       context.ts.isInterfaceDeclaration(node) ||
       context.ts.isClassDeclaration(node)
     ) {
+      const { checker } = context;
       return parseJsDocForNode(
         node,
         ["event", "fires", "emits"],
@@ -96,9 +97,8 @@ export const discoverFeatures: Partial<
               jsDoc: description != null ? { description } : undefined,
               type: type
                 ? () =>
-                    parseSimpleJsDocTypeExpression(tagNode, type, context) || {
-                      kind: "ANY"
-                    }
+                    parseSimpleJsDocTypeExpression(tagNode, type, context) ||
+                    checker.getAnyType()
                 : undefined,
               typeHint: type,
               node: tagNode
@@ -110,6 +110,7 @@ export const discoverFeatures: Partial<
         context
       );
     }
+
     return undefined;
   },
   slot: (

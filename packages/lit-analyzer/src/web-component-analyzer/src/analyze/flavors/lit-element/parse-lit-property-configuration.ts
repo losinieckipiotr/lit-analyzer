@@ -1,7 +1,6 @@
 import * as tsModule from "typescript";
-import { CallExpression, Node, PropertyAssignment } from "typescript";
-import { SIMPLE_TYPES, SimpleType } from "../../../simple-type.js";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
+import { CallExpression, Node, PropertyAssignment, Type } from "typescript";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import { LitElementPropertyConfig } from "../../types/features/lit-element-property-config.js";
 import { getDecorators, resolveNodeValue } from "../../util/ast-util.js";
 
@@ -109,27 +108,28 @@ function hasOwnProperty<T extends string>(
  */
 export function getLitPropertyType(
   ts: typeof tsModule,
+  checker: tsModule.TypeChecker,
   node: Node
-): SimpleType | string {
+): Type | string {
   const value = ts.isIdentifier(node) ? node.text : undefined;
 
   // TODO: magic values, should be documented or taken from compiler?
   switch (value) {
     case "String":
     case "StringConstructor":
-      return SIMPLE_TYPES.STRING;
+      return checker.getStringType();
     case "Number":
     case "NumberConstructor":
-      return SIMPLE_TYPES.NUMBER;
+      return checker.getNumberType();
     case "Boolean":
     case "BooleanConstructor":
-      return SIMPLE_TYPES.BOOLEAN;
+      return checker.getBooleanType();
     case "Array":
     case "ArrayConstructor":
-      return SIMPLE_TYPES.ARRAY;
+      return checker.getNonPrimitiveType();
     case "Object":
     case "ObjectConstructor":
-      return SIMPLE_TYPES.OBJECT;
+      return checker.getNonPrimitiveType();
     default:
       // This is an unknown type, so set the name as a string
       return node.getText();
@@ -148,9 +148,7 @@ export function getLitPropertyOptions(
   context: AnalyzerVisitContext,
   existingConfig: LitElementPropertyConfig = {}
 ): LitElementPropertyConfig {
-  const { ts } = context;
-  // TODO:
-  // const checker = context.program.getTypeChecker();
+  const { ts, checker } = context;
   const result: LitElementPropertyConfig = { ...existingConfig };
   let attributeInitializer: Node | undefined;
   let typeInitializer: Node | undefined;
@@ -203,7 +201,7 @@ export function getLitPropertyOptions(
 
     if (typeProp) {
       typeInitializer = typeProp.initializer;
-      result.type = getLitPropertyType(ts, typeProp.initializer);
+      result.type = getLitPropertyType(ts, checker, typeProp.initializer);
     }
   }
 

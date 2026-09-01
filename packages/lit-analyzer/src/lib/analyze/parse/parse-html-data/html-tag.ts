@@ -1,3 +1,4 @@
+import { Type } from "typescript";
 import {
   ComponentCssPart,
   ComponentCssProperty,
@@ -6,7 +7,7 @@ import {
   ComponentMember,
   ComponentSlot,
   isAssignableToSimpleTypeKind,
-  SimpleType,
+  isSimpleType,
   SimpleTypeKind,
   simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
@@ -55,7 +56,7 @@ export interface HtmlMemberBase {
   name?: string;
   fromTagName?: string;
   related?: HtmlMember[];
-  getType(): SimpleType;
+  getType(): Type;
 }
 
 export interface HtmlAttr extends HtmlMemberBase {
@@ -80,7 +81,7 @@ export interface HtmlEvent {
   global?: boolean;
   fromTagName?: string;
   related?: HtmlEvent[];
-  getType(): SimpleType;
+  getType(): Type;
 }
 
 export interface HtmlSlot {
@@ -128,9 +129,13 @@ export function isHtmlEvent(target: HtmlAttrTarget): target is HtmlEvent {
 
 export function litAttributeModifierForTarget(target: HtmlAttrTarget): string {
   if (isHtmlAttr(target)) {
-    if (
-      isAssignableToSimpleTypeKind(target.getType(), SimpleTypeKind.BOOLEAN)
-    ) {
+    const targetType = target.getType();
+
+    if (!isSimpleType(targetType)) {
+      throw new Error("Target type must be a SimpleType instance.");
+    }
+
+    if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.BOOLEAN)) {
       return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
     }
     return "";
@@ -275,11 +280,16 @@ export function targetKindAndTypeText(
 ): string {
   const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
 
-  if (isAssignableToSimpleTypeKind(target.getType(), SimpleTypeKind.ANY)) {
+  const targetType = target.getType();
+  if (!isSimpleType(targetType)) {
+    throw new Error("Target type must be a SimpleType instance.");
+  }
+
+  if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.ANY)) {
     return `${prefix}`;
   }
 
-  return `${prefix}: ${simpleTypeToString(target.getType())}`;
+  return `${prefix}: ${simpleTypeToString(targetType)}`;
 }
 
 export function targetKindText(target: HtmlAttrTarget): string {

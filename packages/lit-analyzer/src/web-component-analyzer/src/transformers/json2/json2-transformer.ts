@@ -181,15 +181,15 @@ function getVariableDocsFromAnalyzerResult(
   // Convert all export variables to VariableDocs
   for (const exp of exports) {
     switch (exp.flags) {
-      case tsModule.SymbolFlags.BlockScopedVariable:
-      case tsModule.SymbolFlags.Variable: {
+      case context.ts.SymbolFlags.BlockScopedVariable:
+      case context.ts.SymbolFlags.Variable: {
         const node = exp.valueDeclaration;
 
-        if (node && tsModule.isVariableDeclaration(node)) {
+        if (node && context.ts.isVariableDeclaration(node)) {
           // Get the nearest variable statement in order to read the jsdoc
           const variableStatement =
-            findParent(node, tsModule.isVariableStatement) || node;
-          const jsDoc = getJsDoc(variableStatement, tsModule);
+            findParent(node, context.ts.isVariableStatement) || node;
+          const jsDoc = getJsDoc(variableStatement, context.ts);
 
           varDocs.push({
             kind: "variable",
@@ -271,7 +271,7 @@ function getExportsDocFromDeclaration(
     description: declaration.jsDoc?.description,
     name:
       declaration.symbol?.name ||
-      getNodeName(declaration.node, { ts: tsModule }) ||
+      getNodeName(declaration.node, { ts: context.ts }) ||
       "",
     members: members.length > 0 ? members : undefined,
     summary: getSummaryFromJsDoc(declaration.jsDoc)
@@ -323,7 +323,7 @@ function getEventDocsFromDeclaration(
       const type = event.type?.() || SIMPLE_TYPES.ANY;
       const simpleType = isSimpleType(type)
         ? type
-        : toSimpleType(type, context.checker);
+        : toSimpleType(type, { checker: context.checker, ts: context.ts });
 
       const typeName =
         simpleType.kind === "GENERIC_ARGUMENTS"
@@ -475,7 +475,7 @@ function getMethodDocsFromDeclaration(
     let returnType: Type | undefined = undefined;
 
     const node = method.node;
-    if (node !== undefined && tsModule.isMethodDeclaration(node)) {
+    if (node !== undefined && context.ts.isMethodDeclaration(node)) {
       // Build a list of parameters
       for (const param of node.parameters) {
         const name = param.name.getText();

@@ -1,6 +1,8 @@
 import { TypeChecker } from "typescript";
-import { AnalyzerVisitContext } from "../../analyzer-visit-context.js";
-import { PriorityKind } from "../../flavors/analyzer-flavor.js";
+import {
+  AnalyzerVisitContext,
+  PriorityKind
+} from "../../flavors/analyzer-flavor.js";
 import {
   ComponentMember,
   ComponentMemberAttribute,

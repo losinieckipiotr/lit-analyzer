@@ -83,7 +83,8 @@ tsTest(
 tsTest("jsdoc: Discovers and correctly parses event types", t => {
   const {
     results: [result],
-    program
+    program,
+    checker
   } = analyzeTextWithCurrentTsModule({
     includeLib: true,
     fileName: "file.ts",
@@ -102,6 +103,8 @@ tsTest("jsdoc: Discovers and correctly parses event types", t => {
 
   const { events } = result.componentDefinitions[0].declaration!;
 
+  const ts = getCurrentTsModule();
+
   const assertEvent = (name: string, typeName: string, type: SimpleType) => {
     const event = events.find(e => e.name === name);
     if (event == null) {
@@ -111,12 +114,10 @@ tsTest("jsdoc: Discovers and correctly parses event types", t => {
 
     //console.log(event.type());
     t.is(simpleTypeToString(event.type!() as SimpleType), typeName);
-    t.truthy(isAssignableToType(type, event.type!(), program));
+    t.truthy(isAssignableToType(type, event.type!(), { checker, ts }));
   };
 
   t.is(events.length, 4);
-
-  const ts = getCurrentTsModule();
 
   assertEvent(
     "mouse-move",

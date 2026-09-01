@@ -3,8 +3,6 @@ import {
   isSimpleType,
   LitElementPropertyConfig,
   SimpleType,
-  SimpleTypeKind,
-  simpleTypeToString,
   typeToString,
 } from "../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
@@ -56,27 +54,53 @@ enum LitPropertyType {
   Any = "Any",
 }
 
-function simpleTypeKindToLitPropertyType(
-  simpleTypeKind: SimpleTypeKind,
+function typeToLitPropertyType(
+  type: Type,
+  checker: TypeChecker,
 ): LitPropertyType {
-  switch (simpleTypeKind) {
-    case "STRING":
-      return LitPropertyType.String;
-    case "NUMBER":
-      return LitPropertyType.Number;
-    case "BOOLEAN":
-      return LitPropertyType.Boolean;
-    case "ARRAY":
-      return LitPropertyType.Array;
-    case "OBJECT":
-      return LitPropertyType.Object;
-    case "ANY":
-      return LitPropertyType.Any;
-    default: {
-      throw new Error(`Unsupported simple type kind: ${simpleTypeKind}`);
-    }
-  }
+  // const typeStr = checker.typeToString(type);
+
+  throw new Error("not implemented");
+
+  // switch (typeStr) {
+  //   case "string":
+  //     return LitPropertyType.String;
+  //   case "number":
+  //     return LitPropertyType.Number;
+  //   case "boolean":
+  //     return LitPropertyType.Boolean;
+  //   case "any[]":
+  //     return LitPropertyType.Array;
+  //   case "object":
+  //     return LitPropertyType.Object;
+  //   case "any":
+  //     return LitPropertyType.Any;
+  //   default:
+  //     throw new Error(`Unsupported type: ${typeStr}`);
+  // }
 }
+
+// function simpleTypeKindToLitPropertyType(
+//   simpleTypeKind: SimpleTypeKind,
+// ): LitPropertyType {
+//   switch (simpleTypeKind) {
+//     case "STRING":
+//       return LitPropertyType.String;
+//     case "NUMBER":
+//       return LitPropertyType.Number;
+//     case "BOOLEAN":
+//       return LitPropertyType.Boolean;
+//     case "ARRAY":
+//       return LitPropertyType.Array;
+//     case "OBJECT":
+//       return LitPropertyType.Object;
+//     case "ANY":
+//       return LitPropertyType.Any;
+//     default: {
+//       throw new Error(`Unsupported simple type kind: ${simpleTypeKind}`);
+//     }
+//   }
+// }
 
 function isAssignableTo(
   typeToCheckOptional: Type,
@@ -173,7 +197,7 @@ function validateLitPropertyConfig(
 
   // Test the @property type against the actual type if a type has been provided
   if (litConfig.type) {
-    const configType = simpleTypeKindToLitPropertyType(litConfig.type.kind);
+    const configType = typeToLitPropertyType(litConfig.type, checker);
 
     if (isAssignableTo(typeToCheck, configType, checker)) {
       return;
@@ -196,16 +220,19 @@ function validateLitPropertyConfig(
     } else {
       // If no suggesting can be provided, report that they are not assignable
       // The OBJECT @property type is an escape from this error
-      if (litConfig.type.kind === "OBJECT") {
-        return;
-      }
 
-      const configTypeString = simpleTypeToString(litConfig.type);
-      const typeToCheckString = isSimpleType(typeToCheck)
-        ? simpleTypeToString(typeToCheck)
-        : typeToString(typeToCheck, checker);
+      throw new Error("not implemented");
 
-      message = `@property type '${configTypeString}' is not assignable to the actual type '${typeToCheckString}'`;
+      // if (litConfig.type.kind === "OBJECT") {
+      //   return;
+      // }
+
+      // const configTypeString = simpleTypeToString(litConfig.type);
+      // const typeToCheckString = isSimpleType(typeToCheck)
+      //   ? simpleTypeToString(typeToCheck)
+      //   : typeToString(typeToCheck, checker);
+
+      // message = `@property type '${configTypeString}' is not assignable to the actual type '${typeToCheckString}'`;
     }
 
     return context.report({

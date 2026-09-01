@@ -1,7 +1,4 @@
-import {
-  SimpleType,
-  SimpleTypeKind,
-} from "../../../web-component-analyzer/src/api.js";
+import { UnionType } from "typescript";
 import type { HTMLDataV1 } from "../data/html-data-types.js";
 import {
   HtmlAttr,
@@ -10,8 +7,8 @@ import {
 // FIXME:
 // "@vscode/web-custom-data": "^0.6.3",
 // @vscode/web-custom-data/data/browsers.html-data.json
+import { SimpleTypeContext } from "../../../web-component-analyzer/src/simple-type.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
-import { lazy } from "../util/general-util.js";
 import { browsersHtmlData } from "./browsers-html-data.js";
 import {
   EXTRA_HTML5_EVENTS,
@@ -19,7 +16,9 @@ import {
   html5TagAttrType,
 } from "./extra-html-data.js";
 
-export function getBuiltInHtmlCollection(): HtmlDataCollection {
+export function getBuiltInHtmlCollection(
+  simpleTypeContext: SimpleTypeContext,
+): HtmlDataCollection {
   // FIXME: no type validation here
   const vscodeHtmlData = browsersHtmlData as HTMLDataV1;
   const version = vscodeHtmlData.version;
@@ -135,6 +134,8 @@ The value must be a comma-separated list of part mappings:
     },
   );
 
+  const { checker, ts } = simpleTypeContext;
+
   // Parse vscode html data
   const result = parseVscodeHtmlData(
     {
@@ -143,6 +144,7 @@ The value must be a comma-separated list of part mappings:
       tags,
       valueSets,
     },
+    simpleTypeContext,
     {
       builtIn: true,
     },
@@ -157,13 +159,15 @@ The value must be a comma-separated list of part mappings:
           name: "value",
           builtIn: true,
           fromTagName: "textarea",
-          getType: lazy(
-            () =>
-              ({
-                kind: SimpleTypeKind.UNION,
-                types: [{ kind: SimpleTypeKind.STRING }, { kind: "NULL" }],
-              }) as SimpleType,
-          ),
+          getType: () => {
+            const union: UnionType = {
+              ...checker.getAnyType(),
+              flags: ts.TypeFlags.Union,
+              types: [checker.getStringType(), checker.getNullType()],
+            };
+
+            return union;
+          },
         });
         break;
 
@@ -173,23 +177,19 @@ The value must be a comma-separated list of part mappings:
           name: "loading",
           builtIn: true,
           fromTagName: "img",
-          getType: lazy(
-            () =>
-              ({
-                kind: SimpleTypeKind.UNION,
-                types: [
-                  {
-                    kind: SimpleTypeKind.STRING_LITERAL,
-                    value: "lazy",
-                  },
-                  {
-                    kind: SimpleTypeKind.STRING_LITERAL,
-                    value: "auto",
-                  },
-                  { kind: SimpleTypeKind.STRING_LITERAL, value: "eager" },
-                ],
-              }) as SimpleType,
-          ),
+          getType: () => {
+            const union: UnionType = {
+              ...checker.getAnyType(),
+              flags: ts.TypeFlags.Union,
+              types: [
+                checker.getStringLiteralType("lazy"),
+                checker.getStringLiteralType("auto"),
+                checker.getStringLiteralType("eager"),
+              ],
+            };
+
+            return union;
+          },
         });
         break;
 
@@ -200,10 +200,13 @@ The value must be a comma-separated list of part mappings:
           builtIn: true,
           fromTagName: "input",
           getType: () => {
-            return {
-              kind: SimpleTypeKind.UNION,
-              types: [{ kind: SimpleTypeKind.STRING }, { kind: "NULL" }],
-            } as SimpleType;
+            const union: UnionType = {
+              ...checker.getAnyType(),
+              flags: ts.TypeFlags.Union,
+              types: [checker.getStringType(), checker.getNullType()],
+            };
+
+            return union;
           },
         });
         break;
@@ -216,11 +219,29 @@ The value must be a comma-separated list of part mappings:
     {
       builtIn: true,
       description: `This attribute specifies a "styleable" part on the element in your shadow tree.`,
-      getType: () => ({ kind: SimpleTypeKind.STRING }),
+      getType: () => checker.getStringType(),
       kind: "property",
       name: "part",
     },
   ];
+
+  const addMissingAttrTypes = (attrs: HtmlAttr[]): HtmlAttr[] => {
+    return attrs.map((attr) => {
+      const attrType = attr.getType();
+
+      if (
+        hasTypeForAttrName(attr.name) ||
+        (attrType.flags & checker.getAnyType().flags) !== 0
+      ) {
+        return {
+          ...attr,
+          getType: () => html5TagAttrType(attr.name),
+        };
+      }
+
+      return attr;
+    });
+  };
 
   return {
     ...result,
@@ -243,18 +264,4 @@ The value must be a comma-separated list of part mappings:
       })),
     },
   };
-}
-
-function addMissingAttrTypes(attrs: HtmlAttr[]): HtmlAttr[] {
-  return attrs.map((attr) => {
-    if (hasTypeForAttrName(attr.name) || attr.getType().kind === "ANY") {
-      const newType = html5TagAttrType(attr.name);
-      return {
-        ...attr,
-        getType: lazy(() => newType),
-      };
-    }
-
-    return attr;
-  });
 }

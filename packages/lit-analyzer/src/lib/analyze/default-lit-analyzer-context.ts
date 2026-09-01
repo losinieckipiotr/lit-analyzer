@@ -76,7 +76,7 @@ export interface LitAnalyzerContextBaseOptions {
 }
 
 export interface LitPluginContextHandler {
-  ts?: typeof tsMod;
+  ts: typeof tsMod;
   getProgram(): Program;
   getProject?(): tsMod.server.Project;
   getHost?(): tsMod.CompilerHost;
@@ -167,7 +167,8 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     return this._currentFile;
   }
 
-  readonly htmlStore = new DefaultAnalyzerHtmlStore();
+  readonly htmlStore: DefaultAnalyzerHtmlStore;
+
   readonly dependencyStore = new DefaultAnalyzerDependencyStore();
   readonly documentStore = new DefaultAnalyzerDocumentStore();
   readonly definitionStore = new DefaultAnalyzerDefinitionStore();
@@ -217,7 +218,14 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     })();
 
     // Add user configured HTML5 collection
-    const collection = getUserConfigHtmlCollection(config);
+    const collection = getUserConfigHtmlCollection(
+      {
+        checker: this.checker,
+        ts: this.ts,
+      },
+      this.logger,
+      config,
+    );
     this.htmlStore.absorbCollection(collection, HtmlDataSourceKind.USER);
   }
 
@@ -235,8 +243,19 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
   }
 
   constructor(private handler: LitPluginContextHandler) {
+    const { checker, ts } = this;
+
+    this.htmlStore = new DefaultAnalyzerHtmlStore({
+      checker: this.checker,
+      ts: this.ts,
+    });
+
     // Add all HTML5 tags and attributes
-    const builtInCollection = getBuiltInHtmlCollection();
+    const builtInCollection = getBuiltInHtmlCollection({
+      checker,
+      ts,
+    });
+
     this.htmlStore.absorbCollection(
       builtInCollection,
       HtmlDataSourceKind.BUILT_IN,
@@ -273,10 +292,11 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
           }
         });
 
+      this.findComponentsInFile(sourceFile);
+
       this.logger.debug(
         `Analyzing components in ${sourceFile.fileName} (changed) (${getRunningTime()}ms total)`,
       );
-      this.findComponentsInFile(sourceFile);
     }
 
     for (const sourceFile of invalidatedFiles) {
@@ -287,10 +307,11 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
       if (!seenFiles.has(sourceFile)) {
         seenFiles.add(sourceFile);
 
+        this.findComponentsInFile(sourceFile);
+
         this.logger.debug(
           `Analyzing components in ${sourceFile.fileName} (invalidated) (${getRunningTime()}ms total)`,
         );
-        this.findComponentsInFile(sourceFile);
       }
     }
 
@@ -366,6 +387,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     this.definitionStore.absorbAnalysisResult(sourceFile, analyzeResult);
     const htmlCollection = convertAnalyzeResultToHtmlCollection(analyzeResult, {
       checker: this.checker,
+      ts: this.ts,
       addDeclarationPropertiesAsAttributes:
         this.program.isSourceFileFromExternalLibrary(sourceFile),
     });
@@ -380,7 +402,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
       const extension = convertComponentDeclarationToHtmlTag(
         result,
         undefined,
-        { checker: this.checker },
+        { checker: this.checker, ts: this.ts },
       );
       this.htmlStore.absorbSubclassExtension("HTMLElement", extension);
       this.hasAnalyzedSubclassExtensions = true;

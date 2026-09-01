@@ -1,7 +1,7 @@
 import { Node } from "typescript";
-import { AnalyzerVisitContext } from "../analyzer-visit-context.js";
 import {
   AnalyzerDeclarationVisitContext,
+  AnalyzerVisitContext,
   ComponentFeatureCollection
 } from "../flavors/analyzer-flavor.js";
 import { ComponentDeclaration } from "../types/component-declaration.js";

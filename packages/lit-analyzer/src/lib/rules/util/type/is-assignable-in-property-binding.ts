@@ -16,8 +16,12 @@ export function isAssignableInPropertyBinding(
   context: RuleModuleContext,
 ): boolean | undefined {
   const checker = context.program.getTypeChecker();
-  const typeBSimple = toSimpleType(typeB, checker);
-  const typeASimple = toSimpleType(typeA, checker);
+  const simpleTypeContext = { checker, ts: context.ts };
+
+  // TODO: use native types
+  const typeBSimple = toSimpleType(typeB, simpleTypeContext);
+  const typeASimple = toSimpleType(typeA, simpleTypeContext);
+
   const securitySystemResult = isAssignableBindingUnderSecuritySystem(
     htmlAttr,
     typeBSimple,

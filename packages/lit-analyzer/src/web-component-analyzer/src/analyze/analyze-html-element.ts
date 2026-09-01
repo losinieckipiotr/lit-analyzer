@@ -1,10 +1,10 @@
 import * as tsModule from "typescript";
 import { Node, Program } from "typescript";
-import { AnalyzerVisitContext } from "./analyzer-visit-context.js";
 import {
   DEFAULT_COMPONENT_DECLARATION_CACHE,
   DEFAULT_FEATURE_COLLECTION_CACHE
 } from "./constants.js";
+import { AnalyzerVisitContext } from "./flavors/analyzer-flavor.js";
 import { CustomElementFlavor } from "./flavors/custom-element/custom-element-flavor.js";
 import { makeContextFromConfig } from "./make-context-from-config.js";
 import { analyzeComponentDeclaration } from "./stages/analyze-declaration.js";

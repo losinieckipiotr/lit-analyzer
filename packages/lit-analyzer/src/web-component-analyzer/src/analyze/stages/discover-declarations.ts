@@ -1,5 +1,5 @@
 import { SourceFile } from "typescript";
-import { AnalyzerVisitContext } from "../analyzer-visit-context.js";
+import { AnalyzerVisitContext } from "../flavors/analyzer-flavor.js";
 import { ComponentDeclaration } from "../types/component-declaration.js";
 import { resolveSymbolDeclarations } from "../util/ast-util.js";
 import { analyzeComponentDeclaration } from "./analyze-declaration.js";

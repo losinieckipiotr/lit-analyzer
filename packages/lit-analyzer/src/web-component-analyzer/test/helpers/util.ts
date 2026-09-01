@@ -1,18 +1,21 @@
 import { ExecutionContext } from "ava";
-import { TypeChecker } from "typescript";
 import {
   ComponentMember,
   ComponentMemberProperty
 } from "../../src/analyze/types/features/component-member.js";
 import { isAssignableToType } from "../../src/is-assignable-to-type.js";
-import { simpleTypeToString, toSimpleType } from "../../src/simple-type.js";
+import {
+  SimpleTypeContext,
+  simpleTypeToString,
+  toSimpleType
+} from "../../src/simple-type.js";
 import { arrayDefined } from "../../src/util/array-util.js";
 
 export function assertHasMembers(
   actualMembers: ComponentMember[],
   expectedMembers: Partial<ComponentMember>[],
   t: ExecutionContext,
-  checker?: TypeChecker
+  simpleTypeContext: SimpleTypeContext
 ): void {
   // t.log(actualMembers);
 
@@ -122,14 +125,14 @@ export function assertHasMembers(
       t.is(typeof actualMember.type, typeof expectedMember.type);
 
       if (expectedMember.type != null && actualMember.type != null) {
-        if (checker == null) {
+        if (!simpleTypeContext) {
           throw new Error("Type checker is not given to assert util!");
         }
-        const typeA = toSimpleType(actualMember.type(), checker);
-        const typeB = toSimpleType(expectedMember.type(), checker);
+        const typeA = toSimpleType(actualMember.type(), simpleTypeContext);
+        const typeB = toSimpleType(expectedMember.type(), simpleTypeContext);
 
         t.truthy(
-          isAssignableToType(typeA, typeB, checker),
+          isAssignableToType(typeA, typeB, simpleTypeContext),
           `Type for ${name} doesn't match: ${simpleTypeToString(typeA)} === ${simpleTypeToString(typeB)}`
         );
       }

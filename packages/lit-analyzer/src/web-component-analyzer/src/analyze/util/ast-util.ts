@@ -277,8 +277,9 @@ export function isPropertyRequired(
   checker: TypeChecker,
   ts: typeof tsModule
 ): boolean {
+  const simpleTypeContext = { checker, ts };
   const type = checker.getTypeAtLocation(property);
-  const typeSimple = toSimpleType(type, checker);
+  const typeSimple = toSimpleType(type, simpleTypeContext);
 
   // Properties in external modules don't have initializers, so we cannot infer if the property is required or not
   if (isNodeInDeclarationFile(property)) {
