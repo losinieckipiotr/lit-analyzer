@@ -8,7 +8,8 @@ import {
 // @vscode/web-custom-data/data/browsers.html-data.json
 import {
   getUnionType,
-  isMyUnionType,
+  isAnyType,
+  isType,
   SimpleTypeContext,
 } from "../../../web-component-analyzer/src/simple-type.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
@@ -220,13 +221,10 @@ The value must be a comma-separated list of part mappings:
     return attrs.map((attr) => {
       const attrType = attr.getType();
 
-      if (isMyUnionType(attrType)) {
-        throw new Error("not implemented");
-      }
-
-      const isAnyType = (attrType.flags & checker.getAnyType().flags) !== 0;
-
-      if (hasTypeForAttrName(attr.name) || isAnyType) {
+      if (
+        hasTypeForAttrName(attr.name) ||
+        (isType(attrType) && isAnyType(attrType))
+      ) {
         return {
           ...attr,
           getType: () => html5TagAttrType(attr.name),

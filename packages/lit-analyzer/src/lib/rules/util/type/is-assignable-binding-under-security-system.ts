@@ -1,7 +1,5 @@
-import {
-  SimpleType,
-  simpleTypeToString,
-} from "../../../../web-component-analyzer/src/api.js";
+import { Type } from "typescript";
+import { isAnyType } from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
@@ -15,7 +13,7 @@ import { isLitDirective } from "../directive/is-lit-directive.js";
  */
 export function isAssignableBindingUnderSecuritySystem(
   htmlAttr: HtmlNodeAttr,
-  typeB: SimpleType,
+  typeB: Type,
   context: RuleModuleContext,
 ): boolean | undefined {
   const securityPolicy = context.config.securitySystem;
@@ -60,87 +58,92 @@ const closureScopedOverrides: TagNameToSecurityOverrideMap = {
     src: ["TrustedResourceUrl", "SafeUrl"],
   },
 };
+
 const closureGlobalOverrides: SecurityOverrideMap = {
   style: ["SafeStyle", "string"],
 };
 
 function checkClosureSecurityAssignability(
-  typeB: SimpleType,
+  typeB: Type,
   htmlAttr: HtmlNodeAttr,
   context: RuleModuleContext,
 ): boolean | undefined {
   const scopedOverride = closureScopedOverrides[htmlAttr.htmlNode.tagName];
+
   const overriddenTypes =
     (scopedOverride && scopedOverride[htmlAttr.name]) ||
     closureGlobalOverrides[htmlAttr.name];
+
   if (overriddenTypes === undefined) {
     return undefined;
   }
+
   // `any` is allowed to bind to anything.
-  if (typeB.kind === "ANY") {
+  if (isAnyType(typeB)) {
     return undefined;
   }
+
   // Directives are responsible for their own security.
   if (isLitDirective(typeB)) {
     return undefined;
   }
 
   const typeMatch = matchesAtLeastOneNominalType(overriddenTypes, typeB);
+
   if (typeMatch === false) {
-    /*const nominalType: SimpleType = {
-			kind: SimpleTypeKind.INTERFACE,
-			members: [],
-			name: "A security type"
-		};*/
+    const checker = context.program.getTypeChecker();
+    const typeBStr = checker.typeToString(typeB);
 
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${simpleTypeToString(typeB)}' is not assignable to '${overriddenTypes.join(" | ")}'. This is due to Closure Safe Type enforcement.`,
+      message: `Type '${typeBStr}' is not assignable to '${overriddenTypes.join(" | ")}'. This is due to Closure Safe Type enforcement.`,
     });
+
     return false;
   }
 
   return true;
 }
 
-function normalizeTypeName(typeName: string) {
-  // Attempt to take a clutz type name for a goog.module type, which looks like
-  // module$contents$goog$html$SafeUrl_SafeUrl and extract the
-  // actual type name (SafeUrl in that case)
-  const match = typeName.match(/module\$.*_(.*)/);
-  if (match == null) {
-    return undefined;
-  }
-  return match[1];
-}
+// function normalizeTypeName(typeName: string) {
+//   // Attempt to take a clutz type name for a goog.module type, which looks like
+//   // module$contents$goog$html$SafeUrl_SafeUrl and extract the
+//   // actual type name (SafeUrl in that case)
+//   const match = typeName.match(/module\$.*_(.*)/);
+//   if (match == null) {
+//     return undefined;
+//   }
+//   return match[1];
+// }
 
 function matchesAtLeastOneNominalType(
   typeNames: string[],
-  typeB: SimpleType,
+  typeB: Type,
 ): boolean {
+  throw new Error("not implemented");
   // Check if typeB.name is in typeNames, either before or after normalization.
-  const typeBName = typeB.name;
-  if (typeBName !== undefined) {
-    if (typeNames.includes(typeBName)) {
-      return true;
-    }
-    const normalized = normalizeTypeName(typeBName);
-    if (normalized !== undefined && typeNames.includes(normalized)) {
-      return true;
-    }
-  }
-  // Otherwise, check for other cases beyond just a simple named type.
-  switch (typeB.kind) {
-    case "UNION":
-      return typeB.types.every((t) =>
-        matchesAtLeastOneNominalType(typeNames, t),
-      );
-    case "STRING_LITERAL":
-    case "STRING":
-      return typeNames.includes("string");
-    case "GENERIC_ARGUMENTS":
-      return matchesAtLeastOneNominalType(typeNames, typeB.target);
-    default:
-      return false;
-  }
+  // const typeBName = typeB.name;
+  // if (typeBName !== undefined) {
+  //   if (typeNames.includes(typeBName)) {
+  //     return true;
+  //   }
+  //   const normalized = normalizeTypeName(typeBName);
+  //   if (normalized !== undefined && typeNames.includes(normalized)) {
+  //     return true;
+  //   }
+  // }
+  // // Otherwise, check for other cases beyond just a simple named type.
+  // switch (typeB.kind) {
+  //   case "UNION":
+  //     return typeB.types.every((t) =>
+  //       matchesAtLeastOneNominalType(typeNames, t),
+  //     );
+  //   case "STRING_LITERAL":
+  //   case "STRING":
+  //     return typeNames.includes("string");
+  //   case "GENERIC_ARGUMENTS":
+  //     return matchesAtLeastOneNominalType(typeNames, typeB.target);
+  //   default:
+  //     return false;
+  // }
 }

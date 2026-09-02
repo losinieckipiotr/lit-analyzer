@@ -1,5 +1,7 @@
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { when } from "lit/directives/when.js";
 import "./my-element-2.js";
 
 /**
@@ -64,7 +66,9 @@ export class MyElement extends LitElement {
 			<my-element bval="${b}"></my-element>
 			<my-element num=${1}></my-element>
 			<my-element ?disabled=${"true"}></my-element>
-			<my-element ostr="a"></my-element>
+			<my-element ostr=${ifDefined(this.ostr)}></my-element>
+
+			${when(false, () => html`<p>Conditionally rendered content</p>`)}
 
 			<my-tsconfig-element size="large"></my-tsconfig-element>
 			<unknown-element @heheheh="${() => {}}" globalattribute></unknown-element>

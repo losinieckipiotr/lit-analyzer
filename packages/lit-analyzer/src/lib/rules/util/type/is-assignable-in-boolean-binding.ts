@@ -1,62 +1,62 @@
 import { Type } from "typescript";
 import {
-  SimpleType,
-  SimpleTypeKind,
-  simpleTypeToString,
-  toSimpleType,
-} from "../../../../web-component-analyzer/src/api.js";
+  isMyUnionType,
+  MyUnionType,
+} from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
-import { isAssignableToType } from "./is-assignable-to-type.js";
 
 export function isAssignableInBooleanBinding(
   htmlAttr: HtmlNodeAttr,
-  { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
+  { typeA, typeB }: { typeA: Type | MyUnionType; typeB: Type },
   context: RuleModuleContext,
 ): boolean | undefined {
   const checker = context.program.getTypeChecker();
-  const simpleTypeContext = { checker, ts: context.ts };
 
-  // TODO: use native types
-  const typeBSimple = toSimpleType(typeB, simpleTypeContext);
-  const typeASimple = toSimpleType(typeA, simpleTypeContext);
+  const typeBStr = checker.typeToString(typeB);
 
-  // Test if the user is trying to use ? modifier on a non-boolean type.
-  if (
-    !isAssignableToType(
-      {
-        typeA: {
-          kind: SimpleTypeKind.UNION,
-          types: [
-            { kind: SimpleTypeKind.BOOLEAN },
-            { kind: SimpleTypeKind.UNDEFINED },
-            { kind: SimpleTypeKind.NULL },
-          ],
-        },
-        typeB,
-      },
-      context,
-    )
-  ) {
+  // Test if the user is trying to use `?` modifier on a non-boolean type.
+
+  const isAssignableToBoolean = checker.isTypeAssignableTo(
+    typeB,
+    checker.getBooleanType(),
+  );
+  const isAssignableToUndefined = checker.isTypeAssignableTo(
+    typeB,
+    checker.getUndefinedType(),
+  );
+  const isAssignableToNull = checker.isTypeAssignableTo(
+    typeB,
+    checker.getNullType(),
+  );
+
+  const isNonBoolean = !(
+    isAssignableToBoolean ||
+    isAssignableToUndefined ||
+    isAssignableToNull
+  );
+
+  if (isNonBoolean) {
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${simpleTypeToString(typeBSimple)}' is not assignable to 'boolean'`,
+      message: `Type '${typeBStr}' is not assignable to 'boolean'`,
     });
 
     return false;
   }
 
-  // Test if the user is trying to use the ? modifier on a non-boolean type.
-  if (
-    !isAssignableToType(
-      { typeA, typeB: { kind: SimpleTypeKind.BOOLEAN } },
-      context,
-    )
-  ) {
+  if (isMyUnionType(typeA)) {
+    throw new Error("not implemented");
+  }
+
+  const typeAStr = checker.typeToString(typeA);
+
+  // Test if the user is trying to use the `?` modifier on a non-boolean type.
+  if (!checker.isTypeAssignableTo(typeA, checker.getBooleanType())) {
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `You are using a boolean binding on a non boolean type '${simpleTypeToString(typeASimple)}'`,
+      message: `You are using a boolean binding on a non boolean type '${typeAStr}'`,
       fix: () => {
         const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(htmlAttr);
         const newModifier = htmlAttrTarget == null ? "." : "";

@@ -1,30 +1,23 @@
 import type { Type } from "typescript";
 import {
-  SimpleType,
-  simpleTypeToString,
-  toSimpleType,
-} from "../../../../web-component-analyzer/src/api.js";
+  isMyUnionType,
+  MyUnionType,
+} from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
 import { isAssignableBindingUnderSecuritySystem } from "./is-assignable-binding-under-security-system.js";
-import { isAssignableToType } from "./is-assignable-to-type.js";
 
 export function isAssignableInPropertyBinding(
   htmlAttr: HtmlNodeAttr,
-  { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
+  { typeA, typeB }: { typeA: Type | MyUnionType; typeB: Type },
   context: RuleModuleContext,
 ): boolean | undefined {
   const checker = context.program.getTypeChecker();
-  const simpleTypeContext = { checker, ts: context.ts };
-
-  // TODO: use native types
-  const typeBSimple = toSimpleType(typeB, simpleTypeContext);
-  const typeASimple = toSimpleType(typeA, simpleTypeContext);
 
   const securitySystemResult = isAssignableBindingUnderSecuritySystem(
     htmlAttr,
-    typeBSimple,
+    typeB,
     context,
   );
   if (securitySystemResult !== undefined) {
@@ -33,10 +26,19 @@ export function isAssignableInPropertyBinding(
     return securitySystemResult;
   }
 
-  if (!isAssignableToType({ typeA, typeB }, context)) {
+  if (isMyUnionType(typeA)) {
+    throw new Error("not implemented");
+  }
+
+  const isAssignable = checker.isTypeAssignableTo(typeB, typeA);
+
+  if (!isAssignable) {
+    const typeAStr = checker.typeToString(typeA);
+    const typeBStr = checker.typeToString(typeB);
+
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
-      message: `Type '${simpleTypeToString(typeBSimple)}' is not assignable to '${simpleTypeToString(typeASimple)}'`,
+      message: `Type '${typeBStr}' is not assignable to '${typeAStr}'`,
     });
 
     return false;

@@ -2014,4 +2014,32 @@ export function isAnyType(type: Type): boolean {
   return (type.flags & ts.TypeFlags.Any) !== 0;
 }
 
+export function isUnknownType(type: Type): boolean {
+  const ts = getTypescriptModule();
+
+  return (type.flags & ts.TypeFlags.Unknown) !== 0;
+}
+
+export function isBooleanType(type: Type): boolean {
+  const ts = getTypescriptModule();
+
+  return (type.flags & ts.TypeFlags.Boolean) !== 0;
+}
+
+// export function isPrimitiveType(type: Type): boolean {
+//   const ts = getTypescriptModule();
+
+//   const isNonPrimitive = (type.flags & ts.TypeFlags.NonPrimitive) === 1;
+
+//   if (isNonPrimitive) {
+//     return false;
+//   }
+
+//   if (type.isLiteral()) {
+//     return true;
+//   }
+
+//   return true;
+// }
+
 //#endregion

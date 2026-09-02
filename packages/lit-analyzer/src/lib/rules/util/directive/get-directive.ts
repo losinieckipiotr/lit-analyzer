@@ -4,7 +4,7 @@ import {
   HtmlNodeAttrAssignment,
   HtmlNodeAttrAssignmentKind,
 } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
-import { lazy } from "../../../analyze/util/general-util.js";
+import { isLitDirective } from "./is-lit-directive.js";
 
 export type BuiltInDirectiveKind =
   | "ifDefined"
@@ -50,35 +50,21 @@ export function getDirective(
         // Example: html`<img src="${ifDefined(imageUrl)}">`;
         // Take the argument to ifDefined and remove undefined from the type union (if possible).
         // This new type becomes the actual type of the expression
-        const actualType = () => {
-          if (args.length >= 1) {
-            const returnType = checker.getTypeAtLocation(args[0]);
-
-            if (returnType.isUnion()) {
-              // TODO: consider returnType.getNonNullableType();
-
-              const filteredTypes = returnType.types.filter(
-                (t) => (t.flags & ts.TypeFlags.Undefined) === 0,
-              );
-
-              if (filteredTypes.length === 1) {
-                return filteredTypes[0];
-              } else {
-                returnType.types = filteredTypes;
-
-                return returnType;
-              }
-            }
-
-            return checker.getAnyType();
-          }
-
-          return undefined;
-        };
-
         return {
           kind: "ifDefined",
-          actualType,
+          actualType: () => {
+            if (args.length >= 1) {
+              const returnType = checker.getTypeAtLocation(args[0]);
+
+              if (returnType.isUnion()) {
+                return returnType.getNonNullableType();
+              }
+
+              return checker.getAnyType();
+            }
+
+            return undefined;
+          },
           args,
         };
       }
@@ -86,17 +72,16 @@ export function getDirective(
       case "live": {
         // Example: html`<input .value=${live(x)}>`
         // The actual type will be the type of the first argument to live
-        const actualType = lazy(() => {
-          if (args.length >= 1) {
-            return checker.getTypeAtLocation(args[0]);
-          }
-
-          return undefined;
-        });
 
         return {
           kind: "live",
-          actualType,
+          actualType: () => {
+            if (args.length >= 1) {
+              return checker.getTypeAtLocation(args[0]);
+            }
+
+            return undefined;
+          },
           args,
         };
       }
@@ -162,27 +147,27 @@ export function getDirective(
             };
           }
 
-          // FIXME: not implemented, now we should support only lit 3
-          // if (isLitDirective(typeB)) {
-          //   // Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
-          //   // Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>
-          //   // Read more: https://github.com/Polymer/lit-html/pull/1151
-          //   const actualType =
-          //     typeB.kind === "GENERIC_ARGUMENTS" &&
-          //     typeB.target.name === "DirectiveFn" &&
-          //     typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
-          //       ? () => typeB.typeArguments[0]
-          //       : undefined;
+          if (isLitDirective(typeB)) {
+            throw new Error("Lit directive handling not implemented");
+            // Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
+            // Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>
+            // Read more: https://github.com/Polymer/lit-html/pull/1151
+            // const actualType =
+            //   typeB.kind === "GENERIC_ARGUMENTS" &&
+            //   typeB.target.name === "DirectiveFn" &&
+            //   typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
+            //     ? () => typeB.typeArguments[0]
+            //     : undefined;
 
-          //   // Now we have an unknown (user defined) directive.
-          //   return {
-          //     kind: {
-          //       name: functionName,
-          //     },
-          //     args,
-          //     actualType,
-          //   };
-          // }
+            // // Now we have an unknown (user defined) directive.
+            // return {
+            //   kind: {
+            //     name: functionName,
+            //   },
+            //   args,
+            //   actualType,
+            // };
+          }
         }
     }
   }

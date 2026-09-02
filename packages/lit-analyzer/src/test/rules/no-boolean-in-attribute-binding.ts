@@ -6,6 +6,7 @@ tsTest("Non-boolean-binding with an empty string value is valid", (t) => {
   const { diagnostics } = getDiagnostics('html`<input required="" />`', {
     rules: { "no-boolean-in-attribute-binding": true },
   });
+
   hasNoDiagnostics(t, diagnostics);
 });
 
@@ -16,6 +17,7 @@ tsTest(
       'html`<input maxlength="${true}" />`',
       { rules: { "no-boolean-in-attribute-binding": true } },
     );
+
     hasDiagnostic(t, diagnostics, "no-boolean-in-attribute-binding");
   },
 );
@@ -27,6 +29,7 @@ tsTest(
       'html`<input required="${{} as string}" />`',
       { rules: { "no-boolean-in-attribute-binding": true } },
     );
+
     hasDiagnostic(t, diagnostics, "no-boolean-in-attribute-binding");
   },
 );

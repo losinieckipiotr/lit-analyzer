@@ -4,10 +4,7 @@ import {
   SimpleTypeEnumMember,
   SimpleTypeKind,
 } from "../../../../web-component-analyzer/src/api.js";
-import {
-  isMyUnionType,
-  MyUnionType,
-} from "../../../../web-component-analyzer/src/simple-type.js";
+import { MyUnionType } from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
@@ -20,10 +17,8 @@ export function extractBindingTypes(
   assignment: HtmlNodeAttrAssignment,
   context: RuleModuleContext,
 ): {
-  typeA?: Type;
-  typeASimple: SimpleType;
-  typeB?: Type;
-  typeBSimple: SimpleType;
+  typeA: Type | MyUnionType;
+  typeB: Type;
 } {
   const checker = context.program.getTypeChecker();
 
@@ -50,16 +45,9 @@ export function extractBindingTypes(
     typeB = inferTypeFromAssignment(assignment, checker);
   }
 
-  if (typeA && isMyUnionType(typeA)) {
-    throw new Error("not implemented");
-  }
-
   return {
-    typeA,
+    typeA: typeA || checker.getAnyType(),
     typeB,
-    // FIXME
-    typeASimple: { kind: SimpleTypeKind.ANY },
-    typeBSimple: { kind: SimpleTypeKind.ANY },
   };
 }
 

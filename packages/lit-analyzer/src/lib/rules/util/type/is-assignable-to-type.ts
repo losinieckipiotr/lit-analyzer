@@ -6,6 +6,8 @@ import {
 } from "../../../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 
+// TODO: remove this function
+
 export function isAssignableToType(
   { typeA, typeB }: { typeA: SimpleType | Type; typeB: SimpleType | Type },
   context: RuleModuleContext,

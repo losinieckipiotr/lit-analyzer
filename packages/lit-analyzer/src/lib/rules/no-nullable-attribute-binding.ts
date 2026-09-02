@@ -1,8 +1,3 @@
-import {
-  isAssignableToSimpleTypeKind,
-  SimpleTypeKind,
-  simpleTypeToString,
-} from "../../web-component-analyzer/src/api.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -20,6 +15,7 @@ const rule: RuleModule = {
   visitHtmlAssignment(assignment, context) {
     const ANY_TYPE_FLAG = context.ts.TypeFlags.Any;
     const checker = context.program.getTypeChecker();
+
     // Only validate "expression" kind bindings.
     if (assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION) return;
 
@@ -27,45 +23,31 @@ const rule: RuleModule = {
     const { htmlAttr } = assignment;
     if (htmlAttr.kind !== HtmlNodeAttrKind.ATTRIBUTE) return;
 
-    const { typeB, typeBSimple } = extractBindingTypes(assignment, context);
+    const { typeB } = extractBindingTypes(assignment, context);
 
-    let isAssignableToNull: boolean;
-    let isAssignableToUndefined: boolean;
+    const isAny = (typeB.flags & ANY_TYPE_FLAG) !== 0;
 
-    if (typeB) {
-      const typeBArr = [typeB].flat();
-
-      if (typeBArr.length === 1 && typeBArr[0].flags === ANY_TYPE_FLAG) {
-        return;
-      }
-
-      isAssignableToNull = typeBArr.every((t) =>
-        checker.isTypeAssignableTo(checker.getNullType(), t),
-      );
-
-      isAssignableToUndefined = typeBArr.every((t) =>
-        checker.isTypeAssignableTo(checker.getUndefinedType(), t),
-      );
-    } else {
-      if (typeBSimple.kind === SimpleTypeKind.UNION) {
-        throw new Error("not implemented");
-      }
-
-      isAssignableToNull = isAssignableToSimpleTypeKind(
-        typeBSimple,
-        SimpleTypeKind.NULL,
-      );
-      isAssignableToUndefined = isAssignableToSimpleTypeKind(
-        typeBSimple,
-        SimpleTypeKind.UNDEFINED,
-      );
+    if (isAny) {
+      return;
     }
+
+    const isAssignableToNull = checker.isTypeAssignableTo(
+      checker.getNullType(),
+      typeB,
+    );
+
+    const isAssignableToUndefined = checker.isTypeAssignableTo(
+      checker.getUndefinedType(),
+      typeB,
+    );
 
     // Test if removing "undefined" or "null" from typeB would work and suggest using "ifDefined".
     if (isAssignableToNull || isAssignableToUndefined) {
+      const typeBStr = checker.typeToString(typeB);
+
       context.report({
         location: rangeFromHtmlNodeAttr(htmlAttr),
-        message: `This attribute binds the type '${simpleTypeToString(typeBSimple)}' which can end up binding the string '${
+        message: `This attribute binds the type '${typeBStr}' which can end up binding the string '${
           isAssignableToNull ? "null" : "undefined"
         }'.`,
         fixMessage: "Use the 'ifDefined' directive?",
