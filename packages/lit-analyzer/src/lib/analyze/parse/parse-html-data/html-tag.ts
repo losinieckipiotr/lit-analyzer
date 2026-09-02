@@ -11,6 +11,7 @@ import {
   SimpleTypeKind,
   simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
+import { MyUnionType } from "../../../../web-component-analyzer/src/simple-type.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -56,7 +57,7 @@ export interface HtmlMemberBase {
   name?: string;
   fromTagName?: string;
   related?: HtmlMember[];
-  getType(): Type;
+  getType(): Type | MyUnionType;
 }
 
 export interface HtmlAttr extends HtmlMemberBase {
@@ -81,7 +82,7 @@ export interface HtmlEvent {
   global?: boolean;
   fromTagName?: string;
   related?: HtmlEvent[];
-  getType(): Type;
+  getType(): Type | MyUnionType;
 }
 
 export interface HtmlSlot {

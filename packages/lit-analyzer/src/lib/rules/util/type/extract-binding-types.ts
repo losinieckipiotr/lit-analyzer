@@ -1,12 +1,13 @@
 import { Expression, Type, TypeChecker } from "typescript";
 import {
-  isSimpleType,
   SimpleType,
-  // SimpleTypeBooleanLiteral,
   SimpleTypeEnumMember,
   SimpleTypeKind,
-  toSimpleType,
 } from "../../../../web-component-analyzer/src/api.js";
+import {
+  isMyUnionType,
+  MyUnionType,
+} from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
@@ -26,44 +27,39 @@ export function extractBindingTypes(
 } {
   const checker = context.program.getTypeChecker();
 
-  const simpleTypeContext = { checker, ts: context.ts };
-
   // Find a corresponding target for this attribute
   const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(
     assignment.htmlAttr,
   );
 
-  const typeASimple: SimpleType = !htmlAttrTarget
-    ? { kind: SimpleTypeKind.ANY }
-    : toSimpleType(htmlAttrTarget.getType(), simpleTypeContext);
+  let typeA: Type | MyUnionType | undefined = !htmlAttrTarget
+    ? checker.getAnyType()
+    : htmlAttrTarget.getType();
 
-  const typeATemp = htmlAttrTarget?.declaration?.type?.();
-  let typeA: Type | Type[] | undefined;
-
-  if (isSimpleType(typeATemp)) {
-    typeA = undefined;
-  } else {
-    typeA = typeATemp;
+  if (!typeA) {
+    typeA = htmlAttrTarget?.declaration?.type?.();
   }
 
-  let typeB: Type | Type[] | undefined;
-  let typeBSimple: SimpleType;
+  let typeB: Type | undefined;
 
   const directiveType = getDirective(assignment, context)?.actualType?.();
 
   if (directiveType) {
     typeB = directiveType;
-    typeBSimple = toSimpleType(typeB, simpleTypeContext);
   } else {
     typeB = inferTypeFromAssignment(assignment, checker);
-    typeBSimple = toSimpleType(typeB, simpleTypeContext);
+  }
+
+  if (typeA && isMyUnionType(typeA)) {
+    throw new Error("not implemented");
   }
 
   return {
     typeA,
-    typeASimple,
     typeB,
-    typeBSimple,
+    // FIXME
+    typeASimple: { kind: SimpleTypeKind.ANY },
+    typeBSimple: { kind: SimpleTypeKind.ANY },
   };
 }
 

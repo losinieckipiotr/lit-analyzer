@@ -11,6 +11,7 @@ import {
 } from "../../web-component-analyzer/src/api.js";
 import { ALL_RULES } from "../rules/all-rules.js";
 import { MAX_RUNNING_TIME_PER_OPERATION } from "./constants.js";
+import { getBuiltInHtmlCollection } from "./data/get-built-in-html-collection.js";
 import { getUserConfigHtmlCollection } from "./data/get-user-config-html-collection.js";
 import {
   isRuleDisabled,
@@ -40,7 +41,6 @@ import {
 } from "./store/html-store/default-analyzer-html-store.js";
 import { HtmlDataSourceKind } from "./store/html-store/html-data-source-merged.js";
 import { changedSourceFileIterator } from "./util/changed-source-file-iterator.js";
-// import { getBuiltInHtmlCollection } from "./data/get-built-in-html-collection.js";
 
 export interface LitAnalyzerContext {
   readonly ts: typeof tsMod;
@@ -248,17 +248,18 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
       ts: this.ts,
     });
 
-    // FIXME:
-    // Add all HTML5 tags and attributes
-    // const builtInCollection = getBuiltInHtmlCollection({
-    //   checker,
-    //   ts,
-    // });
+    const { checker, ts } = this;
 
-    // this.htmlStore.absorbCollection(
-    //   builtInCollection,
-    //   HtmlDataSourceKind.BUILT_IN,
-    // );
+    // Add all HTML5 tags and attributes
+    const builtInCollection = getBuiltInHtmlCollection({
+      checker,
+      ts,
+    });
+
+    this.htmlStore.absorbCollection(
+      builtInCollection,
+      HtmlDataSourceKind.BUILT_IN,
+    );
   }
 
   private findInvalidatedComponents() {

@@ -1,6 +1,10 @@
 import { Type } from "typescript";
 import {
   getUnionType,
+  isAnyType,
+  isMyUnionType,
+  isType,
+  MyUnionType,
   SimpleTypeContext,
 } from "../../../../web-component-analyzer/src/simple-type.js";
 import {
@@ -530,8 +534,6 @@ function mergeRelatedMembers<T extends HtmlMember>(
     if (existingMember == null) {
       mergedMembers.set(name, member);
     } else {
-      const prevType = existingMember.getType;
-
       mergedMembers.set(name, {
         ...existingMember,
         description: undefined,
@@ -539,11 +541,7 @@ function mergeRelatedMembers<T extends HtmlMember>(
         builtIn: existingMember.required && member.required,
         fromTagName: existingMember.fromTagName || member.fromTagName,
         getType: () =>
-          mergeRelatedTypeToUnion(
-            prevType(),
-            member.getType(),
-            simpleTypeContext,
-          ),
+          mergeRelatedTypeToUnion(existingMember.getType(), member.getType()),
         related:
           existingMember.related == null
             ? [existingMember, member]
@@ -551,21 +549,29 @@ function mergeRelatedMembers<T extends HtmlMember>(
       });
     }
   }
+
   return mergedMembers;
 }
 
 function mergeRelatedTypeToUnion(
-  typeA: Type,
-  typeB: Type,
-  simpleTypeContext: SimpleTypeContext,
-): Type {
-  const { ts } = simpleTypeContext;
-
-  if (typeA.flags & ts.TypeFlags.Any && typeB.flags & ts.TypeFlags.Any) {
+  typeA: Type | MyUnionType,
+  typeB: Type | MyUnionType,
+): Type | MyUnionType {
+  if (isType(typeA) && isType(typeB) && isAnyType(typeA) && isAnyType(typeB)) {
     return typeA;
   }
 
-  return getUnionType([typeA, typeB], simpleTypeContext);
+  if (isMyUnionType(typeA)) {
+    if (isMyUnionType(typeB)) {
+      return getUnionType([...typeA.types, ...typeB.types]);
+    } else {
+      return getUnionType([...typeA.types, typeB]);
+    }
+  } else if (isMyUnionType(typeB)) {
+    return getUnionType([typeA, ...typeB.types]);
+  } else {
+    return getUnionType([typeA, typeB]);
+  }
 }
 
 function mergeNamedRelated<T extends { name: string; related?: T[] }>(
@@ -623,20 +629,17 @@ function mergeRelatedEvents(
     const name = event.name.toLowerCase();
 
     const existingEvent = mergedAttrs.get(name);
-    if (existingEvent == null) {
+    if (!existingEvent) {
       mergedAttrs.set(name, event);
     } else {
-      const prevType = existingEvent.getType;
       mergedAttrs.set(name, {
         ...existingEvent,
         global: existingEvent.global && event.global,
         description: undefined,
-        getType: () =>
-          mergeRelatedTypeToUnion(
-            prevType(),
-            event.getType(),
-            simpleTypeContext,
-          ),
+        getType: () => {
+          throw new Error("merging types for events?");
+          // return mergeRelatedTypeToUnion(existingEvent.getType(), event.getType());
+        },
 
         related:
           existingEvent.related == null

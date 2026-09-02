@@ -1982,12 +1982,36 @@ export function simpleTypeToString(type: SimpleType): string {
 
 //#region New utils
 
-export function getUnionType(
-  types: Type[],
-  simpleTypeContext: SimpleTypeContext
-): Type {
-  throw new Error("not implemented");
-  // return types.map(type => checker.typeToString(type)).join(" | ");
+const UnionSymbol = Symbol("MyUnionType");
+
+export type MyUnionType = {
+  readonly [UnionSymbol]: true;
+  types: Type[];
+};
+
+export function isMyUnionType(type: Type | MyUnionType): type is MyUnionType {
+  return (type as MyUnionType)[UnionSymbol] === true;
+}
+
+export function getUnionType(types: Type[]): MyUnionType {
+  if (types.length < 2) {
+    throw new Error("Cannot create a union type with less than 2 types.");
+  }
+
+  return {
+    [UnionSymbol]: true,
+    types
+  };
+}
+
+export function isType(type: Type | MyUnionType): type is Type {
+  return !isMyUnionType(type);
+}
+
+export function isAnyType(type: Type): boolean {
+  const ts = getTypescriptModule();
+
+  return (type.flags & ts.TypeFlags.Any) !== 0;
 }
 
 //#endregion

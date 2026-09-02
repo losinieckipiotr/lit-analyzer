@@ -1,6 +1,7 @@
 import { Type, TypeChecker } from "typescript";
 import {
   getUnionType,
+  MyUnionType,
   SimpleTypeContext,
 } from "../../../../web-component-analyzer/src/simple-type.js";
 import type {
@@ -19,7 +20,7 @@ import {
 
 export interface ParseVscodeHtmlDataConfig {
   builtIn?: boolean;
-  typeMap?: Map<string, Type>;
+  typeMap?: Map<string, Type | MyUnionType>;
 }
 
 export function parseVscodeHtmlData(
@@ -42,7 +43,7 @@ function parseVscodeDataV1(
   const { checker } = simpleTypeContext;
   const { valueSets = [], globalAttributes = [], tags = [] } = data;
 
-  function attrValuesToUnion(attrValues: IValueData[]): Type {
+  function attrValuesToUnion(attrValues: IValueData[]) {
     // FIXME: for now just filter undefined values in global attributes
     const attrValuesFiltered = attrValues.filter(
       ({ name }) => name !== "undefined",
@@ -59,10 +60,10 @@ function parseVscodeDataV1(
       return checker.getStringLiteralType(name);
     });
 
-    return getUnionType(types, simpleTypeContext);
+    return getUnionType(types);
   }
 
-  const valueSetTypeMap = new Map(
+  const valueSetTypeMap = new Map<string, Type | MyUnionType>(
     valueSets.map((valueSet) => {
       const { name, values } = valueSet;
 
@@ -98,7 +99,7 @@ function parseVscodeDataV1(
       description: stringOrMarkupContentToString(description),
       fromTagName,
       getType: () => {
-        let type: Type | undefined;
+        let type: Type | MyUnionType | undefined;
 
         if (valueSet) {
           const mappedType = config.typeMap?.get(valueSet);
