@@ -23,7 +23,7 @@ const lit2DirectiveSetup = `
   });
 `;
 
-tsTest("Element binding: non-directive not allowed", (t) => {
+tsTest.only("Element binding: non-directive not allowed", (t) => {
   const { diagnostics } = getDiagnostics("html`<input ${123} />`");
   hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
 });

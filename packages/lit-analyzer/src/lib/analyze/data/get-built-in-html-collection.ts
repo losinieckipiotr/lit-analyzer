@@ -227,7 +227,7 @@ The value must be a comma-separated list of part mappings:
       ) {
         return {
           ...attr,
-          getType: () => html5TagAttrType(attr.name),
+          getType: () => html5TagAttrType(attr.name, checker),
         };
       }
 

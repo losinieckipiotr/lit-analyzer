@@ -39,6 +39,11 @@
     "build": {
       "command": "tsc",
       "clean": true,
+      "files": [
+        "src/**/*.ts",
+        "package.json",
+        "tsconfig.json"
+      ],
       "output": [
         "dist"
       ]

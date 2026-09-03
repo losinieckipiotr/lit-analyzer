@@ -1,6 +1,8 @@
-import { Type } from "typescript";
+import { Type, TypeChecker } from "typescript";
 
-const HTML_5_ATTR_TYPES: { [key: string]: string | string[] | [string[]] } = {
+const HTML_5_ATTR_TYPES: {
+  [key: string]: string | string[] | [string[]] | undefined;
+} = {
   onafterprint: "string",
   onbeforeprint: "string",
   onbeforeunload: "string",
@@ -244,15 +246,31 @@ export function hasTypeForAttrName(attrName: string): boolean {
   );
 }
 
-export function html5TagAttrType(attrName: string): Type {
-  return stringToType(HTML_5_ATTR_TYPES[attrName] || "", attrName);
+export function html5TagAttrType(attrName: string, checker: TypeChecker): Type {
+  return stringToType(HTML_5_ATTR_TYPES[attrName] || "", checker, attrName);
 }
 
 function stringToType(
   typeString: string | string[] | [string[]],
+  checker: TypeChecker,
   name?: string,
 ): Type {
-  throw new Error(`Not implemented`);
+  if (typeof typeString !== "string") {
+    throw new Error(
+      `Not implemented for non-string typeString: ${JSON.stringify(typeString)}`,
+    );
+  }
+
+  switch (typeString) {
+    case "number":
+      return checker.getNumberType();
+    case "boolean":
+      return checker.getBooleanType();
+    case "string":
+      return checker.getStringType();
+    default:
+      return checker.getAnyType();
+  }
 
   // if (Array.isArray(typeString)) {
   //   if (Array.isArray(typeString[0])) {
@@ -280,17 +298,6 @@ function stringToType(
   //       .split("|")
   //       .map((typeStr) => stringToType(typeStr)),
   //   };
-  // }
-
-  // switch (typeString) {
-  //   case "number":
-  //     return { kind: SimpleTypeKind.NUMBER, name };
-  //   case "boolean":
-  //     return { kind: SimpleTypeKind.BOOLEAN, name };
-  //   case "string":
-  //     return { kind: SimpleTypeKind.STRING, name };
-  //   default:
-  //     return { kind: SimpleTypeKind.ANY, name };
   // }
 }
 
