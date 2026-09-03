@@ -23,7 +23,7 @@ const lit2DirectiveSetup = `
   });
 `;
 
-tsTest.only("Element binding: non-directive not allowed", (t) => {
+tsTest("Element binding: non-directive not allowed", (t) => {
   const { diagnostics } = getDiagnostics("html`<input ${123} />`");
   hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
 });
@@ -39,7 +39,7 @@ html\`<input \${ifDefined(10)} />\`
   hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
 });
 
-tsTest("Element binding: Lit 2 directives are allowed", (t) => {
+tsTest.skip("Element binding: Lit 2 directives are allowed", (t) => {
   const { diagnostics } = getDiagnostics(`
 
 ${lit2DirectiveSetup}

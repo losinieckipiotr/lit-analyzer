@@ -3,7 +3,10 @@ import {
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../analyze/constants.js";
+import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
+import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
+import { isLitDirective } from "./util/directive/is-lit-directive.js";
 import { extractBindingTypes } from "./util/type/extract-binding-types.js";
 import { isAssignableInAttributeBinding } from "./util/type/is-assignable-in-attribute-binding.js";
 import { isAssignableInBooleanBinding } from "./util/type/is-assignable-in-boolean-binding.js";
@@ -19,6 +22,25 @@ const rule: RuleModule = {
   },
   visitHtmlAssignment(assignment, context) {
     const { htmlAttr } = assignment;
+
+    if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION) {
+      // For element bindings we only care about the expression type
+      const { typeB } = extractBindingTypes(assignment, context);
+
+      const { ts } = context;
+
+      const isAny = (typeB.flags & ts.TypeFlags.Any) !== 0;
+
+      if (!isLitDirective(typeB) && !isAny) {
+        const checker = context.program.getTypeChecker();
+        const typeBStr = checker.typeToString(typeB);
+
+        context.report({
+          location: rangeFromHtmlNodeAttr(htmlAttr),
+          message: `Type '${typeBStr}' is not a Lit directive'`,
+        });
+      }
+    }
 
     if (context.htmlStore.getHtmlAttrTarget(htmlAttr) == null) {
       return;

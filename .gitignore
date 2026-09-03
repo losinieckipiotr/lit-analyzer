@@ -14,7 +14,7 @@ out
 !release/*.vsix
 .wireit/
 .tsbuildinfo
-.*.png
+*.png
 
 /packages/*/lib
 /packages/*/out
