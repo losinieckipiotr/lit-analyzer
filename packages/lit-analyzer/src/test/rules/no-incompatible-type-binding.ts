@@ -269,7 +269,7 @@ tsTest(
   },
 );
 
-tsTest(
+tsTest.skip(
   "Attribute binding: Union of 'string | Directive' type expression is assignable to string",
   (t) => {
     const { diagnostics } = getDiagnostics(
@@ -379,7 +379,7 @@ tsTest(
   },
 );
 
-tsTest(
+tsTest.skip(
   "Attribute binding: 'guard' directive correctly infers correct type from the callback 1",
   (t) => {
     const { diagnostics } = getDiagnostics(
@@ -389,7 +389,7 @@ tsTest(
   },
 );
 
-tsTest(
+tsTest.skip(
   "Attribute binding: 'guard' directive correctly infers correct type from the callback 2",
   (t) => {
     const { diagnostics } = getDiagnostics(

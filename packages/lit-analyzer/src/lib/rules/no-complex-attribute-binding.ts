@@ -77,6 +77,16 @@ const rule: RuleModule = {
         return;
       }
 
+      // TODO: handle directives ?
+      // const { ts } = context;
+      // const signatures = checker.getSignaturesOfType(
+      //   typeB,
+      //   ts.SignatureKind.Call,
+      // );
+      // if (signatures.length > 0) {
+      //   throw new Error("Binding a function is considered a complex type.");
+      // }
+
       const typeBStr = checker.typeToString(typeB);
       const message = `You are binding a non-primitive type '${typeBStr}'. This could result in binding the string "[object Object]".`;
       const newModifier = ".";

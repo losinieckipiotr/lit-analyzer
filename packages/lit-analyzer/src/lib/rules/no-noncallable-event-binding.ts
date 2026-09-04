@@ -1,3 +1,4 @@
+import { isAnyType } from "../../web-component-analyzer/src/simple-type.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
@@ -18,50 +19,46 @@ const rule: RuleModule = {
     if (htmlAttr.kind !== HtmlNodeAttrKind.EVENT_LISTENER) return;
 
     const { typeB } = extractBindingTypes(assignment, context);
+    const { ts } = context;
+    const checker = context.program.getTypeChecker();
 
     /**
      * Returns if this type can be used in a event listener binding
      */
     function isTypeBindableToEventListener(): boolean {
-      throw new Error("not implemented");
+      if (isAnyType(typeB)) {
+        return true;
+      }
+
       // // Return "true" if the type has a call signature
       // if ("call" in type && type.call != null) {
       //   return true;
       // }
 
-      // // Callable types can be used in the binding
-      // if (
-      //   isAssignableToSimpleTypeKind(
-      //     type,
-      //     [SimpleTypeKind.FUNCTION, SimpleTypeKind.METHOD, SimpleTypeKind.UNKNOWN],
-      //     {
-      //       matchAny: true,
-      //     },
-      //   )
-      // ) {
-      //   return true;
-      // }
+      const hasSignatures =
+        checker.getSignaturesOfType(typeB, ts.SignatureKind.Call).length > 0;
 
-      // return validateType(type, (simpleType) => {
-      //   switch (simpleType.kind) {
-      //     // Object types with attributes for the setup function of the event listener can be used
-      //     case "OBJECT":
-      //     case "INTERFACE": {
-      //       // The "handleEvent" property must be present
-      //       const handleEventFunction =
-      //         simpleType.members != null
-      //           ? simpleType.members.find((m) => m.name === "handleEvent")
-      //           : undefined;
+      if (hasSignatures) {
+        return true;
+      }
 
-      //       // The "handleEvent" property must be callable
-      //       if (handleEventFunction != null) {
-      //         return isTypeBindableToEventListener(handleEventFunction.type);
-      //       }
-      //     }
-      //   }
+      // try object type
+      const handleEventProperty = typeB.getProperty("handleEvent");
 
-      //   return undefined;
-      // });
+      if (handleEventProperty) {
+        const type = checker.getTypeOfSymbol(handleEventProperty);
+
+        const signatures = checker.getSignaturesOfType(
+          type,
+          ts.SignatureKind.Call,
+        );
+
+        if (signatures.length > 0) {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     // Make sure that the expression given to the event listener binding a function or an object with "handleEvent" property.

@@ -36,12 +36,14 @@ const rule: RuleModule = {
       const htmlTag = htmlStore.getHtmlTag(htmlAttr.htmlNode);
       if (htmlTag == null) return;
 
+      const checker = context.program.getTypeChecker();
+
       // Get suggested target because the name could be a typo.
       const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
       const suggestedModifier =
         suggestedTarget == null
           ? undefined
-          : litAttributeModifierForTarget(suggestedTarget);
+          : litAttributeModifierForTarget(suggestedTarget, checker);
       const suggestedMemberName =
         suggestedTarget == null ? undefined : suggestedTarget.name;
 

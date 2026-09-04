@@ -1,9 +1,8 @@
-import { Type } from "typescript";
 import {
   isAnyType,
+  isBooleanStringUnion,
   isMyUnionType,
   isUnknownType,
-  MyUnionType,
 } from "../../web-component-analyzer/src/simple-type.js";
 import { LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER } from "../analyze/constants.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
@@ -42,24 +41,6 @@ const rule: RuleModule = {
 
     const checker = context.program.getTypeChecker();
 
-    function isBooleanStringUnion(type: Type | MyUnionType): boolean {
-      if (isMyUnionType(type)) {
-        const trueStrType = checker.getStringLiteralType("true");
-        const falseStrType = checker.getStringLiteralType("false");
-
-        return (
-          type.types.length == 2 &&
-          type.types.every(
-            (t) =>
-              checker.isTypeAssignableTo(t, trueStrType) ||
-              checker.isTypeAssignableTo(t, falseStrType),
-          )
-        );
-      }
-
-      return false;
-    }
-
     const isAny = isAnyType(typeB);
     const isUnknown = isUnknownType(typeB);
     const isBTypeBoolean = checker.isTypeAssignableTo(
@@ -72,7 +53,7 @@ const rule: RuleModule = {
       // Handle typeA as union of literal boolean values
       if (isMyUnionType(typeA)) {
         // attribute is a boolean string union - no report
-        if (isBooleanStringUnion(typeA)) {
+        if (isBooleanStringUnion(typeA, checker)) {
           return;
         }
       } else {
@@ -108,7 +89,7 @@ const rule: RuleModule = {
     // binding.
     else {
       if (isMyUnionType(typeA)) {
-        if (!isBooleanStringUnion(typeA)) {
+        if (!isBooleanStringUnion(typeA, checker)) {
           // not boolean union so rule does not apply, exit early
           return;
         }

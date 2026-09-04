@@ -4,6 +4,11 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { when } from "lit/directives/when.js";
 import "./my-element-2.js";
 
+interface Option {
+	value: number;
+	label: string;
+}
+
 /**
  * @event some-event - Fired when something happens
  */
@@ -18,6 +23,11 @@ export class MyElement extends LitElement {
 	@property({ type: Number })
 	num: number = 1;
 
+	// TODO: add rule that errors if attribute is disabled
+	// type is used only by converter as hint when converting values from attributes
+	// so it is meaningless when an attribute is not used.
+	@property({ type: Array, attribute: false })
+	arr: Option[] = [];
 
 
 	@property({ type: Boolean })

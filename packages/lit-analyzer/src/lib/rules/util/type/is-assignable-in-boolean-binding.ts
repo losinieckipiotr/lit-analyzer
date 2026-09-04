@@ -14,10 +14,6 @@ export function isAssignableInBooleanBinding(
 ): boolean | undefined {
   const checker = context.program.getTypeChecker();
 
-  const typeBStr = checker.typeToString(typeB);
-
-  // Test if the user is trying to use `?` modifier on a non-boolean type.
-
   const isAssignableToBoolean = checker.isTypeAssignableTo(
     typeB,
     checker.getBooleanType(),
@@ -37,6 +33,8 @@ export function isAssignableInBooleanBinding(
     isAssignableToNull
   );
 
+  const typeBStr = checker.typeToString(typeB);
+
   if (isNonBoolean) {
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
@@ -46,14 +44,42 @@ export function isAssignableInBooleanBinding(
     return false;
   }
 
+  // Test if the user is trying to use the `?` modifier on a non-boolean type.
+
   if (isMyUnionType(typeA)) {
-    throw new Error("not implemented");
+    const typeAStr = typeA.types
+      .map((t) => checker.typeToString(t))
+      .join(" | ");
+
+    context.report({
+      location: rangeFromHtmlNodeAttr(htmlAttr),
+      message: `You are using a boolean binding on a non boolean type '${typeAStr}'`,
+      fix: () => {
+        const htmlAttrTarget = context.htmlStore.getHtmlAttrTarget(htmlAttr);
+        const newModifier = htmlAttrTarget == null ? "." : "";
+
+        return {
+          message:
+            newModifier.length === 0
+              ? `Remove '${htmlAttr.modifier || ""}' modifier`
+              : `Use '${newModifier}' modifier instead`,
+          actions: [
+            {
+              kind: "changeAttributeModifier",
+              htmlAttr,
+              newModifier,
+            },
+          ],
+        };
+      },
+    });
+
+    return false;
   }
 
-  const typeAStr = checker.typeToString(typeA);
-
-  // Test if the user is trying to use the `?` modifier on a non-boolean type.
   if (!checker.isTypeAssignableTo(typeA, checker.getBooleanType())) {
+    const typeAStr = checker.typeToString(typeA);
+
     context.report({
       location: rangeFromHtmlNodeAttr(htmlAttr),
       message: `You are using a boolean binding on a non boolean type '${typeAStr}'`,

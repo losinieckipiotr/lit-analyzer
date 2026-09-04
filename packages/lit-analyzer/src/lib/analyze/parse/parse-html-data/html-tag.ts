@@ -1,4 +1,4 @@
-import { Type } from "typescript";
+import { Type, TypeChecker } from "typescript";
 import {
   ComponentCssPart,
   ComponentCssProperty,
@@ -11,7 +11,10 @@ import {
   SimpleTypeKind,
   simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
-import { MyUnionType } from "../../../../web-component-analyzer/src/simple-type.js";
+import {
+  isMyUnionType,
+  MyUnionType,
+} from "../../../../web-component-analyzer/src/simple-type.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -128,17 +131,25 @@ export function isHtmlEvent(target: HtmlAttrTarget): target is HtmlEvent {
   return !isHtmlMember(target);
 }
 
-export function litAttributeModifierForTarget(target: HtmlAttrTarget): string {
+export function litAttributeModifierForTarget(
+  target: HtmlAttrTarget,
+  checker: TypeChecker,
+): string {
   if (isHtmlAttr(target)) {
     const targetType = target.getType();
 
-    if (!isSimpleType(targetType)) {
-      throw new Error("Target type must be a SimpleType instance.");
+    if (isMyUnionType(targetType)) {
+      throw new Error("not implemented");
     }
 
-    if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.BOOLEAN)) {
+    if (checker.isTypeAssignableTo(checker.getBooleanType(), targetType)) {
       return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
     }
+
+    // if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.BOOLEAN)) {
+    //   return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
+    // }
+
     return "";
   } else if (isHtmlProp(target)) {
     return LIT_HTML_PROP_ATTRIBUTE_MODIFIER;

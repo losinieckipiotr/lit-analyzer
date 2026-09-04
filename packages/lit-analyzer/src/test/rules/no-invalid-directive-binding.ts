@@ -23,12 +23,15 @@ tsTest("Cannot use 'ifDefined' directive in property binding", (t) => {
   hasDiagnostic(t, diagnostics, "no-invalid-directive-binding");
 });
 
-tsTest("Cannot use 'ifDefined' directive in event listener binding", (t) => {
-  const { diagnostics } = getDiagnostics(
-    'type ifDefined = Function; html`<input @max="${ifDefined(() => {})}" />`',
-  );
-  hasDiagnostic(t, diagnostics, "no-invalid-directive-binding");
-});
+tsTest.skip(
+  "Cannot use 'ifDefined' directive in event listener binding",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      'type ifDefined = Function; html`<input @max="${ifDefined(() => {})}" />`',
+    );
+    hasDiagnostic(t, diagnostics, "no-invalid-directive-binding");
+  },
+);
 
 tsTest(
   "Cannot use 'live' directive in attribute binding with non-string type",

@@ -3,10 +3,15 @@ import { Range } from "../range.js";
 import { HtmlNodeAttr } from "./html-node-attr-types.js";
 
 export enum HtmlNodeAttrAssignmentKind {
+  /** assignment with ? operator */
   BOOLEAN = "BOOLEAN",
+  /** TODO */
   EXPRESSION = "EXPRESSION",
+  /** TODO */
   STRING = "STRING",
+  /** TODO */
   MIXED = "MIXED",
+  /** TODO */
   ELEMENT_EXPRESSION = "ELEMENT_EXPRESSION",
 }
 

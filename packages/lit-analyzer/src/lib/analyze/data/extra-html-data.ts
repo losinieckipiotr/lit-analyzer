@@ -1,4 +1,8 @@
 import { Type, TypeChecker } from "typescript";
+import {
+  getUnionType,
+  MyUnionType,
+} from "../../../web-component-analyzer/src/simple-type.js";
 
 const HTML_5_ATTR_TYPES: {
   [key: string]: string | string[] | [string[]] | undefined;
@@ -246,7 +250,7 @@ export function hasTypeForAttrName(attrName: string): boolean {
   );
 }
 
-export function html5TagAttrType(attrName: string, checker: TypeChecker): Type {
+export function html5TagAttrType(attrName: string, checker: TypeChecker) {
   return stringToType(HTML_5_ATTR_TYPES[attrName] || "", checker, attrName);
 }
 
@@ -254,11 +258,15 @@ function stringToType(
   typeString: string | string[] | [string[]],
   checker: TypeChecker,
   name?: string,
-): Type {
+): Type | MyUnionType {
   if (typeof typeString !== "string") {
-    throw new Error(
-      `Not implemented for non-string typeString: ${JSON.stringify(typeString)}`,
-    );
+    if (Array.isArray(typeString)) {
+      const types = typeString
+        .flat()
+        .map((t) => checker.getStringLiteralType(t));
+
+      return getUnionType(types, name);
+    }
   }
 
   switch (typeString) {
@@ -272,6 +280,7 @@ function stringToType(
       return checker.getAnyType();
   }
 
+  // TODO: remove
   // if (Array.isArray(typeString)) {
   //   if (Array.isArray(typeString[0])) {
   //     return makePrimitiveArrayType(

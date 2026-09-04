@@ -50,12 +50,14 @@ const rule: RuleModule = {
       )
         return;
 
+      const checker = context.program.getTypeChecker();
+
       // Get suggested target
       const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
       const suggestedModifier =
         suggestedTarget == null
           ? undefined
-          : litAttributeModifierForTarget(suggestedTarget);
+          : litAttributeModifierForTarget(suggestedTarget, checker);
       const suggestedMemberName =
         suggestedTarget == null ? undefined : suggestedTarget.name;
 

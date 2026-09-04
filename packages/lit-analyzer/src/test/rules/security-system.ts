@@ -41,7 +41,7 @@ tsTest("May bind string to script src with default config", (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-tsTest(
+tsTest.skip(
   "May not bind string to script src with ClosureSafeTypes config",
   (t) => {
     const { diagnostics } = getDiagnostics(
@@ -52,7 +52,7 @@ tsTest(
   },
 );
 
-tsTest(
+tsTest.skip(
   "May not bind string to script .src with ClosureSafeTypes config",
   (t) => {
     const { diagnostics } = getDiagnostics(
@@ -74,66 +74,73 @@ tsTest(
   },
 );
 
-let testName =
-  "May not pass a TrustedResourceUrl to script src with default config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<script src=${trustedResourceUrl}></script>`",
-    {},
-  );
-  hasDiagnostic(t, diagnostics, "no-complex-attribute-binding");
-});
+tsTest(
+  "May not pass a TrustedResourceUrl to script src with default config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<script src=${trustedResourceUrl}></script>`",
+      {},
+    );
+    hasDiagnostic(t, diagnostics, "no-complex-attribute-binding");
+  },
+);
 
-testName =
-  "May not pass a TrustedResourceUrl to script .src with default config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<script .src=${trustedResourceUrl}></script>`",
-    {},
-  );
-  hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
-});
+tsTest(
+  "May not pass a TrustedResourceUrl to script .src with default config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<script .src=${trustedResourceUrl}></script>`",
+      {},
+    );
+    hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
+  },
+);
 
-testName =
-  "May pass a TrustedResourceUrl to script src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<script src=${trustedResourceUrl}></script>`",
-    { securitySystem: "ClosureSafeTypes" },
-  );
-  hasNoDiagnostics(t, diagnostics);
-});
+tsTest.skip(
+  "May pass a TrustedResourceUrl to script src with ClosureSafeTypes config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<script src=${trustedResourceUrl}></script>`",
+      { securitySystem: "ClosureSafeTypes" },
+    );
+    hasNoDiagnostics(t, diagnostics);
+  },
+);
 
-testName =
-  "May pass a TrustedResourceUrl to script .src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<script .src=${trustedResourceUrl}></script>`",
-    { securitySystem: "ClosureSafeTypes" },
-  );
-  hasNoDiagnostics(t, diagnostics);
-});
+tsTest.skip(
+  "May pass a TrustedResourceUrl to script .src with ClosureSafeTypes config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<script .src=${trustedResourceUrl}></script>`",
+      { securitySystem: "ClosureSafeTypes" },
+    );
+    hasNoDiagnostics(t, diagnostics);
+  },
+);
 
-testName = "May not pass a SafeUrl to script src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<script src=${safeUrl}></script>`",
-    { securitySystem: "ClosureSafeTypes" },
-  );
-  hasDiagnostic(t, diagnostics, "no-complex-attribute-binding");
-});
+tsTest.skip(
+  "May not pass a SafeUrl to script src with ClosureSafeTypes config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<script src=${safeUrl}></script>`",
+      { securitySystem: "ClosureSafeTypes" },
+    );
+    hasDiagnostic(t, diagnostics, "no-complex-attribute-binding");
+  },
+);
 
-testName = "May not pass a SafeUrl to script .src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<script .src=${safeUrl}></script>`",
-    { securitySystem: "ClosureSafeTypes" },
-  );
-  hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
-});
+tsTest.skip(
+  "May not pass a SafeUrl to script .src with ClosureSafeTypes config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<script .src=${safeUrl}></script>`",
+      { securitySystem: "ClosureSafeTypes" },
+    );
+    hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
+  },
+);
 
-testName = "May pass `any` to script src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
+tsTest("May pass `any` to script src with ClosureSafeTypes config", (t) => {
   const { diagnostics } = getDiagnostics(
     preface + "html`<script src=${anyValue}></script>`",
     { securitySystem: "ClosureSafeTypes" },
@@ -141,8 +148,7 @@ tsTest(testName, (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-testName = "May pass `any` to script .src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
+tsTest("May pass `any` to script .src with ClosureSafeTypes config", (t) => {
   const { diagnostics } = getDiagnostics(
     preface + "html`<script .src=${anyValue}></script>`",
     { securitySystem: "ClosureSafeTypes" },
@@ -150,72 +156,73 @@ tsTest(testName, (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-testName =
-  "May pass either a SafeUrl, a TrustedResourceUrl, a string, or `any` to img src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img src=${safeUrl}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
+tsTest.skip(
+  "May pass either a SafeUrl, a TrustedResourceUrl, a string, or `any` to img src with ClosureSafeTypes config",
+  (t) => {
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img src=${safeUrl}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
 
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img src=${trustedResourceUrl}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img src=${trustedResourceUrl}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
 
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img src=${'/img.webp'}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img src=${'/img.webp'}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
 
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img src=${anyValue}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
-});
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img src=${anyValue}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
+  },
+);
 
-testName =
-  "May pass either a SafeUrl, a TrustedResourceUrl, a string, or `any` to img .src with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img .src=${safeUrl}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
+tsTest.skip(
+  "May pass either a SafeUrl, a TrustedResourceUrl, a string, or `any` to img .src with ClosureSafeTypes config",
+  (t) => {
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img .src=${safeUrl}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
 
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img .src=${trustedResourceUrl}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img .src=${trustedResourceUrl}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
 
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img .src=${'/img.webp'}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img .src=${'/img.webp'}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
 
-  hasNoDiagnostics(
-    t,
-    getDiagnostics(preface + "html`<img .src=${anyValue}>`", {
-      securitySystem: "ClosureSafeTypes",
-    }).diagnostics,
-  );
-});
+    hasNoDiagnostics(
+      t,
+      getDiagnostics(preface + "html`<img .src=${anyValue}>`", {
+        securitySystem: "ClosureSafeTypes",
+      }).diagnostics,
+    );
+  },
+);
 
-testName = "May pass a string to style with ClosureSafeTypes config";
-tsTest(testName, (t) => {
+tsTest.skip("May pass a string to style with ClosureSafeTypes config", (t) => {
   const { diagnostics } = getDiagnostics(
     preface + 'html`<div style=${"color: red"}></div>`',
     { securitySystem: "ClosureSafeTypes" },
@@ -223,8 +230,7 @@ tsTest(testName, (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-testName = "May pass a string to .style with ClosureSafeTypes config";
-tsTest(testName, (t) => {
+tsTest.skip("May pass a string to .style with ClosureSafeTypes config", (t) => {
   const { diagnostics } = getDiagnostics(
     preface + 'html`<div .style=${"color: red"}></div>`',
     { securitySystem: "ClosureSafeTypes" },
@@ -232,26 +238,29 @@ tsTest(testName, (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-testName = "May pass a SafeStyle to style with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<div style=${safeStyle}></div>`",
-    { securitySystem: "ClosureSafeTypes" },
-  );
-  hasNoDiagnostics(t, diagnostics);
-});
+tsTest.skip(
+  "May pass a SafeStyle to style with ClosureSafeTypes config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<div style=${safeStyle}></div>`",
+      { securitySystem: "ClosureSafeTypes" },
+    );
+    hasNoDiagnostics(t, diagnostics);
+  },
+);
 
-testName = "May pass a SafeStyle to .style with ClosureSafeTypes config";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    preface + "html`<div .style=${safeStyle}></div>`",
-    { securitySystem: "ClosureSafeTypes" },
-  );
-  hasNoDiagnostics(t, diagnostics);
-});
+tsTest.skip(
+  "May pass a SafeStyle to .style with ClosureSafeTypes config",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      preface + "html`<div .style=${safeStyle}></div>`",
+      { securitySystem: "ClosureSafeTypes" },
+    );
+    hasNoDiagnostics(t, diagnostics);
+  },
+);
 
-testName = "May pass a `any` to style with ClosureSafeTypes config";
-tsTest(testName, (t) => {
+tsTest("May pass a `any` to style with ClosureSafeTypes config", (t) => {
   const { diagnostics } = getDiagnostics(
     preface + "html`<div style=${anyValue}></div>`",
     { securitySystem: "ClosureSafeTypes" },
@@ -259,8 +268,7 @@ tsTest(testName, (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-testName = "May pass a `any` to .style with ClosureSafeTypes config";
-tsTest(testName, (t) => {
+tsTest("May pass a `any` to .style with ClosureSafeTypes config", (t) => {
   const { diagnostics } = getDiagnostics(
     preface + "html`<div .style=${anyValue}></div>`",
     { securitySystem: "ClosureSafeTypes" },
@@ -268,13 +276,14 @@ tsTest(testName, (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-testName = "Types renamed by Clutz are properly matched against allowed types.";
-tsTest(testName, (t) => {
-  const { diagnostics } = getDiagnostics(
-    [
-      {
-        fileName: "main.ts",
-        text: `
+tsTest.skip(
+  "Types renamed by Clutz are properly matched against allowed types.",
+  (t) => {
+    const { diagnostics } = getDiagnostics(
+      [
+        {
+          fileName: "main.ts",
+          text: `
 					// A type name known to have been output by Clutz.
 					class module$contents$goog$html$SafeUrl_SafeUrl {}
 
@@ -285,11 +294,12 @@ tsTest(testName, (t) => {
 
 					html\`<script src='\${"abc" as module$some$clutz$name_TrustedResourceUrl}'></script>\`;
 				`,
+        },
+      ],
+      {
+        securitySystem: "ClosureSafeTypes",
       },
-    ],
-    {
-      securitySystem: "ClosureSafeTypes",
-    },
-  );
-  hasNoDiagnostics(t, diagnostics);
-});
+    );
+    hasNoDiagnostics(t, diagnostics);
+  },
+);

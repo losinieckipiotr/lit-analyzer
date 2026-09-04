@@ -34,11 +34,13 @@ const rule: RuleModule = {
       const htmlTag = htmlStore.getHtmlTag(htmlAttr.htmlNode);
       if (htmlTag == null) return;
 
+      const checker = context.program.getTypeChecker();
+
       // Get suggested target
       const suggestedTarget = suggestTargetForHtmlAttr(htmlAttr, htmlStore);
       const suggestedMemberName =
         (suggestedTarget &&
-          `${litAttributeModifierForTarget(suggestedTarget)}${suggestedTarget.name}`) ||
+          `${litAttributeModifierForTarget(suggestedTarget, checker)}${suggestedTarget.name}`) ||
         undefined;
 
       const suggestion = getSuggestionText({
