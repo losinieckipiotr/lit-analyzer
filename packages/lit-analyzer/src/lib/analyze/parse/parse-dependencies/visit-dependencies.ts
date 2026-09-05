@@ -34,13 +34,12 @@ export function visitIndirectImportsFromSourceFile(
   const inExternal =
     context.program.isSourceFileFromExternalLibrary(sourceFile);
 
-  // TODO: why to if instead one?
+  const { maxExternalDepth = Infinity, maxInternalDepth = Infinity } = context;
+
   // Check if we have traversed too deep
-  if (inExternal && currentDepth >= (context.maxExternalDepth ?? Infinity)) {
-    return;
-  } else if (
-    !inExternal &&
-    currentDepth >= (context.maxInternalDepth ?? Infinity)
+  if (
+    (inExternal && currentDepth >= maxExternalDepth) ||
+    (!inExternal && currentDepth >= maxInternalDepth)
   ) {
     return;
   }
@@ -48,8 +47,7 @@ export function visitIndirectImportsFromSourceFile(
   // Get all direct imports from the cache
   let directImports = context.directImportCache.get(sourceFile);
 
-  // TODO: very unsafe condition
-  if (directImports == null) {
+  if (!directImports) {
     // If the cache didn't have all direct imports, build up using the visitor function
     directImports = new Set<SourceFile>();
 
@@ -119,8 +117,7 @@ function visitDirectImports(
   node: Node,
   context: IVisitDependenciesContext,
 ): void {
-  // TODO: again unsafe condition
-  if (node == null) {
+  if (!node) {
     return;
   }
 

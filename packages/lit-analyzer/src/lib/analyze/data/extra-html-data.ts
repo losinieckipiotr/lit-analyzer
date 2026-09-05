@@ -244,10 +244,8 @@ const HTML_5_ATTR_TYPES: {
 };
 
 export function hasTypeForAttrName(attrName: string): boolean {
-  return (
-    HTML_5_ATTR_TYPES[attrName] != null &&
-    HTML_5_ATTR_TYPES[attrName].length > 0
-  );
+  const attrTypes = HTML_5_ATTR_TYPES[attrName];
+  return attrTypes !== undefined && attrTypes.length > 0;
 }
 
 export function html5TagAttrType(attrName: string, checker: TypeChecker) {
@@ -279,35 +277,6 @@ function stringToType(
     default:
       return checker.getAnyType();
   }
-
-  // TODO: remove
-  // if (Array.isArray(typeString)) {
-  //   if (Array.isArray(typeString[0])) {
-  //     return makePrimitiveArrayType(
-  //       stringToType(typeString[0]),
-  //     );
-  //   }
-
-  //   return {
-  //     kind: SimpleTypeKind.UNION,
-  //     types: (typeString as string[]).map(
-  //       (value) =>
-  //         ({
-  //           kind: SimpleTypeKind.STRING_LITERAL,
-  //           value,
-  //         }) as SimpleTypeStringLiteral,
-  //     ),
-  //   };
-  // }
-
-  // if (typeString.includes("|")) {
-  //   return {
-  //     kind: SimpleTypeKind.UNION,
-  //     types: typeString
-  //       .split("|")
-  //       .map((typeStr) => stringToType(typeStr)),
-  //   };
-  // }
 }
 
 /**

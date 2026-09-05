@@ -5,12 +5,12 @@ import {
   IHtmlNodeBase,
   IHtmlNodeSourceCodeLocation,
 } from "../../../../../types/html-node/html-node-types.js";
-import { isCommentNode, isTagNode } from "../parse-html-p5/parse-html.js";
 import {
   getSourceLocation,
   IP5TagNode,
   P5Node,
 } from "../parse-html-p5/parse-html-types.js";
+import { isCommentNode, isTagNode } from "../parse-html-p5/parse-html.js";
 import { parseHtmlNodeAttrs } from "./parse-html-attribute.js";
 import { ParseHtmlContext } from "./parse-html-context.js";
 
@@ -155,29 +155,4 @@ function parseHtmlNodeBase(htmlNodeBase: IHtmlNodeBase): HtmlNode {
     kind: HtmlNodeKind.NODE,
     ...htmlNodeBase,
   };
-
-  /*if (component != null) {
-	 return {
-	 ...htmlNodeBase,
-	 kind: HtmlNodeKind.COMPONENT,
-	 component
-	 };
-	 }
-
-	 if (isBuiltInTag(htmlNodeBase.tagName)) {
-	 // For now: opt out of svg and style children tags
-	 // TODO: Handle svg and style tags
-	 const isBlacklisted = ["svg", "style"].includes(htmlNodeBase.tagName);
-
-	 return {
-	 ...htmlNodeBase,
-	 kind: HtmlNodeKind.BUILT_IN,
-	 children: isBlacklisted ? [] : htmlNodeBase.children
-	 };
-	 }*/
-
-  /*return {
-	 kind: HtmlNodeKind.UNKNOWN,
-	 ...htmlNodeBase
-	 };*/
 }

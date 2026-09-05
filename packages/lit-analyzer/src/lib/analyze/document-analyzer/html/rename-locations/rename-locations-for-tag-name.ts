@@ -38,11 +38,10 @@ export function renameLocationsForTagName(
   }
 
   const definition = context.definitionStore.getDefinitionForTagName(tagName);
-  if (definition != null) {
-    // TODO
+  if (definition) {
     const definitionNode = iterableFirst(definition.tagNameNodes);
 
-    if (definitionNode != null) {
+    if (definitionNode) {
       const fileName = definitionNode.getSourceFile().fileName;
 
       if (context.ts.isCallLikeExpression(definitionNode)) {
@@ -52,7 +51,7 @@ export function renameLocationsForTagName(
             context.ts.isStringLiteralLike(child) && child.text === tagName,
         );
 
-        if (stringLiteralNode != null) {
+        if (stringLiteralNode) {
           locations.push({
             fileName,
             range: makeSourceFileRange({
@@ -64,7 +63,7 @@ export function renameLocationsForTagName(
       } else if (definitionNode.kind === context.ts.SyntaxKind.JSDocTag) {
         const jsDocTagNode = definitionNode as JSDocUnknownTag;
 
-        if (jsDocTagNode.comment != null) {
+        if (jsDocTagNode.comment) {
           const start = jsDocTagNode.tagName.getEnd() + 1;
 
           locations.push({
@@ -82,7 +81,7 @@ export function renameLocationsForTagName(
             context.ts.isStringLiteralLike(child) && child.text === tagName,
         );
 
-        if (stringLiteralNode != null) {
+        if (stringLiteralNode) {
           locations.push({
             fileName,
             range: makeSourceFileRange({
@@ -111,7 +110,7 @@ function visitHtmlNode(node: HtmlNode, context: VisitHtmlNodeContext) {
       fileName: context.document.virtualDocument.fileName,
     });
 
-    if (node.location.endTag != null) {
+    if (node.location.endTag) {
       const { start, end } = node.location.endTag;
       context.emitRenameLocation({
         range: documentRangeToSFRange(context.document, {
