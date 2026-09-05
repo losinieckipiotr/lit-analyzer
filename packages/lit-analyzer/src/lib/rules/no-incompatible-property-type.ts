@@ -1,8 +1,5 @@
 import { Node, Type, TypeChecker } from "typescript";
-import {
-  LitElementPropertyConfig,
-  typeToString,
-} from "../../web-component-analyzer/src/api.js";
+import { LitElementPropertyConfig } from "../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { joinArray } from "../analyze/util/array-util.js";
@@ -200,7 +197,7 @@ function validateLitPropertyConfig(
 
       message = `Missing ${acceptedTypeText} on @property decorator for '${propName}'`;
     } else {
-      const typeToCheckString = typeToString(typeToCheck, checker);
+      const typeToCheckString = checker.typeToString(typeToCheck);
 
       message = `The built in converter doesn't handle the property type '${typeToCheckString}'.`;
       fixMessage = `Please add '{attribute: false}' on @property decorator for '${propName}'`;

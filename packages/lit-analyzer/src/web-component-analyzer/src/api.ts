@@ -16,15 +16,7 @@ export type { ComponentMember } from "./analyze/types/features/component-member.
 export type { ComponentSlot } from "./analyze/types/features/component-slot.js";
 export type { LitElementPropertyConfig } from "./analyze/types/features/lit-element-property-config.js";
 
-export {
-  isSimpleType,
-  isSimpleTypeLiteral,
-  setTypescriptModule,
-  SimpleTypeKind,
-  toSimpleType,
-  typeToString,
-  validateType
-} from "./simple-type.js";
+export { setTypescriptModule } from "./simple-type.js";
 
 export type {
   SimpleType,

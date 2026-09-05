@@ -1,8 +1,8 @@
+import { Type, TypeChecker } from "typescript";
 import {
-  isSimpleType,
-  isSimpleTypeLiteral,
-  SimpleType,
-} from "../../../../../web-component-analyzer/src/api.js";
+  isMyUnionType,
+  MyUnionType,
+} from "../../../../../web-component-analyzer/src/simple-type.js";
 import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
 import { HtmlNodeAttrAssignmentKind } from "../../../types/html-node/html-node-attr-assignment-types.js";
 import {
@@ -15,8 +15,10 @@ import { DocumentPositionContext } from "../../../util/get-position-context-in-d
 export function completionsForHtmlAttrValues(
   htmlNodeAttr: HtmlNodeAttr,
   location: DocumentPositionContext,
-  { htmlStore }: LitAnalyzerContext,
+  context: LitAnalyzerContext,
 ): LitCompletion[] {
+  const { htmlStore } = context;
+
   // There is not point in showing completions for event listener bindings
   if (htmlNodeAttr.kind === HtmlNodeAttrKind.EVENT_LISTENER) return [];
 
@@ -48,13 +50,12 @@ export function completionsForHtmlAttrValues(
     }
   }
 
+  // return [];
+
+  const checker = context.program.getTypeChecker();
   const type = htmlTagMember.getType();
 
-  if (!isSimpleType(type)) {
-    throw new Error("Attribute type must be a SimpleType instance.");
-  }
-
-  const options = getOptionsFromType(type);
+  const options = getOptionsFromType(type, checker);
 
   return options.map(
     (option) =>
@@ -66,19 +67,14 @@ export function completionsForHtmlAttrValues(
   );
 }
 
-function getOptionsFromType(type: SimpleType): string[] {
-  switch (type.kind) {
-    case "UNION":
-      return type.types
-        .filter(isSimpleTypeLiteral)
-        .map((t) => t.value.toString());
-    case "ENUM":
-      return type.types
-        .map((m) => m.type)
-        .filter(isSimpleTypeLiteral)
-        .map((t) => t.value.toString());
-    case "ALIAS":
-      return getOptionsFromType(type.target);
+function getOptionsFromType(
+  type: Type | MyUnionType,
+  checker: TypeChecker,
+): string[] {
+  if (isMyUnionType(type)) {
+    return type.types
+      .filter((t) => t.isLiteral())
+      .map((t) => checker.typeToString(t));
   }
 
   return [];
