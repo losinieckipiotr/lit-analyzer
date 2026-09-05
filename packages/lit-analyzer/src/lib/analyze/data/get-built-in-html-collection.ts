@@ -9,7 +9,7 @@ import {
   getUnionType,
   isType,
   SimpleTypeContext,
-} from "../../../web-component-analyzer/src/simple-type.js";
+} from "../../../web-component-analyzer/src/api.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { browsersHtmlData } from "./browsers-html-data.js";
 import {

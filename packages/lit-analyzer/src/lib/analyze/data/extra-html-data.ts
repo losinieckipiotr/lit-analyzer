@@ -2,7 +2,7 @@ import { Type, TypeChecker } from "typescript";
 import {
   getUnionType,
   MyUnionType,
-} from "../../../web-component-analyzer/src/simple-type.js";
+} from "../../../web-component-analyzer/src/api.js";
 
 const HTML_5_ATTR_TYPES: {
   [key: string]: string | string[] | [string[]] | undefined;

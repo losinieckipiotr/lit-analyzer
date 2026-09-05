@@ -1,5 +1,5 @@
 import { Type } from "typescript";
-import { MyUnionType } from "../../../../../web-component-analyzer/src/simple-type.js";
+import { MyUnionType } from "../../../../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,

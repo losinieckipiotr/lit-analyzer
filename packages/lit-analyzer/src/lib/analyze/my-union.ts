@@ -1,5 +1,5 @@
 import { TypeChecker } from "typescript";
-import { MyUnionType } from "../../web-component-analyzer/src/simple-type.js";
+import { MyUnionType } from "../../web-component-analyzer/src/api.js";
 
 export function isBooleanStringUnion(
   type: MyUnionType,

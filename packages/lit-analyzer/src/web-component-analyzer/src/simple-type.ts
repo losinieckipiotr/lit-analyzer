@@ -1,4 +1,4 @@
-import * as tsModule from "typescript";
+import type * as tsModule from "typescript";
 import {
   BigIntLiteralType,
   Declaration,
@@ -18,6 +18,8 @@ import {
   TypeReference,
   UniqueESSymbolType
 } from "typescript";
+
+type TS = typeof tsModule;
 
 const DEFAULT_TYPE_CACHE = new WeakMap<Type, SimpleType>();
 
@@ -450,42 +452,33 @@ function hasFlag(
   return (flags & flag) !== 0;
 }
 
-function isBoolean(type: Type, ts: typeof tsModule) {
+function isBoolean(type: Type, ts: TS) {
   return (
     typeHasFlag(type, ts.TypeFlags.BooleanLike) ||
     type.symbol?.name === "Boolean"
   );
 }
 
-function isBooleanLiteral(
-  type: Type,
-  ts: typeof tsModule
-): type is LiteralType {
+function isBooleanLiteral(type: Type, ts: TS): type is LiteralType {
   return typeHasFlag(type, ts.TypeFlags.BooleanLiteral);
 }
 
-function isBigIntLiteral(
-  type: Type,
-  ts: typeof tsModule
-): type is BigIntLiteralType {
+function isBigIntLiteral(type: Type, ts: TS): type is BigIntLiteralType {
   return typeHasFlag(type, ts.TypeFlags.BigIntLiteral);
 }
 
-function isUniqueESSymbol(
-  type: Type,
-  ts: typeof tsModule
-): type is UniqueESSymbolType {
+function isUniqueESSymbol(type: Type, ts: TS): type is UniqueESSymbolType {
   return typeHasFlag(type, ts.TypeFlags.UniqueESSymbol);
 }
 
-function isESSymbolLike(type: Type, ts: typeof tsModule) {
+function isESSymbolLike(type: Type, ts: TS) {
   return (
     typeHasFlag(type, ts.TypeFlags.ESSymbolLike) ||
     type.symbol?.name === "Symbol"
   );
 }
 
-function isLiteral(type: Type, ts: typeof tsModule): type is LiteralType {
+function isLiteral(type: Type, ts: TS): type is LiteralType {
   return (
     type.isLiteral() ||
     isBooleanLiteral(type, ts) ||
@@ -494,42 +487,42 @@ function isLiteral(type: Type, ts: typeof tsModule): type is LiteralType {
   );
 }
 
-function isString(type: Type, ts: typeof tsModule) {
+function isString(type: Type, ts: TS) {
   return (
     typeHasFlag(type, ts.TypeFlags.StringLike) || type.symbol?.name === "String"
   );
 }
 
-function isNumber(type: Type, ts: typeof tsModule) {
+function isNumber(type: Type, ts: TS) {
   return (
     typeHasFlag(type, ts.TypeFlags.NumberLike) || type.symbol?.name === "Number"
   );
 }
 
-function isEnum(type: Type, ts: typeof tsModule) {
+function isEnum(type: Type, ts: TS) {
   return typeHasFlag(type, ts.TypeFlags.EnumLike);
 }
 
-function isBigInt(type: Type, ts: typeof tsModule) {
+function isBigInt(type: Type, ts: TS) {
   return (
     typeHasFlag(type, ts.TypeFlags.BigIntLike) || type.symbol?.name === "BigInt"
   );
 }
 
-function isObject(type: Type, ts: typeof tsModule): type is ObjectType {
+function isObject(type: Type, ts: TS): type is ObjectType {
   return (
     typeHasFlag(type, ts.TypeFlags.Object) || type.symbol?.name === "Object"
   );
 }
 
-function isNonPrimitive(type: Type, ts: typeof tsModule): type is ObjectType {
+function isNonPrimitive(type: Type, ts: TS): type is ObjectType {
   return (
     typeHasFlag(type, ts.TypeFlags.NonPrimitive) ||
     type.symbol?.name === "object"
   );
 }
 
-function isThisType(type: Type, ts: typeof tsModule): type is ObjectType {
+function isThisType(type: Type, ts: TS): type is ObjectType {
   const kind = type.getSymbol()?.valueDeclaration?.kind;
   if (kind == null) {
     return false;
@@ -538,29 +531,29 @@ function isThisType(type: Type, ts: typeof tsModule): type is ObjectType {
   return hasFlag(kind, ts.SyntaxKind.ThisKeyword);
 }
 
-function isUnknown(type: Type, ts: typeof tsModule) {
+function isUnknown(type: Type, ts: TS) {
   return typeHasFlag(type, ts.TypeFlags.Unknown);
 }
 
-function isNull(type: Type, ts: typeof tsModule) {
+function isNull(type: Type, ts: TS) {
   return typeHasFlag(type, ts.TypeFlags.Null);
 }
 
-function isUndefined(type: Type, ts: typeof tsModule) {
+function isUndefined(type: Type, ts: TS) {
   return typeHasFlag(type, ts.TypeFlags.Undefined);
 }
 
-function isVoid(type: Type, ts: typeof tsModule) {
+function isVoid(type: Type, ts: TS) {
   return typeHasFlag(type, ts.TypeFlags.VoidLike);
 }
 
-function isNever(type: Type, ts: typeof tsModule): boolean {
+function isNever(type: Type, ts: TS): boolean {
   return typeHasFlag(type, ts.TypeFlags.Never);
 }
 
 function isObjectTypeReference(
   type: ObjectType,
-  ts: typeof tsModule
+  ts: TS
 ): type is TypeReference {
   return hasFlag(type.objectFlags, ts.ObjectFlags.Reference);
 }
@@ -573,7 +566,7 @@ function isSymbol(obj: object): obj is Symbol {
 // 	return "flags" in obj && "getSymbol" in obj;
 // }
 
-function isMethod(type: Type, ts: typeof tsModule): type is TypeReference {
+function isMethod(type: Type, ts: TS): type is TypeReference {
   if (!isObject(type, ts)) return false;
   const symbol = type.getSymbol();
   if (symbol == null) return false;
@@ -581,10 +574,7 @@ function isMethod(type: Type, ts: typeof tsModule): type is TypeReference {
   return hasFlag(symbol.flags, ts.SymbolFlags.Method);
 }
 
-function getDeclaration(
-  symbol: Symbol,
-  ts: typeof tsModule
-): Declaration | undefined {
+function getDeclaration(symbol: Symbol, ts: TS): Declaration | undefined {
   const declarations = symbol.getDeclarations();
   if (declarations == null || declarations.length === 0)
     return symbol.valueDeclaration;
@@ -594,7 +584,7 @@ function getDeclaration(
 function isArray(
   type: Type,
   checker: TypeChecker,
-  ts: typeof tsModule
+  ts: TS
 ): type is TypeReference {
   if (!isObject(type, ts)) return false;
   const symbol = type.getSymbol();
@@ -610,7 +600,7 @@ function isArray(
 function isPromise(
   type: Type,
   checker: TypeChecker,
-  ts: typeof tsModule
+  ts: TS
 ): type is TypeReference {
   if (!isObject(type, ts)) return false;
   const symbol = type.getSymbol();
@@ -621,23 +611,20 @@ function isPromise(
   );
 }
 
-function isDate(type: Type, ts: typeof tsModule): type is ObjectType {
+function isDate(type: Type, ts: TS): type is ObjectType {
   if (!isObject(type, ts)) return false;
   const symbol = type.getSymbol();
   if (symbol == null) return false;
   return symbol.getName() === "Date";
 }
 
-function isTupleTypeReference(
-  type: Type,
-  ts: typeof tsModule
-): type is TupleTypeReference {
+function isTupleTypeReference(type: Type, ts: TS): type is TupleTypeReference {
   const target = getTargetType(type, ts);
   if (target == null) return false;
   return (target.objectFlags & ts.ObjectFlags.Tuple) !== 0;
 }
 
-function isFunction(type: Type, ts: typeof tsModule): type is ObjectType {
+function isFunction(type: Type, ts: TS): type is ObjectType {
   if (!isObject(type, ts)) return false;
   const symbol = type.getSymbol();
   if (symbol == null) return false;
@@ -651,7 +638,7 @@ function isFunction(type: Type, ts: typeof tsModule): type is ObjectType {
 function getTypeArguments(
   type: ObjectType,
   checker: TypeChecker,
-  ts: typeof tsModule
+  ts: TS
 ): Type[] {
   if (isObject(type, ts)) {
     if (isObjectTypeReference(type, ts)) {
@@ -666,10 +653,7 @@ function getTypeArguments(
   return [];
 }
 
-function getTargetType(
-  type: Type,
-  ts: typeof tsModule
-): GenericType | undefined {
+function getTargetType(type: Type, ts: TS): GenericType | undefined {
   if (isObject(type, ts) && isObjectTypeReference(type, ts)) {
     return type.target;
   }
@@ -679,7 +663,7 @@ function getTargetType(
 
 function getModifiersFromDeclaration(
   declaration: Declaration,
-  ts: typeof tsModule
+  ts: TS
 ): SimpleTypeModifierKind[] {
   const tsModifiers = ts.getCombinedModifierFlags(declaration);
   const modifiers: SimpleTypeModifierKind[] = [];
@@ -706,11 +690,7 @@ function getModifiersFromDeclaration(
   return modifiers;
 }
 
-function isImplicitGeneric(
-  type: Type,
-  checker: TypeChecker,
-  ts: typeof tsModule
-): boolean {
+function isImplicitGeneric(type: Type, checker: TypeChecker, ts: TS): boolean {
   return (
     isArray(type, checker, ts) ||
     isTupleTypeReference(type, ts) ||
@@ -718,7 +698,7 @@ function isImplicitGeneric(
   );
 }
 
-function isMethodSignature(type: Type, ts: typeof tsModule): boolean {
+function isMethodSignature(type: Type, ts: TS): boolean {
   const symbol = type.getSymbol();
   if (symbol == null) return false;
   if (!isObject(type, ts)) return false;
@@ -757,10 +737,7 @@ export function isSimpleTypePrimitive(
   return PRIMITIVE_TYPE_KINDS.includes(type.kind);
 }
 
-function getRealSymbolName(
-  symbol: ESSymbol,
-  ts: typeof tsModule
-): string | undefined {
+function getRealSymbolName(symbol: ESSymbol, ts: TS): string | undefined {
   const name = symbol.getName();
   if (
     name != null &&
@@ -779,7 +756,7 @@ function getRealSymbolName(
 interface ToSimpleTypeInternalOptions {
   cache: WeakMap<Type, SimpleType>;
   checker: TypeChecker;
-  ts: typeof tsModule;
+  ts: TS;
   eager?: boolean;
 }
 
@@ -897,7 +874,7 @@ function liftGenericType(
 function primitiveLiteralToSimpleType(
   type: Type,
   checker: TypeChecker,
-  ts: typeof tsModule
+  ts: TS
 ): SimpleTypeLiteral | undefined {
   if (type.isNumberLiteral()) {
     return {
@@ -1521,7 +1498,7 @@ interface ToSimpleTypeOptions {
 
 export type SimpleTypeContext = {
   checker: TypeChecker;
-  ts: typeof tsModule;
+  ts: TS;
 };
 
 export function toSimpleType(

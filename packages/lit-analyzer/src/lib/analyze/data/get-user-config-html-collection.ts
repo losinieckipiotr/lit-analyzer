@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "fs";
-import { SimpleTypeContext } from "../../../web-component-analyzer/src/simple-type.js";
+import { SimpleTypeContext } from "../../../web-component-analyzer/src/api.js";
 import type { HTMLDataV1 } from "../data/html-data-types.js";
 import { LitAnalyzerConfig } from "../lit-analyzer-config.js";
 import { LitAnalyzerLogger } from "../lit-analyzer-logger.js";

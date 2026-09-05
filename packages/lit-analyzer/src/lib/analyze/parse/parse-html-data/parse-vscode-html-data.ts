@@ -3,7 +3,7 @@ import {
   getUnionType,
   MyUnionType,
   SimpleTypeContext,
-} from "../../../../web-component-analyzer/src/simple-type.js";
+} from "../../../../web-component-analyzer/src/api.js";
 import type {
   HTMLDataV1,
   IAttributeData,
