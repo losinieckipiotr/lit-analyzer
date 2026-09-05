@@ -3,7 +3,6 @@ import { HtmlDocument } from "../../../parse/document/text-document/html-documen
 import { documentationForHtmlTag } from "../../../parse/parse-html-data/html-tag.js";
 import { HtmlNode } from "../../../types/html-node/html-node-types.js";
 import { LitCompletion } from "../../../types/lit-completion.js";
-import { lazy } from "../../../util/general-util.js";
 import { DocumentPositionContext } from "../../../util/get-position-context-in-document.js";
 import { isCustomElementTagName } from "../../../util/is-valid-name.js";
 import { documentRangeToSFRange } from "../../../util/range-util.js";
@@ -35,22 +34,22 @@ export function completionsForHtmlNodes(
   ) {
     const insert = `</${intersectingClosestNode.tagName}>`;
 
-    return [
-      {
-        name: insert,
-        insert,
-        kind: "enumElement",
-        importance: "high",
-        range: documentRangeToSFRange(document, {
-          start: offset - leftWord.length - 2,
-          end: offset + rightWord.length,
-        }),
-        documentation: lazy(() => {
-          const htmlTag = htmlStore.getHtmlTag(intersectingClosestNode);
-          return htmlTag != null ? documentationForHtmlTag(htmlTag) : undefined;
-        }),
-      } as LitCompletion,
-    ];
+    const result: LitCompletion = {
+      name: insert,
+      insert,
+      kind: "enumElement",
+      importance: "high",
+      range: documentRangeToSFRange(document, {
+        start: offset - leftWord.length - 2,
+        end: offset + rightWord.length,
+      }),
+      documentation: () => {
+        const htmlTag = htmlStore.getHtmlTag(intersectingClosestNode);
+        return htmlTag != null ? documentationForHtmlTag(htmlTag) : undefined;
+      },
+    };
+
+    return [result];
   }
 
   const htmlTags = Array.from(htmlStore.getGlobalTags());
@@ -63,7 +62,7 @@ export function completionsForHtmlNodes(
       ? "</" + htmlTag.tagName + ">"
       : htmlTag.tagName;
 
-    return {
+    const result: LitCompletion = {
       name: insert,
       insert,
       kind: isBuiltIn ? "enumElement" : hasDeclaration ? "member" : "label",
@@ -75,7 +74,9 @@ export function completionsForHtmlNodes(
           rightWord.length +
           (isClosingTag && afterWord === ">" ? 1 : 0),
       }),
-      documentation: lazy(() => documentationForHtmlTag(htmlTag)),
-    } as LitCompletion;
+      documentation: () => documentationForHtmlTag(htmlTag),
+    };
+
+    return result;
   });
 }

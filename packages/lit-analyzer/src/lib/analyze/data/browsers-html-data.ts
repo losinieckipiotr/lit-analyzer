@@ -1,4 +1,6 @@
-export const browsersHtmlData = {
+import { HTMLDataV1 } from "./html-data-types.js";
+
+export const browsersHtmlData: HTMLDataV1 = {
   version: 1.1,
   tags: [
     {

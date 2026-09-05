@@ -19,7 +19,6 @@ import {
 } from "../../../parse/parse-html-data/html-tag.js";
 import { HtmlNode } from "../../../types/html-node/html-node-types.js";
 import { LitCompletion } from "../../../types/lit-completion.js";
-import { lazy } from "../../../util/general-util.js";
 import { DocumentPositionContext } from "../../../util/get-position-context-in-document.js";
 import { iterableFilter, iterableMap } from "../../../util/iterable-util.js";
 
@@ -163,6 +162,6 @@ function targetToCompletion(
     insert: `${insertModifier ? modifier : ""}${target.name}`,
     kind: isBuiltIn ? "enumElement" : isMember ? "member" : "label",
     importance: isBuiltIn ? "low" : isMember ? "high" : "medium",
-    documentation: lazy(() => documentationForTarget(target, { modifier })),
+    documentation: () => documentationForTarget(target, { modifier }),
   };
 }

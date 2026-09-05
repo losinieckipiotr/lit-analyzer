@@ -1,5 +1,4 @@
 import { Type } from "typescript";
-import { isAnyType } from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";
@@ -78,8 +77,11 @@ function checkClosureSecurityAssignability(
     return undefined;
   }
 
+  const { ts } = context;
+  const isAny = (typeB.flags & ts.TypeFlags.Any) !== 0;
+
   // `any` is allowed to bind to anything.
-  if (isAnyType(typeB)) {
+  if (isAny) {
     return undefined;
   }
 
@@ -105,6 +107,7 @@ function checkClosureSecurityAssignability(
   return true;
 }
 
+// FIXME
 // function normalizeTypeName(typeName: string) {
 //   // Attempt to take a clutz type name for a goog.module type, which looks like
 //   // module$contents$goog$html$SafeUrl_SafeUrl and extract the
@@ -120,6 +123,7 @@ function matchesAtLeastOneNominalType(
   typeNames: string[],
   typeB: Type,
 ): boolean {
+  // FIXME
   throw new Error("not implemented");
   // Check if typeB.name is in typeNames, either before or after normalization.
   // const typeBName = typeB.name;

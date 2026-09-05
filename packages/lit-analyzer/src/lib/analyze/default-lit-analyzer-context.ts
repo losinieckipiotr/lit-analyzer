@@ -243,10 +243,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
   }
 
   constructor(private handler: LitPluginContextHandler) {
-    this.htmlStore = new DefaultAnalyzerHtmlStore({
-      checker: this.checker,
-      ts: this.ts,
-    });
+    this.htmlStore = new DefaultAnalyzerHtmlStore(this.ts);
 
     const { checker, ts } = this;
 

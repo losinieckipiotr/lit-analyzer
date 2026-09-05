@@ -1,4 +1,3 @@
-import { isAnyType } from "../../web-component-analyzer/src/simple-type.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { rangeFromHtmlNodeAttr } from "../analyze/util/range-util.js";
@@ -26,7 +25,9 @@ const rule: RuleModule = {
      * Returns if this type can be used in a event listener binding
      */
     function isTypeBindableToEventListener(): boolean {
-      if (isAnyType(typeB)) {
+      const isAny = (typeB.flags & ts.TypeFlags.Any) !== 0;
+
+      if (isAny) {
         return true;
       }
 

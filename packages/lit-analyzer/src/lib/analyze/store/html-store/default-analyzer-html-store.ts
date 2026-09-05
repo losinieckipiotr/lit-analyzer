@@ -1,4 +1,4 @@
-import { SimpleTypeContext } from "../../../../web-component-analyzer/src/simple-type.js";
+import * as tsMod from "typescript";
 import {
   HtmlAttr,
   HtmlAttrTarget,
@@ -38,8 +38,8 @@ export interface AnalyzerHtmlStore {
 export class DefaultAnalyzerHtmlStore implements AnalyzerHtmlStore {
   private dataSource: HtmlDataSourceMerged;
 
-  constructor(simpleTypeContext: SimpleTypeContext) {
-    this.dataSource = new HtmlDataSourceMerged(simpleTypeContext);
+  constructor(ts: typeof tsMod) {
+    this.dataSource = new HtmlDataSourceMerged(ts);
   }
 
   absorbSubclassExtension(name: string, extension: HtmlTag): void {

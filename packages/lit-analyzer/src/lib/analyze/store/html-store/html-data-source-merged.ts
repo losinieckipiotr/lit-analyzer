@@ -1,11 +1,10 @@
+import * as tsMod from "typescript";
 import { Type } from "typescript";
 import {
   getUnionType,
-  isAnyType,
   isMyUnionType,
   isType,
   MyUnionType,
-  SimpleTypeContext,
 } from "../../../../web-component-analyzer/src/simple-type.js";
 import {
   HtmlAttr,
@@ -37,7 +36,7 @@ export enum HtmlDataSourceKind {
 }
 
 export class HtmlDataSourceMerged {
-  constructor(private simpleTypeContext: SimpleTypeContext) {}
+  constructor(private ts: typeof tsMod) {}
 
   private subclassExtensions = new Map<string, HtmlTag>();
 
@@ -290,10 +289,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.attrs.has(tagName)) {
       this.relatedForTagName.attrs.set(
         tagName,
-        mergeRelatedMembers(
-          this.iterateAllAttributesForNode(tagName),
-          this.simpleTypeContext,
-        ),
+        mergeRelatedMembers(this.iterateAllAttributesForNode(tagName), this.ts),
       );
     }
 
@@ -304,10 +300,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.props.has(tagName)) {
       this.relatedForTagName.props.set(
         tagName,
-        mergeRelatedMembers(
-          this.iterateAllPropertiesForNode(tagName),
-          this.simpleTypeContext,
-        ),
+        mergeRelatedMembers(this.iterateAllPropertiesForNode(tagName), this.ts),
       );
     }
 
@@ -318,10 +311,7 @@ export class HtmlDataSourceMerged {
     if (!this.relatedForTagName.events.has(tagName)) {
       this.relatedForTagName.events.set(
         tagName,
-        mergeRelatedEvents(
-          this.iterateAllEventsForNode(tagName),
-          this.simpleTypeContext,
-        ),
+        mergeRelatedEvents(this.iterateAllEventsForNode(tagName)),
       );
     }
 
@@ -523,7 +513,7 @@ export class HtmlDataSourceMerged {
 
 function mergeRelatedMembers<T extends HtmlMember>(
   members: Iterable<T>,
-  simpleTypeContext: SimpleTypeContext,
+  ts: typeof tsMod,
 ): ReadonlyMap<string, T> {
   const mergedMembers = new Map<string, T>();
   for (const member of members) {
@@ -541,7 +531,11 @@ function mergeRelatedMembers<T extends HtmlMember>(
         builtIn: existingMember.required && member.required,
         fromTagName: existingMember.fromTagName || member.fromTagName,
         getType: () =>
-          mergeRelatedTypeToUnion(existingMember.getType(), member.getType()),
+          mergeRelatedTypeToUnion(
+            existingMember.getType(),
+            member.getType(),
+            ts,
+          ),
         related:
           existingMember.related == null
             ? [existingMember, member]
@@ -556,8 +550,11 @@ function mergeRelatedMembers<T extends HtmlMember>(
 function mergeRelatedTypeToUnion(
   typeA: Type | MyUnionType,
   typeB: Type | MyUnionType,
+  ts: typeof tsMod,
 ): Type | MyUnionType {
-  if (isType(typeA) && isType(typeB) && isAnyType(typeA) && isAnyType(typeB)) {
+  const isAny = (type: Type) => (type.flags & ts.TypeFlags.Any) !== 0;
+
+  if (isType(typeA) && isType(typeB) && isAny(typeA) && isAny(typeB)) {
     return typeA;
   }
 
@@ -621,7 +618,6 @@ function mergeRelatedCssProperties(
 
 function mergeRelatedEvents(
   events: Iterable<HtmlEvent>,
-  simpleTypeContext: SimpleTypeContext,
 ): ReadonlyMap<string, HtmlEvent> {
   const mergedAttrs = new Map<string, HtmlEvent>();
   for (const event of events) {

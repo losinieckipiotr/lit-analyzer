@@ -1,4 +1,3 @@
-import type { HTMLDataV1 } from "../data/html-data-types.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
@@ -8,7 +7,6 @@ import {
 // @vscode/web-custom-data/data/browsers.html-data.json
 import {
   getUnionType,
-  isAnyType,
   isType,
   SimpleTypeContext,
 } from "../../../web-component-analyzer/src/simple-type.js";
@@ -23,8 +21,7 @@ import {
 export function getBuiltInHtmlCollection(
   simpleTypeContext: SimpleTypeContext,
 ): HtmlDataCollection {
-  // FIXME: no type validation here
-  const vscodeHtmlData = browsersHtmlData as HTMLDataV1;
+  const vscodeHtmlData = browsersHtmlData;
   const version = vscodeHtmlData.version;
   const globalAttributes = [...(vscodeHtmlData.globalAttributes ?? [])];
 
@@ -218,12 +215,14 @@ The value must be a comma-separated list of part mappings:
   ];
 
   const addMissingAttrTypes = (attrs: HtmlAttr[]): HtmlAttr[] => {
+    const { ts } = simpleTypeContext;
+
     return attrs.map((attr) => {
       const attrType = attr.getType();
 
       if (
         hasTypeForAttrName(attr.name) ||
-        (isType(attrType) && isAnyType(attrType))
+        (isType(attrType) && (attrType.flags & ts.TypeFlags.Any) !== 0)
       ) {
         return {
           ...attr,

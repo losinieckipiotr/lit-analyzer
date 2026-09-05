@@ -2,6 +2,7 @@ import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
+  LitHtmlAttributeModifier,
 } from "../../../../../constants.js";
 import {
   HtmlNodeAttr,
@@ -9,7 +10,6 @@ import {
   IHtmlNodeAttrBase,
   IHtmlNodeAttrSourceCodeLocation,
 } from "../../../../../types/html-node/html-node-attr-types.js";
-import { parseLitAttrName } from "../../../../../util/general-util.js";
 import {
   getSourceLocation,
   IP5NodeAttr,
@@ -144,4 +144,25 @@ function parseHtmlAttrBase(htmlAttrBase: IHtmlNodeAttrBase): HtmlNodeAttr {
         modifier: undefined,
       };
   }
+}
+
+/**
+ * Parses an attribute name returning a name and eg. a modifier.
+ * Examples:
+ *  - ?disabled="..."
+ *  - .myProp="..."
+ *  - @click="..."
+ * @param attributeName
+ */
+function parseLitAttrName(attributeName: string): {
+  name: string;
+  modifier?: LitHtmlAttributeModifier;
+} {
+  const [, modifier, name] = attributeName.match(/^([.?@])?(.*)/) || [
+    "",
+    "",
+    "",
+  ];
+
+  return { name, modifier: modifier as LitHtmlAttributeModifier };
 }

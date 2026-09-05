@@ -1,10 +1,7 @@
-import {
-  isAnyType,
-  isBooleanStringUnion,
-  isMyUnionType,
-  isUnknownType,
-} from "../../web-component-analyzer/src/simple-type.js";
+import { Type } from "typescript";
+import { isMyUnionType } from "../../web-component-analyzer/src/simple-type.js";
 import { LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER } from "../analyze/constants.js";
+import { isBooleanStringUnion } from "../analyze/my-union.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
@@ -39,9 +36,13 @@ const rule: RuleModule = {
       return;
     }
 
+    const { ts } = context;
     const checker = context.program.getTypeChecker();
 
-    const isAny = isAnyType(typeB);
+    const isAnyType = (type: Type) => (type.flags & ts.TypeFlags.Any) !== 0;
+    const isUnknownType = (type: Type) =>
+      (type.flags & ts.TypeFlags.Unknown) !== 0;
+
     const isUnknown = isUnknownType(typeB);
     const isBTypeBoolean = checker.isTypeAssignableTo(
       typeB,
@@ -49,7 +50,7 @@ const rule: RuleModule = {
     );
 
     // assigned value is definitely boolean, now check attribute type
-    if (!isAny && !isUnknown && isBTypeBoolean) {
+    if (!isAnyType(typeB) && !isUnknown && isBTypeBoolean) {
       // Handle typeA as union of literal boolean values
       if (isMyUnionType(typeA)) {
         // attribute is a boolean string union - no report
