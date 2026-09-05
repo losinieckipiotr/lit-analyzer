@@ -17,17 +17,10 @@ export type { ComponentSlot } from "./analyze/types/features/component-slot.js";
 export type { LitElementPropertyConfig } from "./analyze/types/features/lit-element-property-config.js";
 
 export {
-  isAssignableToPrimitiveType,
-  isAssignableToType
-} from "./is-assignable-to-type.js";
-
-export {
-  isAssignableToSimpleTypeKind,
   isSimpleType,
   isSimpleTypeLiteral,
   setTypescriptModule,
   SimpleTypeKind,
-  simpleTypeToString,
   toSimpleType,
   typeToString,
   validateType

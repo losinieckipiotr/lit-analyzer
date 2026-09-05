@@ -1,9 +1,5 @@
-import {
-  isAssignableToSimpleTypeKind,
-  isSimpleType,
-  SimpleType,
-  SimpleTypeKind,
-} from "../../../../../web-component-analyzer/src/api.js";
+import { Type } from "typescript";
+import { MyUnionType } from "../../../../../web-component-analyzer/src/simple-type.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
@@ -38,6 +34,7 @@ export function completionsForHtmlAttrs(
       htmlStore.getAllPropertiesForTag(htmlNode),
       (prop) => !alreadyUsedPropNames.includes(prop.name),
     );
+
     return Array.from(
       iterableMap(unusedProps, (prop) =>
         targetToCompletion(prop, {
@@ -63,10 +60,6 @@ export function completionsForHtmlAttrs(
     );
     const booleanAttributes = iterableFilter(unusedAttrs, (prop) => {
       const type = prop.getType();
-
-      if (!isSimpleType(type)) {
-        throw new Error("Attribute type must be a SimpleType instance.");
-      }
 
       return isAssignableToBoolean(type);
     });
@@ -116,16 +109,19 @@ export function completionsForHtmlAttrs(
 }
 
 function isAssignableToBoolean(
-  type: SimpleType,
+  type: Type | MyUnionType,
   { matchAny } = { matchAny: true },
 ): boolean {
-  return isAssignableToSimpleTypeKind(
-    type,
-    [SimpleTypeKind.BOOLEAN, SimpleTypeKind.BOOLEAN_LITERAL],
-    {
-      matchAny,
-    },
-  );
+  // FIXME
+  return false;
+
+  // return isAssignableToSimpleTypeKind(
+  //   type,
+  //   [SimpleTypeKind.BOOLEAN, SimpleTypeKind.BOOLEAN_LITERAL],
+  //   {
+  //     matchAny,
+  //   },
+  // );
 }
 
 function targetToCompletion(
@@ -139,9 +135,7 @@ function targetToCompletion(
   if (modifier == null) {
     if (isHtmlAttr(target)) {
       const type = target.getType();
-      if (!isSimpleType(type)) {
-        throw new Error("Attribute type must be a SimpleType instance.");
-      }
+
       if (isAssignableToBoolean(type, { matchAny: false })) {
         modifier = LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
       } else {

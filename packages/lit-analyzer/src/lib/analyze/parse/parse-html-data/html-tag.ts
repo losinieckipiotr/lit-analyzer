@@ -6,10 +6,6 @@ import {
   ComponentEvent,
   ComponentMember,
   ComponentSlot,
-  isAssignableToSimpleTypeKind,
-  isSimpleType,
-  SimpleTypeKind,
-  simpleTypeToString,
 } from "../../../../web-component-analyzer/src/api.js";
 import {
   isMyUnionType,
@@ -290,18 +286,18 @@ export function targetKindAndTypeText(
   target: HtmlAttrTarget,
   options: DescriptionOptions & { modifier?: string } = {},
 ): string {
-  const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
+  // FIXME
+  return "";
 
-  const targetType = target.getType();
-  if (!isSimpleType(targetType)) {
-    throw new Error("Target type must be a SimpleType instance.");
-  }
+  // const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
 
-  if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.ANY)) {
-    return `${prefix}`;
-  }
+  // const targetType = target.getType();
 
-  return `${prefix}: ${simpleTypeToString(targetType)}`;
+  // if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.ANY)) {
+  //   return `${prefix}`;
+  // }
+
+  // return `${prefix}: ${simpleTypeToString(targetType)}`;
 }
 
 export function targetKindText(target: HtmlAttrTarget): string {

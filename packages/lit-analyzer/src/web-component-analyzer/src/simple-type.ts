@@ -1977,6 +1977,10 @@ export function isMyUnionType(type: Type | MyUnionType): type is MyUnionType {
   return (type as MyUnionType)[UnionSymbol] === true;
 }
 
+export function isType(type: Type | MyUnionType): type is Type {
+  return !isMyUnionType(type);
+}
+
 export function getUnionType(types: Type[], name?: string): MyUnionType {
   if (types.length < 2) {
     throw new Error("Cannot create a union type with less than 2 types.");
@@ -1987,10 +1991,6 @@ export function getUnionType(types: Type[], name?: string): MyUnionType {
     types,
     name
   };
-}
-
-export function isType(type: Type | MyUnionType): type is Type {
-  return !isMyUnionType(type);
 }
 
 //#endregion
