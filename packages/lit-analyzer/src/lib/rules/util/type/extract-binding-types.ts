@@ -1,9 +1,4 @@
 import { Expression, Type, TypeChecker } from "typescript";
-import {
-  SimpleType,
-  SimpleTypeEnumMember,
-  SimpleTypeKind,
-} from "../../../../web-component-analyzer/src/api.js";
 import { MyUnionType } from "../../../../web-component-analyzer/src/simple-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
@@ -79,71 +74,5 @@ export function inferTypeFromAssignment(
       }
 
       return checker.getStringType();
-  }
-}
-
-/**
- * Relax the type so that for example "string literal" become "string" and "function" become "any"
- * This is used for javascript files to provide type checking with Typescript type inferring
- * @param type
- */
-export function relaxType(type: SimpleType): SimpleType {
-  switch (type.kind) {
-    case "INTERSECTION":
-    case "UNION":
-      return {
-        ...type,
-        types: type.types.map((t) => relaxType(t)),
-      };
-
-    case "ENUM":
-      return {
-        ...type,
-        types: type.types.map((t) => relaxType(t) as SimpleTypeEnumMember),
-      };
-
-    case "ARRAY":
-      return {
-        ...type,
-        type: relaxType(type.type),
-      };
-
-    case "PROMISE":
-      return {
-        ...type,
-        type: relaxType(type.type),
-      };
-
-    case "INTERFACE":
-    case "OBJECT":
-    case "FUNCTION":
-    case "CLASS":
-      return {
-        kind: SimpleTypeKind.ANY,
-      };
-
-    case "NUMBER_LITERAL":
-      return { kind: SimpleTypeKind.NUMBER };
-    case "STRING_LITERAL":
-      return { kind: SimpleTypeKind.STRING };
-    case "BOOLEAN_LITERAL":
-      return { kind: SimpleTypeKind.BOOLEAN };
-    case "BIG_INT_LITERAL":
-      return { kind: SimpleTypeKind.BIG_INT };
-
-    case "ENUM_MEMBER":
-      return {
-        ...type,
-        type: relaxType(type.type),
-      } as SimpleTypeEnumMember;
-
-    case "ALIAS":
-      return {
-        ...type,
-        target: relaxType(type.target),
-      };
-
-    default:
-      return type;
   }
 }

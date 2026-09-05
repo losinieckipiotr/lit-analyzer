@@ -1,8 +1,6 @@
 import { Node, Type, TypeChecker } from "typescript";
 import {
-  isSimpleType,
   LitElementPropertyConfig,
-  SimpleType,
   typeToString,
 } from "../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
@@ -16,17 +14,13 @@ const rule: RuleModule = {
     priority: "low",
   },
   visitComponentMember(member, context) {
-    if (
-      member.kind !== "property" ||
-      member.modifiers?.has("static") ||
-      member.meta == null
-    ) {
+    const { kind, modifiers, meta, node: memberNode } = member;
+
+    if (kind !== "property" || modifiers?.has("static") || !meta) {
       return;
     }
 
-    if (
-      (member.meta.node?.type ?? member.node)?.getSourceFile() !== context.file
-    ) {
+    if ((meta.node?.type ?? memberNode)?.getSourceFile() !== context.file) {
       return;
     }
 
@@ -36,12 +30,11 @@ const rule: RuleModule = {
     const type = member.type?.() || checker.getAnyType();
 
     const node =
-      member.meta.node?.type ||
-      member.meta.node?.decorator?.expression ||
-      member.node;
-    const { meta: litConfig, propName } = member;
+      meta.node?.type || meta.node?.decorator?.expression || memberNode;
 
-    return validateLitPropertyConfig(node, litConfig, propName, type, context);
+    const { propName } = member;
+
+    return validateLitPropertyConfig(node, meta, propName, type, context);
   },
 };
 
@@ -64,7 +57,7 @@ function validateLitPropertyConfig(
   node: Node,
   litConfig: LitElementPropertyConfig,
   propName: string,
-  typeToCheck: Type | SimpleType,
+  typeToCheck: Type,
   context: RuleModuleContext,
 ) {
   const location = rangeFromNode(node);
@@ -126,11 +119,6 @@ function validateLitPropertyConfig(
     return results;
   }
 
-  // TODO: should be removed when simple type will be removed
-  if (isSimpleType(typeToCheck)) {
-    throw new Error("not implemented");
-  }
-
   const configType = litConfig.type;
 
   // Test the @property type against the actual type if a type has been provided
@@ -159,18 +147,15 @@ function validateLitPropertyConfig(
       // If no suggesting can be provided, report that they are not assignable
       // The OBJECT @property type is an escape from this error
 
-      throw new Error("not implemented");
-
+      // FIXME:
       // if (litConfig.type.kind === "OBJECT") {
       //   return;
       // }
 
-      // const configTypeString = simpleTypeToString(litConfig.type);
-      // const typeToCheckString = isSimpleType(typeToCheck)
-      //   ? simpleTypeToString(typeToCheck)
-      //   : typeToString(typeToCheck, checker);
+      const configTypeString = checker.typeToString(configType);
+      const typeToCheckString = checker.typeToString(typeToCheck);
 
-      // message = `@property type '${configTypeString}' is not assignable to the actual type '${typeToCheckString}'`;
+      message = `@property type '${configTypeString}' is not assignable to the actual type '${typeToCheckString}'`;
     }
 
     return context.report({
@@ -227,9 +212,6 @@ function validateLitPropertyConfig(
       fixMessage: fixMessage,
     });
   }
-
-  // TODO: ?
-  // message: `You need to add '{attribute: false}' to @property decorator for '${propName}' because '${toTypeString(simplePropType)}' type is not a primitive`
 }
 
 export default rule;

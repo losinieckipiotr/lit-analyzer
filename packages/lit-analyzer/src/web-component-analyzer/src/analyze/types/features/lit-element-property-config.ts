@@ -1,7 +1,7 @@
 import { CallExpression, Node, Type } from "typescript";
 
 export interface LitElementPropertyConfig {
-  type?: Type | string;
+  type?: Type;
   attribute?: string | boolean;
   node?: {
     type?: Node;

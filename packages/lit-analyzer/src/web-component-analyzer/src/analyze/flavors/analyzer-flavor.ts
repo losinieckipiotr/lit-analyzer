@@ -111,8 +111,6 @@ export interface InheritanceResult {
 }
 
 export interface AnalyzerDeclarationVisitContext extends AnalyzerVisitContext {
-  // TODO: why is it commented out?
-  // getDefinition: () => ComponentDefinition;
   getDeclaration: () => ComponentDeclaration;
   declarationNode: Node;
   sourceFile: SourceFile;

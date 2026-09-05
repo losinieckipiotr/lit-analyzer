@@ -77,7 +77,7 @@ const rule: RuleModule = {
         return;
       }
 
-      // TODO: handle directives ?
+      // FIXME: handle directives ?
       // const { ts } = context;
       // const signatures = checker.getSignaturesOfType(
       //   typeB,
@@ -106,12 +106,6 @@ const rule: RuleModule = {
           ],
         }),
       });
-
-      // if (isMyUnionType(typeA)) {
-      //     if (isUnionPrimitive(typeA)) {
-      //       return;
-      //     }
-      //   }
     } else {
       // Only primitive types should be allowed as "typeA"
       if (isMyUnionType(typeA)) {

@@ -110,7 +110,7 @@ export function getLitPropertyType(
   ts: typeof tsModule,
   checker: tsModule.TypeChecker,
   node: Node
-): Type | string {
+): Type {
   const value = ts.isIdentifier(node) ? node.text : undefined;
 
   // TODO: magic values, should be documented or taken from compiler?
@@ -131,8 +131,7 @@ export function getLitPropertyType(
     case "ObjectConstructor":
       return checker.getNonPrimitiveType();
     default:
-      // This is an unknown type, so set the name as a string
-      return node.getText();
+      return checker.getUnknownType();
   }
 }
 

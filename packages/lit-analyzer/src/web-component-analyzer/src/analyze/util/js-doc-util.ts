@@ -160,7 +160,7 @@ export function parseSimpleJsDocTypeExpression(
     case "boolean":
       return checker.getBooleanType();
     case "array":
-      // TODO: need testing
+      // FIXME: need testing
       return checker.getTypeAtLocation(tagNode);
     case "object":
       return checker.getNonPrimitiveType();

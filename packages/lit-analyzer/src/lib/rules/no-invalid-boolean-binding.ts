@@ -9,15 +9,7 @@ const rule: RuleModule = {
     priority: "low",
   },
   visitHtmlAssignment(assignment, context) {
-    // based on `src/lib/rules/no-incompatible-type-binding.ts`
     const { htmlAttr } = assignment;
-
-    // TODO: what is ELEMENT_EXPRESSION ?
-    // if (assignment.kind === HtmlNodeAttrAssignmentKind.ELEMENT_EXPRESSION) {
-    //   // For element bindings we only care about the expression type
-    //   // const { typeB } = extractBindingTypes(assignment, context);
-    //   // isAssignableInElementBinding(htmlAttr, typeB, context);
-    // }
 
     if (context.htmlStore.getHtmlAttrTarget(htmlAttr) == null) {
       return;

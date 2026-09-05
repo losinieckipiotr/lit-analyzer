@@ -179,10 +179,6 @@ export function discoverMembers(
               propName,
               default: def,
               type: () => {
-                // TODO: no relaxing type?
-                // return relaxType(
-                //   toSimpleType(checker.getTypeAtLocation(right), checker)
-                // );
                 return checker.getTypeAtLocation(right);
               },
               jsDoc: getJsDoc(assignment.parent, ts),

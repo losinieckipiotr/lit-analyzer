@@ -37,6 +37,9 @@ export class MyElement extends LitElement {
 
 	@property({ type: Date }) test2: number | undefined;
 
+	@property({ type: String })
+	data: Option = { value: 0, label: "" };
+
 	/**
 	 * Test property - optional string
 	 */

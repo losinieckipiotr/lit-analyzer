@@ -35,7 +35,6 @@ export type SimpleTypeModifierKind =
   | "ASYNC"
   | "DEFAULT";
 
-// TODO: use const object instead of enum
 export enum SimpleTypeKind {
   STRING_LITERAL = "STRING_LITERAL",
   NUMBER_LITERAL = "NUMBER_LITERAL",
@@ -377,27 +376,16 @@ const SIMPLE_TYPE_OBJECT: SimpleTypeObject = {
   members: []
 };
 
-// TODO: probably not needed
-Object.freeze(SIMPLE_TYPE_STRING);
-Object.freeze(SIMPLE_TYPE_STRING_LITERAL);
-Object.freeze(SIMPLE_TYPE_NUMBER);
-Object.freeze(SIMPLE_TYPE_BOOLEAN);
-Object.freeze(SIMPLE_TYPE_NULL);
-Object.freeze(SIMPLE_TYPE_UNDEFINED);
-Object.freeze(SIMPLE_TYPE_ANY);
-Object.freeze(SIMPLE_TYPE_ARRAY);
-Object.freeze(SIMPLE_TYPE_OBJECT);
-
 export const SIMPLE_TYPES = {
-  STRING: SIMPLE_TYPE_STRING,
-  STRING_LITERAL: SIMPLE_TYPE_STRING_LITERAL,
-  NUMBER: SIMPLE_TYPE_NUMBER,
-  BOOLEAN: SIMPLE_TYPE_BOOLEAN,
-  NULL: SIMPLE_TYPE_NULL,
-  UNDEFINED: SIMPLE_TYPE_UNDEFINED,
-  ANY: SIMPLE_TYPE_ANY,
-  ARRAY: SIMPLE_TYPE_ARRAY,
-  OBJECT: SIMPLE_TYPE_OBJECT
+  STRING: Object.freeze(SIMPLE_TYPE_STRING),
+  STRING_LITERAL: Object.freeze(SIMPLE_TYPE_STRING_LITERAL),
+  NUMBER: Object.freeze(SIMPLE_TYPE_NUMBER),
+  BOOLEAN: Object.freeze(SIMPLE_TYPE_BOOLEAN),
+  NULL: Object.freeze(SIMPLE_TYPE_NULL),
+  UNDEFINED: Object.freeze(SIMPLE_TYPE_UNDEFINED),
+  ANY: Object.freeze(SIMPLE_TYPE_ANY),
+  ARRAY: Object.freeze(SIMPLE_TYPE_ARRAY),
+  OBJECT: Object.freeze(SIMPLE_TYPE_OBJECT)
 } as const;
 
 //#endregion
@@ -519,11 +507,6 @@ function isNumber(type: Type, ts: typeof tsModule) {
     typeHasFlag(type, ts.TypeFlags.NumberLike) || type.symbol?.name === "Number"
   );
 }
-
-// TODO: remove
-// function isAny(type: Type, ts: typeof tsModule) {
-// 	return typeHasFlag(type, ts.TypeFlags.Any);
-// }
 
 function isEnum(type: Type, ts: typeof tsModule) {
   return typeHasFlag(type, ts.TypeFlags.EnumLike);

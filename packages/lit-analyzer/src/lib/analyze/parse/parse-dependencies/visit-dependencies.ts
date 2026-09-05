@@ -66,9 +66,11 @@ export function visitIndirectImportsFromSourceFile(
   } else {
     // Updated references to newest source files
     const updatedImports = new Set<SourceFile>();
+
     for (const sf of directImports) {
       const updatedSf = context.program.getSourceFile(sf.fileName);
-      if (updatedSf != null) {
+
+      if (updatedSf) {
         updatedImports.add(updatedSf);
       }
     }
@@ -123,67 +125,60 @@ function visitDirectImports(
 
   // Handle top level imports/exports: (import "..."), (import { ... } from "..."), (export * from "...")
 
-  const isImportDeclaration = context.ts.isImportDeclaration(node);
+  const { ts } = context;
 
-  // TODO: change isTypeOnly to phaseModifier
+  const isImportDeclaration = ts.isImportDeclaration(node);
+  const isExportDeclaration = ts.isExportDeclaration(node);
+
   if (
-    (isImportDeclaration && !node.importClause?.isTypeOnly) ||
-    (context.ts.isExportDeclaration(node) && !node.isTypeOnly)
+    // skip type-only imports
+    (isImportDeclaration &&
+      !(node.importClause?.phaseModifier === ts.SyntaxKind.TypeKeyword)) ||
+    // skip type-only exports
+    (isExportDeclaration && !node.isTypeOnly)
   ) {
-    if (!node.moduleSpecifier) {
-      throw new Error("moduleSpecifier is null");
+    const { moduleSpecifier } = node;
+
+    if (!moduleSpecifier) {
+      return;
     }
 
-    const isStringLiteral = context.ts.isStringLiteral(node.moduleSpecifier);
+    const isStringLiteral = ts.isStringLiteral(moduleSpecifier);
 
     if (!isStringLiteral) {
-      throw new Error("grammar error");
+      return;
     }
 
-    const isParentSourceFile = context.ts.isSourceFile(node.parent);
+    const isParentSourceFile = ts.isSourceFile(node.parent);
 
     if (!isParentSourceFile) {
-      throw new Error("parent is not source file");
+      return;
     }
 
-    // TOOO: unsafe condition with null
-    if (
-      node.moduleSpecifier != null &&
-      context.ts.isStringLiteral(node.moduleSpecifier) &&
-      context.ts.isSourceFile(node.parent)
-    ) {
-      // Potentially ignore all imports/exports with named imports/exports because importing an interface would not
-      //    necessarily result in the custom element being defined. An even better solution would be to ignore all
-      //    import declarations with only interface-like/type-alias imports.
-      /*if (("importClause" in node && node.importClause != null) || ("exportClause" in node && node.exportClause != null)) {
+    // Potentially ignore all imports/exports with named imports/exports because importing an interface would not
+    //    necessarily result in the custom element being defined. An even better solution would be to ignore all
+    //    import declarations with only interface-like/type-alias imports.
+    /*if (("importClause" in node && node.importClause != null) || ("exportClause" in node && node.exportClause != null)) {
 			 return;
 			 }*/
 
-      emitDirectModuleImportWithName(node.moduleSpecifier.text, node, context);
-    }
+    emitDirectModuleImportWithName(moduleSpecifier.text, node, context);
   }
 
   // Handle async imports (await import(...))
   else if (
-    context.ts.isCallExpression(node) &&
-    node.expression.kind === context.ts.SyntaxKind.ImportKeyword
+    ts.isCallExpression(node) &&
+    node.expression.kind === ts.SyntaxKind.ImportKeyword
   ) {
-    const moduleSpecifier = node.arguments[0];
-    if (
-      moduleSpecifier != null &&
-      context.ts.isStringLiteralLike(moduleSpecifier)
-    ) {
+    const moduleSpecifier = node.arguments.at(0);
+
+    if (moduleSpecifier && ts.isStringLiteralLike(moduleSpecifier)) {
       emitDirectModuleImportWithName(moduleSpecifier.text, node, context);
     }
   }
 
   node.forEachChild((child) => visitDirectImports(child, context));
 }
-
-// interface MaybeModernProgram extends tsModule.Program {
-//   // TODO: this is internal and probably should not be used
-//   getModuleResolutionCache?(): tsModule.ModuleResolutionCache | undefined;
-// }
 
 /**
  * Resolves and emits a direct imported module
@@ -196,11 +191,9 @@ function emitDirectModuleImportWithName(
   node: Node,
   context: IVisitDependenciesContext,
 ) {
-  //
-
   // Resolve the imported string
   let result: tsModule.ResolvedModuleWithFailedLookupLocations | undefined;
-  const { project } = context;
+  const { project, program } = context;
 
   if (project && project.getResolvedModuleWithFailedLookupLocationsFromCache) {
     // TODO: not tested in units
@@ -214,40 +207,34 @@ function emitDirectModuleImportWithName(
     if (context.host) {
       host = context.host;
     } else {
-      host = context.ts.createCompilerHost(
-        context.program.getCompilerOptions(),
-      );
+      host = context.ts.createCompilerHost(program.getCompilerOptions());
     }
 
-    // TODO: unsafe condition
-    if (result == null) {
+    if (!result) {
       // Result could not be found from the cache, try and resolve module without using the
       // cache.
       result = context.ts.resolveModuleName(
         moduleSpecifier,
         node.getSourceFile().fileName,
-        context.program.getCompilerOptions(),
+        program.getCompilerOptions(),
         host,
       );
     }
   }
 
-  if (result?.resolvedModule?.resolvedFileName != null) {
+  if (result?.resolvedModule?.resolvedFileName) {
     const resolvedModule = result.resolvedModule;
-    const sourceFile = context.program.getSourceFile(
-      resolvedModule.resolvedFileName,
-    );
-    if (sourceFile != null) {
+    const sourceFile = program.getSourceFile(resolvedModule.resolvedFileName);
+
+    if (sourceFile) {
       context.emitDirectImport?.(sourceFile);
     }
   }
 }
 
 /**
- * Returns whether a SourceFile is a Facade Module.
- * A Facade Module only consists of import and export declarations.
- * @param sourceFile
- * @param ts
+ * @returns whether a `sourceFile` is a Facade Module. A Facade Module only
+ * consists of import and export declarations.
  */
 export function isFacadeModule(
   sourceFile: SourceFile,
@@ -259,5 +246,6 @@ export function isFacadeModule(
       ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)
     );
   });
+
   return isFacade;
 }

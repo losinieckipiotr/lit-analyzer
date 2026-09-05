@@ -85,6 +85,7 @@ class TestCompilerHost implements CompilerHost {
     });
 
     // TODO: I still do not understand how it works and is this is good approach for testing
+
     // We need to overwrite this so the traversal of external modules can be tested.
     program.isSourceFileFromExternalLibrary = (
       sourceFile: SourceFile,
