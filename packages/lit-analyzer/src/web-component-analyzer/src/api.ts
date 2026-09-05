@@ -16,11 +16,5 @@ export type { ComponentMember } from "./analyze/types/features/component-member.
 export type { ComponentSlot } from "./analyze/types/features/component-slot.js";
 export type { LitElementPropertyConfig } from "./analyze/types/features/lit-element-property-config.js";
 
-export { SimpleTypeContext } from "./simple-type.js";
-
-//#region MyUnion
-
 export { getUnionType, isMyUnionType, isType } from "./simple-type.js";
 export type { MyUnionType } from "./simple-type.js";
-
-//#endregion

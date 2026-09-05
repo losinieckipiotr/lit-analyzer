@@ -219,10 +219,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
 
     // Add user configured HTML5 collection
     const collection = getUserConfigHtmlCollection(
-      {
-        checker: this.checker,
-        ts: this.ts,
-      },
+      this.checker,
       this.logger,
       config,
     );
@@ -248,10 +245,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     const { checker, ts } = this;
 
     // Add all HTML5 tags and attributes
-    const builtInCollection = getBuiltInHtmlCollection({
-      checker,
-      ts,
-    });
+    const builtInCollection = getBuiltInHtmlCollection(checker, ts);
 
     this.htmlStore.absorbCollection(
       builtInCollection,

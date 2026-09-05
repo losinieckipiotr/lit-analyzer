@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "fs";
-import { SimpleTypeContext } from "../../../web-component-analyzer/src/api.js";
+import type { TypeChecker } from "typescript";
 import type { HTMLDataV1 } from "../data/html-data-types.js";
 import { LitAnalyzerConfig } from "../lit-analyzer-config.js";
 import { LitAnalyzerLogger } from "../lit-analyzer-logger.js";
@@ -15,7 +15,7 @@ import {
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 
 export function getUserConfigHtmlCollection(
-  simpleTypeContext: SimpleTypeContext,
+  checker: TypeChecker,
   logger: LitAnalyzerLogger,
   config: LitAnalyzerConfig,
 ): HtmlDataCollection {
@@ -25,8 +25,6 @@ export function getUserConfigHtmlCollection(
     globalAttributes,
     globalEvents,
   } = config;
-
-  const { checker } = simpleTypeContext;
 
   const collection = (() => {
     let collection: HtmlDataCollection = { tags: [], global: {} };
@@ -40,7 +38,7 @@ export function getUserConfigHtmlCollection(
             ? JSON.parse(readFileSync(customHtmlData, "utf8").toString())
             : customHtmlData;
 
-        const parsedCollection = parseVscodeHtmlData(data, simpleTypeContext);
+        const parsedCollection = parseVscodeHtmlData(data, checker);
         collection = {
           tags: mergeHtmlTags([...collection.tags, ...parsedCollection.tags]),
           global: {

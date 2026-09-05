@@ -2,7 +2,6 @@ import { Type, TypeChecker } from "typescript";
 import {
   getUnionType,
   MyUnionType,
-  SimpleTypeContext,
 } from "../../../../web-component-analyzer/src/api.js";
 import type {
   HTMLDataV1,
@@ -25,22 +24,21 @@ export interface ParseVscodeHtmlDataConfig {
 
 export function parseVscodeHtmlData(
   data: HTMLDataV1,
-  simpleTypeContext: SimpleTypeContext,
+  checker: TypeChecker,
   config: ParseVscodeHtmlDataConfig = {},
 ): HtmlDataCollection {
   switch (data.version) {
     case 1:
     case 1.1:
-      return parseVscodeDataV1(data, simpleTypeContext, config);
+      return parseVscodeDataV1(data, checker, config);
   }
 }
 
 function parseVscodeDataV1(
   data: HTMLDataV1,
-  simpleTypeContext: SimpleTypeContext,
+  checker: TypeChecker,
   config: ParseVscodeHtmlDataConfig,
 ): HtmlDataCollection {
-  const { checker } = simpleTypeContext;
   const { valueSets = [], globalAttributes = [], tags = [] } = data;
 
   function attrValuesToUnion(attrValues: IValueData[]) {
@@ -48,8 +46,6 @@ function parseVscodeDataV1(
     const attrValuesFiltered = attrValues.filter(
       ({ name }) => name !== "undefined",
     );
-
-    const { checker } = simpleTypeContext;
 
     const types = attrValuesFiltered.map(({ name }) => {
       if (name === "null") {

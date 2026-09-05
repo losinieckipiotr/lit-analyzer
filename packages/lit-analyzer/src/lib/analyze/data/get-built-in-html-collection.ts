@@ -1,3 +1,4 @@
+import * as tsMod from "typescript";
 import {
   HtmlAttr,
   HtmlDataCollection,
@@ -5,10 +6,10 @@ import {
 // FIXME:
 // "@vscode/web-custom-data": "^0.6.3",
 // @vscode/web-custom-data/data/browsers.html-data.json
+import type { TypeChecker } from "typescript";
 import {
   getUnionType,
   isType,
-  SimpleTypeContext,
 } from "../../../web-component-analyzer/src/api.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { browsersHtmlData } from "./browsers-html-data.js";
@@ -19,13 +20,12 @@ import {
 } from "./extra-html-data.js";
 
 export function getBuiltInHtmlCollection(
-  simpleTypeContext: SimpleTypeContext,
+  checker: TypeChecker,
+  ts: typeof tsMod,
 ): HtmlDataCollection {
   const vscodeHtmlData = browsersHtmlData;
   const version = vscodeHtmlData.version;
   const globalAttributes = [...(vscodeHtmlData.globalAttributes ?? [])];
-
-  const { checker } = simpleTypeContext;
 
   // Modify valueSets
   const valueSets = (vscodeHtmlData.valueSets || []).map((valueSet) => {
@@ -145,7 +145,7 @@ The value must be a comma-separated list of part mappings:
       tags,
       valueSets,
     },
-    simpleTypeContext,
+    checker,
     {
       builtIn: true,
     },
@@ -215,8 +215,6 @@ The value must be a comma-separated list of part mappings:
   ];
 
   const addMissingAttrTypes = (attrs: HtmlAttr[]): HtmlAttr[] => {
-    const { ts } = simpleTypeContext;
-
     return attrs.map((attr) => {
       const attrType = attr.getType();
 
