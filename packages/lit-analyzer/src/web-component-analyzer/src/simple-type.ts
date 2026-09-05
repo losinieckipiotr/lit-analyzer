@@ -21,8 +21,6 @@ import {
 
 const DEFAULT_TYPE_CACHE = new WeakMap<Type, SimpleType>();
 
-let selectedTSModule = tsModule;
-
 export type SimpleTypeModifierKind =
   | "EXPORT"
   | "AMBIENT"
@@ -1514,14 +1512,6 @@ function toSimpleTypeCached(
 
     return proxy;
   }
-}
-
-export function setTypescriptModule(ts: typeof tsModule) {
-  selectedTSModule = ts;
-}
-
-export function getTypescriptModule(): typeof tsModule {
-  return selectedTSModule;
 }
 
 interface ToSimpleTypeOptions {
