@@ -3,10 +3,6 @@ import { Node, Program, SourceFile } from "typescript";
 import { CustomElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/custom-element-flavor.js";
 import { JsDocFlavor } from "../../web-component-analyzer/src/analyze/flavors/js-doc-flavor.js";
 import { LitElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/lit-element-flavor.js";
-import {
-  ALL_COMPONENT_FEATURES,
-  makeContextFromConfig,
-} from "../../web-component-analyzer/src/analyze/make-context-from-config.js";
 import { analyzeComponentDeclaration } from "../../web-component-analyzer/src/analyze/stages/analyze-declaration.js";
 import { discoverDeclarations } from "../../web-component-analyzer/src/analyze/stages/discover-declarations.js";
 import { discoverDefinitions } from "../../web-component-analyzer/src/analyze/stages/discover-definitions.js";
@@ -17,10 +13,20 @@ import {
   AnalyzerResult,
   AnalyzerVisitContext,
   ComponentDeclaration,
+  ComponentFeature,
   ComponentFeatureCollection,
   ComponentFeatures,
   ComponentHeritageClause,
 } from "./wca-types.js";
+
+const ALL_COMPONENT_FEATURES: ComponentFeature[] = [
+  "member",
+  "method",
+  "cssproperty",
+  "csspart",
+  "event",
+  "slot",
+];
 
 //#region analyzeHTMLElement
 
@@ -163,3 +169,40 @@ export function visitAllHeritageClauses(
 }
 
 //#endregion
+
+/**
+ * Creates an "analyzer visit context" based on some options
+ * @param options
+ */
+export function makeContextFromConfig(
+  options: AnalyzerOptions,
+): AnalyzerVisitContext {
+  if (options.program == null) {
+    throw new Error("A program is required when running 'analyzeSourceFile'");
+  }
+
+  // Assign defaults
+  const flavors = options.flavors || DEFAULT_FLAVORS;
+  const ts = options.ts || tsModule;
+  const checker = options.program.getTypeChecker();
+
+  // Create context
+  return {
+    checker,
+    program: options.program,
+    ts,
+    flavors,
+    cache: {
+      featureCollection: DEFAULT_FEATURE_COLLECTION_CACHE,
+      componentDeclarationCache: DEFAULT_COMPONENT_DECLARATION_CACHE,
+      general: new Map(),
+    },
+    config: {
+      ...options.config,
+      analyzeDefaultLib: options.config?.analyzeDefaultLib ?? false,
+      analyzeDependencies: options.config?.analyzeDependencies ?? false,
+      excludedDeclarationNames: options.config?.excludedDeclarationNames ?? [],
+      features: options.config?.features ?? ALL_COMPONENT_FEATURES,
+    },
+  };
+}
