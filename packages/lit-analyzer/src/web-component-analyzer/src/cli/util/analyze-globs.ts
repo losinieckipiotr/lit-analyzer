@@ -2,7 +2,7 @@ import fastGlob from "fast-glob";
 import { existsSync, lstatSync } from "fs";
 import { Program, SourceFile } from "typescript";
 import { AnalyzerResult } from "../../../../lib/analyze/wca-types.js";
-import { analyzeSourceFile } from "../../analyze/analyze-source-file.js";
+import { analyzeSourceFile } from "../../../../lib/analyze/wca.js";
 import { arrayFlat } from "../../util/array-util.js";
 import { stripTypescriptValues } from "../../util/strip-typescript-values.js";
 import { AnalyzerCliConfig } from "../analyzer-cli-config.js";

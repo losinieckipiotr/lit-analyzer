@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import {
+  AnalyzerFlavor,
+  AnalyzerVisitContext,
   ComponentMember,
   ComponentMemberReflectKind
 } from "../../../../../lib/analyze/wca-types.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-
 import { JsDoc } from "../../types/js-doc.js";
 import { VisibilityKind } from "../../types/visibility-kind.js";
 import { parseSimpleJsDocTypeExpression } from "../../util/js-doc-util.js";
-import { AnalyzerFlavor } from "../analyzer-flavor.js";
 
 /**
  * Refines features by looking at the jsdoc tags on the feature

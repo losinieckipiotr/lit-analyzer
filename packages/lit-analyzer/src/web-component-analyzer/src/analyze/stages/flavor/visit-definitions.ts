@@ -2,7 +2,7 @@ import { Node } from "typescript";
 import {
   AnalyzerVisitContext,
   DefinitionNodeResult
-} from "../../flavors/analyzer-flavor.js";
+} from "../../../../../lib/analyze/wca-types.js";
 import { executeFunctionsUntilMatch } from "../../util/execute-functions-until-match.js";
 
 /**

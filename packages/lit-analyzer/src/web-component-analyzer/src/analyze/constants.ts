@@ -1,9 +1,9 @@
 import { Node } from "typescript";
-import { ComponentDeclaration } from "../../../lib/analyze/wca-types.js";
 import {
   AnalyzerFlavor,
+  ComponentDeclaration,
   ComponentFeatureCollection
-} from "./flavors/analyzer-flavor.js";
+} from "../../../lib/analyze/wca-types.js";
 import { CustomElementFlavor } from "./flavors/custom-element/custom-element-flavor.js";
 import { JsDocFlavor } from "./flavors/js-doc/js-doc-flavor.js";
 import { LitElementFlavor } from "./flavors/lit-element/lit-element-flavor.js";

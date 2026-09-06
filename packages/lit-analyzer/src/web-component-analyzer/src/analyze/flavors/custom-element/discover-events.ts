@@ -1,6 +1,8 @@
 import { Node } from "typescript";
-import { ComponentEvent } from "../../../../../lib/analyze/wca-types.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+import {
+  AnalyzerVisitContext,
+  ComponentEvent
+} from "../../../../../lib/analyze/wca-types.js";
 import { resolveNodeValue } from "../../util/ast-util.js";
 import { getJsDoc } from "../../util/js-doc-util.js";
 import { lazy } from "../../util/lazy.js";

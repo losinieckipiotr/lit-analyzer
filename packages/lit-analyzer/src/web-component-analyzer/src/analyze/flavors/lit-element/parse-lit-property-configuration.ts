@@ -1,7 +1,9 @@
 import * as tsModule from "typescript";
 import { CallExpression, Node, PropertyAssignment, Type } from "typescript";
-import { LitElementPropertyConfig } from "../../../../../lib/analyze/wca-types.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+import {
+  AnalyzerVisitContext,
+  LitElementPropertyConfig
+} from "../../../../../lib/analyze/wca-types.js";
 import { getDecorators, resolveNodeValue } from "../../util/ast-util.js";
 
 export type LitElementPropertyDecoratorKind =

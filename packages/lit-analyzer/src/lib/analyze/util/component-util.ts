@@ -1,6 +1,6 @@
 import { SourceFile } from "typescript";
-import { visitAllHeritageClauses } from "../../../web-component-analyzer/src/api.js";
 import { ComponentDeclaration, ComponentDefinition } from "../wca-types.js";
+import { visitAllHeritageClauses } from "../wca.js";
 
 export function getDeclarationsInFile(
   definition: ComponentDefinition,

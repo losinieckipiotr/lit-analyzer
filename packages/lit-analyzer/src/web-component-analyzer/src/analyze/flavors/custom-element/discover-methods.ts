@@ -1,12 +1,14 @@
 import { Node } from "typescript";
-import { ComponentMethod } from "../../types/features/component-method.js";
+import {
+  AnalyzerDeclarationVisitContext,
+  ComponentMethod
+} from "../../../../../lib/analyze/wca-types.js";
 import {
   getMemberVisibilityFromNode,
   hasModifier
 } from "../../util/ast-util.js";
 import { getJsDoc } from "../../util/js-doc-util.js";
 import { lazy } from "../../util/lazy.js";
-import { AnalyzerDeclarationVisitContext } from "../analyzer-flavor.js";
 
 /**
  * Discovers methods

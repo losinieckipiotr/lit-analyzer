@@ -1,12 +1,10 @@
 import { Node } from "typescript";
 import {
   AnalyzerVisitContext,
-  InheritanceResult
-} from "../flavors/analyzer-flavor.js";
-import {
   ComponentDeclarationKind,
-  ComponentHeritageClause
-} from "../types/component-declaration.js";
+  ComponentHeritageClause,
+  InheritanceResult
+} from "../../../../lib/analyze/wca-types.js";
 import { visitInheritance } from "./flavor/visit-inheritance.js";
 
 /**

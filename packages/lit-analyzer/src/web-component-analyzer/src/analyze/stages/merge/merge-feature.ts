@@ -3,9 +3,9 @@ import {
   ComponentCssPart,
   ComponentCssProperty,
   ComponentEvent,
+  ComponentMethod,
   ComponentSlot
 } from "../../../../../lib/analyze/wca-types.js";
-import { ComponentMethod } from "../../types/features/component-method.js";
 import { mergeJsDoc, mergeNamedEntries } from "./merge-util.js";
 
 /**

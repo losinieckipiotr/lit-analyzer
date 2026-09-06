@@ -1,7 +1,9 @@
 import { Node } from "typescript";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+import {
+  AnalyzerVisitContext,
+  DefinitionNodeResult
+} from "../../../../../lib/analyze/wca-types.js";
 import { getInterfaceKeys, resolveNodeValue } from "../../util/ast-util.js";
-import { DefinitionNodeResult } from "../analyzer-flavor.js";
 
 /**
  * Visits custom element definitions.

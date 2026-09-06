@@ -1,5 +1,5 @@
 import { Node } from "typescript";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+import { AnalyzerVisitContext } from "../../../../../lib/analyze/wca-types.js";
 
 /**
  * Excludes nodes from "lib.dom.d.ts" if analyzeLibDom is false

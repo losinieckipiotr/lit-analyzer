@@ -3,10 +3,11 @@ import * as tsModule from "typescript";
 import { Node, Program, SourceFile, Type, TypeChecker } from "typescript";
 import {
   AnalyzerResult,
-  ComponentDeclaration
+  ComponentDeclaration,
+  ComponentFeatureBase,
+  ComponentHeritageClause
 } from "../../../../lib/analyze/wca-types.js";
-import { ComponentHeritageClause } from "../../analyze/types/component-declaration.js";
-import { ComponentFeatureBase } from "../../analyze/types/features/component-feature.js";
+import { visitAllHeritageClauses } from "../../../../lib/analyze/wca.js";
 import { JsDoc } from "../../analyze/types/js-doc.js";
 import {
   findParent,
@@ -15,8 +16,7 @@ import {
 } from "../../analyze/util/ast-util.js";
 import {
   getMixinHeritageClauses,
-  getSuperclassHeritageClause,
-  visitAllHeritageClauses
+  getSuperclassHeritageClause
 } from "../../analyze/util/component-declaration-util.js";
 import { getJsDoc } from "../../analyze/util/js-doc-util.js";
 import { isSimpleType, SIMPLE_TYPES, toSimpleType } from "../../simple-type.js";

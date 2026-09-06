@@ -1,13 +1,13 @@
 import { Node } from "typescript";
 import {
+  AnalyzerFlavor,
+  AnalyzerVisitContext,
   ComponentCssPart,
   ComponentCssProperty,
   ComponentEvent,
   ComponentMember,
   ComponentSlot
 } from "../../../../../lib/analyze/wca-types.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-import { AnalyzerFlavor } from "../analyzer-flavor.js";
 import { discoverFeatures } from "./discover-features.js";
 
 export const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] =

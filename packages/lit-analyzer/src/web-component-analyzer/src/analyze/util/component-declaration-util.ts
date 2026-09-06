@@ -1,5 +1,8 @@
-import { ComponentDeclaration } from "../../../../lib/analyze/wca-types.js";
-import { ComponentHeritageClause } from "../types/component-declaration.js";
+import {
+  ComponentDeclaration,
+  ComponentHeritageClause
+} from "../../../../lib/analyze/wca-types.js";
+import { visitAllHeritageClauses } from "../../../../lib/analyze/wca.js";
 
 /**
  * Returns the superclass heritage clause
@@ -73,21 +76,4 @@ export function getExtendsHeritageClausesInChain(
     }
   });
   return clauses;
-}
-
-/**
- * A helper function that makes it possible to visit all heritage clauses in the inheritance chain.
- * @param declaration
- * @param emit
- */
-export function visitAllHeritageClauses(
-  declaration: ComponentDeclaration,
-  emit: (clause: ComponentHeritageClause) => void
-): void {
-  for (const clause of declaration.heritageClauses) {
-    emit(clause);
-    if (clause.declaration != null) {
-      visitAllHeritageClauses(clause.declaration, emit);
-    }
-  }
 }

@@ -1,5 +1,5 @@
 import { Node } from "typescript";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+import { AnalyzerVisitContext } from "../../../../../lib/analyze/wca-types.js";
 
 /**
  * Uses flavors to determine if a node should be excluded from the output

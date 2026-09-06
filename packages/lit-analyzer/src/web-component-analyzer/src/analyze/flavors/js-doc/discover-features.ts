@@ -1,23 +1,23 @@
 import { Node } from "typescript";
 import {
+  AnalyzerVisitContext,
   ComponentCssPart,
   ComponentCssProperty,
   ComponentEvent,
   ComponentMember,
   ComponentMemberAttribute,
   ComponentMemberProperty,
-  ComponentSlot
+  ComponentSlot,
+  FeatureDiscoverVisitMap
 } from "../../../../../lib/analyze/wca-types.js";
 import {
   isSimpleType,
   SimpleTypeKind,
   SimpleTypeStringLiteral
 } from "../../../simple-type.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import { getNodeSourceFileLang } from "../../util/ast-util.js";
 import { parseSimpleJsDocTypeExpression } from "../../util/js-doc-util.js";
 import { lazy } from "../../util/lazy.js";
-import { FeatureDiscoverVisitMap } from "../analyzer-flavor.js";
 import { parseJsDocForNode } from "./parse-js-doc-for-node.js";
 
 export const discoverFeatures: Partial<

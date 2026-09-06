@@ -1,12 +1,10 @@
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerVisitContext,
-  FeatureVisitReturnTypeMap
-} from "../../flavors/analyzer-flavor.js";
-import {
   ComponentFeature,
-  ComponentFeatureBase
-} from "../../types/features/component-feature.js";
+  ComponentFeatureBase,
+  FeatureVisitReturnTypeMap
+} from "../../../../../lib/analyze/wca-types.js";
 
 export type RefineFeatureEmitMap = {
   [K in ComponentFeature]: (result: FeatureVisitReturnTypeMap[K]) => void;

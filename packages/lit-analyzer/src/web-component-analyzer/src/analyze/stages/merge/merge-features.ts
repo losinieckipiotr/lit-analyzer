@@ -1,8 +1,8 @@
-import { arrayFlat } from "../../../util/array-util.js";
 import {
   AnalyzerVisitContext,
   ComponentFeatureCollection
-} from "../../flavors/analyzer-flavor.js";
+} from "../../../../../lib/analyze/wca-types.js";
+import { arrayFlat } from "../../../util/array-util.js";
 import {
   mergeCssParts,
   mergeCssProperties,

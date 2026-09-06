@@ -1,4 +1,4 @@
-import { AnalyzerFlavor } from "../analyzer-flavor.js";
+import { AnalyzerFlavor } from "../../../../../lib/analyze/wca-types.js";
 import { discoverDefinitions } from "./discover-definitions.js";
 import { discoverFeatures } from "./discover-features.js";
 import { discoverGlobalFeatures } from "./discover-global-features.js";

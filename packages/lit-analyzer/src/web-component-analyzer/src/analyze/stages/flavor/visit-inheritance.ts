@@ -2,7 +2,7 @@ import { Node } from "typescript";
 import {
   AnalyzerVisitContext,
   InheritanceResult
-} from "../../flavors/analyzer-flavor.js";
+} from "../../../../../lib/analyze/wca-types.js";
 
 /**
  * Uses flavors to find inheritance for a node

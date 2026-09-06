@@ -1,8 +1,4 @@
-import { ComponentDeclaration } from "../../../../../lib/analyze/wca-types.js";
-import { JsDoc } from "../js-doc.js";
-
-export type ComponentFeature =
-  "member" | "method" | "cssproperty" | "csspart" | "event" | "slot";
+import { ComponentFeature } from "../../../../../lib/analyze/wca-types.js";
 
 export const ALL_COMPONENT_FEATURES: ComponentFeature[] = [
   "member",
@@ -12,8 +8,3 @@ export const ALL_COMPONENT_FEATURES: ComponentFeature[] = [
   "event",
   "slot"
 ];
-
-export interface ComponentFeatureBase {
-  jsDoc?: JsDoc;
-  declaration?: ComponentDeclaration;
-}

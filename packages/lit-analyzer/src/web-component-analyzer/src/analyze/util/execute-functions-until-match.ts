@@ -1,4 +1,4 @@
-import { AnalyzerVisitContext } from "../flavors/analyzer-flavor.js";
+import { AnalyzerVisitContext } from "../../../../lib/analyze/wca-types.js";
 
 /**
  * Executes functions in a function map until some function returns a non-undefined value.

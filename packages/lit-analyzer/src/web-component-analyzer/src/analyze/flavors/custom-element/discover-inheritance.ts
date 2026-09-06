@@ -3,18 +3,18 @@ import {
   HeritageClause,
   Node
 } from "typescript";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import {
+  AnalyzerVisitContext,
   ComponentDeclarationKind,
   ComponentHeritageClause,
-  ComponentHeritageClauseKind
-} from "../../types/component-declaration.js";
+  ComponentHeritageClauseKind,
+  InheritanceResult
+} from "../../../../../lib/analyze/wca-types.js";
 import {
   findChild,
   findChildren,
   resolveDeclarationsDeep
 } from "../../util/ast-util.js";
-import { InheritanceResult } from "../analyzer-flavor.js";
 
 /**
  * Discovers inheritance from a node by looking at "extends" and "implements"

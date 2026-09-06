@@ -4,7 +4,10 @@ import {
   Node,
   ReturnStatement
 } from "typescript";
-import { ComponentMember } from "../../../../../lib/analyze/wca-types.js";
+import {
+  AnalyzerDeclarationVisitContext,
+  ComponentMember
+} from "../../../../../lib/analyze/wca-types.js";
 import {
   getMemberVisibilityFromNode,
   getModifiersFromNode,
@@ -14,7 +17,6 @@ import {
 import { getJsDoc } from "../../util/js-doc-util.js";
 import { lazy } from "../../util/lazy.js";
 import { isNamePrivate } from "../../util/text-util.js";
-import { AnalyzerDeclarationVisitContext } from "../analyzer-flavor.js";
 
 /**
  * Discovers members based on standard vanilla custom element rules

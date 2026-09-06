@@ -1,8 +1,9 @@
 import { Node } from "typescript";
+
 import {
   AnalyzerDeclarationVisitContext,
   ComponentFeatureCollection
-} from "../flavors/analyzer-flavor.js";
+} from "../../../../lib/analyze/wca-types.js";
 import { prepareRefineEmitMap } from "../util/get-refine-emit-map.js";
 import { refineFeature } from "./flavor/refine-feature.js";
 import { VisitFeatureEmitMap, visitFeatures } from "./flavor/visit-features.js";

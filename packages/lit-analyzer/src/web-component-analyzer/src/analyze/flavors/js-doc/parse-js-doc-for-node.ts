@@ -1,5 +1,5 @@
 import { JSDocTag, Node } from "typescript";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+import { AnalyzerVisitContext } from "../../../../../lib/analyze/wca-types.js";
 import type { JsDocTagParsed } from "../../types/js-doc.js";
 import { getJsDoc } from "../../util/js-doc-util.js";
 

@@ -1,12 +1,12 @@
 import { Node } from "typescript";
-import { arrayDefined } from "../../../util/array-util.js";
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerFlavor,
   AnalyzerVisitContext,
+  ComponentFeature,
   FeatureVisitReturnTypeMap
-} from "../../flavors/analyzer-flavor.js";
-import { ComponentFeature } from "../../types/features/component-feature.js";
+} from "../../../../../lib/analyze/wca-types.js";
+import { arrayDefined } from "../../../util/array-util.js";
 
 export type VisitFeatureEmitMap = {
   [K in ComponentFeature]: (result: FeatureVisitReturnTypeMap[K][]) => void;

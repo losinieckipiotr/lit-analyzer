@@ -1,6 +1,6 @@
 import { Node } from "typescript";
+import { AnalyzerVisitContext } from "../../../../../lib/analyze/wca-types.js";
 import { arrayDefined } from "../../../util/array-util.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import {
   VisitFeatureEmitMap,
   visitFeaturesWithVisitMaps

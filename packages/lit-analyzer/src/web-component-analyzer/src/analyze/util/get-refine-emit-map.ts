@@ -1,4 +1,4 @@
-import { ComponentFeatureCollection } from "../flavors/analyzer-flavor.js";
+import { ComponentFeatureCollection } from "../../../../lib/analyze/wca-types.js";
 import { RefineFeatureEmitMap } from "../stages/flavor/refine-feature.js";
 
 /**

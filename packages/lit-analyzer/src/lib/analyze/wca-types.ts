@@ -3,10 +3,13 @@ import type {
   JSDoc,
   JSDocTag,
   Node,
+  Program,
   SourceFile,
   Symbol,
   Type,
+  TypeChecker,
 } from "typescript";
+import * as tsModule from "typescript";
 
 export interface LitElementPropertyConfig {
   type?: Type;
@@ -48,7 +51,7 @@ interface JsDoc {
 
 type ComponentMemberKind = "property" | "attribute";
 
-type PriorityKind = "low" | "medium" | "high";
+export type PriorityKind = "low" | "medium" | "high";
 
 type VisibilityKind = "public" | "protected" | "private";
 
@@ -57,7 +60,7 @@ export type ComponentMemberReflectKind =
 
 type ModifierKind = "readonly" | "static";
 
-interface ComponentFeatureBase {
+export interface ComponentFeatureBase {
   jsDoc?: JsDoc;
   declaration?: ComponentDeclaration;
 }
@@ -101,7 +104,7 @@ export interface ComponentMemberAttribute extends ComponentMemberBase {
 export type ComponentMember =
   ComponentMemberProperty | ComponentMemberAttribute;
 
-interface ComponentMethod extends ComponentFeatureBase {
+export interface ComponentMethod extends ComponentFeatureBase {
   name: string;
   node?: Node;
   type?: () => Type;
@@ -139,11 +142,11 @@ export interface ComponentFeatures {
   cssParts: ComponentCssPart[];
 }
 
-type ComponentDeclarationKind = "mixin" | "interface" | "class";
+export type ComponentDeclarationKind = "mixin" | "interface" | "class";
 
-type ComponentHeritageClauseKind = "implements" | "extends" | "mixin";
+export type ComponentHeritageClauseKind = "implements" | "extends" | "mixin";
 
-interface ComponentHeritageClause {
+export interface ComponentHeritageClause {
   kind: ComponentHeritageClauseKind;
   identifier: Node;
   declaration: ComponentDeclaration | undefined;
@@ -179,4 +182,153 @@ export interface AnalyzerResult {
   componentDefinitions: ComponentDefinition[];
   declarations?: ComponentDeclaration[];
   globalFeatures?: ComponentFeatures;
+}
+
+export type ComponentFeature =
+  "member" | "method" | "cssproperty" | "csspart" | "event" | "slot";
+
+export interface AnalyzerConfig {
+  analyzeDefaultLib?: boolean;
+  analyzeDependencies?: boolean;
+  analyzeGlobalFeatures?: boolean;
+  analyzeAllDeclarations?: boolean;
+  excludedDeclarationNames?: string[];
+  features?: ComponentFeature[];
+}
+
+export interface DefinitionNodeResult {
+  tagName: string;
+
+  tagNameNode?: Node; // Where to find the node that contains the name of the component
+  identifierNode?: Node; // Where to find the node that refers to the declaration node
+  declarationNode?: Node; // Where to find the node that contains the implementation of the component
+
+  analyzerFlavor?: AnalyzerFlavor;
+}
+
+export interface InheritanceResult {
+  heritageClauses?: ComponentHeritageClause[];
+  declarationNodes?: Node[];
+  declarationKind?: ComponentDeclarationKind;
+}
+
+type Optional<T> = T | undefined;
+
+export type FeatureDiscoverVisitMap<Context extends AnalyzerVisitContext> = {
+  member?: (node: Node, context: Context) => Optional<ComponentMember[]>;
+  method?: (node: Node, context: Context) => Optional<ComponentMethod[]>;
+  cssproperty?: (
+    node: Node,
+    context: Context,
+  ) => Optional<ComponentCssProperty[]>;
+  csspart?: (node: Node, context: Context) => Optional<ComponentCssPart[]>;
+  event?: (node: Node, context: Context) => Optional<ComponentEvent[]>;
+  slot?: (node: Node, context: Context) => Optional<ComponentSlot[]>;
+};
+
+export interface AnalyzerDeclarationVisitContext extends AnalyzerVisitContext {
+  getDeclaration: () => ComponentDeclaration;
+  declarationNode: Node;
+  sourceFile: SourceFile;
+}
+
+type OptionalOrArray<T> = T | T[] | undefined;
+
+type FeatureRefineVisitMap = {
+  member?: (
+    feature: ComponentMember,
+    context: AnalyzerVisitContext,
+  ) => OptionalOrArray<ComponentMember>;
+  method?: (
+    feature: ComponentMethod,
+    context: AnalyzerVisitContext,
+  ) => OptionalOrArray<ComponentMethod>;
+  cssproperty?: (
+    feature: ComponentCssProperty,
+    context: AnalyzerVisitContext,
+  ) => OptionalOrArray<ComponentCssProperty>;
+  csspart?: (
+    feature: ComponentCssPart,
+    context: AnalyzerVisitContext,
+  ) => OptionalOrArray<ComponentCssPart>;
+  event?: (
+    feature: ComponentEvent,
+    context: AnalyzerVisitContext,
+  ) => OptionalOrArray<ComponentEvent>;
+  slot?: (
+    feature: ComponentSlot,
+    context: AnalyzerVisitContext,
+  ) => OptionalOrArray<ComponentSlot>;
+};
+
+export interface AnalyzerFlavor {
+  excludeNode?(node: Node, context: AnalyzerVisitContext): boolean | undefined;
+
+  discoverDefinitions?(
+    node: Node,
+    context: AnalyzerVisitContext,
+  ): DefinitionNodeResult[] | undefined;
+
+  discoverInheritance?(
+    node: Node,
+    context: AnalyzerVisitContext,
+  ): InheritanceResult | undefined;
+
+  discoverFeatures?: FeatureDiscoverVisitMap<AnalyzerDeclarationVisitContext>;
+
+  discoverGlobalFeatures?: FeatureDiscoverVisitMap<AnalyzerVisitContext>;
+
+  refineFeature?: FeatureRefineVisitMap;
+
+  refineDeclaration?(
+    declaration: ComponentDeclaration,
+    context: AnalyzerDeclarationVisitContext,
+  ): ComponentDeclaration | undefined;
+}
+
+export interface ComponentFeatureCollection {
+  members: ComponentMember[];
+  methods: ComponentMethod[];
+  events: ComponentEvent[];
+  slots: ComponentSlot[];
+  cssProperties: ComponentCssProperty[];
+  cssParts: ComponentCssPart[];
+}
+
+/**
+ * This context is used in the entire analyzer.
+ * A new instance of this is created whenever the analyzer runs.
+ */
+export interface AnalyzerVisitContext {
+  checker: TypeChecker;
+  program: Program;
+  ts: typeof tsModule;
+  config: AnalyzerConfig;
+  flavors: AnalyzerFlavor[];
+  emitContinue?(): void;
+  cache: {
+    featureCollection: WeakMap<Node, ComponentFeatureCollection>;
+    componentDeclarationCache: WeakMap<Node, ComponentDeclaration>;
+    general: Map<unknown, unknown>;
+  };
+}
+
+export interface FeatureVisitReturnTypeMap {
+  member: ComponentMember;
+  method: ComponentMethod;
+  cssproperty: ComponentCssProperty;
+  csspart: ComponentCssPart;
+  event: ComponentEvent;
+  slot: ComponentSlot;
+}
+
+/**
+ * Options to give when analyzing components
+ */
+export interface AnalyzerOptions {
+  program: Program;
+  ts?: typeof tsModule;
+  flavors?: AnalyzerFlavor[];
+  config?: AnalyzerConfig;
+  verbose?: boolean;
 }

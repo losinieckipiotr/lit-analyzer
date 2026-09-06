@@ -6,9 +6,9 @@ import {
   ComponentEvent,
   ComponentMemberAttribute,
   ComponentMemberProperty,
+  ComponentMethod,
   ComponentSlot
 } from "../../../../lib/analyze/wca-types.js";
-import { ComponentMethod } from "../../analyze/types/features/component-method.js";
 import { VisibilityKind } from "../../analyze/types/visibility-kind.js";
 import { getMixinHeritageClausesInChain } from "../../analyze/util/component-declaration-util.js";
 import { arrayDedupe, arrayDefined, arrayFlat } from "../../util/array-util.js";

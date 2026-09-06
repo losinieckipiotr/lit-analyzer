@@ -1,13 +1,11 @@
 import { TypeChecker } from "typescript";
 import {
+  AnalyzerVisitContext,
   ComponentMember,
   ComponentMemberAttribute,
-  ComponentMemberProperty
-} from "../../../../../lib/analyze/wca-types.js";
-import {
-  AnalyzerVisitContext,
+  ComponentMemberProperty,
   PriorityKind
-} from "../../flavors/analyzer-flavor.js";
+} from "../../../../../lib/analyze/wca-types.js";
 import { mergeJsDoc, mergeModifiers } from "./merge-util.js";
 
 const priorityValueMap: Record<PriorityKind, number> = {

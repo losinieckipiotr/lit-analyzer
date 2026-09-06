@@ -5,10 +5,6 @@ import {
   SourceFile,
   TypeChecker,
 } from "typescript";
-import {
-  analyzeHTMLElement,
-  analyzeSourceFile,
-} from "../../web-component-analyzer/src/api.js";
 import { ALL_RULES } from "../rules/all-rules.js";
 import { MAX_RUNNING_TIME_PER_OPERATION } from "./constants.js";
 import { getBuiltInHtmlCollection } from "./data/get-built-in-html-collection.js";
@@ -41,6 +37,7 @@ import {
 } from "./store/html-store/default-analyzer-html-store.js";
 import { HtmlDataSourceKind } from "./store/html-store/html-data-source-merged.js";
 import { changedSourceFileIterator } from "./util/changed-source-file-iterator.js";
+import { analyzeHTMLElement, analyzeSourceFile } from "./wca.js";
 
 export interface LitAnalyzerContext {
   readonly ts: typeof tsMod;

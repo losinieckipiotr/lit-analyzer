@@ -8,12 +8,14 @@ import {
   Type
 } from "typescript";
 import {
+  AnalyzerDeclarationVisitContext,
+  AnalyzerFlavor,
+  AnalyzerVisitContext,
   ComponentMember,
+  ComponentMethod,
+  DefinitionNodeResult,
   LitElementPropertyConfig
 } from "../../../../../lib/analyze/wca-types.js";
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-
-import { ComponentMethod } from "../../types/features/component-method.js";
 import {
   getDecorators,
   getMemberVisibilityFromNode,
@@ -26,11 +28,6 @@ import {
 } from "../../util/ast-util.js";
 import { getJsDoc, getJsDocType } from "../../util/js-doc-util.js";
 import { camelToDashCase, isNamePrivate } from "../../util/text-util.js";
-import {
-  AnalyzerDeclarationVisitContext,
-  AnalyzerFlavor,
-  DefinitionNodeResult
-} from "../analyzer-flavor.js";
 import {
   getLitElementPropertyDecoratorConfig,
   getLitPropertyOptions,

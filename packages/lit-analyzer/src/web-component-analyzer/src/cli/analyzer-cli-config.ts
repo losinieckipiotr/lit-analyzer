@@ -1,5 +1,5 @@
 import * as tsModule from "typescript";
-import { ComponentFeature } from "../analyze/types/features/component-feature.js";
+import { ComponentFeature } from "../../../lib/analyze/wca-types.js";
 import { VisibilityKind } from "../analyze/types/visibility-kind.js";
 import { TransformerKind } from "../transformers/transformer-kind.js";
 
