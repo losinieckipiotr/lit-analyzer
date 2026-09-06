@@ -1,8 +1,4 @@
 import { Type, TypeChecker } from "typescript";
-import {
-  getUnionType,
-  MyUnionType,
-} from "../../../../web-component-analyzer/src/api.js";
 import type {
   HTMLDataV1,
   IAttributeData,
@@ -10,6 +6,7 @@ import type {
   IValueData,
   MarkupContent,
 } from "../../data/html-data-types.js";
+import { getUnionType, MyUnionType } from "../../my-union-type.js";
 import {
   HtmlAttr,
   HtmlDataCollection,

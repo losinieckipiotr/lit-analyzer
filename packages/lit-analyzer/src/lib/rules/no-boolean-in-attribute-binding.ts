@@ -1,7 +1,9 @@
 import { Type } from "typescript";
-import { isMyUnionType } from "../../web-component-analyzer/src/api.js";
 import { LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER } from "../analyze/constants.js";
-import { isBooleanStringUnion } from "../analyze/my-union.js";
+import {
+  isBooleanStringUnion,
+  isMyUnionType,
+} from "../analyze/my-union-type.js";
 import { HtmlNodeAttrAssignmentKind } from "../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttrKind } from "../analyze/types/html-node/html-node-attr-types.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";

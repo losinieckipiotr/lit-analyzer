@@ -1,9 +1,9 @@
 import { Type } from "typescript";
 import {
+  isBooleanStringUnion,
   isMyUnionType,
   MyUnionType,
-} from "../../../../web-component-analyzer/src/api.js";
-import { isBooleanStringUnion } from "../../../analyze/my-union.js";
+} from "../../../analyze/my-union-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttrAssignmentKind } from "../../../analyze/types/html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
@@ -12,7 +12,6 @@ import {
   rangeFromHtmlNodeAttr,
 } from "../../../analyze/util/range-util.js";
 import { isAssignableBindingUnderSecuritySystem } from "./is-assignable-binding-under-security-system.js";
-// import { isAssignableToType } from "./is-assignable-to-type.js";
 
 export function isAssignableInAttributeBinding(
   htmlAttr: HtmlNodeAttr,
@@ -253,178 +252,3 @@ export function isAssignableInAttributeBinding(
 
   throw new Error("not implemented");
 }
-
-// /**
-//  * Assignability check that simulates string coercion.
-//  * This is used to type check attribute bindings.
-//  */
-// export function isAssignableToTypeWithStringCoercion(
-//   typeA: Type,
-//   typeB: Type,
-//   simpleTypeContext: { checker: TypeChecker; ts: typeof tsMod },
-// ): boolean {
-//   if (isLitDirective(typeB)) {
-//     return true;
-//   }
-
-//   const { checker, ts } = simpleTypeContext;
-
-//   // Take into account that the empty string is is equal to true
-//   if (typeB.isStringLiteral()) {
-//     if (typeB.value.length === 0) {
-//       return checker.isTypeAssignableTo(typeA, checker.getTrueType());
-//     }
-
-//     // Test if a potential string literal is a assignable to a number
-//     // Example: max="123"
-//     const numberValue = Number(typeB.value);
-//     if (!isNaN(numberValue)) {
-//       const numberLiteralType = checker.getNumberLiteralType(numberValue);
-//       if (checker.isTypeAssignableTo(typeA, numberLiteralType)) {
-//         return true;
-//       }
-//     }
-//   }
-
-//   // Test if a boolean coerced string is possible.
-//   // Example: attribute "true" | "false" binding with boolean value in template
-//   const isBoolean = (typeB.flags & ts.TypeFlags.Boolean) !== 0;
-//   if (isBoolean) {
-//     const trueStrType = checker.getStringLiteralType("true");
-//     const falseStrType = checker.getStringLiteralType("false");
-
-//     return (
-//       checker.isTypeAssignableTo(typeA, trueStrType) ||
-//       checker.isTypeAssignableTo(typeA, falseStrType)
-//     );
-//   }
-
-//   /**
-//    * Test if a boolean literal coerced to string is possible
-//    * Example: aria-expanded="${this.open}"
-//    */
-//   const isBooleanLiteral = (typeB.flags & ts.TypeFlags.BooleanLiteral) !== 0;
-//   if (isBooleanLiteral) {
-//     return checker.isTypeAssignableTo(
-//       typeA,
-//       checker.getStringLiteralType(checker.typeToString(typeB)),
-//     );
-//   }
-
-//   const isNumber = (typeB.flags & ts.TypeFlags.Number) !== 0;
-//   if (isNumber) {
-//     // Test if a number coerced to string is possible
-//     // Example: value="${this.max}"
-//     return checker.isTypeAssignableTo(typeA, checker.getStringType());
-//   }
-
-//   // Test if a number literal coerced to string is possible
-//   // Example: value="${1}"
-//   if (typeB.isNumberLiteral()) {
-//     const numberLiteralType = checker.getStringLiteralType(String(typeB.value));
-
-//     return checker.isTypeAssignableTo(typeA, numberLiteralType);
-//   }
-
-//   return false;
-// }
-
-// /**
-//  * Certain attributes like "role" are string literals, but should be type checked
-//  *   by comparing each item in the white-space-separated array against typeA
-//  * @param assignment
-//  * @param typeA
-//  * @param typeB
-//  * @param context
-//  */
-// export function isAssignableInPrimitiveArray(
-//   assignment: HtmlNodeAttrAssignment,
-//   { typeA, typeB }: { typeA: Type; typeB: Type },
-//   context: RuleModuleContext,
-// ): boolean {
-//   // Only check "STRING" and "EXPRESSION" for now
-//   if (
-//     assignment.kind !== HtmlNodeAttrAssignmentKind.STRING &&
-//     assignment.kind !== HtmlNodeAttrAssignmentKind.EXPRESSION
-//   ) {
-//     throw new Error("not implemented");
-//   }
-
-//   const checker = context.program.getTypeChecker();
-
-//   if (!typeA.isUnion()) {
-//     throw new Error("not implemented");
-//   }
-
-//   function isAssignableToPrimitiveAttributeType(type: Type) {
-//     return (
-//       checker.isTypeAssignableTo(type, checker.getStringType()) ||
-//       checker.isTypeAssignableTo(type, checker.getNumberType()) ||
-//       checker.isTypeAssignableTo(type, checker.getBooleanType())
-//     );
-//   }
-
-//   function isPrimitiveUnionType(type: UnionType) {
-//     return type.types.every(isAssignableToPrimitiveAttributeType);
-//   }
-
-//   const isAPrimitive = isPrimitiveUnionType(typeA);
-//   const isBStringLiteral = typeB.isStringLiteral();
-
-//   if (isAPrimitive && isBStringLiteral) {
-//     // Split a value like: "button listitem" into ["button", " ", "listitem"]
-//     const valuesAndWhitespace = typeB.value.split(/(\s+)/g);
-//     const valuesNotAssignable: string[] = [];
-
-//     const startOffset = assignment.location.start;
-//     let offset = 0;
-
-//     for (const value of valuesAndWhitespace) {
-//       // Check all non-whitespace values
-//       if (value.match(/\s+/) == null && value !== "") {
-//         // Make sure that the the value is assignable to the union
-//         const literalType = checker.getStringLiteralType(value);
-
-//         if (
-//           !isAssignableToTypeWithStringCoercion(typeA, literalType, {
-//             checker,
-//             ts: context.ts,
-//           })
-//         ) {
-//           valuesNotAssignable.push(value);
-
-//           // If the assignment kind is "STRING" we can report diagnostics directly on the value in the HTML
-//           if (assignment.kind === "STRING") {
-//             const typeASimpleStr = checker.typeToString(typeA);
-
-//             context.report({
-//               location: documentRangeToSFRange(assignment.htmlAttr.document, {
-//                 start: startOffset + offset,
-//                 end: startOffset + offset + value.length,
-//               }),
-//               message: `The value '${value}' is not assignable to '${typeASimpleStr}'`,
-//             });
-//           }
-//         }
-//       }
-
-//       offset += value.length;
-//     }
-
-//     // If the assignment kind as "EXPRESSION" report a single diagnostic on the attribute name
-//     if (assignment.kind === "EXPRESSION" && valuesNotAssignable.length > 0) {
-//       const multiple = valuesNotAssignable.length > 1;
-//       const typeASimpleStr = checker.typeToString(typeA);
-//       context.report({
-//         location: rangeFromHtmlNodeAttr(assignment.htmlAttr),
-//         message: `The value${multiple ? "s" : ""} ${valuesNotAssignable.map((v) => `'${v}'`).join(", ")} ${
-//           multiple ? "are" : "is"
-//         } not assignable to '${typeASimpleStr}'`,
-//       });
-//     }
-
-//     return valuesNotAssignable.length === 0;
-//   }
-
-//   throw new Error("not implemented");
-// }

@@ -1,9 +1,6 @@
 import { Type, TypeChecker } from "typescript";
-import {
-  isMyUnionType,
-  MyUnionType,
-} from "../../../../../web-component-analyzer/src/api.js";
 import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
+import { isMyUnionType, MyUnionType } from "../../../my-union-type.js";
 import { HtmlNodeAttrAssignmentKind } from "../../../types/html-node/html-node-attr-assignment-types.js";
 import {
   HtmlNodeAttr,

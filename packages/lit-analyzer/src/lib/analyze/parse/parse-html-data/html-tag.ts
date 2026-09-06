@@ -6,14 +6,13 @@ import {
   ComponentEvent,
   ComponentMember,
   ComponentSlot,
-  isMyUnionType,
-  MyUnionType,
 } from "../../../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../constants.js";
+import { isMyUnionType, MyUnionType } from "../../my-union-type.js";
 import { iterableDefined } from "../../util/iterable-util.js";
 
 export interface HtmlDataFeatures {

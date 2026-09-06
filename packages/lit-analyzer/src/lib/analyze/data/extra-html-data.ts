@@ -1,8 +1,5 @@
 import { Type, TypeChecker } from "typescript";
-import {
-  getUnionType,
-  MyUnionType,
-} from "../../../web-component-analyzer/src/api.js";
+import { getUnionType, MyUnionType } from "../my-union-type.js";
 
 const HTML_5_ATTR_TYPES: {
   [key: string]: string | string[] | [string[]] | undefined;

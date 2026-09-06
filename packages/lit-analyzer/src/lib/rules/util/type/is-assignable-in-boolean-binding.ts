@@ -1,8 +1,5 @@
 import { Type } from "typescript";
-import {
-  isMyUnionType,
-  MyUnionType,
-} from "../../../../web-component-analyzer/src/api.js";
+import { isMyUnionType, MyUnionType } from "../../../analyze/my-union-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import { HtmlNodeAttr } from "../../../analyze/types/html-node/html-node-attr-types.js";
 import { rangeFromHtmlNodeAttr } from "../../../analyze/util/range-util.js";

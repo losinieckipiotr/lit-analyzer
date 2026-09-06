@@ -5,7 +5,7 @@ import {
   isMyUnionType,
   isType,
   MyUnionType,
-} from "../../../../web-component-analyzer/src/api.js";
+} from "../../my-union-type.js";
 import {
   HtmlAttr,
   HtmlCssPart,

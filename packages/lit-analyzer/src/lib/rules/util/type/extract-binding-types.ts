@@ -1,5 +1,5 @@
 import { Expression, Type, TypeChecker } from "typescript";
-import { MyUnionType } from "../../../../web-component-analyzer/src/api.js";
+import { MyUnionType } from "../../../analyze/my-union-type.js";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,

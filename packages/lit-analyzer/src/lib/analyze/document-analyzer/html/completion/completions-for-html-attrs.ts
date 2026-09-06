@@ -1,11 +1,11 @@
 import { Type } from "typescript";
-import { MyUnionType } from "../../../../../web-component-analyzer/src/api.js";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
   LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER,
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../../constants.js";
 import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
+import { MyUnionType } from "../../../my-union-type.js";
 import {
   documentationForTarget,
   HtmlAttrTarget,
