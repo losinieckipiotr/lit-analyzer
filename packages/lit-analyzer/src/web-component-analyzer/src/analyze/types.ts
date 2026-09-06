@@ -23,3 +23,7 @@ export interface JsDoc {
   description?: string;
   tags?: JSDocTagInternal[];
 }
+
+export type ModifierKind = "readonly" | "static";
+
+export type VisibilityKind = "public" | "protected" | "private";

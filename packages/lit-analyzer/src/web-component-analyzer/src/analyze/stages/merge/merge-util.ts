@@ -1,5 +1,5 @@
-import { JsDoc } from "../../types/js-doc.js";
-import { ModifierKind } from "../../types/modifier-kind.js";
+import { JsDoc, ModifierKind } from "../../types.js";
+
 /**
  * Merges based on a name
  * @param entries

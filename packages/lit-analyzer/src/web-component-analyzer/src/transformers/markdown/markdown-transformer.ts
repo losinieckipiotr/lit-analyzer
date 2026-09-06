@@ -9,7 +9,7 @@ import {
   ComponentMethod,
   ComponentSlot
 } from "../../../../lib/analyze/wca-types.js";
-import { VisibilityKind } from "../../analyze/types/visibility-kind.js";
+import { VisibilityKind } from "../../analyze/types.js";
 import { getMixinHeritageClausesInChain } from "../../analyze/util/component-declaration-util.js";
 import { arrayDedupe, arrayDefined, arrayFlat } from "../../util/array-util.js";
 import { getExamplesFromComponent } from "../../util/get-examples-from-component.js";

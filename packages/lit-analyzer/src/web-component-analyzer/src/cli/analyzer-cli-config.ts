@@ -1,6 +1,6 @@
 import * as tsModule from "typescript";
 import { ComponentFeature } from "../../../lib/analyze/wca-types.js";
-import { VisibilityKind } from "../analyze/types/visibility-kind.js";
+import { VisibilityKind } from "../analyze/types.js";
 import { TransformerKind } from "../transformers/transformer-kind.js";
 
 export interface AnalyzerCliConfig {

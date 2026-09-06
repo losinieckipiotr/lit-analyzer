@@ -1,11 +1,15 @@
+import * as tsModule from "typescript";
 import {
+  CallExpression,
   GetAccessorDeclaration,
   Node,
+  PropertyAssignment,
   PropertyDeclaration,
   PropertySignature,
   ReturnStatement,
   SetAccessorDeclaration,
-  Type
+  Type,
+  TypeChecker
 } from "typescript";
 import {
   AnalyzerDeclarationVisitContext,
@@ -15,7 +19,7 @@ import {
   ComponentMethod,
   DefinitionNodeResult,
   LitElementPropertyConfig
-} from "../../../../../lib/analyze/wca-types.js";
+} from "../../../../lib/analyze/wca-types.js";
 import {
   getDecorators,
   getMemberVisibilityFromNode,
@@ -25,14 +29,9 @@ import {
   getNodeSourceFileLang,
   hasModifier,
   resolveNodeValue
-} from "../../util/ast-util.js";
-import { getJsDoc, getJsDocType } from "../../util/js-doc-util.js";
-import { camelToDashCase, isNamePrivate } from "../../util/text-util.js";
-import {
-  getLitElementPropertyDecoratorConfig,
-  getLitPropertyOptions,
-  getLitPropertyType
-} from "./parse-lit-property-configuration.js";
+} from "../util/ast-util.js";
+import { getJsDoc, getJsDocType } from "../util/js-doc-util.js";
+import { camelToDashCase, isNamePrivate } from "../util/text-util.js";
 
 /**
  * Flavors for analyzing LitElement related features: https://lit-element.polymer-project.org/
@@ -185,8 +184,6 @@ function discoverMembersLitElement(
 
 /**
  * Visits a lit property decorator and returns members based on it.
- * @param node
- * @param context
  */
 function parsePropertyDecorator(
   node:
@@ -266,7 +263,6 @@ function parsePropertyDecorator(
 
 /**
  * Returns if we are in a Polymer context.
- * @param context
  */
 function inPolymerFlavorContext(
   context: AnalyzerDeclarationVisitContext
@@ -308,10 +304,7 @@ function inPolymerFlavorContext(
 }
 
 /**
- * Returns an attribute name based on a property name and a lit-configuration
- * @param propName
- * @param litConfig
- * @param context
+ * Returns an attribute name based on a property name and a lit-configuration.
  */
 function getLitAttributeName(
   propName: string,
@@ -338,8 +331,6 @@ function getLitAttributeName(
 /**
  * Visits static properties
  * static get properties() { return { myProp: {type: String, attribute: "my-attr"} } }
- * @param returnStatement
- * @param context
  */
 function parseStaticProperties(
   returnStatement: ReturnStatement,
@@ -457,4 +448,205 @@ function refineFeatureLitElement(
   }
 
   return method;
+}
+
+type LitElementPropertyDecoratorKind =
+  "property" | "internalProperty" | "state";
+
+const LIT_ELEMENT_PROPERTY_DECORATOR_KINDS: LitElementPropertyDecoratorKind[] =
+  ["property", "internalProperty", "state"];
+
+/**
+ * Returns a potential lit element property decorator.
+ */
+function getLitElementPropertyDecorator(
+  node: Node,
+  context: AnalyzerVisitContext
+):
+  | { expression: CallExpression; kind: LitElementPropertyDecoratorKind }
+  | undefined {
+  const { ts } = context;
+
+  // Find a decorator with "property" name.
+  for (const decorator of getDecorators(node, context)) {
+    const expression = decorator.expression;
+
+    // We find the first decorator calling specific identifier name (found in LIT_ELEMENT_PROPERTY_DECORATOR_KINDS)
+    if (
+      ts.isCallExpression(expression) &&
+      ts.isIdentifier(expression.expression)
+    ) {
+      const identifier = expression.expression;
+      const kind = identifier.text as LitElementPropertyDecoratorKind;
+      if (LIT_ELEMENT_PROPERTY_DECORATOR_KINDS.includes(kind)) {
+        return { expression, kind };
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Returns a potential lit property decorator configuration.
+ */
+function getLitElementPropertyDecoratorConfig(
+  node: Node,
+  context: AnalyzerVisitContext
+): undefined | LitElementPropertyConfig {
+  // Get reference to a possible "@property" decorator.
+  const decorator = getLitElementPropertyDecorator(node, context);
+
+  if (decorator != null) {
+    // Parse the first argument to the decorator which is the lit-property configuration.
+    const configNode = decorator.expression.arguments[0];
+
+    // Add decorator to "nodes"
+    const config: LitElementPropertyConfig = {
+      node: { decorator: decorator.expression }
+    };
+
+    // Apply specific config based on the decorator kind
+    switch (decorator.kind) {
+      case "internalProperty":
+      case "state":
+        config.attribute = false;
+        config.state = true;
+        break;
+    }
+
+    if (configNode == null) {
+      return config;
+    }
+
+    const resolved = resolveNodeValue(configNode, context);
+
+    return resolved != null
+      ? getLitPropertyOptions(resolved.node, resolved.value, context, config)
+      : config;
+  }
+
+  return undefined;
+}
+
+/**
+ * Determines if a given object has the specified property, used
+ * as a type-guard.
+ */
+function hasOwnProperty<T extends string>(
+  obj: object,
+  key: T
+): obj is { [K in T]: unknown } {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+/**
+ * Computes the correct type for a given node for use in lit property
+ * configuration.
+ * @param ts
+ * @param node
+ */
+function getLitPropertyType(
+  ts: typeof tsModule,
+  checker: TypeChecker,
+  node: Node
+): Type {
+  const value = ts.isIdentifier(node) ? node.text : undefined;
+
+  // TODO: magic values, should be documented or taken from compiler?
+  switch (value) {
+    case "String":
+    case "StringConstructor":
+      return checker.getStringType();
+    case "Number":
+    case "NumberConstructor":
+      return checker.getNumberType();
+    case "Boolean":
+    case "BooleanConstructor":
+      return checker.getBooleanType();
+    case "Array":
+    case "ArrayConstructor":
+      return checker.getNonPrimitiveType();
+    case "Object":
+    case "ObjectConstructor":
+      return checker.getNonPrimitiveType();
+    default:
+      return checker.getUnknownType();
+  }
+}
+
+/**
+ * Parses an object literal expression and returns a lit property configuration.
+ */
+function getLitPropertyOptions(
+  node: Node,
+  object: unknown,
+  context: AnalyzerVisitContext,
+  existingConfig: LitElementPropertyConfig = {}
+): LitElementPropertyConfig {
+  const { ts, checker } = context;
+  const result: LitElementPropertyConfig = { ...existingConfig };
+  let attributeInitializer: Node | undefined;
+  let typeInitializer: Node | undefined;
+
+  if (typeof object === "object" && object !== null && !Array.isArray(object)) {
+    if (hasOwnProperty(object, "converter") && object.converter !== undefined) {
+      result.hasConverter = true;
+    }
+
+    if (hasOwnProperty(object, "reflect") && object.reflect !== undefined) {
+      result.reflect = object.reflect === true;
+    }
+
+    if (hasOwnProperty(object, "state") && object.state !== undefined) {
+      result.state = object.state === true;
+    }
+
+    if (hasOwnProperty(object, "value")) {
+      result.default = object.value;
+    }
+
+    if (
+      hasOwnProperty(object, "attribute") &&
+      (typeof object.attribute === "boolean" ||
+        typeof object.attribute === "string")
+    ) {
+      result.attribute = object.attribute;
+
+      if (ts.isObjectLiteralExpression(node)) {
+        const prop = node.properties.find(
+          (p): p is PropertyAssignment =>
+            ts.isPropertyAssignment(p) &&
+            ts.isIdentifier(p.name) &&
+            p.name.text === "attribute"
+        );
+        if (prop) {
+          attributeInitializer = prop.initializer;
+        }
+      }
+    }
+  }
+
+  if (ts.isObjectLiteralExpression(node)) {
+    const typeProp = node.properties.find(
+      (p): p is PropertyAssignment =>
+        ts.isPropertyAssignment(p) &&
+        ts.isIdentifier(p.name) &&
+        p.name.text === "type"
+    );
+
+    if (typeProp) {
+      typeInitializer = typeProp.initializer;
+      result.type = getLitPropertyType(ts, checker, typeProp.initializer);
+    }
+  }
+
+  return {
+    ...result,
+    node: {
+      ...(result.node || {}),
+      attribute: attributeInitializer,
+      type: typeInitializer
+    }
+  };
 }

@@ -1,5 +1,5 @@
 import { ComponentDeclaration } from "../../../lib/analyze/wca-types.js";
-import { JSDocTagInternal } from "../analyze/types/js-doc.js";
+import { JSDocTagInternal } from "../analyze/types.js";
 
 export interface Example {
   lang?: string;

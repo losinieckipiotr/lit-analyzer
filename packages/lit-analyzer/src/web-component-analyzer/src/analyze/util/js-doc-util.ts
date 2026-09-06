@@ -9,7 +9,7 @@ import {
   Type
 } from "typescript";
 import { arrayDefined } from "../../util/array-util.js";
-import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "../types/js-doc.js";
+import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "../types.js";
 import { getLeadingCommentForNode } from "./ast-util.js";
 import { getLibTypeWithName } from "./type-util.js";
 
@@ -178,6 +178,7 @@ export function parseSimpleJsDocTypeExpression(
   // Match:
   //   {string|number}
   if (str.includes("|")) {
+    // FIXME ?
     throw new Error("not implemented");
     // return {
     //   kind: SimpleTypeKind.UNION,
@@ -222,6 +223,7 @@ export function parseSimpleJsDocTypeExpression(
     //   context
     // );
 
+    // FIXME ?
     throw new Error("not implemented");
 
     // switch (modifier) {
@@ -263,6 +265,7 @@ export function parseSimpleJsDocTypeExpression(
   //   {[number]}
   const arrayMatch = str.match(/^\[(.+)]$/);
   if (arrayMatch != null) {
+    // FIXME ?
     throw new Error("not implemented");
     // return {
     //   kind: SimpleTypeKind.ARRAY,
@@ -293,6 +296,7 @@ export function parseSimpleJsDocTypeExpression(
       }
     }
 
+    // FIXME ?
     throw new Error("not implemented");
 
     // return {
@@ -523,6 +527,7 @@ function parseJsDocTagString(str: string): JsDocTagParsed {
 function parseJsDocString(_node: Node, doc: string): JsDoc | undefined {
   return undefined;
 
+  // FIXME ?
   // // Prepare lines
   // const lines = doc.split("\n").map(line => line.trim());
   // let description = "";

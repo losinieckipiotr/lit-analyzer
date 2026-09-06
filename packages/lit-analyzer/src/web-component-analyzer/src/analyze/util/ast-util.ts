@@ -17,8 +17,7 @@ import {
   SimpleTypeKind,
   toSimpleType
 } from "../../simple-type.js";
-import { ModifierKind } from "../types/modifier-kind.js";
-import { VisibilityKind } from "../types/visibility-kind.js";
+import { ModifierKind, VisibilityKind } from "../types.js";
 import { isNamePrivate } from "./text-util.js";
 
 export interface AstContext {

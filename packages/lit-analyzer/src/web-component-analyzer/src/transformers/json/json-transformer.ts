@@ -9,7 +9,7 @@ import {
   ComponentMember,
   ComponentSlot
 } from "../../../../lib/analyze/wca-types.js";
-import { JsDoc } from "../../analyze/types/js-doc.js";
+import { JsDoc } from "../../analyze/types.js";
 import { arrayDefined, arrayFlat } from "../../util/array-util.js";
 import { getTypeHintFromType } from "../../util/get-type-hint-from-type.js";
 import { filterVisibility } from "../../util/model-util.js";

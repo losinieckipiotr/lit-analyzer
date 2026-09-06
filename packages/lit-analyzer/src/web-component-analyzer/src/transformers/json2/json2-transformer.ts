@@ -8,7 +8,7 @@ import {
   ComponentHeritageClause
 } from "../../../../lib/analyze/wca-types.js";
 import { visitAllHeritageClauses } from "../../../../lib/analyze/wca.js";
-import { JsDoc } from "../../analyze/types/js-doc.js";
+import { JsDoc } from "../../analyze/types.js";
 import {
   findParent,
   getNodeName,

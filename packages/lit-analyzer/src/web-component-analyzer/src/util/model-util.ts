@@ -1,4 +1,4 @@
-import { VisibilityKind } from "../analyze/types/visibility-kind.js";
+import { VisibilityKind } from "../analyze/types.js";
 
 const VISIBILITY_NUMBER_MAP: Record<VisibilityKind, number> = {
   private: 1,

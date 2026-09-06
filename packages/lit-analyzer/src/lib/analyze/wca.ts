@@ -1,26 +1,46 @@
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile } from "typescript";
+import { CustomElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/custom-element-flavor.js";
+import { JsDocFlavor } from "../../web-component-analyzer/src/analyze/flavors/js-doc-flavor.js";
+import { LitElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/lit-element-flavor.js";
 import {
-  DEFAULT_COMPONENT_DECLARATION_CACHE,
-  DEFAULT_FEATURE_COLLECTION_CACHE,
-} from "../../web-component-analyzer/src/analyze/constants.js";
-import { CustomElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/custom-element/custom-element-flavor.js";
-import { makeContextFromConfig } from "../../web-component-analyzer/src/analyze/make-context-from-config.js";
+  ALL_COMPONENT_FEATURES,
+  makeContextFromConfig,
+} from "../../web-component-analyzer/src/analyze/make-context-from-config.js";
 import { analyzeComponentDeclaration } from "../../web-component-analyzer/src/analyze/stages/analyze-declaration.js";
 import { discoverDeclarations } from "../../web-component-analyzer/src/analyze/stages/discover-declarations.js";
 import { discoverDefinitions } from "../../web-component-analyzer/src/analyze/stages/discover-definitions.js";
 import { discoverGlobalFeatures } from "../../web-component-analyzer/src/analyze/stages/discover-global-features.js";
-import { ALL_COMPONENT_FEATURES } from "../../web-component-analyzer/src/analyze/types/features/component-feature.js";
 import {
+  AnalyzerFlavor,
   AnalyzerOptions,
   AnalyzerResult,
   AnalyzerVisitContext,
   ComponentDeclaration,
+  ComponentFeatureCollection,
   ComponentFeatures,
   ComponentHeritageClause,
 } from "./wca-types.js";
 
 //#region analyzeHTMLElement
+
+export const VERSION = "<@VERSION@>";
+
+export const DEFAULT_FLAVORS: AnalyzerFlavor[] = [
+  new LitElementFlavor(),
+  new CustomElementFlavor(),
+  new JsDocFlavor(),
+];
+
+export const DEFAULT_FEATURE_COLLECTION_CACHE = new WeakMap<
+  Node,
+  ComponentFeatureCollection
+>();
+
+export const DEFAULT_COMPONENT_DECLARATION_CACHE = new WeakMap<
+  Node,
+  ComponentDeclaration
+>();
 
 /**
  * This function only analyzes the HTMLElement declaration found in "lib.dom.d.ts" source file provided by Typescript.

@@ -1,14 +1,23 @@
 import * as tsModule from "typescript";
 import {
   AnalyzerOptions,
-  AnalyzerVisitContext
+  AnalyzerVisitContext,
+  ComponentFeature
 } from "../../../lib/analyze/wca-types.js";
 import {
   DEFAULT_COMPONENT_DECLARATION_CACHE,
   DEFAULT_FEATURE_COLLECTION_CACHE,
   DEFAULT_FLAVORS
-} from "./constants.js";
-import { ALL_COMPONENT_FEATURES } from "./types/features/component-feature.js";
+} from "../../../lib/analyze/wca.js";
+
+export const ALL_COMPONENT_FEATURES: ComponentFeature[] = [
+  "member",
+  "method",
+  "cssproperty",
+  "csspart",
+  "event",
+  "slot"
+];
 
 /**
  * Creates an "analyzer visit context" based on some options
