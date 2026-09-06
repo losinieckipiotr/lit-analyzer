@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
 import {
   ComponentMember,
   ComponentMemberReflectKind
-} from "../../types/features/component-member.js";
+} from "../../../../../lib/analyze/wca-types.js";
+import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
+
 import { JsDoc } from "../../types/js-doc.js";
 import { VisibilityKind } from "../../types/visibility-kind.js";
 import { parseSimpleJsDocTypeExpression } from "../../util/js-doc-util.js";

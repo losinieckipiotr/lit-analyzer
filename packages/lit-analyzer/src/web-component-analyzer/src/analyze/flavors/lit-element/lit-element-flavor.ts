@@ -7,10 +7,13 @@ import {
   SetAccessorDeclaration,
   Type
 } from "typescript";
+import {
+  ComponentMember,
+  LitElementPropertyConfig
+} from "../../../../../lib/analyze/wca-types.js";
 import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-import { ComponentMember } from "../../types/features/component-member.js";
+
 import { ComponentMethod } from "../../types/features/component-method.js";
-import { LitElementPropertyConfig } from "../../types/features/lit-element-property-config.js";
 import {
   getDecorators,
   getMemberVisibilityFromNode,

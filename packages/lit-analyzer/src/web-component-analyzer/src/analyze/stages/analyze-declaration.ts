@@ -1,10 +1,10 @@
 import { Node } from "typescript";
+import { ComponentDeclaration } from "../../../../lib/analyze/wca-types.js";
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerVisitContext,
   ComponentFeatureCollection
 } from "../flavors/analyzer-flavor.js";
-import { ComponentDeclaration } from "../types/component-declaration.js";
 import {
   getNodeName,
   getSymbol,

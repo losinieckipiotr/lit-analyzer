@@ -1,9 +1,11 @@
 import { TypeChecker } from "typescript";
-import { ComponentCssPart } from "../../types/features/component-css-part.js";
-import { ComponentCssProperty } from "../../types/features/component-css-property.js";
-import { ComponentEvent } from "../../types/features/component-event.js";
+import {
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentEvent,
+  ComponentSlot
+} from "../../../../../lib/analyze/wca-types.js";
 import { ComponentMethod } from "../../types/features/component-method.js";
-import { ComponentSlot } from "../../types/features/component-slot.js";
 import { mergeJsDoc, mergeNamedEntries } from "./merge-util.js";
 
 /**

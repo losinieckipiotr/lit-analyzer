@@ -1,4 +1,4 @@
-import { ComponentDeclaration } from "../analyze/types/component-declaration.js";
+import { ComponentDeclaration } from "../../../lib/analyze/wca-types.js";
 import { JSDocTagInternal } from "../analyze/types/js-doc.js";
 
 export interface Example {

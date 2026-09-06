@@ -1,7 +1,9 @@
 import { Node, SourceFile } from "typescript";
+import {
+  ComponentDeclaration,
+  ComponentDefinition
+} from "../../../../lib/analyze/wca-types.js";
 import { AnalyzerVisitContext } from "../flavors/analyzer-flavor.js";
-import { ComponentDeclaration } from "../types/component-declaration.js";
-import { ComponentDefinition } from "../types/component-definition.js";
 import { getSymbol, resolveSymbolDeclarations } from "../util/ast-util.js";
 import { visitDefinitions } from "./flavor/visit-definitions.js";
 

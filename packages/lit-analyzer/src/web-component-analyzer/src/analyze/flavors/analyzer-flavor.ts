@@ -1,17 +1,20 @@
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile, TypeChecker } from "typescript";
+import {
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentDeclaration,
+  ComponentEvent,
+  ComponentMember,
+  ComponentSlot
+} from "../../../../lib/analyze/wca-types.js";
 import { AnalyzerConfig } from "../types/analyzer-config.js";
 import {
-  ComponentDeclaration,
   ComponentDeclarationKind,
   ComponentHeritageClause
 } from "../types/component-declaration.js";
-import { ComponentCssPart } from "../types/features/component-css-part.js";
-import { ComponentCssProperty } from "../types/features/component-css-property.js";
-import { ComponentEvent } from "../types/features/component-event.js";
-import { ComponentMember } from "../types/features/component-member.js";
+
 import { ComponentMethod } from "../types/features/component-method.js";
-import { ComponentSlot } from "../types/features/component-slot.js";
 
 export type PriorityKind = "low" | "medium" | "high";
 

@@ -1,10 +1,12 @@
 import { Node } from "typescript";
+import {
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentEvent,
+  ComponentMember,
+  ComponentSlot
+} from "../../../../../lib/analyze/wca-types.js";
 import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-import { ComponentCssPart } from "../../types/features/component-css-part.js";
-import { ComponentCssProperty } from "../../types/features/component-css-property.js";
-import { ComponentEvent } from "../../types/features/component-event.js";
-import { ComponentMember } from "../../types/features/component-member.js";
-import { ComponentSlot } from "../../types/features/component-slot.js";
 import { AnalyzerFlavor } from "../analyzer-flavor.js";
 import { discoverFeatures } from "./discover-features.js";
 

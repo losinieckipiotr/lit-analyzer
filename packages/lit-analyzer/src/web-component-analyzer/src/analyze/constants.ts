@@ -1,4 +1,5 @@
 import { Node } from "typescript";
+import { ComponentDeclaration } from "../../../lib/analyze/wca-types.js";
 import {
   AnalyzerFlavor,
   ComponentFeatureCollection
@@ -6,7 +7,6 @@ import {
 import { CustomElementFlavor } from "./flavors/custom-element/custom-element-flavor.js";
 import { JsDocFlavor } from "./flavors/js-doc/js-doc-flavor.js";
 import { LitElementFlavor } from "./flavors/lit-element/lit-element-flavor.js";
-import { ComponentDeclaration } from "./types/component-declaration.js";
 
 export const VERSION = "<@VERSION@>";
 

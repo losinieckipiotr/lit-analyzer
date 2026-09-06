@@ -1,13 +1,15 @@
 import { Node, SourceFile, Symbol } from "typescript";
-import { ComponentCssPart } from "./features/component-css-part.js";
-import { ComponentCssProperty } from "./features/component-css-property.js";
-import { ComponentEvent } from "./features/component-event.js";
-import { ComponentMember } from "./features/component-member.js";
+import {
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentEvent,
+  ComponentMember,
+  ComponentSlot
+} from "../../../../lib/analyze/wca-types.js";
 import { ComponentMethod } from "./features/component-method.js";
-import { ComponentSlot } from "./features/component-slot.js";
 import { JsDoc } from "./js-doc.js";
 
-export interface ComponentFeatures {
+interface ComponentFeatures {
   members: ComponentMember[];
   methods: ComponentMethod[];
   events: ComponentEvent[];
@@ -26,7 +28,7 @@ export interface ComponentHeritageClause {
 
 export type ComponentDeclarationKind = "mixin" | "interface" | "class";
 
-export interface ComponentDeclaration extends ComponentFeatures {
+interface ComponentDeclaration extends ComponentFeatures {
   sourceFile: SourceFile;
   node: Node;
   declarationNodes: Set<Node>;

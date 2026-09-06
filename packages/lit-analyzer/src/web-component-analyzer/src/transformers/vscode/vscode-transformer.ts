@@ -1,9 +1,11 @@
 import * as tsModule from "typescript";
 import { Program, Type, TypeChecker } from "typescript";
-import { AnalyzerResult } from "../../analyze/types/analyzer-result.js";
-import { ComponentDefinition } from "../../analyze/types/component-definition.js";
-import { ComponentEvent } from "../../analyze/types/features/component-event.js";
-import { ComponentMember } from "../../analyze/types/features/component-member.js";
+import {
+  AnalyzerResult,
+  ComponentDefinition,
+  ComponentEvent,
+  ComponentMember
+} from "../../../../lib/analyze/wca-types.js";
 import { JsDoc } from "../../analyze/types/js-doc.js";
 import {
   isAssignableToSimpleTypeKind,

@@ -1,11 +1,11 @@
 import { SourceFile } from "typescript";
+import { visitAllHeritageClauses } from "../../../../web-component-analyzer/src/api.js";
+import { getDeclarationsInFile } from "../../util/component-util.js";
 import {
   AnalyzerResult,
   ComponentDeclaration,
   ComponentDefinition,
-  visitAllHeritageClauses,
-} from "../../../../web-component-analyzer/src/api.js";
-import { getDeclarationsInFile } from "../../util/component-util.js";
+} from "../../wca-types.js";
 import { AnalyzerDefinitionStore } from "../analyzer-definition-store.js";
 
 export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {

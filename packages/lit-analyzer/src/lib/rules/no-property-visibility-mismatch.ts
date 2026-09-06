@@ -1,5 +1,4 @@
 import { Identifier, ObjectLiteralExpression } from "typescript";
-import { ComponentMember } from "../../web-component-analyzer/src/api.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
 import {
   RuleFixAction,
@@ -11,6 +10,7 @@ import {
   makeSourceFileRange,
   rangeFromNode,
 } from "../analyze/util/range-util.js";
+import { ComponentMember } from "../analyze/wca-types.js";
 
 /**
  * Returns the identifier of the decorator used on the member if any

@@ -1,19 +1,19 @@
 import { Node } from "typescript";
 import {
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentEvent,
+  ComponentMember,
+  ComponentMemberAttribute,
+  ComponentMemberProperty,
+  ComponentSlot
+} from "../../../../../lib/analyze/wca-types.js";
+import {
   isSimpleType,
   SimpleTypeKind,
   SimpleTypeStringLiteral
 } from "../../../simple-type.js";
 import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-import { ComponentCssPart } from "../../types/features/component-css-part.js";
-import { ComponentCssProperty } from "../../types/features/component-css-property.js";
-import { ComponentEvent } from "../../types/features/component-event.js";
-import {
-  ComponentMember,
-  ComponentMemberAttribute,
-  ComponentMemberProperty
-} from "../../types/features/component-member.js";
-import { ComponentSlot } from "../../types/features/component-slot.js";
 import { getNodeSourceFileLang } from "../../util/ast-util.js";
 import { parseSimpleJsDocTypeExpression } from "../../util/js-doc-util.js";
 import { lazy } from "../../util/lazy.js";

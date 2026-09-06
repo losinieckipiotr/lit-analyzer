@@ -1,7 +1,3 @@
-import {
-  ComponentDeclaration,
-  ComponentDefinition,
-} from "../../../web-component-analyzer/src/api.js";
 import { LitAnalyzerContext } from "../default-lit-analyzer-context.js";
 import { ReportedRuleDiagnostic } from "../rule-collection.js";
 import { LitCodeFix } from "../types/lit-code-fix.js";
@@ -11,6 +7,7 @@ import { arrayDefined } from "../util/array-util.js";
 import { intersects } from "../util/range-util.js";
 import { convertRuleDiagnosticToLitDiagnostic } from "../util/rule-diagnostic-util.js";
 import { converRuleFixToLitCodeFix } from "../util/rule-fix-util.js";
+import { ComponentDeclaration, ComponentDefinition } from "../wca-types.js";
 
 export class ComponentAnalyzer {
   getDiagnostics(

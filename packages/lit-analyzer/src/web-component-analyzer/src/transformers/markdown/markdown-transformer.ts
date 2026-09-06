@@ -1,14 +1,14 @@
 import { Program, TypeChecker } from "typescript";
-import { AnalyzerResult } from "../../analyze/types/analyzer-result.js";
-import { ComponentCssPart } from "../../analyze/types/features/component-css-part.js";
-import { ComponentCssProperty } from "../../analyze/types/features/component-css-property.js";
-import { ComponentEvent } from "../../analyze/types/features/component-event.js";
 import {
+  AnalyzerResult,
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentEvent,
   ComponentMemberAttribute,
-  ComponentMemberProperty
-} from "../../analyze/types/features/component-member.js";
+  ComponentMemberProperty,
+  ComponentSlot
+} from "../../../../lib/analyze/wca-types.js";
 import { ComponentMethod } from "../../analyze/types/features/component-method.js";
-import { ComponentSlot } from "../../analyze/types/features/component-slot.js";
 import { VisibilityKind } from "../../analyze/types/visibility-kind.js";
 import { getMixinHeritageClausesInChain } from "../../analyze/util/component-declaration-util.js";
 import { arrayDedupe, arrayDefined, arrayFlat } from "../../util/array-util.js";

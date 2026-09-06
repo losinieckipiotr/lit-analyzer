@@ -1,6 +1,6 @@
 import { Node } from "typescript";
+import { ComponentFeatures } from "../../../../lib/analyze/wca-types.js";
 import { AnalyzerVisitContext } from "../flavors/analyzer-flavor.js";
-import { ComponentFeatures } from "../types/component-declaration.js";
 import { prepareRefineEmitMap } from "../util/get-refine-emit-map.js";
 import { refineFeature } from "./flavor/refine-feature.js";
 import { visitGlobalFeatures } from "./flavor/visit-global-features.js";

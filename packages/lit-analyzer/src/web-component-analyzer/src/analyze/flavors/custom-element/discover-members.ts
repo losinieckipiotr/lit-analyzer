@@ -4,7 +4,7 @@ import {
   Node,
   ReturnStatement
 } from "typescript";
-import { ComponentMember } from "../../types/features/component-member.js";
+import { ComponentMember } from "../../../../../lib/analyze/wca-types.js";
 import {
   getMemberVisibilityFromNode,
   getModifiersFromNode,

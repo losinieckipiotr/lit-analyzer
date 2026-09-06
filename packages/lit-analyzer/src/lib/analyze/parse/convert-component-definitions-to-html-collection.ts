@@ -5,7 +5,7 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
   ComponentFeatures,
-} from "../../../web-component-analyzer/src/api.js";
+} from "../wca-types.js";
 import {
   HtmlDataCollection,
   HtmlDataFeatures,

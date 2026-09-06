@@ -1,12 +1,14 @@
 import { relative } from "path";
 import { Program, TypeChecker } from "typescript";
-import { AnalyzerResult } from "../../analyze/types/analyzer-result.js";
-import { ComponentDefinition } from "../../analyze/types/component-definition.js";
-import { ComponentCssPart } from "../../analyze/types/features/component-css-part.js";
-import { ComponentCssProperty } from "../../analyze/types/features/component-css-property.js";
-import { ComponentEvent } from "../../analyze/types/features/component-event.js";
-import { ComponentMember } from "../../analyze/types/features/component-member.js";
-import { ComponentSlot } from "../../analyze/types/features/component-slot.js";
+import {
+  AnalyzerResult,
+  ComponentCssPart,
+  ComponentCssProperty,
+  ComponentDefinition,
+  ComponentEvent,
+  ComponentMember,
+  ComponentSlot
+} from "../../../../lib/analyze/wca-types.js";
 import { JsDoc } from "../../analyze/types/js-doc.js";
 import { arrayDefined, arrayFlat } from "../../util/array-util.js";
 import { getTypeHintFromType } from "../../util/get-type-hint-from-type.js";

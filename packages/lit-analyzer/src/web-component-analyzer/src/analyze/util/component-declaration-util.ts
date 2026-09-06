@@ -1,7 +1,5 @@
-import {
-  ComponentDeclaration,
-  ComponentHeritageClause
-} from "../types/component-declaration.js";
+import { ComponentDeclaration } from "../../../../lib/analyze/wca-types.js";
+import { ComponentHeritageClause } from "../types/component-declaration.js";
 
 /**
  * Returns the superclass heritage clause

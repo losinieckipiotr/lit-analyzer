@@ -10,10 +10,10 @@ import {
   System,
   TypeChecker
 } from "typescript";
+import { AnalyzerResult } from "../../../lib/analyze/wca-types.js";
 import { arrayDefined } from "../util/array-util.js";
 import { analyzeSourceFile } from "./analyze-source-file.js";
 import { AnalyzerOptions } from "./types/analyzer-options.js";
-import { AnalyzerResult } from "./types/analyzer-result.js";
 
 export interface IVirtualSourceFile {
   fileName: string;

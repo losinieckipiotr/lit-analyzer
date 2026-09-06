@@ -1,5 +1,5 @@
+import { ComponentDeclaration } from "../../../../../lib/analyze/wca-types.js";
 import { AnalyzerVisitContext } from "../../flavors/analyzer-flavor.js";
-import { ComponentDeclaration } from "../../types/component-declaration.js";
 
 /**
  * Refines a component declaration by using jsdoc tags

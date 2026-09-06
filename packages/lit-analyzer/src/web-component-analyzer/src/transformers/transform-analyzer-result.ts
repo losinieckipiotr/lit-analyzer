@@ -1,5 +1,5 @@
 import { Program } from "typescript";
-import { AnalyzerResult } from "../analyze/types/analyzer-result.js";
+import { AnalyzerResult } from "../../../lib/analyze/wca-types.js";
 import { debugJsonTransformer } from "./debug/debug-json-transformer.js";
 import { jsonTransformer } from "./json/json-transformer.js";
 import { json2Transformer } from "./json2/json2-transformer.js";

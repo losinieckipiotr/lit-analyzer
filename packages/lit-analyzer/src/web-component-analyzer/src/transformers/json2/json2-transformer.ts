@@ -1,11 +1,11 @@
 import { basename, relative } from "path";
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile, Type, TypeChecker } from "typescript";
-import { AnalyzerResult } from "../../analyze/types/analyzer-result.js";
 import {
-  ComponentDeclaration,
-  ComponentHeritageClause
-} from "../../analyze/types/component-declaration.js";
+  AnalyzerResult,
+  ComponentDeclaration
+} from "../../../../lib/analyze/wca-types.js";
+import { ComponentHeritageClause } from "../../analyze/types/component-declaration.js";
 import { ComponentFeatureBase } from "../../analyze/types/features/component-feature.js";
 import { JsDoc } from "../../analyze/types/js-doc.js";
 import {

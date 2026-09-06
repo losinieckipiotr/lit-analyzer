@@ -3,7 +3,7 @@ import {
   AnalyzerResult,
   ComponentDeclaration,
   ComponentDefinition,
-} from "../../../web-component-analyzer/src/api.js";
+} from "../wca-types.js";
 
 export interface AnalyzerDefinitionStore {
   getAnalysisResultForFile(sourceFile: SourceFile): AnalyzerResult | undefined;

@@ -1,5 +1,5 @@
 import { Program } from "typescript";
-import { AnalyzerResult } from "../analyze/types/analyzer-result.js";
+import { AnalyzerResult } from "../../../lib/analyze/wca-types.js";
 import { TransformerConfig } from "./transformer-config.js";
 
 export type TransformerFunction = (

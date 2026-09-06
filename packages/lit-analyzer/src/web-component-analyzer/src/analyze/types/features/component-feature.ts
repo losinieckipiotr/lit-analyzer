@@ -1,4 +1,4 @@
-import { ComponentDeclaration } from "../component-declaration.js";
+import { ComponentDeclaration } from "../../../../../lib/analyze/wca-types.js";
 import { JsDoc } from "../js-doc.js";
 
 export type ComponentFeature =

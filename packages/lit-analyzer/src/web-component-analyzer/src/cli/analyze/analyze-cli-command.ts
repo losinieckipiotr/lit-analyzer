@@ -1,7 +1,7 @@
 import { writeFileSync } from "fs";
 import { basename, dirname, extname, relative, resolve } from "path";
 import { Program } from "typescript";
-import { AnalyzerResult } from "../../analyze/types/analyzer-result.js";
+import { AnalyzerResult } from "../../../../lib/analyze/wca-types.js";
 import { transformAnalyzerResult } from "../../transformers/transform-analyzer-result.js";
 import { TransformerConfig } from "../../transformers/transformer-config.js";
 import { TransformerKind } from "../../transformers/transformer-kind.js";

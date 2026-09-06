@@ -1,15 +1,15 @@
 import { SourceFile } from "typescript";
+import {
+  AnalyzerResult,
+  ComponentDeclaration,
+  ComponentFeatures
+} from "../../../lib/analyze/wca-types.js";
 import { makeContextFromConfig } from "./make-context-from-config.js";
 import { analyzeComponentDeclaration } from "./stages/analyze-declaration.js";
 import { discoverDeclarations } from "./stages/discover-declarations.js";
 import { discoverDefinitions } from "./stages/discover-definitions.js";
 import { discoverGlobalFeatures } from "./stages/discover-global-features.js";
 import { AnalyzerOptions } from "./types/analyzer-options.js";
-import { AnalyzerResult } from "./types/analyzer-result.js";
-import {
-  ComponentDeclaration,
-  ComponentFeatures
-} from "./types/component-declaration.js";
 
 /**
  * Analyzes all components in a source file.

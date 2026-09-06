@@ -1,5 +1,5 @@
 import { Node, Type, TypeChecker } from "typescript";
-import { LitElementPropertyConfig } from "../../web-component-analyzer/src/api.js";
+import { LitElementPropertyConfig } from "../../lib/analyze/wca-types.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { joinArray } from "../analyze/util/array-util.js";

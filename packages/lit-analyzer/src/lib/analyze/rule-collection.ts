@@ -1,9 +1,5 @@
 import * as tsMod from "typescript";
 import { Program, SourceFile } from "typescript";
-import {
-  ComponentDeclaration,
-  ComponentDefinition,
-} from "../../web-component-analyzer/src/api.js";
 import { LitAnalyzerContext } from "./default-lit-analyzer-context.js";
 import {
   isRuleEnabled,
@@ -23,6 +19,7 @@ import {
   RuleModule,
   RuleModuleImplementation,
 } from "./types/rule/rule-module.js";
+import { ComponentDeclaration, ComponentDefinition } from "./wca-types.js";
 
 export interface RuleModuleContext {
   readonly ts: typeof tsMod;
