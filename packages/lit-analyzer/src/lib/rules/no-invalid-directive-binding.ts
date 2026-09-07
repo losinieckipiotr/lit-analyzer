@@ -49,6 +49,7 @@ const rule: RuleModule = {
               const typeB = directive.actualType?.();
               if (typeB) {
                 if (Array.isArray(typeB)) {
+                  // FIXME
                   throw new Error(
                     'The "live" directive received an array type in an attribute binding, which is not implemented.',
                   );

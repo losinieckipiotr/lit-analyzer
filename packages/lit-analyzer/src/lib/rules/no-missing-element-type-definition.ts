@@ -23,6 +23,8 @@ const rule: RuleModule = {
 
     const { declaration, tagName } = definition;
 
+    // FIXME: log and return undefined instead of throwing an error
+
     if (!declaration) {
       throw new Error("No declaration found for this custom element");
     }

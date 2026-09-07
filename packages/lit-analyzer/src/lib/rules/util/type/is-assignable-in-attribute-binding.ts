@@ -27,6 +27,7 @@ export function isAssignableInAttributeBinding(
 
   if (assignment.kind === HtmlNodeAttrAssignmentKind.BOOLEAN) {
     if (isMyUnionType(typeA)) {
+      // FIXME: log and return undefined instead of throwing an error
       throw new Error("not implemented");
     }
 
@@ -250,5 +251,6 @@ export function isAssignableInAttributeBinding(
     }
   }
 
+  // FIXME: log and return undefined instead of throwing an error
   throw new Error("not implemented");
 }

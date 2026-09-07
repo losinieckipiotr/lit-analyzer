@@ -148,6 +148,7 @@ export function getDirective(
           }
 
           if (isLitDirective(typeB)) {
+            // FIXME: Implement handling for Lit directives
             throw new Error("Lit directive handling not implemented");
             // Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
             // Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>

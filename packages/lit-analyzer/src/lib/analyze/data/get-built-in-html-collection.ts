@@ -1,13 +1,10 @@
+import type { TypeChecker } from "typescript";
 import * as tsMod from "typescript";
+import { getUnionType, isType } from "../my-union-type.js";
 import {
   HtmlAttr,
   HtmlDataCollection,
 } from "../parse/parse-html-data/html-tag.js";
-// FIXME:
-// "@vscode/web-custom-data": "^0.6.3",
-// @vscode/web-custom-data/data/browsers.html-data.json
-import type { TypeChecker } from "typescript";
-import { getUnionType, isType } from "../my-union-type.js";
 import { parseVscodeHtmlData } from "../parse/parse-html-data/parse-vscode-html-data.js";
 import { browsersHtmlData } from "./browsers-html-data.js";
 import {

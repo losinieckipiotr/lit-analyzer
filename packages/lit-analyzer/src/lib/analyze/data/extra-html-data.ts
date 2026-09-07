@@ -1,6 +1,10 @@
 import { Type, TypeChecker } from "typescript";
 import { getUnionType, MyUnionType } from "../my-union-type.js";
 
+// TODO:
+// "@vscode/web-custom-data": "^0.6.3",
+// @vscode/web-custom-data/data/browsers.html-data.json
+
 const HTML_5_ATTR_TYPES: {
   [key: string]: string | string[] | [string[]] | undefined;
 } = {

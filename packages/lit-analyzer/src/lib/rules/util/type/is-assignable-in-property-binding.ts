@@ -24,6 +24,7 @@ export function isAssignableInPropertyBinding(
   }
 
   if (isMyUnionType(typeA)) {
+    // FIXME: log and return undefined instead of throwing an error
     throw new Error("not implemented");
   }
 
