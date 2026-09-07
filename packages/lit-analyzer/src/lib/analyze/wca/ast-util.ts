@@ -12,8 +12,8 @@ import {
   SyntaxKind,
   TypeChecker,
 } from "typescript";
-import { isNamePrivate } from "./util/str-util.js";
-import { ModifierKind, VisibilityKind } from "./wca/wca-types.js";
+import { isNamePrivate } from "../util/str-util.js";
+import { ModifierKind, VisibilityKind } from "./wca-types.js";
 
 interface AstContext {
   ts: typeof tsModule;

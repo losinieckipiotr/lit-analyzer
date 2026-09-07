@@ -1,11 +1,11 @@
 import { Node, SourceFile, TypeChecker } from "typescript";
+import { arrayDefined } from "../util/array-util.js";
 import {
   getNodeName,
   getSymbol,
   resolveDeclarations,
   resolveSymbolDeclarations,
-} from "../ast-util.js";
-import { arrayDefined } from "../util/array-util.js";
+} from "./ast-util.js";
 import { getJsDoc } from "./js-doc-util.js";
 import {
   AnalyzerDeclarationVisitContext,

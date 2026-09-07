@@ -8,8 +8,8 @@ import {
   Program,
   Type,
 } from "typescript";
-import { getLeadingCommentForNode } from "../ast-util.js";
 import { arrayDefined } from "../util/array-util.js";
+import { getLeadingCommentForNode } from "./ast-util.js";
 import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "./wca-types.js";
 
 /**

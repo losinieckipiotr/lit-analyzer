@@ -11,6 +11,7 @@ import {
   Type,
   TypeChecker,
 } from "typescript";
+import { camelToDashCase, isNamePrivate } from "../util/str-util.js";
 import {
   getDecorators,
   getMemberVisibilityFromNode,
@@ -20,9 +21,8 @@ import {
   getNodeSourceFileLang,
   hasModifier,
   resolveNodeValue,
-} from "../ast-util.js";
-import { camelToDashCase, isNamePrivate } from "../util/str-util.js";
-import { getJsDoc, getJsDocType } from "../wca/js-doc-util.js";
+} from "./ast-util.js";
+import { getJsDoc, getJsDocType } from "./js-doc-util.js";
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerFlavor,
@@ -31,7 +31,7 @@ import {
   ComponentMethod,
   DefinitionNodeResult,
   LitElementPropertyConfig,
-} from "../wca/wca-types.js";
+} from "./wca-types.js";
 
 /**
  * Flavors for analyzing LitElement related features: https://lit-element.polymer-project.org/

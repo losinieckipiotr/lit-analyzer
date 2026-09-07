@@ -6,6 +6,7 @@ import {
   Node,
   ReturnStatement,
 } from "typescript";
+import { isNamePrivate } from "../util/str-util.js";
 import {
   findChild,
   findChildren,
@@ -15,9 +16,8 @@ import {
   hasModifier,
   resolveDeclarationsDeep,
   resolveNodeValue,
-} from "../ast-util.js";
-import { isNamePrivate } from "../util/str-util.js";
-import { getJsDoc } from "../wca/js-doc-util.js";
+} from "./ast-util.js";
+import { getJsDoc } from "./js-doc-util.js";
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerFlavor,
@@ -30,7 +30,7 @@ import {
   ComponentMethod,
   DefinitionNodeResult,
   InheritanceResult,
-} from "../wca/wca-types.js";
+} from "./wca-types.js";
 
 /**
  * A flavor that discovers using standard custom element rules.

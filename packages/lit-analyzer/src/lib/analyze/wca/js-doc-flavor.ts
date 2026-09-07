@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { JSDocTag, Node } from "typescript";
-import { getNodeIdentifier, getNodeSourceFileLang } from "../ast-util.js";
-import {
-  getJsDoc,
-  parseSimpleJsDocTypeExpression,
-} from "../wca/js-doc-util.js";
+import { getNodeIdentifier, getNodeSourceFileLang } from "./ast-util.js";
+import { getJsDoc, parseSimpleJsDocTypeExpression } from "./js-doc-util.js";
 import {
   AnalyzerFlavor,
   AnalyzerVisitContext,
@@ -22,7 +19,7 @@ import {
   JsDoc,
   JsDocTagParsed,
   VisibilityKind,
-} from "../wca/wca-types.js";
+} from "./wca-types.js";
 
 /**
  * Flavors for analyzing jsdoc related features
