@@ -19,7 +19,7 @@ import {
   RuleModule,
   RuleModuleImplementation,
 } from "./types/rule/rule-module.js";
-import { ComponentDeclaration, ComponentDefinition } from "./wca-types.js";
+import { ComponentDeclaration, ComponentDefinition } from "./wca/wca-types.js";
 
 export interface RuleModuleContext {
   readonly ts: typeof tsMod;

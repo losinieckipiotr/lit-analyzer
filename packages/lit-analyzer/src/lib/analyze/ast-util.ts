@@ -10,29 +10,22 @@ import {
   SetAccessorDeclaration,
   Symbol,
   SyntaxKind,
-  TypeChecker
+  TypeChecker,
 } from "typescript";
-import {
-  isAssignableToSimpleTypeKind,
-  SimpleTypeKind,
-  toSimpleType
-} from "../../simple-type.js";
-import { ModifierKind, VisibilityKind } from "../types.js";
-import { isNamePrivate } from "./text-util.js";
+import { isNamePrivate } from "./util/str-util.js";
+import { ModifierKind, VisibilityKind } from "./wca/wca-types.js";
 
-export interface AstContext {
+interface AstContext {
   ts: typeof tsModule;
   checker: TypeChecker;
 }
 
 /**
  * Resolves all relevant declarations of a specific node.
- * @param node
- * @param context
  */
 export function resolveDeclarations(
   node: Node,
-  context: { checker: TypeChecker; ts: typeof tsModule }
+  context: { checker: TypeChecker; ts: typeof tsModule },
 ): Declaration[] {
   if (node == null) return [];
 
@@ -45,12 +38,10 @@ export function resolveDeclarations(
 /**
  * Returns the symbol of a node.
  * This function follows aliased symbols.
- * @param node
- * @param context
  */
 export function getSymbol(
   node: Node,
-  context: { checker: TypeChecker; ts: typeof tsModule }
+  context: { checker: TypeChecker; ts: typeof tsModule },
 ): Symbol | undefined {
   if (node == null) return undefined;
   const { checker, ts } = context;
@@ -74,8 +65,8 @@ export function getSymbol(
 }
 
 /**
- * Resolves the declarations of a symbol. A valueDeclaration is always the first entry in the array
- * @param symbol
+ * Resolves the declarations of a symbol. A valueDeclaration is always the first
+ * entry in the array.
  */
 export function resolveSymbolDeclarations(symbol: Symbol): Declaration[] {
   // Filters all declarations
@@ -88,19 +79,18 @@ export function resolveSymbolDeclarations(symbol: Symbol): Declaration[] {
     // Make sure that "valueDeclaration" is always the first entry
     return [
       valueDeclaration,
-      ...declarations.filter(decl => decl !== valueDeclaration)
+      ...declarations.filter((decl) => decl !== valueDeclaration),
     ];
   }
 }
 
 /**
- * Resolve a declaration by trying to find the real value by following assignments.
- * @param node
- * @param context
+ * Resolve a declaration by trying to find the real value by following
+ * assignments.
  */
 export function resolveDeclarationsDeep(
   node: Node,
-  context: { checker: TypeChecker; ts: typeof tsModule }
+  context: { checker: TypeChecker; ts: typeof tsModule },
 ): Node[] {
   const declarations: Node[] = [];
   const allDeclarations = resolveDeclarations(node, context);
@@ -112,7 +102,7 @@ export function resolveDeclarationsDeep(
       context.ts.isIdentifier(declaration.initializer)
     ) {
       declarations.push(
-        ...resolveDeclarationsDeep(declaration.initializer, context)
+        ...resolveDeclarationsDeep(declaration.initializer, context),
       );
     } else if (
       context.ts.isTypeAliasDeclaration(declaration) &&
@@ -129,22 +119,18 @@ export function resolveDeclarationsDeep(
 }
 
 /**
- * Returns if the symbol has "alias" flag
- * @param symbol
- * @param ts
+ * Returns if the symbol has "alias" flag.
  */
-export function isAliasSymbol(symbol: Symbol, ts: typeof tsModule): boolean {
+function isAliasSymbol(symbol: Symbol, ts: typeof tsModule): boolean {
   return hasFlag(symbol.flags, ts.SymbolFlags.Alias);
 }
 
 /**
- * Returns a set of modifiers on a node
- * @param node
- * @param ts
+ * Returns a set of modifiers on a node.
  */
 export function getModifiersFromNode(
   node: Node,
-  ts: typeof tsModule
+  ts: typeof tsModule,
 ): Set<ModifierKind> | undefined {
   const modifiers: Set<ModifierKind> = new Set();
 
@@ -164,23 +150,19 @@ export function getModifiersFromNode(
 }
 
 /**
- * Returns if a number has a flag
- * @param num
- * @param flag
+ * Returns if a number has a flag.
  */
-export function hasFlag(num: number, flag: number): boolean {
+function hasFlag(num: number, flag: number): boolean {
   return (num & flag) !== 0;
 }
 
 /**
  * Returns if a node has a specific modifier.
- * @param node
- * @param modifierKind
  */
 export function hasModifier(
   node: Node,
   modifierKind: SyntaxKind,
-  ts: typeof tsModule
+  ts: typeof tsModule,
 ): boolean {
   if (!ts.canHaveModifiers(node)) {
     return false;
@@ -189,7 +171,7 @@ export function hasModifier(
   if (modifiers == null) return false;
   return (
     (node.modifiers || []).find(
-      modifier => modifier.kind === (modifierKind as unknown)
+      (modifier) => modifier.kind === (modifierKind as unknown),
     ) != null
   );
 }
@@ -199,7 +181,7 @@ export function hasModifier(
  */
 export function getMemberVisibilityFromNode(
   node: PropertyDeclaration | PropertySignature | SetAccessorDeclaration | Node,
-  ts: typeof tsModule
+  ts: typeof tsModule,
 ): VisibilityKind | undefined {
   if (
     hasModifier(node, ts.SyntaxKind.PrivateKeyword, ts) ||
@@ -219,13 +201,12 @@ export function getMemberVisibilityFromNode(
 }
 
 /**
- * Returns all keys and corresponding interface/class declarations for keys in an interface.
- * @param interfaceDeclaration
- * @param context
+ * Returns all keys and corresponding interface/class declarations for keys in
+ * an interface.
  */
 export function getInterfaceKeys(
   interfaceDeclaration: InterfaceDeclaration,
-  context: AstContext
+  context: AstContext,
 ): { key: string; keyNode: Node; identifier?: Node; declaration?: Node }[] {
   const extensions: {
     key: string;
@@ -261,7 +242,7 @@ export function getInterfaceKeys(
           key: String(resolvedKey.value),
           keyNode: resolvedKey.node,
           declaration,
-          identifier
+          identifier,
         });
       }
     }
@@ -270,100 +251,86 @@ export function getInterfaceKeys(
   return extensions;
 }
 
-// noinspection JSUnusedGlobalSymbols
-export function isPropertyRequired(
-  property: PropertySignature | PropertyDeclaration,
-  checker: TypeChecker,
-  ts: typeof tsModule
-): boolean {
-  const simpleTypeContext = { checker, ts };
-  const type = checker.getTypeAtLocation(property);
-  const typeSimple = toSimpleType(type, simpleTypeContext);
+// FIXME: remove?
+// function isPropertyRequired(
+//   property: PropertySignature | PropertyDeclaration,
+//   checker: TypeChecker,
+//   ts: typeof tsModule,
+// ): boolean {
+//   const type = checker.getTypeAtLocation(property);
 
-  // Properties in external modules don't have initializers, so we cannot infer if the property is required or not
-  if (isNodeInDeclarationFile(property)) {
-    return false;
-  }
+//   // Properties in external modules don't have initializers, so we cannot infer if the property is required or not
+//   if (isNodeInDeclarationFile(property)) {
+//     return false;
+//   }
 
-  if (ts.isPropertySignature(property)) {
-    return false;
-  }
+//   if (ts.isPropertySignature(property)) {
+//     return false;
+//   }
 
-  // The property cannot be required if it has an initializer.
-  if (property.initializer != null) {
-    return false;
-  }
+//   // The property cannot be required if it has an initializer.
+//   if (property.initializer != null) {
+//     return false;
+//   }
 
-  // Take "myProp?: string" into account
-  if (property.questionToken != null) {
-    return false;
-  }
+//   // Take "myProp?: string" into account
+//   if (property.questionToken != null) {
+//     return false;
+//   }
 
-  // "any" or "unknown" should never be required
-  if (
-    isAssignableToSimpleTypeKind(typeSimple, [
-      SimpleTypeKind.ANY,
-      SimpleTypeKind.UNKNOWN
-    ])
-  ) {
-    return false;
-  }
+//   // "any" or "unknown" should never be required
+//   if (type.flags & ts.TypeFlags.Any || type.flags & ts.TypeFlags.Unknown) {
+//     return false;
+//   }
+//   // Return "not required" if the property doesn't have an initializer and no type node.
+//   // In this case the type could be determined by the jsdoc @type tag but cannot be "null" union if "strictNullCheck" is false.
+//   if (property.type == null) {
+//     return false;
+//   }
 
-  // Return "not required" if the property doesn't have an initializer and no type node.
-  // In this case the type could be determined by the jsdoc @type tag but cannot be "null" union if "strictNullCheck" is false.
-  if (property.type == null) {
-    return false;
-  }
+//   return !(
+//     type.flags & ts.TypeFlags.Undefined || type.flags & ts.TypeFlags.Null
+//   );
+// }
 
-  return !isAssignableToSimpleTypeKind(typeSimple, [
-    SimpleTypeKind.UNDEFINED,
-    SimpleTypeKind.NULL
-  ]);
-}
-
-/**
- * Find a node recursively walking up the tree using parent nodes.
- * @param node
- * @param test
- */
-export function findParent<T extends Node = Node>(
-  node: Node | undefined,
-  test: (node: Node) => node is T
-): T | undefined {
-  if (node == null) return;
-  return test(node) ? node : findParent(node.parent, test);
-}
+// /**
+//  * Find a node recursively walking up the tree using parent nodes.
+//  */
+// function findParent<T extends Node = Node>(
+//   node: Node | undefined,
+//   test: (node: Node) => node is T,
+// ): T | undefined {
+//   if (node == null) return;
+//   return test(node) ? node : findParent(node.parent, test);
+// }
 
 /**
- * Find a node recursively walking down the children of the tree. Depth first search.
- * @param node
- * @param test
+ * Find a node recursively walking down the children of the tree. Depth first
+ * search.
  */
 export function findChild<T extends Node = Node>(
   node: Node | undefined,
-  test: (node: Node) => node is T
+  test: (node: Node) => node is T,
 ): T | undefined {
   if (!node) return;
   if (test(node)) return node;
-  return node.forEachChild(child => findChild(child, test));
+  return node.forEachChild((child) => findChild(child, test));
 }
 
 /**
- * Find multiple children by walking down the children of the tree. Depth first search.
- * @param node
- * @param test
- * @param emit
+ * Find multiple children by walking down the children of the tree. Depth first
+ * search.
  */
 export function findChildren<T extends Node = Node>(
   node: Node | undefined,
   test: (node: Node) => node is T,
-  emit: (node: T) => void
+  emit: (node: T) => void,
 ): void {
   if (!node) return;
   if (test(node)) {
     emit(node);
   }
-  node.forEachChild(child => findChildren(child, test, emit));
+  node.forEachChild((child) => findChildren(child, test, emit));
 }
 
 /**
@@ -374,22 +341,21 @@ export function getNodeSourceFileLang(node: Node): "js" | "ts" {
   return node.getSourceFile().fileName.endsWith("ts") ? "ts" : "js";
 }
 
-/**
- * Returns if a node is in a declaration file
- * @param node
- */
-export function isNodeInDeclarationFile(node: Node): boolean {
-  return node.getSourceFile().isDeclarationFile;
-}
+// FIXME: remove?
+// /**
+//  * Returns if a node is in a declaration file
+//  * @param node
+//  */
+// function isNodeInDeclarationFile(node: Node): boolean {
+//   return node.getSourceFile().isDeclarationFile;
+// }
 
 /**
- * Returns the leading comment for a given node
- * @param node
- * @param ts
+ * Returns the leading comment for a given node.
  */
 export function getLeadingCommentForNode(
   node: Node,
-  ts: typeof tsModule
+  ts: typeof tsModule,
 ): string | undefined {
   const sourceFileText = node.getSourceFile().text;
 
@@ -398,7 +364,7 @@ export function getLeadingCommentForNode(
   if (leadingComments != null && leadingComments.length > 0) {
     return sourceFileText.substring(
       leadingComments[0].pos,
-      leadingComments[0].end
+      leadingComments[0].end,
     );
   }
 
@@ -407,36 +373,34 @@ export function getLeadingCommentForNode(
 
 /**
  * Returns the declaration name of a given node if possible.
- * @param node
- * @param context
  */
 export function getNodeName(
   node: Node,
-  context: { ts: typeof tsModule }
+  context: { ts: typeof tsModule },
 ): string | undefined {
   return getNodeIdentifier(node, context)?.getText();
 }
 
 /**
  * Returns the declaration name of a given node if possible.
- * @param node
- * @param context
  */
 export function getNodeIdentifier(
   node: Node,
-  context: { ts: typeof tsModule }
+  context: { ts: typeof tsModule },
 ): Identifier | undefined {
-  if (context.ts.isIdentifier(node)) {
+  const { ts } = context;
+
+  if (ts.isIdentifier(node)) {
     return node;
   } else if (
-    (context.ts.isClassLike(node) ||
-      context.ts.isInterfaceDeclaration(node) ||
-      context.ts.isVariableDeclaration(node) ||
-      context.ts.isMethodDeclaration(node) ||
-      context.ts.isPropertyDeclaration(node) ||
-      context.ts.isFunctionDeclaration(node)) &&
+    (ts.isClassLike(node) ||
+      ts.isInterfaceDeclaration(node) ||
+      ts.isVariableDeclaration(node) ||
+      ts.isMethodDeclaration(node) ||
+      ts.isPropertyDeclaration(node) ||
+      ts.isFunctionDeclaration(node)) &&
     node.name != null &&
-    context.ts.isIdentifier(node.name)
+    ts.isIdentifier(node.name)
   ) {
     return node.name;
   }
@@ -446,19 +410,17 @@ export function getNodeIdentifier(
 
 /**
  * Returns all decorators in either the node's `decorators` or `modifiers`.
- * @param node
- * @param context
  */
 export function getDecorators(
   node: Node,
-  context: { ts: typeof tsModule }
+  context: { ts: typeof tsModule },
 ): ReadonlyArray<Decorator> {
   const { ts } = context;
 
   return ts.canHaveDecorators(node) ? (ts.getDecorators(node) ?? []) : [];
 }
 
-export interface Context {
+interface Context {
   ts: typeof tsModule;
   checker?: TypeChecker;
   depth?: number;
@@ -468,12 +430,10 @@ export interface Context {
 /**
  * Takes a node and tries to resolve a constant value from it.
  * Returns undefined if no constant value can be resolved.
- * @param node
- * @param context
  */
 export function resolveNodeValue(
   node: Node | undefined,
-  context: Context
+  context: Context,
 ): { value: unknown; node: Node } | undefined {
   if (node == null) return undefined;
 
@@ -492,7 +452,7 @@ export function resolveNodeValue(
     const value = resolveNodeValue(node.operand, { ...context, depth })?.value;
     return {
       value: applyPrefixUnaryOperatorToValue(value, node.operator, ts),
-      node
+      node,
     };
   } else if (ts.isObjectLiteralExpression(node)) {
     const object: Record<string, unknown> = {};
@@ -507,7 +467,7 @@ export function resolveNodeValue(
         // Resolve the "value
         const resolvedValue = resolveNodeValue(prop.initializer, {
           ...context,
-          depth
+          depth,
         });
         if (resolvedValue != null && typeof name === "string") {
           object[name] = resolvedValue.value;
@@ -517,7 +477,7 @@ export function resolveNodeValue(
 
     return {
       value: object,
-      node
+      node,
     };
   } else if (node.kind === ts.SyntaxKind.TrueKeyword) {
     return { value: true, node };
@@ -603,8 +563,8 @@ export function resolveNodeValue(
     return {
       node,
       value: node.elements.map(
-        el => resolveNodeValue(el, { ...context, depth })?.value
-      )
+        (el) => resolveNodeValue(el, { ...context, depth })?.value,
+      ),
     };
   }
 
@@ -627,7 +587,7 @@ function applyPrefixUnaryOperatorToValue(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   operator: SyntaxKind,
-  ts: typeof tsModule
+  ts: typeof tsModule,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (typeof value === "object" && value != null) {

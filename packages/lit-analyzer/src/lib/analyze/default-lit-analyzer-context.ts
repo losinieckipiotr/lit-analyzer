@@ -37,7 +37,7 @@ import {
 } from "./store/html-store/default-analyzer-html-store.js";
 import { HtmlDataSourceKind } from "./store/html-store/html-data-source-merged.js";
 import { changedSourceFileIterator } from "./util/changed-source-file-iterator.js";
-import { analyzeHTMLElement, analyzeSourceFile } from "./wca.js";
+import { analyzeHTMLElement, analyzeSourceFile } from "./wca/wca.js";
 
 export interface LitAnalyzerContext {
   readonly ts: typeof tsMod;

@@ -13,7 +13,7 @@ import {
   ComponentEvent,
   ComponentMember,
   ComponentSlot,
-} from "../../wca-types.js";
+} from "../../wca/wca-types.js";
 
 export interface HtmlDataFeatures {
   attributes: HtmlAttr[];

@@ -25,7 +25,7 @@ export interface LitElementPropertyConfig {
   state?: boolean;
 }
 
-interface JsDocTagParsed {
+export interface JsDocTagParsed {
   tag: string;
   name?: string;
   type?: string;
@@ -36,14 +36,14 @@ interface JsDocTagParsed {
   namespace?: string;
 }
 
-interface JSDocTagInternal {
+export interface JSDocTagInternal {
   node: JSDocTag;
   comment?: string;
   tag: string;
   parsed: () => JsDocTagParsed;
 }
 
-interface JsDoc {
+export interface JsDoc {
   node?: JSDoc;
   description?: string;
   tags?: JSDocTagInternal[];
@@ -53,12 +53,12 @@ type ComponentMemberKind = "property" | "attribute";
 
 export type PriorityKind = "low" | "medium" | "high";
 
-type VisibilityKind = "public" | "protected" | "private";
+export type VisibilityKind = "public" | "protected" | "private";
 
 export type ComponentMemberReflectKind =
   "to-attribute" | "to-property" | "both";
 
-type ModifierKind = "readonly" | "static";
+export type ModifierKind = "readonly" | "static";
 
 export interface ComponentFeatureBase {
   jsDoc?: JsDoc;
@@ -321,6 +321,14 @@ export interface FeatureVisitReturnTypeMap {
   event: ComponentEvent;
   slot: ComponentSlot;
 }
+
+export type RefineFeatureEmitMap = {
+  [K in ComponentFeature]: (result: FeatureVisitReturnTypeMap[K]) => void;
+};
+
+export type VisitFeatureEmitMap = {
+  [K in ComponentFeature]: (result: FeatureVisitReturnTypeMap[K][]) => void;
+};
 
 /**
  * Options to give when analyzing components

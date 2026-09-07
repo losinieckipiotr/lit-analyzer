@@ -63,6 +63,7 @@ export function visitTaggedTemplateNodes(
     tsModule.ts.isTaggedTemplateExpression(astNode) &&
     context.shouldCheckTemplateTag(astNode.tag.getText())
   ) {
+    // FIXME: ?
     // Only visit the template expression if the leading comments does not include the ts-ignore flag.
     //if (!leadingCommentsIncludes(astNode.getSourceFile().getText(), astNode.getFullStart(), TS_IGNORE_FLAG)) {
     newContext.parent = astNode;

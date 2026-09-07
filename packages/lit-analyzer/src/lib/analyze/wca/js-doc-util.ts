@@ -6,17 +6,14 @@ import {
   JSDocTypeTag,
   Node,
   Program,
-  Type
+  Type,
 } from "typescript";
-import { arrayDefined } from "../../util/array-util.js";
-import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "../types.js";
-import { getLeadingCommentForNode } from "./ast-util.js";
-import { getLibTypeWithName } from "./type-util.js";
+import { getLeadingCommentForNode } from "../ast-util.js";
+import { arrayDefined } from "../util/array-util.js";
+import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "./wca-types.js";
 
 /**
- * Returns typescript jsdoc node for a given node
- * @param node
- * @param ts
+ * Returns typescript jsdoc node for a given node.
  */
 function getJSDocNode(node: Node, ts: typeof tsModule): JSDoc | undefined {
   const parent = ts.getJSDocTags(node)?.[0]?.parent;
@@ -26,20 +23,17 @@ function getJSDocNode(node: Node, ts: typeof tsModule): JSDoc | undefined {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return ((node as any).jsDoc as Node[])?.find((n): n is JSDoc =>
-    ts.isJSDoc(n)
+    ts.isJSDoc(n),
   );
 }
 
 /**
  * Returns jsdoc for a given node.
- * @param node
- * @param ts
- * @param tagNames
  */
 export function getJsDoc(
   node: Node,
   ts: typeof tsModule,
-  tagNames?: string[]
+  tagNames?: string[],
 ): JsDoc | undefined {
   const jsDocNode = getJSDocNode(node, ts);
 
@@ -57,7 +51,7 @@ export function getJsDoc(
 
       return {
         ...jsDoc,
-        tags: jsDoc.tags?.filter(t => tagNames.includes(t.tag))
+        tags: jsDoc.tags?.filter((t) => tagNames.includes(t.tag)),
       };
     }
 
@@ -76,7 +70,7 @@ export function getJsDoc(
       jsDocNode.tags == null
         ? []
         : arrayDefined(
-            jsDocNode.tags.map(node => {
+            jsDocNode.tags.map((node) => {
               const tag = String(node.tagName.escapedText);
 
               // Filter by tag name
@@ -119,12 +113,12 @@ export function getJsDoc(
                 node,
                 tag,
                 comment,
-                parsed: () => parseJsDocTagString(fullComment)
+                parsed: () => parseJsDocTagString(fullComment),
               };
 
               return extendedTag;
-            })
-          )
+            }),
+          ),
   };
 }
 
@@ -132,13 +126,11 @@ export function getJsDoc(
  * Converts a given string to a SimpleType
  * Defaults to ANY
  * See http://usejsdoc.org/tags-type.html
- * @param str
- * @param context
  */
 export function parseSimpleJsDocTypeExpression(
   tagNode: JSDocTag,
   str: string,
-  context: { program: Program; ts: typeof tsModule }
+  context: { program: Program; ts: typeof tsModule },
 ): Type {
   const checker = context.program.getTypeChecker();
 
@@ -325,22 +317,22 @@ export function parseSimpleJsDocTypeExpression(
  */
 export function getJsDocType(
   jsDoc: JsDoc,
-  context: { program: Program; ts: typeof tsModule }
+  context: { program: Program; ts: typeof tsModule },
 ): Type | undefined {
   if (jsDoc.tags != null) {
-    const typeJsDocTag = jsDoc.tags.find(t => t.tag === "type");
+    const typeJsDocTag = jsDoc.tags.find((t) => t.tag === "type");
 
     if (typeJsDocTag != null) {
       // We get the text of the node because typescript strips the type jsdoc tag under certain circumstances
       const parsedJsDoc = parseJsDocTagString(
-        typeJsDocTag.node?.getText() || ""
+        typeJsDocTag.node?.getText() || "",
       );
 
       if (parsedJsDoc.type != null) {
         return parseSimpleJsDocTypeExpression(
           typeJsDocTag.node,
           parsedJsDoc.type,
-          context
+          context,
         );
       }
     }
@@ -353,7 +345,7 @@ const JSDOC_TAGS_WITH_REQUIRED_NAME: string[] = [
   "param",
   "fires",
   "@element",
-  "@customElement"
+  "@customElement",
 ];
 
 /**
@@ -397,7 +389,7 @@ function parseJsDocValue(value: string | undefined): unknown {
  */
 function parseJsDocTagString(str: string): JsDocTagParsed {
   const jsDocTag: JsDocTagParsed = {
-    tag: ""
+    tag: "",
   };
 
   if (str[0] !== "@") {
@@ -406,7 +398,7 @@ function parseJsDocTagString(str: string): JsDocTagParsed {
 
   const moveStr = (byLength: string | number) => {
     str = str.substring(
-      typeof byLength === "number" ? byLength : byLength.length
+      typeof byLength === "number" ? byLength : byLength.length,
     );
   };
 
@@ -619,4 +611,63 @@ function parseJsDocString(_node: Node, doc: string): JsDoc | undefined {
  */
 function unescapeJSDoc(str: string): string {
   return str.replace(/\\@/, "@");
+}
+
+// Only search in "lib.dom.d.ts" performance reasons for now
+const LIB_FILE_NAMES = ["lib.dom.d.ts"];
+
+const LIB_TYPE_CACHE: WeakMap<
+  typeof tsModule,
+  Map<string, Type | undefined>
+> = new Map();
+
+/**
+ * Return a Typescript library type with a specific name.
+ */
+function getLibTypeWithName(
+  name: string,
+  { ts, program }: { program: Program; ts: typeof tsModule },
+): Type | undefined {
+  const nameTypeCache = LIB_TYPE_CACHE.get(ts) || new Map();
+
+  if (nameTypeCache.has(name)) {
+    return nameTypeCache.get(name);
+  } else {
+    LIB_TYPE_CACHE.set(ts, nameTypeCache);
+  }
+
+  let node: Node | undefined;
+
+  // FIXME: Do we just want to resolve type here?
+  // there is function for this on checker
+
+  for (const libFileName of LIB_FILE_NAMES) {
+    const sourceFile =
+      program.getSourceFile(libFileName) ||
+      program.getSourceFiles().find((f) => f.fileName.endsWith(libFileName));
+    if (sourceFile == null) {
+      continue;
+    }
+
+    for (const statement of sourceFile.statements) {
+      if (
+        ts.isInterfaceDeclaration(statement) &&
+        statement.name?.text === name
+      ) {
+        node = statement;
+        break;
+      }
+    }
+
+    if (node != null) {
+      break;
+    }
+  }
+
+  const checker = program.getTypeChecker();
+  const type = node == null ? undefined : checker.getTypeAtLocation(node);
+
+  nameTypeCache.set(name, type);
+
+  return type;
 }

@@ -10,12 +10,10 @@ import {
   makeSourceFileRange,
   rangeFromNode,
 } from "../analyze/util/range-util.js";
-import { ComponentMember } from "../analyze/wca-types.js";
+import { ComponentMember } from "../analyze/wca/wca-types.js";
 
 /**
- * Returns the identifier of the decorator used on the member if any
- * @param member
- * @param context
+ * Returns the identifier of the decorator used on the member if any.
  */
 const getDecoratorIdentifier = (
   member: ComponentMember,

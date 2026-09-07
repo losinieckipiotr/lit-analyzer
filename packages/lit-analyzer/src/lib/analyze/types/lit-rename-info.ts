@@ -1,5 +1,5 @@
 import { HtmlDocument } from "../parse/document/text-document/html-document/html-document.js";
-import { ComponentDefinition } from "../wca-types.js";
+import { ComponentDefinition } from "../wca/wca-types.js";
 import { HtmlNode } from "./html-node/html-node-types.js";
 import { LitTargetKind } from "./lit-target-kind.js";
 import { SourceFileRange } from "./range.js";

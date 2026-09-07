@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { JSDocTag, Node } from "typescript";
+import { getNodeIdentifier, getNodeSourceFileLang } from "../ast-util.js";
+import {
+  getJsDoc,
+  parseSimpleJsDocTypeExpression,
+} from "../wca/js-doc-util.js";
 import {
   AnalyzerFlavor,
   AnalyzerVisitContext,
@@ -13,21 +18,11 @@ import {
   ComponentMemberReflectKind,
   ComponentSlot,
   DefinitionNodeResult,
-  FeatureDiscoverVisitMap
-} from "../../../../lib/analyze/wca-types.js";
-// FIXME: remove simple type
-import {
-  isSimpleType,
-  SimpleTypeKind,
-  SimpleTypeStringLiteral
-} from "../../simple-type.js";
-import { JsDoc, JsDocTagParsed, VisibilityKind } from "../types.js";
-import { getNodeIdentifier, getNodeSourceFileLang } from "../util/ast-util.js";
-import {
-  getJsDoc,
-  parseSimpleJsDocTypeExpression
-} from "../util/js-doc-util.js";
-import { lazy } from "../util/lazy.js";
+  FeatureDiscoverVisitMap,
+  JsDoc,
+  JsDocTagParsed,
+  VisibilityKind,
+} from "../wca/wca-types.js";
 
 /**
  * Flavors for analyzing jsdoc related features
@@ -49,7 +44,7 @@ export class JsDocFlavor implements AnalyzerFlavor {
  */
 function discoverDefinitions(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): DefinitionNodeResult[] | undefined {
   // /** @customElement my-element */ myClass extends HTMLElement { ... }
   if (
@@ -66,10 +61,10 @@ function discoverDefinitions(
           tagName: name || "",
           definitionNode: tagNode,
           identifierNode: identifier,
-          tagNameNode: tagNode
+          tagNameNode: tagNode,
         };
       },
-      context
+      context,
     );
   }
 
@@ -80,7 +75,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
   {
     csspart: (
       node: Node,
-      context: AnalyzerVisitContext
+      context: AnalyzerVisitContext,
     ): ComponentCssPart[] | undefined => {
       if (
         context.ts.isInterfaceDeclaration(node) ||
@@ -93,13 +88,13 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
             if (name != null && name.length > 0) {
               return {
                 name: name,
-                jsDoc: description != null ? { description } : undefined
+                jsDoc: description != null ? { description } : undefined,
               };
             }
 
             return undefined;
           },
-          context
+          context,
         );
       }
 
@@ -107,7 +102,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
     },
     cssproperty: (
       node: Node,
-      context: AnalyzerVisitContext
+      context: AnalyzerVisitContext,
     ): ComponentCssProperty[] | undefined => {
       if (
         context.ts.isInterfaceDeclaration(node) ||
@@ -122,20 +117,20 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
                 name: name,
                 jsDoc: description != null ? { description } : undefined,
                 typeHint: type || undefined,
-                default: def
+                default: def,
               };
             }
 
             return undefined;
           },
-          context
+          context,
         );
       }
       return undefined;
     },
     event: (
       node: Node,
-      context: AnalyzerVisitContext
+      context: AnalyzerVisitContext,
     ): ComponentEvent[] | undefined => {
       if (
         context.ts.isInterfaceDeclaration(node) ||
@@ -156,13 +151,13 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
                       checker.getAnyType()
                   : undefined,
                 typeHint: type,
-                node: tagNode
+                node: tagNode,
               };
             }
 
             return undefined;
           },
-          context
+          context,
         );
       }
 
@@ -170,7 +165,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
     },
     slot: (
       node: Node,
-      context: AnalyzerVisitContext
+      context: AnalyzerVisitContext,
     ): ComponentSlot[] | undefined => {
       if (
         context.ts.isInterfaceDeclaration(node) ||
@@ -196,36 +191,23 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
                 return undefined;
               }
 
-              if (isSimpleType(permittedTagNameType)) {
-                switch (permittedTagNameType.kind) {
-                  case SimpleTypeKind.STRING_LITERAL:
-                    return [permittedTagNameType.value];
-                  case SimpleTypeKind.UNION:
-                    return permittedTagNameType.types
-                      .filter(
-                        (type): type is SimpleTypeStringLiteral =>
-                          type.kind === SimpleTypeKind.STRING_LITERAL
-                      )
-                      .map(type => type.value);
-                  default:
-                    return undefined;
-                }
-              } else {
-                if (permittedTagNameType.isStringLiteral()) {
-                  return [permittedTagNameType.value];
-                }
-
-                throw new Error("fixme");
+              if (permittedTagNameType.isStringLiteral()) {
+                return [permittedTagNameType.value];
               }
+
+              // FIXME
+              // throw new Error("fixme");
+
+              return undefined;
             })();
 
             return {
               name: name,
               jsDoc: description != null ? { description } : undefined,
-              permittedTagNames
+              permittedTagNames,
             };
           },
-          context
+          context,
         );
       }
 
@@ -233,7 +215,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
     },
     member: (
       node: Node,
-      context: AnalyzerVisitContext
+      context: AnalyzerVisitContext,
     ): ComponentMember[] | undefined => {
       if (
         context.ts.isInterfaceDeclaration(node) ||
@@ -264,7 +246,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
                 visibility: undefined,
                 reflect: undefined,
                 required: undefined,
-                deprecated: undefined
+                deprecated: undefined,
               };
 
               return member;
@@ -272,7 +254,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
 
             return undefined;
           },
-          context
+          context,
         );
 
         const attributes = parseJsDocForNode(
@@ -285,25 +267,23 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
                 kind: "attribute",
                 attrName: name,
                 jsDoc: description != null ? { description } : undefined,
-                type: lazy(
-                  () =>
-                    (type &&
-                      parseSimpleJsDocTypeExpression(tagNode, type, context)) ||
-                    checker.getAnyType()
-                ),
+                type: () =>
+                  (type &&
+                    parseSimpleJsDocTypeExpression(tagNode, type, context)) ||
+                  checker.getAnyType(),
                 typeHint: type,
                 node: tagNode,
                 default: def,
                 visibility: undefined,
                 reflect: undefined,
                 required: undefined,
-                deprecated: undefined
+                deprecated: undefined,
               } as ComponentMemberAttribute;
             }
 
             return undefined;
           },
-          context
+          context,
         );
 
         if (attributes != null || properties != null) {
@@ -314,13 +294,13 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
       }
 
       return undefined;
-    }
+    },
   };
 
 const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   csspart: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentCssPart[] | undefined => {
     if (
       context.ts.isInterfaceDeclaration(node) &&
@@ -333,7 +313,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   },
   cssproperty: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentCssProperty[] | undefined => {
     if (
       context.ts.isInterfaceDeclaration(node) &&
@@ -346,7 +326,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   },
   event: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentEvent[] | undefined => {
     if (
       context.ts.isInterfaceDeclaration(node) &&
@@ -359,7 +339,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   },
   slot: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentSlot[] | undefined => {
     if (
       context.ts.isInterfaceDeclaration(node) &&
@@ -372,7 +352,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   },
   member: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentMember[] | undefined => {
     if (
       context.ts.isInterfaceDeclaration(node) &&
@@ -382,7 +362,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
     }
 
     return undefined;
-  }
+  },
 };
 
 /**
@@ -392,7 +372,7 @@ function parseJsDocForNode<T>(
   node: Node,
   tagNames: string[],
   transform: (tagNode: JSDocTag, parsed: JsDocTagParsed) => T | undefined,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): T[] | undefined {
   const { tags } = getJsDoc(node, context.ts, tagNames) || {};
 
@@ -400,14 +380,14 @@ function parseJsDocForNode<T>(
     context.emitContinue?.();
 
     return tags
-      .map(tag => {
+      .map((tag) => {
         if (!tag.node) {
           throw new Error("node is undefined");
         }
 
         return transform(tag.node, tag.parsed());
       })
-      .filter(t => t != null);
+      .filter((t) => t != null);
   }
 
   return undefined;
@@ -418,7 +398,7 @@ function parseJsDocForNode<T>(
  */
 function refineDeclaration(
   declaration: ComponentDeclaration,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): ComponentDeclaration | undefined {
   if (declaration.jsDoc == null || declaration.jsDoc.tags == null) {
     return undefined;
@@ -426,12 +406,12 @@ function refineDeclaration(
 
   // Applies the "@deprecated" jsdoc tag
   const deprecatedTag = declaration.jsDoc.tags.find(
-    t => t.tag === "deprecated"
+    (t) => t.tag === "deprecated",
   );
   if (deprecatedTag != null) {
     return {
       ...declaration,
-      deprecated: deprecatedTag.comment || true
+      deprecated: deprecatedTag.comment || true,
     };
   }
 
@@ -450,10 +430,16 @@ const refineFeature: AnalyzerFlavor["refineFeature"] = {
       return undefined;
     }
 
+    // TODO: below code could be refactored to be more readable
+    // functional approach is not needed here and it is difficult to debug
+    // let result = applyJsDocDeprecated(event, event.jsDoc);
+    // result = applyJsDocVisibility(result, event.jsDoc);
+    // result = applyJsDocType(result, event.jsDoc, context);
+
     return [applyJsDocDeprecated, applyJsDocVisibility, applyJsDocType].reduce(
       (event, applyFunc) =>
         (applyFunc as Function)(event, event.jsDoc, context),
-      event
+      event,
     );
   },
   method: (method, context) => {
@@ -467,7 +453,7 @@ const refineFeature: AnalyzerFlavor["refineFeature"] = {
     method = [applyJsDocDeprecated, applyJsDocVisibility].reduce(
       (method, applyFunc) =>
         (applyFunc as Function)(method, method.jsDoc, context),
-      method
+      method,
     );
 
     return method;
@@ -489,13 +475,13 @@ const refineFeature: AnalyzerFlavor["refineFeature"] = {
       applyJsDocReflect,
       applyJsDocType,
       applyJsDocAttribute,
-      applyJsDocModifiers
+      applyJsDocModifiers,
     ].reduce(
       (member, applyFunc) =>
         (applyFunc as Function)(member, member.jsDoc, context),
-      member
+      member,
     );
-  }
+  },
 };
 
 /**
@@ -504,14 +490,14 @@ const refineFeature: AnalyzerFlavor["refineFeature"] = {
  * @param jsDoc
  */
 function applyJsDocDeprecated<
-  T extends Partial<Pick<ComponentMember, "deprecated">>
+  T extends Partial<Pick<ComponentMember, "deprecated">>,
 >(feature: T, jsDoc: JsDoc): T {
-  const deprecatedTag = jsDoc.tags?.find(tag => tag.tag === "deprecated");
+  const deprecatedTag = jsDoc.tags?.find((tag) => tag.tag === "deprecated");
 
   if (deprecatedTag != null) {
     return {
       ...feature,
-      deprecated: deprecatedTag.comment || true
+      deprecated: deprecatedTag.comment || true,
     };
   }
 
@@ -524,10 +510,10 @@ function applyJsDocDeprecated<
  * @param jsDoc
  */
 function applyJsDocVisibility<
-  T extends Partial<Pick<ComponentMember, "visibility">>
+  T extends Partial<Pick<ComponentMember, "visibility">>,
 >(feature: T, jsDoc: JsDoc): T {
-  const visibilityTag = jsDoc.tags?.find(tag =>
-    ["public", "protected", "private", "package", "access"].includes(tag.tag)
+  const visibilityTag = jsDoc.tags?.find((tag) =>
+    ["public", "protected", "private", "package", "access"].includes(tag.tag),
   ); // member + method
 
   if (visibilityTag != null) {
@@ -557,7 +543,7 @@ function applyJsDocVisibility<
           default:
             return undefined;
         }
-      })()
+      })(),
     };
   }
 
@@ -576,10 +562,10 @@ function applyJsDocAttribute<
       ComponentMember,
       "propName" | "attrName" | "default" | "type" | "typeHint"
     >
-  >
+  >,
 >(feature: T, jsDoc: JsDoc, context: AnalyzerVisitContext): T {
-  const attributeTag = jsDoc.tags?.find(tag =>
-    ["attr", "attribute"].includes(tag.tag)
+  const attributeTag = jsDoc.tags?.find((tag) =>
+    ["attr", "attribute"].includes(tag.tag),
   );
 
   if (attributeTag != null && feature.attrName == null) {
@@ -588,7 +574,7 @@ function applyJsDocAttribute<
     const result: T = {
       ...feature,
       attrName: attributeTag.parsed().name || feature.propName,
-      default: feature.default ?? parsed.default
+      default: feature.default ?? parsed.default,
     };
 
     // @attr jsdoc tag can also include the type of attribute
@@ -601,7 +587,7 @@ function applyJsDocAttribute<
           parseSimpleJsDocTypeExpression(
             attributeTag.node,
             parsed.type || "",
-            context
+            context,
           ));
     }
 
@@ -617,16 +603,16 @@ function applyJsDocAttribute<
  * @param jsDoc
  */
 function applyJsDocRequired<
-  T extends Partial<Pick<ComponentMember, "required">>
+  T extends Partial<Pick<ComponentMember, "required">>,
 >(feature: T, jsDoc: JsDoc): T {
-  const requiredTag = jsDoc.tags?.find(tag =>
-    ["optional", "required"].includes(tag.tag)
+  const requiredTag = jsDoc.tags?.find((tag) =>
+    ["optional", "required"].includes(tag.tag),
   );
 
   if (requiredTag != null) {
     return {
       ...feature,
-      required: requiredTag.tag === "required"
+      required: requiredTag.tag === "required",
     };
   }
 
@@ -639,9 +625,9 @@ function applyJsDocRequired<
  * @param jsDoc
  */
 function applyJsDocModifiers<
-  T extends Partial<Pick<ComponentMember, "modifiers">>
+  T extends Partial<Pick<ComponentMember, "modifiers">>,
 >(feature: T, jsDoc: JsDoc): T {
-  const readonlyTag = jsDoc.tags?.find(tag => tag.tag === "readonly");
+  const readonlyTag = jsDoc.tags?.find((tag) => tag.tag === "readonly");
 
   if (readonlyTag != null) {
     return {
@@ -649,7 +635,7 @@ function applyJsDocModifiers<
       modifiers: (feature.modifiers != null
         ? new Set(feature.modifiers)
         : new Set()
-      ).add("readonly")
+      ).add("readonly"),
     };
   }
 
@@ -663,14 +649,14 @@ function applyJsDocModifiers<
  */
 function applyJsDocDefault<T extends Partial<Pick<ComponentMember, "default">>>(
   feature: T,
-  jsDoc: JsDoc
+  jsDoc: JsDoc,
 ): T {
-  const defaultTag = jsDoc.tags?.find(tag => tag.tag === "default");
+  const defaultTag = jsDoc.tags?.find((tag) => tag.tag === "default");
 
   if (defaultTag != null) {
     return {
       ...feature,
-      default: defaultTag.comment
+      default: defaultTag.comment,
     };
   }
 
@@ -684,9 +670,9 @@ function applyJsDocDefault<T extends Partial<Pick<ComponentMember, "default">>>(
  */
 function applyJsDocReflect<T extends Partial<Pick<ComponentMember, "reflect">>>(
   feature: T,
-  jsDoc: JsDoc
+  jsDoc: JsDoc,
 ): T {
-  const reflectTag = jsDoc.tags?.find(tag => tag.tag === "reflect");
+  const reflectTag = jsDoc.tags?.find((tag) => tag.tag === "reflect");
 
   if (reflectTag != null && feature.reflect == null) {
     return {
@@ -702,7 +688,7 @@ function applyJsDocReflect<T extends Partial<Pick<ComponentMember, "reflect">>>(
           default:
             return undefined;
         }
-      })()
+      })(),
     };
   }
 
@@ -716,9 +702,9 @@ function applyJsDocReflect<T extends Partial<Pick<ComponentMember, "reflect">>>(
  * @param context
  */
 function applyJsDocType<
-  T extends Partial<Pick<ComponentMember, "type" | "typeHint">>
+  T extends Partial<Pick<ComponentMember, "type" | "typeHint">>,
 >(feature: T, jsDoc: JsDoc, context: AnalyzerVisitContext): T {
-  const typeTag = jsDoc.tags?.find(tag => tag.tag === "type");
+  const typeTag = jsDoc.tags?.find((tag) => tag.tag === "type");
 
   if (typeTag != null && feature.typeHint == null) {
     const parsed = typeTag.parsed();
@@ -733,8 +719,8 @@ function applyJsDocType<
             parseSimpleJsDocTypeExpression(
               typeTag.node,
               parsed.type || "",
-              context
-            ))
+              context,
+            )),
       };
     }
   }
@@ -747,5 +733,5 @@ function applyJsDocType<
  * @param jsDoc
  */
 function hasIgnoreJsDocTag(jsDoc: JsDoc): boolean {
-  return jsDoc?.tags?.find(tag => tag.tag === "ignore") != null;
+  return jsDoc?.tags?.find((tag) => tag.tag === "ignore") != null;
 }

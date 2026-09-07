@@ -4,8 +4,8 @@ import {
   AnalyzerResult,
   ComponentDeclaration,
   ComponentDefinition,
-} from "../../wca-types.js";
-import { visitAllHeritageClauses } from "../../wca.js";
+} from "../../wca/wca-types.js";
+import { visitAllHeritageClauses } from "../../wca/wca.js";
 import { AnalyzerDefinitionStore } from "../analyzer-definition-store.js";
 
 export class DefaultAnalyzerDefinitionStore implements AnalyzerDefinitionStore {

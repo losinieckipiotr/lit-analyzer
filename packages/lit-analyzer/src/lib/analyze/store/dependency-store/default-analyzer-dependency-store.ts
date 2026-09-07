@@ -1,5 +1,5 @@
 import { SourceFile } from "typescript";
-import { ComponentDefinition } from "../../wca-types.js";
+import { ComponentDefinition } from "../../wca/wca-types.js";
 import { AnalyzerDependencyStore } from "../analyzer-dependency-store.js";
 
 export class DefaultAnalyzerDependencyStore implements AnalyzerDependencyStore {

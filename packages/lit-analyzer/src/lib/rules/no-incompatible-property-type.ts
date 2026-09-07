@@ -1,9 +1,9 @@
 import { Node, Type, TypeChecker } from "typescript";
-import { LitElementPropertyConfig } from "../../lib/analyze/wca-types.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { joinArray } from "../analyze/util/array-util.js";
 import { rangeFromNode } from "../analyze/util/range-util.js";
+import { LitElementPropertyConfig } from "../analyze/wca/wca-types.js";
 
 const rule: RuleModule = {
   id: "no-incompatible-property-type",

@@ -1,12 +1,14 @@
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile } from "typescript";
-import { CustomElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/custom-element-flavor.js";
-import { JsDocFlavor } from "../../web-component-analyzer/src/analyze/flavors/js-doc-flavor.js";
-import { LitElementFlavor } from "../../web-component-analyzer/src/analyze/flavors/lit-element-flavor.js";
-import { analyzeComponentDeclaration } from "../../web-component-analyzer/src/analyze/stages/analyze-declaration.js";
-import { discoverDeclarations } from "../../web-component-analyzer/src/analyze/stages/discover-declarations.js";
-import { discoverDefinitions } from "../../web-component-analyzer/src/analyze/stages/discover-definitions.js";
-import { discoverGlobalFeatures } from "../../web-component-analyzer/src/analyze/stages/discover-global-features.js";
+import { CustomElementFlavor } from "../flavors/custom-element-flavor.js";
+import { JsDocFlavor } from "../flavors/js-doc-flavor.js";
+import { LitElementFlavor } from "../flavors/lit-element-flavor.js";
+import {
+  analyzeComponentDeclaration,
+  discoverDeclarations,
+  discoverDefinitions,
+  discoverGlobalFeatures,
+} from "./wca-discover.js";
 import {
   AnalyzerFlavor,
   AnalyzerOptions,
@@ -49,9 +51,8 @@ export const DEFAULT_COMPONENT_DECLARATION_CACHE = new WeakMap<
 >();
 
 /**
- * This function only analyzes the HTMLElement declaration found in "lib.dom.d.ts" source file provided by Typescript.
- * @param program
- * @param ts
+ * This function only analyzes the HTMLElement declaration found in
+ * "lib.dom.d.ts" source file provided by Typescript.
  */
 export function analyzeHTMLElement(
   program: Program,
@@ -108,8 +109,6 @@ function visit(
 
 /**
  * Analyzes all components in a source file.
- * @param sourceFile
- * @param options
  */
 export function analyzeSourceFile(
   sourceFile: SourceFile,
@@ -152,9 +151,8 @@ export function analyzeSourceFile(
 //#region visitAllHeritageClauses
 
 /**
- * A helper function that makes it possible to visit all heritage clauses in the inheritance chain.
- * @param declaration
- * @param emit
+ * A helper function that makes it possible to visit all heritage clauses in the
+ * inheritance chain.
  */
 export function visitAllHeritageClauses(
   declaration: ComponentDeclaration,
@@ -171,8 +169,7 @@ export function visitAllHeritageClauses(
 //#endregion
 
 /**
- * Creates an "analyzer visit context" based on some options
- * @param options
+ * Creates an "analyzer visit context" based on some options.
  */
 export function makeContextFromConfig(
   options: AnalyzerOptions,

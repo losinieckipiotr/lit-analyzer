@@ -9,17 +9,8 @@ import {
   ReturnStatement,
   SetAccessorDeclaration,
   Type,
-  TypeChecker
+  TypeChecker,
 } from "typescript";
-import {
-  AnalyzerDeclarationVisitContext,
-  AnalyzerFlavor,
-  AnalyzerVisitContext,
-  ComponentMember,
-  ComponentMethod,
-  DefinitionNodeResult,
-  LitElementPropertyConfig
-} from "../../../../lib/analyze/wca-types.js";
 import {
   getDecorators,
   getMemberVisibilityFromNode,
@@ -28,10 +19,19 @@ import {
   getNodeName,
   getNodeSourceFileLang,
   hasModifier,
-  resolveNodeValue
-} from "../util/ast-util.js";
-import { getJsDoc, getJsDocType } from "../util/js-doc-util.js";
-import { camelToDashCase, isNamePrivate } from "../util/text-util.js";
+  resolveNodeValue,
+} from "../ast-util.js";
+import { camelToDashCase, isNamePrivate } from "../util/str-util.js";
+import { getJsDoc, getJsDocType } from "../wca/js-doc-util.js";
+import {
+  AnalyzerDeclarationVisitContext,
+  AnalyzerFlavor,
+  AnalyzerVisitContext,
+  ComponentMember,
+  ComponentMethod,
+  DefinitionNodeResult,
+  LitElementPropertyConfig,
+} from "../wca/wca-types.js";
 
 /**
  * Flavors for analyzing LitElement related features: https://lit-element.polymer-project.org/
@@ -41,17 +41,17 @@ export class LitElementFlavor implements AnalyzerFlavor {
   discoverDefinitions = discoverDefinitionsLitElement;
 
   discoverFeatures = {
-    member: discoverMembersLitElement
+    member: discoverMembersLitElement,
   };
 
   refineFeature = {
-    method: refineFeatureLitElement
+    method: refineFeatureLitElement,
   };
 }
 
 function excludeNodeLitElement(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): boolean | undefined {
   if (context.config.analyzeDependencies) {
     return undefined;
@@ -77,7 +77,7 @@ function excludeNodeLitElement(
  */
 function discoverDefinitionsLitElement(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): DefinitionNodeResult[] | undefined {
   const { ts, checker } = context;
 
@@ -101,7 +101,7 @@ function discoverDefinitionsLitElement(
           const resolvedTagNameNode = resolveNodeValue(unresolvedTagNameNode, {
             ts,
             checker,
-            strict: true
+            strict: true,
           });
           const identifier = getNodeIdentifier(node, context);
 
@@ -113,8 +113,8 @@ function discoverDefinitionsLitElement(
               {
                 tagName: resolvedTagNameNode.value,
                 tagNameNode: resolvedTagNameNode.node,
-                identifierNode: identifier
-              }
+                identifierNode: identifier,
+              },
             ];
           }
         }
@@ -127,7 +127,7 @@ function discoverDefinitionsLitElement(
   // note: it did not return definitions from child nodes, was it a bug?
   const results: DefinitionNodeResult[] = [];
 
-  node.forEachChild(child => {
+  node.forEachChild((child) => {
     const result = discoverDefinitionsLitElement(child, context);
 
     if (result) {
@@ -144,7 +144,7 @@ function discoverDefinitionsLitElement(
  */
 function discoverMembersLitElement(
   node: Node,
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): ComponentMember[] | undefined {
   const { ts } = context;
 
@@ -161,7 +161,7 @@ function discoverMembersLitElement(
     const name = node.name.getText();
     if (name === "properties" && node.body != null) {
       const returnStatement = node.body.statements.find<ReturnStatement>(
-        ts.isReturnStatement.bind(ts)
+        ts.isReturnStatement.bind(ts),
       );
       if (returnStatement != null) {
         return parseStaticProperties(returnStatement, context);
@@ -191,7 +191,7 @@ function parsePropertyDecorator(
     | GetAccessorDeclaration
     | PropertyDeclaration
     | PropertySignature,
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): ComponentMember[] | undefined {
   const { ts, checker } = context;
 
@@ -253,8 +253,8 @@ function parsePropertyDecorator(
           : attrName != null
             ? "to-property"
             : undefined,
-        modifiers: getModifiersFromNode(node, ts)
-      }
+        modifiers: getModifiersFromNode(node, ts),
+      },
     ];
   }
 
@@ -265,7 +265,7 @@ function parsePropertyDecorator(
  * Returns if we are in a Polymer context.
  */
 function inPolymerFlavorContext(
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): boolean {
   const declaration = context.getDeclaration();
 
@@ -281,7 +281,7 @@ function inPolymerFlavorContext(
   // Use "@polymer" jsdoc tag to indicate that this is polymer context
   if (
     declaration.jsDoc?.tags?.some(
-      t => t.tag === "polymer" || t.tag === "polymerElement"
+      (t) => t.tag === "polymer" || t.tag === "polymerElement",
     )
   ) {
     result = true;
@@ -291,8 +291,8 @@ function inPolymerFlavorContext(
   if (
     context
       .getDeclaration()
-      .heritageClauses.some(c =>
-        ["PolymerElement", "Polymer.Element"].includes(c.identifier.getText())
+      .heritageClauses.some((c) =>
+        ["PolymerElement", "Polymer.Element"].includes(c.identifier.getText()),
       )
   ) {
     result = true;
@@ -309,7 +309,7 @@ function inPolymerFlavorContext(
 function getLitAttributeName(
   propName: string,
   litConfig: LitElementPropertyConfig,
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): string | undefined {
   // Don't emit attribute if the value is specifically "false"
   if (litConfig.attribute === false) {
@@ -334,7 +334,7 @@ function getLitAttributeName(
  */
 function parseStaticProperties(
   returnStatement: ReturnStatement,
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): ComponentMember[] {
   const { ts, checker } = context;
 
@@ -364,7 +364,7 @@ function parseStaticProperties(
           !ts.isObjectLiteralExpression(propNode.initializer)
         ) {
           litConfig = {
-            type: getLitPropertyType(ts, checker, propNode.initializer)
+            type: getLitPropertyType(ts, checker, propNode.initializer),
           };
         } else {
           const resolved = resolveNodeValue(propNode.initializer, context);
@@ -374,7 +374,7 @@ function parseStaticProperties(
               resolved.node,
               resolved.value,
               context,
-              litConfig
+              litConfig,
             );
           }
         }
@@ -416,7 +416,7 @@ function parseStaticProperties(
           : attrName != null
             ? "to-property"
             : undefined,
-        visibility: isNamePrivate(propName) ? "private" : undefined
+        visibility: isNamePrivate(propName) ? "private" : undefined,
       });
     }
   }
@@ -432,18 +432,18 @@ const LIT_ELEMENT_PROTECTED_METHODS = [
   "update",
   "shouldUpdate",
   "hasUpdated",
-  "updateComplete"
+  "updateComplete",
 ];
 
 function refineFeatureLitElement(
   method: ComponentMethod,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): ComponentMethod | undefined {
   // This is temporary, but for now we force lit-element named methods to be protected
   if (LIT_ELEMENT_PROTECTED_METHODS.includes(method.name)) {
     return {
       ...method,
-      visibility: "protected"
+      visibility: "protected",
     };
   }
 
@@ -461,7 +461,7 @@ const LIT_ELEMENT_PROPERTY_DECORATOR_KINDS: LitElementPropertyDecoratorKind[] =
  */
 function getLitElementPropertyDecorator(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ):
   | { expression: CallExpression; kind: LitElementPropertyDecoratorKind }
   | undefined {
@@ -492,7 +492,7 @@ function getLitElementPropertyDecorator(
  */
 function getLitElementPropertyDecoratorConfig(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): undefined | LitElementPropertyConfig {
   // Get reference to a possible "@property" decorator.
   const decorator = getLitElementPropertyDecorator(node, context);
@@ -503,7 +503,7 @@ function getLitElementPropertyDecoratorConfig(
 
     // Add decorator to "nodes"
     const config: LitElementPropertyConfig = {
-      node: { decorator: decorator.expression }
+      node: { decorator: decorator.expression },
     };
 
     // Apply specific config based on the decorator kind
@@ -535,7 +535,7 @@ function getLitElementPropertyDecoratorConfig(
  */
 function hasOwnProperty<T extends string>(
   obj: object,
-  key: T
+  key: T,
 ): obj is { [K in T]: unknown } {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
@@ -549,7 +549,7 @@ function hasOwnProperty<T extends string>(
 function getLitPropertyType(
   ts: typeof tsModule,
   checker: TypeChecker,
-  node: Node
+  node: Node,
 ): Type {
   const value = ts.isIdentifier(node) ? node.text : undefined;
 
@@ -582,7 +582,7 @@ function getLitPropertyOptions(
   node: Node,
   object: unknown,
   context: AnalyzerVisitContext,
-  existingConfig: LitElementPropertyConfig = {}
+  existingConfig: LitElementPropertyConfig = {},
 ): LitElementPropertyConfig {
   const { ts, checker } = context;
   const result: LitElementPropertyConfig = { ...existingConfig };
@@ -618,7 +618,7 @@ function getLitPropertyOptions(
           (p): p is PropertyAssignment =>
             ts.isPropertyAssignment(p) &&
             ts.isIdentifier(p.name) &&
-            p.name.text === "attribute"
+            p.name.text === "attribute",
         );
         if (prop) {
           attributeInitializer = prop.initializer;
@@ -632,7 +632,7 @@ function getLitPropertyOptions(
       (p): p is PropertyAssignment =>
         ts.isPropertyAssignment(p) &&
         ts.isIdentifier(p.name) &&
-        p.name.text === "type"
+        p.name.text === "type",
     );
 
     if (typeProp) {
@@ -646,7 +646,7 @@ function getLitPropertyOptions(
     node: {
       ...(result.node || {}),
       attribute: attributeInitializer,
-      type: typeInitializer
-    }
+      type: typeInitializer,
+    },
   };
 }

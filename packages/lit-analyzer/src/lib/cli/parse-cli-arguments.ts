@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { dashToCamelCase } from "./util.js";
+
+import { dashToCamelCase } from "../analyze/util/str-util.js";
 
 export type CliArguments = { _: string[] } & Record<
   string,

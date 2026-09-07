@@ -4,7 +4,7 @@ import {
   ComponentDeclaration,
   ComponentDefinition,
   ComponentMember,
-} from "../../wca-types.js";
+} from "../../wca/wca-types.js";
 import { HtmlNodeAttrAssignment } from "../html-node/html-node-attr-assignment-types.js";
 import { HtmlNodeAttr } from "../html-node/html-node-attr-types.js";
 import { HtmlNode } from "../html-node/html-node-types.js";

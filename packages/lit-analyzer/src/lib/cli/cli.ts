@@ -4,10 +4,10 @@ import {
   LitAnalyzerRuleId,
   LitAnalyzerRules,
 } from "../analyze/lit-analyzer-config.js";
+import { camelToDashCase } from "../analyze/util/str-util.js";
 import { analyzeCommand } from "./analyze-command.js";
 import { LitAnalyzerCliConfig } from "./lit-analyzer-cli-config.js";
 import { parseCliArguments } from "./parse-cli-arguments.js";
-import { camelToDashCase } from "./util.js";
 
 const DEFAULT_GLOB = "src/**/*.{js,jsx,ts,tsx}";
 

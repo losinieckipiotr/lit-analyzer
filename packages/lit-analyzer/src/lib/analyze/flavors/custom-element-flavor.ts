@@ -4,8 +4,20 @@ import {
   ExpressionStatement,
   HeritageClause,
   Node,
-  ReturnStatement
+  ReturnStatement,
 } from "typescript";
+import {
+  findChild,
+  findChildren,
+  getInterfaceKeys,
+  getMemberVisibilityFromNode,
+  getModifiersFromNode,
+  hasModifier,
+  resolveDeclarationsDeep,
+  resolveNodeValue,
+} from "../ast-util.js";
+import { isNamePrivate } from "../util/str-util.js";
+import { getJsDoc } from "../wca/js-doc-util.js";
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerFlavor,
@@ -17,21 +29,8 @@ import {
   ComponentMember,
   ComponentMethod,
   DefinitionNodeResult,
-  InheritanceResult
-} from "../../../../lib/analyze/wca-types.js";
-import {
-  findChild,
-  findChildren,
-  getInterfaceKeys,
-  getMemberVisibilityFromNode,
-  getModifiersFromNode,
-  hasModifier,
-  resolveDeclarationsDeep,
-  resolveNodeValue
-} from "../util/ast-util.js";
-import { getJsDoc } from "../util/js-doc-util.js";
-import { lazy } from "../util/lazy.js";
-import { isNamePrivate } from "../util/text-util.js";
+  InheritanceResult,
+} from "../wca/wca-types.js";
 
 /**
  * A flavor that discovers using standard custom element rules.
@@ -44,7 +43,7 @@ export class CustomElementFlavor implements AnalyzerFlavor {
   discoverFeatures = {
     member: discoverMembers,
     event: discoverEvents,
-    method: discoverMethods
+    method: discoverMethods,
   };
 
   discoverGlobalFeatures = discoverGlobalFeatures;
@@ -57,7 +56,7 @@ export class CustomElementFlavor implements AnalyzerFlavor {
  */
 function excludeNode(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): boolean | undefined {
   if (context.config.analyzeDefaultLib) {
     return undefined;
@@ -75,7 +74,7 @@ function isLibDom(node: Node) {
  */
 function discoverDefinitions(
   node: Node,
-  { ts, checker }: AnalyzerVisitContext
+  { ts, checker }: AnalyzerVisitContext,
 ): DefinitionNodeResult[] | undefined {
   // customElements.define("my-element", MyElement)
   if (ts.isCallExpression(node)) {
@@ -109,7 +108,7 @@ function discoverDefinitions(
         const resolvedTagNameNode = resolveNodeValue(unresolvedTagNameNode, {
           ts,
           checker,
-          strict: true
+          strict: true,
         });
 
         if (
@@ -126,8 +125,8 @@ function discoverDefinitions(
               {
                 tagName,
                 identifierNode,
-                tagNameNode
-              }
+                tagNameNode,
+              },
             ];
           }
 
@@ -140,8 +139,8 @@ function discoverDefinitions(
               {
                 tagName,
                 tagNameNode,
-                declarationNode: identifierNode
-              }
+                declarationNode: identifierNode,
+              },
             ];
           }
         }
@@ -161,7 +160,7 @@ function discoverDefinitions(
       tagName: key,
       tagNameNode: keyNode,
       identifierNode: identifier,
-      declarationNode: declaration
+      declarationNode: declaration,
     }));
   }
 
@@ -173,7 +172,7 @@ function discoverDefinitions(
  */
 function discoverMembers(
   node: Node,
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): ComponentMember[] | undefined {
   const { ts, checker } = context;
 
@@ -193,12 +192,12 @@ function discoverMembers(
       // Find either the first "return" statement or the first "array literal expression"
       const arrayLiteralExpression =
         (
-          node.body.statements.find(statement =>
-            ts.isReturnStatement(statement)
+          node.body.statements.find((statement) =>
+            ts.isReturnStatement(statement),
           ) as ReturnStatement | undefined
         )?.expression ??
-        node.body.statements.find(statement =>
-          ts.isArrayLiteralExpression(statement)
+        node.body.statements.find((statement) =>
+          ts.isArrayLiteralExpression(statement),
         );
 
       if (
@@ -218,7 +217,7 @@ function discoverMembers(
             jsDoc: getJsDoc(attrNameNode, ts),
             kind: "attribute",
             attrName,
-            type: undefined // () => ({ kind: "ANY" } as SimpleType),
+            type: undefined, // () => ({ kind: "ANY" } as SimpleType),
           });
         }
       }
@@ -259,12 +258,12 @@ function discoverMembers(
           kind: "property",
           jsDoc: getJsDoc(node, ts),
           propName: name.text,
-          type: lazy(() => checker.getTypeAtLocation(node)),
+          type: () => checker.getTypeAtLocation(node),
           default: def,
           visibility: getMemberVisibilityFromNode(node, ts),
-          modifiers: getModifiersFromNode(node, ts)
+          modifiers: getModifiersFromNode(node, ts),
           //required: isPropertyRequired(node, context.checker),
-        }
+        },
       ];
     }
   }
@@ -286,14 +285,13 @@ function discoverMembers(
           jsDoc: getJsDoc(node, ts),
           kind: "property",
           propName: name.text,
-          type: lazy(() =>
+          type: () =>
             parameter == null
               ? context.checker.getTypeAtLocation(node)
-              : context.checker.getTypeAtLocation(parameter)
-          ),
+              : context.checker.getTypeAtLocation(parameter),
           visibility: getMemberVisibilityFromNode(node, ts),
-          modifiers: getModifiersFromNode(node, ts)
-        }
+          modifiers: getModifiersFromNode(node, ts),
+        },
       ];
     }
   }
@@ -303,9 +301,9 @@ function discoverMembers(
     if (node.body != null) {
       const assignments = node.body.statements
         .filter((stmt): stmt is ExpressionStatement =>
-          ts.isExpressionStatement(stmt)
+          ts.isExpressionStatement(stmt),
         )
-        .map(stmt => stmt.expression)
+        .map((stmt) => stmt.expression)
         .filter((exp): exp is BinaryExpression => ts.isBinaryExpression(exp));
 
       const members: ComponentMember[] = [];
@@ -332,7 +330,7 @@ function discoverMembers(
                 return checker.getTypeAtLocation(right);
               },
               jsDoc: getJsDoc(assignment.parent, ts),
-              visibility: isNamePrivate(propName) ? "private" : undefined
+              visibility: isNamePrivate(propName) ? "private" : undefined,
             });
           }
         }
@@ -363,7 +361,7 @@ const EVENT_NAMES = [
   "TouchEvent",
   "TransitionEvent",
   "UiEvent",
-  "WheelEvent"
+  "WheelEvent",
 ];
 
 /**
@@ -371,7 +369,7 @@ const EVENT_NAMES = [
  */
 function discoverEvents(
   node: Node,
-  context: AnalyzerVisitContext
+  context: AnalyzerVisitContext,
 ): ComponentEvent[] | undefined {
   const { ts, checker } = context;
 
@@ -388,7 +386,7 @@ function discoverEvents(
 
       const eventName = resolveNodeValue(arg, {
         ...context,
-        strict: true
+        strict: true,
       })?.value;
 
       if (typeof eventName === "string") {
@@ -406,8 +404,8 @@ function discoverEvents(
             jsDoc,
             name: eventName,
             node,
-            type: lazy(() => checker.getTypeAtLocation(node))
-          }
+            type: () => checker.getTypeAtLocation(node),
+          },
         ];
       }
     }
@@ -422,14 +420,14 @@ function discoverEvents(
 const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   event: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentEvent[] | undefined => {
     const { ts, checker } = context;
 
     if (
       context.ts.isInterfaceDeclaration(node) &&
       ["HTMLElementEventMap", "GlobalEventHandlersEventMap"].includes(
-        node.name.text
+        node.name.text,
       )
     ) {
       const events: ComponentEvent[] = [];
@@ -443,7 +441,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
               node: member,
               jsDoc: getJsDoc(member, ts),
               name: name,
-              type: lazy(() => checker.getTypeAtLocation(member))
+              type: () => checker.getTypeAtLocation(member),
             });
           }
         }
@@ -458,7 +456,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
   },
   member: (
     node: Node,
-    context: AnalyzerVisitContext
+    context: AnalyzerVisitContext,
   ): ComponentMember[] | undefined => {
     const { ts } = context;
 
@@ -479,7 +477,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
               jsDoc: getJsDoc(member, ts),
               kind: "property",
               propName: name,
-              type: lazy(() => context.checker.getTypeAtLocation(member))
+              type: () => context.checker.getTypeAtLocation(member),
             });
           }
         }
@@ -491,7 +489,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
     }
 
     return undefined;
-  }
+  },
 };
 
 /**
@@ -501,7 +499,7 @@ const discoverGlobalFeatures: AnalyzerFlavor["discoverGlobalFeatures"] = {
  */
 function discoverInheritance(
   node: Node,
-  baseContext: AnalyzerVisitContext
+  baseContext: AnalyzerVisitContext,
 ): InheritanceResult | undefined {
   let declarationKind: ComponentDeclarationKind | undefined = undefined;
   const heritageClauses: ComponentHeritageClause[] = [];
@@ -509,11 +507,11 @@ function discoverInheritance(
 
   const context: InheritanceAnalyzerVisitContext = {
     ...baseContext,
-    emitDeclaration: decl => declarationNodes.add(decl),
+    emitDeclaration: (decl) => declarationNodes.add(decl),
     emitInheritance: (kind, identifier) =>
       heritageClauses.push({ kind, identifier, declaration: undefined }),
-    emitDeclarationKind: kind => (declarationKind = declarationKind || kind),
-    visitedNodes: new Set<Node>()
+    emitDeclarationKind: (kind) => (declarationKind = declarationKind || kind),
+    visitedNodes: new Set<Node>(),
   };
 
   // Resolve the structure of the node
@@ -525,7 +523,7 @@ function discoverInheritance(
   return {
     declarationNodes: Array.from(declarationNodes),
     heritageClauses,
-    declarationKind
+    declarationKind,
   };
 }
 
@@ -534,14 +532,14 @@ interface InheritanceAnalyzerVisitContext extends AnalyzerVisitContext {
   emitDeclarationKind: (kind: ComponentDeclarationKind) => void;
   emitInheritance: (
     kind: ComponentHeritageClauseKind,
-    identifier: Node
+    identifier: Node,
   ) => void;
   visitedNodes: Set<Node>;
 }
 
 function resolveStructure(
   node: Node,
-  context: InheritanceAnalyzerVisitContext
+  context: InheritanceAnalyzerVisitContext,
 ) {
   const { ts } = context;
 
@@ -583,7 +581,7 @@ function resolveStructure(
 
     if (ts.isFunctionLike(node) && node.getSourceFile().isDeclarationFile) {
       // Find any identifiers if the node is in a declaration file
-      findChildren(node.type, ts.isIdentifier, identifier => {
+      findChildren(node.type, ts.isIdentifier, (identifier) => {
         resolveStructure(identifier, context);
       });
     } else {
@@ -634,7 +632,7 @@ function resolveStructure(
 function resolveHeritage(
   heritage: HeritageClause | ComponentHeritageClauseKind | undefined,
   node: Node,
-  context: InheritanceAnalyzerVisitContext
+  context: InheritanceAnalyzerVisitContext,
 ): void {
   const { ts } = context;
 
@@ -678,7 +676,7 @@ function resolveHeritage(
             emitDeclarationKind: () => {},
             emitDeclaration: () => {
               hasDeclaration = true;
-            }
+            },
           });
 
           if (!hasDeclaration) {
@@ -703,7 +701,7 @@ function resolveHeritage(
           : heritage?.token === ts.SyntaxKind.ImplementsKeyword ||
               (declarations.length > 0 &&
                 !declarations.some(
-                  decl => !context.ts.isInterfaceDeclaration(decl)
+                  (decl) => !context.ts.isInterfaceDeclaration(decl),
                 ))
             ? "implements"
             : "extends";
@@ -720,13 +718,13 @@ function resolveHeritage(
  */
 function emitTypeLiteralsDeclarations(
   node: Node,
-  context: InheritanceAnalyzerVisitContext
+  context: InheritanceAnalyzerVisitContext,
 ) {
   if (context.ts.isTypeLiteralNode(node)) {
     // If we encounter a construct signature, follow the type
     const construct = node.members?.find(
       (member): member is ConstructSignatureDeclaration =>
-        context.ts.isConstructSignatureDeclaration(member)
+        context.ts.isConstructSignatureDeclaration(member),
     );
     if (construct != null && construct.type != null) {
       context.emitDeclarationKind("mixin");
@@ -735,7 +733,7 @@ function emitTypeLiteralsDeclarations(
       context.emitDeclaration(node);
     }
   } else {
-    node.forEachChild(n => emitTypeLiteralsDeclarations(n, context));
+    node.forEachChild((n) => emitTypeLiteralsDeclarations(n, context));
   }
 }
 
@@ -746,7 +744,7 @@ function emitTypeLiteralsDeclarations(
  */
 function discoverMethods(
   node: Node,
-  context: AnalyzerDeclarationVisitContext
+  context: AnalyzerDeclarationVisitContext,
 ): ComponentMethod[] | undefined {
   const { ts } = context;
 
@@ -776,8 +774,8 @@ function discoverMethods(
         name,
         node: node,
         visibility: getMemberVisibilityFromNode(node, ts),
-        type: lazy(() => context.checker.getTypeAtLocation(node))
-      }
+        type: () => context.checker.getTypeAtLocation(node),
+      },
     ];
   }
 
@@ -788,6 +786,6 @@ function isHTMLElementMethodName(name: string): boolean {
   return [
     "attributeChangedCallback",
     "connectedCallback",
-    "disconnectedCallback"
+    "disconnectedCallback",
   ].includes(name);
 }
