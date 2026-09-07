@@ -1,8 +1,8 @@
 import * as tsModule from "typescript";
 import { Node, Program, SourceFile } from "typescript";
-import { CustomElementFlavor } from "./flavors/custom-element-flavor.js";
-import { JsDocFlavor } from "./flavors/js-doc-flavor.js";
-import { LitElementFlavor } from "./flavors/lit-element-flavor.js";
+import { CustomElementFlavor } from "./custom-element-flavor.js";
+import { JsDocFlavor } from "./js-doc-flavor.js";
+import { LitElementFlavor } from "./lit-element-flavor.js";
 import {
   analyzeComponentDeclaration,
   discoverDeclarations,

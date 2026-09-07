@@ -3,6 +3,8 @@ import { tsModule } from "../ts-module.js";
 import { Range } from "../types/range.js";
 import { intersects } from "./range-util.js";
 
+// TODO: refactor with wca/ast-util.ts
+
 /**
  * Tests nodes recursively walking up the tree using parent nodes.
  * @param node
