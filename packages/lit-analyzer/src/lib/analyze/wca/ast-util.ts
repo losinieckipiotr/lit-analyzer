@@ -1,4 +1,4 @@
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import {
   Declaration,
   Decorator,
@@ -18,7 +18,7 @@ import { ModifierKind, VisibilityKind } from "./wca-types.js";
 // todo refactor with util/ast-util.ts
 
 interface AstContext {
-  ts: typeof tsModule;
+  ts: typeof tsMod;
   checker: TypeChecker;
 }
 
@@ -27,7 +27,7 @@ interface AstContext {
  */
 export function resolveDeclarations(
   node: Node,
-  context: { checker: TypeChecker; ts: typeof tsModule },
+  context: { checker: TypeChecker; ts: typeof tsMod },
 ): Declaration[] {
   if (node == null) return [];
 
@@ -43,7 +43,7 @@ export function resolveDeclarations(
  */
 export function getSymbol(
   node: Node,
-  context: { checker: TypeChecker; ts: typeof tsModule },
+  context: { checker: TypeChecker; ts: typeof tsMod },
 ): Symbol | undefined {
   if (node == null) return undefined;
   const { checker, ts } = context;
@@ -92,7 +92,7 @@ export function resolveSymbolDeclarations(symbol: Symbol): Declaration[] {
  */
 export function resolveDeclarationsDeep(
   node: Node,
-  context: { checker: TypeChecker; ts: typeof tsModule },
+  context: { checker: TypeChecker; ts: typeof tsMod },
 ): Node[] {
   const declarations: Node[] = [];
   const allDeclarations = resolveDeclarations(node, context);
@@ -123,7 +123,7 @@ export function resolveDeclarationsDeep(
 /**
  * Returns if the symbol has "alias" flag.
  */
-function isAliasSymbol(symbol: Symbol, ts: typeof tsModule): boolean {
+function isAliasSymbol(symbol: Symbol, ts: typeof tsMod): boolean {
   return hasFlag(symbol.flags, ts.SymbolFlags.Alias);
 }
 
@@ -132,7 +132,7 @@ function isAliasSymbol(symbol: Symbol, ts: typeof tsModule): boolean {
  */
 export function getModifiersFromNode(
   node: Node,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
 ): Set<ModifierKind> | undefined {
   const modifiers: Set<ModifierKind> = new Set();
 
@@ -164,7 +164,7 @@ function hasFlag(num: number, flag: number): boolean {
 export function hasModifier(
   node: Node,
   modifierKind: SyntaxKind,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
 ): boolean {
   if (!ts.canHaveModifiers(node)) {
     return false;
@@ -183,7 +183,7 @@ export function hasModifier(
  */
 export function getMemberVisibilityFromNode(
   node: PropertyDeclaration | PropertySignature | SetAccessorDeclaration | Node,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
 ): VisibilityKind | undefined {
   if (
     hasModifier(node, ts.SyntaxKind.PrivateKeyword, ts) ||
@@ -257,7 +257,7 @@ export function getInterfaceKeys(
 // function isPropertyRequired(
 //   property: PropertySignature | PropertyDeclaration,
 //   checker: TypeChecker,
-//   ts: typeof tsModule,
+//   ts: typeof tsMod,
 // ): boolean {
 //   const type = checker.getTypeAtLocation(property);
 
@@ -357,7 +357,7 @@ export function getNodeSourceFileLang(node: Node): "js" | "ts" {
  */
 export function getLeadingCommentForNode(
   node: Node,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
 ): string | undefined {
   const sourceFileText = node.getSourceFile().text;
 
@@ -378,7 +378,7 @@ export function getLeadingCommentForNode(
  */
 export function getNodeName(
   node: Node,
-  context: { ts: typeof tsModule },
+  context: { ts: typeof tsMod },
 ): string | undefined {
   return getNodeIdentifier(node, context)?.getText();
 }
@@ -388,7 +388,7 @@ export function getNodeName(
  */
 export function getNodeIdentifier(
   node: Node,
-  context: { ts: typeof tsModule },
+  context: { ts: typeof tsMod },
 ): Identifier | undefined {
   const { ts } = context;
 
@@ -415,7 +415,7 @@ export function getNodeIdentifier(
  */
 export function getDecorators(
   node: Node,
-  context: { ts: typeof tsModule },
+  context: { ts: typeof tsMod },
 ): ReadonlyArray<Decorator> {
   const { ts } = context;
 
@@ -423,7 +423,7 @@ export function getDecorators(
 }
 
 interface Context {
-  ts: typeof tsModule;
+  ts: typeof tsMod;
   checker?: TypeChecker;
   depth?: number;
   strict?: boolean;
@@ -589,7 +589,7 @@ function applyPrefixUnaryOperatorToValue(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   operator: SyntaxKind,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (typeof value === "object" && value != null) {

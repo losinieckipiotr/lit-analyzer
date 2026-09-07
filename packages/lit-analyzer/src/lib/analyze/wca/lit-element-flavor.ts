@@ -1,4 +1,4 @@
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import {
   CallExpression,
   GetAccessorDeclaration,
@@ -547,7 +547,7 @@ function hasOwnProperty<T extends string>(
  * @param node
  */
 function getLitPropertyType(
-  ts: typeof tsModule,
+  ts: typeof tsMod,
   checker: TypeChecker,
   node: Node,
 ): Type {

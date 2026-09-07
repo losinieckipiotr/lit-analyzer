@@ -9,7 +9,7 @@ import type {
   Type,
   TypeChecker,
 } from "typescript";
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 
 export interface LitElementPropertyConfig {
   type?: Type;
@@ -302,7 +302,7 @@ export interface ComponentFeatureCollection {
 export interface AnalyzerVisitContext {
   checker: TypeChecker;
   program: Program;
-  ts: typeof tsModule;
+  ts: typeof tsMod;
   config: AnalyzerConfig;
   flavors: AnalyzerFlavor[];
   emitContinue?(): void;
@@ -335,7 +335,7 @@ export type VisitFeatureEmitMap = {
  */
 export interface AnalyzerOptions {
   program: Program;
-  ts?: typeof tsModule;
+  ts?: typeof tsMod;
   flavors?: AnalyzerFlavor[];
   config?: AnalyzerConfig;
   verbose?: boolean;

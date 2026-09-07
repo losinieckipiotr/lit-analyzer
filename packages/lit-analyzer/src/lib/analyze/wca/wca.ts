@@ -1,4 +1,4 @@
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import { Node, Program, SourceFile } from "typescript";
 import { CustomElementFlavor } from "./custom-element-flavor.js";
 import { JsDocFlavor } from "./js-doc-flavor.js";
@@ -56,7 +56,7 @@ export const DEFAULT_COMPONENT_DECLARATION_CACHE = new WeakMap<
  */
 export function analyzeHTMLElement(
   program: Program,
-  ts: typeof tsModule = tsModule,
+  ts: typeof tsMod = tsMod,
 ): ComponentDeclaration | undefined {
   const endsWithLibDom = "lib.dom.d.ts";
 
@@ -180,7 +180,7 @@ export function makeContextFromConfig(
 
   // Assign defaults
   const flavors = options.flavors || DEFAULT_FLAVORS;
-  const ts = options.ts || tsModule;
+  const ts = options.ts || tsMod;
   const checker = options.program.getTypeChecker();
 
   // Create context

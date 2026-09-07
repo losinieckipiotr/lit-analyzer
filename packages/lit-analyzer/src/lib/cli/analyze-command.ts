@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { appendFileSync, writeFileSync } from "fs";
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import { Program, SourceFile } from "typescript";
 import { DefaultLitAnalyzerContext } from "../analyze/default-lit-analyzer-context.js";
 import {
@@ -37,7 +37,7 @@ function printText(text: string, config: LitAnalyzerCliConfig) {
  * @param cliConfig
  */
 export async function analyzeCommand(
-  ts: typeof tsModule,
+  ts: typeof tsMod,
   globs: string[],
   cliConfig: LitAnalyzerCliConfig,
 ): Promise<boolean> {

@@ -1,4 +1,4 @@
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import {
   ALL_RULE_IDS,
   LitAnalyzerRuleId,
@@ -74,6 +74,6 @@ export async function cli(): Promise<void> {
     return;
   }
 
-  const success = await analyzeCommand(tsModule, globs, config);
+  const success = await analyzeCommand(tsMod, globs, config);
   process.exit(success ? 0 : 1);
 }

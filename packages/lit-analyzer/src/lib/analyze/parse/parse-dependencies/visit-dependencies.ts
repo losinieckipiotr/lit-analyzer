@@ -1,11 +1,11 @@
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import { Node, Program, SourceFile } from "typescript";
 
 interface IVisitDependenciesContext {
   program: Program;
-  host: tsModule.CompilerHost | undefined;
-  ts: typeof tsModule;
-  project: tsModule.LanguageServiceHost | undefined;
+  host: tsMod.CompilerHost | undefined;
+  ts: typeof tsMod;
+  project: tsMod.LanguageServiceHost | undefined;
   directImportCache: WeakMap<SourceFile, Set<SourceFile>>;
   emitIndirectImport(file: SourceFile, importedFrom?: SourceFile): boolean;
   emitDirectImport?(file: SourceFile): void;
@@ -192,7 +192,7 @@ function emitDirectModuleImportWithName(
   context: IVisitDependenciesContext,
 ) {
   // Resolve the imported string
-  let result: tsModule.ResolvedModuleWithFailedLookupLocations | undefined;
+  let result: tsMod.ResolvedModuleWithFailedLookupLocations | undefined;
   const { project, program } = context;
 
   if (project && project.getResolvedModuleWithFailedLookupLocationsFromCache) {
@@ -202,7 +202,7 @@ function emitDirectModuleImportWithName(
       node.getSourceFile().fileName,
     );
   } else {
-    let host: tsModule.CompilerHost;
+    let host: tsMod.CompilerHost;
 
     if (context.host) {
       host = context.host;
@@ -238,7 +238,7 @@ function emitDirectModuleImportWithName(
  */
 export function isFacadeModule(
   sourceFile: SourceFile,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
 ): boolean {
   const statements = sourceFile.statements;
   const isFacade = statements.every((statement) => {

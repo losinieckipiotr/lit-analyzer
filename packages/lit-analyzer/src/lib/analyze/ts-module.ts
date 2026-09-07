@@ -1,7 +1,7 @@
-import * as tsModuleImport from "typescript";
+import * as tsMod from "typescript";
 
-export const tsModule: { ts: typeof tsModuleImport } = { ts: tsModuleImport };
+export const tsModule: { ts: typeof tsMod } = { ts: tsMod };
 
-export function setTypescriptModule(newModule: typeof tsModuleImport): void {
+export function setTypescriptModule(newModule: typeof tsMod): void {
   tsModule.ts = newModule;
 }

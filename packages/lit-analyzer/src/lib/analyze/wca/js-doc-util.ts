@@ -1,4 +1,4 @@
-import * as tsModule from "typescript";
+import * as tsMod from "typescript";
 import {
   JSDoc,
   JSDocParameterTag,
@@ -15,7 +15,7 @@ import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "./wca-types.js";
 /**
  * Returns typescript jsdoc node for a given node.
  */
-function getJSDocNode(node: Node, ts: typeof tsModule): JSDoc | undefined {
+function getJSDocNode(node: Node, ts: typeof tsMod): JSDoc | undefined {
   const parent = ts.getJSDocTags(node)?.[0]?.parent;
   if (parent != null && ts.isJSDoc(parent)) {
     return parent;
@@ -32,7 +32,7 @@ function getJSDocNode(node: Node, ts: typeof tsModule): JSDoc | undefined {
  */
 export function getJsDoc(
   node: Node,
-  ts: typeof tsModule,
+  ts: typeof tsMod,
   tagNames?: string[],
 ): JsDoc | undefined {
   const jsDocNode = getJSDocNode(node, ts);
@@ -130,7 +130,7 @@ export function getJsDoc(
 export function parseSimpleJsDocTypeExpression(
   tagNode: JSDocTag,
   str: string,
-  context: { program: Program; ts: typeof tsModule },
+  context: { program: Program; ts: typeof tsMod },
 ): Type {
   const checker = context.program.getTypeChecker();
 
@@ -317,7 +317,7 @@ export function parseSimpleJsDocTypeExpression(
  */
 export function getJsDocType(
   jsDoc: JsDoc,
-  context: { program: Program; ts: typeof tsModule },
+  context: { program: Program; ts: typeof tsMod },
 ): Type | undefined {
   if (jsDoc.tags != null) {
     const typeJsDocTag = jsDoc.tags.find((t) => t.tag === "type");
@@ -617,7 +617,7 @@ function unescapeJSDoc(str: string): string {
 const LIB_FILE_NAMES = ["lib.dom.d.ts"];
 
 const LIB_TYPE_CACHE: WeakMap<
-  typeof tsModule,
+  typeof tsMod,
   Map<string, Type | undefined>
 > = new Map();
 
@@ -626,7 +626,7 @@ const LIB_TYPE_CACHE: WeakMap<
  */
 function getLibTypeWithName(
   name: string,
-  { ts, program }: { program: Program; ts: typeof tsModule },
+  { ts, program }: { program: Program; ts: typeof tsMod },
 ): Type | undefined {
   const nameTypeCache = LIB_TYPE_CACHE.get(ts) || new Map();
 
