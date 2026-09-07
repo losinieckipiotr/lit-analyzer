@@ -15,7 +15,7 @@ import {
 import { isNamePrivate } from "../util/str-util.js";
 import { ModifierKind, VisibilityKind } from "./wca-types.js";
 
-// todo refactor with util/ast-util.ts
+// TODO: refactor with util/ast-util.ts
 
 interface AstContext {
   ts: typeof tsMod;
