@@ -64,8 +64,6 @@ export function analyzeHTMLElement(
     .getSourceFiles()
     .find((sf) => sf.fileName.endsWith(endsWithLibDom));
   if (domLibSourceFile == null) {
-    // FIXME: ?
-    // throw new Error(`Couldn't find '${endsWith}'. Have you included the 'dom' lib in your tsconfig?`);
     return undefined;
   }
 

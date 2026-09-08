@@ -152,8 +152,11 @@ export function parseSimpleJsDocTypeExpression(
     case "boolean":
       return checker.getBooleanType();
     case "array":
-      // FIXME: need testing
-      return checker.getTypeAtLocation(tagNode);
+      // FIXME
+      throw new Error("not implemented");
+    // maybe we should represent this type differently?
+    // is type returned is valid?
+    // return checker.getTypeAtLocation(tagNode);
     case "object":
       return checker.getNonPrimitiveType();
     case "any":
@@ -170,35 +173,31 @@ export function parseSimpleJsDocTypeExpression(
   // Match:
   //   {string|number}
   if (str.includes("|")) {
-    // FIXME ?
+    // FIXME
+
     throw new Error("not implemented");
-    // return {
-    //   kind: SimpleTypeKind.UNION,
-    //   types: str
-    //     .split("|")
-    //     .map(str => {
-    //       const childType = parseSimpleJsDocTypeExpression(
-    //         tagNode,
-    //         str,
-    //         context
-    //       );
 
-    //       if (isSimpleType(childType)) {
-    //         // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
-    //         if (childType.kind === SimpleTypeKind.ANY) {
-    //           return checker.getStringLiteralType(str);
-    //         }
-    //       } else {
-    //         // note: it may be not correct, but this type should be created by us
-    //         if (childType.flags === checker.getAnyType().flags) {
-    //           return checker.getStringLiteralType(str);
-    //         }
-    //       }
+    // const types = str.split("|").map((str) => {
+    //   const childType = parseSimpleJsDocTypeExpression(tagNode, str, context);
 
-    //       return childType;
-    //     })
-    //     .map(type => toSimpleType(type, { checker, ts: context.ts }))
-    // };
+    //   // TODO: test if this is even possible, if not remove or throw an error
+    //   // we get union from parsing types? it should not happen here, but if it
+    //   // does, we fallback to ANY
+    //   if (isMyUnionType(childType)) {
+    //     return checker.getAnyType();
+    //   }
+
+    //   // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
+    //   const { ts } = context;
+
+    //   if (childType.flags === ts.TypeFlags.Any) {
+    //     return checker.getStringLiteralType(str);
+    //   }
+
+    //   return childType;
+    // });
+
+    // return getUnionType(types);
   }
 
   // Match:
@@ -311,9 +310,7 @@ export function parseSimpleJsDocTypeExpression(
 }
 
 /**
- * Finds a @type jsdoc tag in the jsdoc and returns the corresponding simple type
- * @param jsDoc
- * @param context
+ * Finds a @type jsdoc tag in the jsdoc and returns the corresponding type.
  */
 export function getJsDocType(
   jsDoc: JsDoc,

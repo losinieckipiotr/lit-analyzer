@@ -192,8 +192,8 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
                 return [permittedTagNameType.value];
               }
 
-              // FIXME
-              // throw new Error("fixme");
+              // TODO: looks like we don't test this path,
+              // should we return any?
 
               return undefined;
             })();

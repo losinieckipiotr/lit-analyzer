@@ -253,59 +253,6 @@ export function getInterfaceKeys(
   return extensions;
 }
 
-// FIXME: remove?
-// function isPropertyRequired(
-//   property: PropertySignature | PropertyDeclaration,
-//   checker: TypeChecker,
-//   ts: typeof tsMod,
-// ): boolean {
-//   const type = checker.getTypeAtLocation(property);
-
-//   // Properties in external modules don't have initializers, so we cannot infer if the property is required or not
-//   if (isNodeInDeclarationFile(property)) {
-//     return false;
-//   }
-
-//   if (ts.isPropertySignature(property)) {
-//     return false;
-//   }
-
-//   // The property cannot be required if it has an initializer.
-//   if (property.initializer != null) {
-//     return false;
-//   }
-
-//   // Take "myProp?: string" into account
-//   if (property.questionToken != null) {
-//     return false;
-//   }
-
-//   // "any" or "unknown" should never be required
-//   if (type.flags & ts.TypeFlags.Any || type.flags & ts.TypeFlags.Unknown) {
-//     return false;
-//   }
-//   // Return "not required" if the property doesn't have an initializer and no type node.
-//   // In this case the type could be determined by the jsdoc @type tag but cannot be "null" union if "strictNullCheck" is false.
-//   if (property.type == null) {
-//     return false;
-//   }
-
-//   return !(
-//     type.flags & ts.TypeFlags.Undefined || type.flags & ts.TypeFlags.Null
-//   );
-// }
-
-// /**
-//  * Find a node recursively walking up the tree using parent nodes.
-//  */
-// function findParent<T extends Node = Node>(
-//   node: Node | undefined,
-//   test: (node: Node) => node is T,
-// ): T | undefined {
-//   if (node == null) return;
-//   return test(node) ? node : findParent(node.parent, test);
-// }
-
 /**
  * Find a node recursively walking down the children of the tree. Depth first
  * search.
@@ -342,15 +289,6 @@ export function findChildren<T extends Node = Node>(
 export function getNodeSourceFileLang(node: Node): "js" | "ts" {
   return node.getSourceFile().fileName.endsWith("ts") ? "ts" : "js";
 }
-
-// FIXME: remove?
-// /**
-//  * Returns if a node is in a declaration file
-//  * @param node
-//  */
-// function isNodeInDeclarationFile(node: Node): boolean {
-//   return node.getSourceFile().isDeclarationFile;
-// }
 
 /**
  * Returns the leading comment for a given node.
