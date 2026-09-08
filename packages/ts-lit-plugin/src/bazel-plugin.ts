@@ -5,13 +5,14 @@ import {
   LitAnalyzerContext,
   makeConfig,
 } from "lit-analyzer";
-import ts, { Diagnostic } from "typescript";
+import * as tsMod from "typescript";
+import { Diagnostic, Program, SourceFile } from "typescript";
 import { translateDiagnostics } from "./ts-lit-plugin/translate/translate-diagnostics.js";
 
 // See https://github.com/bazelbuild/rules_typescript/blob/master/internal/tsc_wrapped/plugin_api.ts
 interface DiagnosticPlugin {
   readonly name: string;
-  getDiagnostics(sourceFile: ts.SourceFile): Readonly<ts.Diagnostic>[];
+  getDiagnostics(sourceFile: SourceFile): Readonly<Diagnostic>[];
 }
 
 /**
@@ -24,19 +25,20 @@ export class Plugin implements DiagnosticPlugin {
   private readonly context: LitAnalyzerContext;
   private readonly analyzer: LitAnalyzer;
 
-  constructor(program: ts.Program, config: LitAnalyzerConfig) {
+  constructor(program: Program, config: LitAnalyzerConfig) {
     this.name = "lit";
     const context = new DefaultLitAnalyzerContext({
       getProgram() {
         return program;
       },
+      ts: tsMod,
     });
     context.updateConfig(makeConfig(config));
     this.context = context;
     this.analyzer = new LitAnalyzer(context);
   }
 
-  getDiagnostics(sourceFile: ts.SourceFile): Diagnostic[] {
+  getDiagnostics(sourceFile: SourceFile): Diagnostic[] {
     const litDiagnostics = this.analyzer.getDiagnosticsInFile(sourceFile);
 
     const diagnostics = translateDiagnostics(
@@ -45,10 +47,10 @@ export class Plugin implements DiagnosticPlugin {
       this.context,
     );
     for (const diagnostic of diagnostics) {
-      if (diagnostic.category === ts.DiagnosticCategory.Warning) {
+      if (diagnostic.category === tsMod.DiagnosticCategory.Warning) {
         // In bazel something is either an error that breaks the build, or
         // we don't want to report it at all.
-        diagnostic.category = ts.DiagnosticCategory.Error;
+        diagnostic.category = tsMod.DiagnosticCategory.Error;
       }
     }
     return diagnostics;
