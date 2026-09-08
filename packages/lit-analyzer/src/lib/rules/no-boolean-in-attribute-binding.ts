@@ -56,7 +56,7 @@ const rule: RuleModule = {
       // Handle typeA as union of literal boolean values
       if (isMyUnionType(typeA)) {
         // attribute is a boolean string union - no report
-        if (isBooleanStringUnion(typeA, checker)) {
+        if (isBooleanStringUnion(typeA, ts, checker)) {
           return;
         }
       } else {
@@ -92,7 +92,7 @@ const rule: RuleModule = {
     // binding.
     else {
       if (isMyUnionType(typeA)) {
-        if (!isBooleanStringUnion(typeA, checker)) {
+        if (!isBooleanStringUnion(typeA, ts, checker)) {
           // not boolean union so rule does not apply, exit early
           return;
         }

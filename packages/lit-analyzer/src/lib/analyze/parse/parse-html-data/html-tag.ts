@@ -1,3 +1,4 @@
+import * as tsMod from "typescript";
 import { Type, TypeChecker } from "typescript";
 import {
   LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER,
@@ -254,9 +255,11 @@ export function documentationForHtmlTag(
 
 export function documentationForTarget(
   target: HtmlAttrTarget,
+  ts: typeof tsMod,
+  checker: TypeChecker,
   options: DescriptionOptions & { modifier?: string } = {},
 ): string | undefined {
-  const typeText = targetKindAndTypeText(target, options);
+  const typeText = targetKindAndTypeText(target, ts, checker, options);
   const documentation = descriptionForTarget(target, options);
 
   return `${typeText}${documentation != null ? ` \n\n${documentation}` : ""}`;
@@ -281,20 +284,24 @@ export function descriptionForTarget(
 
 export function targetKindAndTypeText(
   target: HtmlAttrTarget,
+  ts: typeof tsMod,
+  checker: TypeChecker,
   options: DescriptionOptions & { modifier?: string } = {},
 ): string {
-  // FIXME
-  return "";
+  const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
 
-  // const prefix = `(${targetKindText(target)}) ${options.modifier || ""}${target.name}`;
+  const targetType = target.getType();
 
-  // const targetType = target.getType();
+  if (isMyUnionType(targetType)) {
+    return `${prefix}: ${targetType.types.map((t) => checker.typeToString(t)).join(" | ")}`;
+  } else if (
+    !isMyUnionType(targetType) &&
+    targetType.flags & ts.TypeFlags.Any
+  ) {
+    return `${prefix}`;
+  }
 
-  // if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.ANY)) {
-  //   return `${prefix}`;
-  // }
-
-  // return `${prefix}: ${simpleTypeToString(targetType)}`;
+  return `${prefix}: ${checker.typeToString(targetType)}`;
 }
 
 export function targetKindText(target: HtmlAttrTarget): string {

@@ -39,17 +39,15 @@ function parseVscodeDataV1(
   const { valueSets = [], globalAttributes = [], tags = [] } = data;
 
   function attrValuesToUnion(attrValues: IValueData[]) {
-    // FIXME: for now just filter undefined values in global attributes
-    const attrValuesFiltered = attrValues.filter(
-      ({ name }) => name !== "undefined",
-    );
-
-    const types = attrValuesFiltered.map(({ name }) => {
+    const types = attrValues.map(({ name }) => {
       if (name === "null") {
-        throw new Error(
-          "Attribute value 'null' is not allowed in union types.",
-        );
+        return checker.getNullType();
       }
+
+      if (name === "undefined") {
+        return checker.getUndefinedType();
+      }
+
       return checker.getStringLiteralType(name);
     });
 

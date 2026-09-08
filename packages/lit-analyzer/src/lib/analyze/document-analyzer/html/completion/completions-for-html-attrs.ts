@@ -5,7 +5,7 @@ import {
   LIT_HTML_PROP_ATTRIBUTE_MODIFIER,
 } from "../../../constants.js";
 import { LitAnalyzerContext } from "../../../default-lit-analyzer-context.js";
-import { MyUnionType } from "../../../my-union-type.js";
+import { isMyUnionType, MyUnionType } from "../../../my-union-type.js";
 import {
   documentationForTarget,
   HtmlAttrTarget,
@@ -21,9 +21,62 @@ import { iterableFilter, iterableMap } from "../../../util/iterable-util.js";
 export function completionsForHtmlAttrs(
   htmlNode: HtmlNode,
   location: DocumentPositionContext,
-  { htmlStore }: LitAnalyzerContext,
+  { htmlStore, ts, program }: LitAnalyzerContext,
 ): LitCompletion[] {
   const onTagName = htmlNode.tagName;
+  const checker = program.getTypeChecker();
+
+  function isAssignableToBoolean(
+    type: Type | MyUnionType,
+    { matchAny } = { matchAny: true },
+  ): boolean {
+    if (isMyUnionType(type)) {
+      return false;
+    }
+
+    if (matchAny === false && type.flags & ts.TypeFlags.Any) {
+      return false;
+    }
+
+    return checker.isTypeAssignableTo(type, checker.getBooleanType());
+  }
+
+  function targetToCompletion(
+    target: HtmlAttrTarget,
+    {
+      modifier,
+      insertModifier,
+      onTagName,
+    }: { modifier?: string; insertModifier?: boolean; onTagName?: string },
+  ): LitCompletion {
+    if (modifier == null) {
+      if (isHtmlAttr(target)) {
+        const type = target.getType();
+
+        if (isAssignableToBoolean(type, { matchAny: false })) {
+          modifier = LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
+        } else {
+          modifier = "";
+        }
+      } else if (isHtmlProp(target)) {
+        modifier = LIT_HTML_PROP_ATTRIBUTE_MODIFIER;
+      } else if (isHtmlEvent(target)) {
+        modifier = LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER;
+      }
+    }
+
+    const isMember = onTagName && target.fromTagName === onTagName;
+    const isBuiltIn = target.builtIn;
+
+    return {
+      name: `${modifier || ""}${target.name}${"required" in target && target.required ? "!" : ""}`,
+      insert: `${insertModifier ? modifier : ""}${target.name}`,
+      kind: isBuiltIn ? "enumElement" : isMember ? "member" : "label",
+      importance: isBuiltIn ? "low" : isMember ? "high" : "medium",
+      documentation: () =>
+        documentationForTarget(target, ts, checker, { modifier }),
+    };
+  }
 
   // Code completions for ".[...]";
   if (location.word.startsWith(LIT_HTML_PROP_ATTRIBUTE_MODIFIER)) {
@@ -106,56 +159,4 @@ export function completionsForHtmlAttrs(
       targetToCompletion(prop, { modifier: "", onTagName }),
     ),
   );
-}
-
-function isAssignableToBoolean(
-  type: Type | MyUnionType,
-  { matchAny } = { matchAny: true },
-): boolean {
-  // FIXME
-  return false;
-
-  // return isAssignableToSimpleTypeKind(
-  //   type,
-  //   [SimpleTypeKind.BOOLEAN, SimpleTypeKind.BOOLEAN_LITERAL],
-  //   {
-  //     matchAny,
-  //   },
-  // );
-}
-
-function targetToCompletion(
-  target: HtmlAttrTarget,
-  {
-    modifier,
-    insertModifier,
-    onTagName,
-  }: { modifier?: string; insertModifier?: boolean; onTagName?: string },
-): LitCompletion {
-  if (modifier == null) {
-    if (isHtmlAttr(target)) {
-      const type = target.getType();
-
-      if (isAssignableToBoolean(type, { matchAny: false })) {
-        modifier = LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
-      } else {
-        modifier = "";
-      }
-    } else if (isHtmlProp(target)) {
-      modifier = LIT_HTML_PROP_ATTRIBUTE_MODIFIER;
-    } else if (isHtmlEvent(target)) {
-      modifier = LIT_HTML_EVENT_LISTENER_ATTRIBUTE_MODIFIER;
-    }
-  }
-
-  const isMember = onTagName && target.fromTagName === onTagName;
-  const isBuiltIn = target.builtIn;
-
-  return {
-    name: `${modifier || ""}${target.name}${"required" in target && target.required ? "!" : ""}`,
-    insert: `${insertModifier ? modifier : ""}${target.name}`,
-    kind: isBuiltIn ? "enumElement" : isMember ? "member" : "label",
-    importance: isBuiltIn ? "low" : isMember ? "high" : "medium",
-    documentation: () => documentationForTarget(target, { modifier }),
-  };
 }

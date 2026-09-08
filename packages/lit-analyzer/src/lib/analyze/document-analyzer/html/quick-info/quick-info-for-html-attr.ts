@@ -9,14 +9,21 @@ import { rangeFromHtmlNodeAttr } from "../../../util/range-util.js";
 
 export function quickInfoForHtmlAttr(
   htmlAttr: HtmlNodeAttr,
-  { htmlStore }: LitAnalyzerContext,
+  { htmlStore, ts, program }: LitAnalyzerContext,
 ): LitQuickInfo | undefined {
   const target = htmlStore.getHtmlAttrTarget(htmlAttr);
-  if (target == null) return undefined;
+
+  if (!target) {
+    return undefined;
+  }
+
+  const checker = program.getTypeChecker();
 
   return {
     range: rangeFromHtmlNodeAttr(htmlAttr),
-    primaryInfo: targetKindAndTypeText(target, { modifier: htmlAttr.modifier }),
+    primaryInfo: targetKindAndTypeText(target, ts, checker, {
+      modifier: htmlAttr.modifier,
+    }),
     secondaryInfo: descriptionForTarget(target, { markdown: true }),
   };
 }

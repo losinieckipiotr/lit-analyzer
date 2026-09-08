@@ -73,7 +73,9 @@ export function isAssignableInAttributeBinding(
       // other being 'false'
       // we treat it as a boolean type for the purpose of attribute binding
 
-      if (isBooleanStringUnion(typeA, checker)) {
+      const { ts } = context;
+
+      if (isBooleanStringUnion(typeA, ts, checker)) {
         types.push(checker.getBooleanType());
       } else {
         types.push(...typeA.types);

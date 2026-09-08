@@ -1,3 +1,4 @@
+import * as tsMod from "typescript";
 import { Type, TypeChecker } from "typescript";
 
 const UnionSymbol = Symbol("MyUnionType");
@@ -30,14 +31,20 @@ export function getUnionType(types: Type[], name?: string): MyUnionType {
 
 export function isBooleanStringUnion(
   type: MyUnionType,
+  ts: typeof tsMod,
   checker: TypeChecker,
 ): boolean {
+  const types = type.types.filter(
+    (t) =>
+      !(t.flags & ts.TypeFlags.Undefined) && !(t.flags & ts.TypeFlags.Null),
+  );
+
   const trueStrType = checker.getStringLiteralType("true");
   const falseStrType = checker.getStringLiteralType("false");
 
   return (
-    type.types.length == 2 &&
-    type.types.every(
+    types.length == 2 &&
+    types.every(
       (t) =>
         checker.isTypeAssignableTo(t, trueStrType) ||
         checker.isTypeAssignableTo(t, falseStrType),

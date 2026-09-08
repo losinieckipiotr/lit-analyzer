@@ -18,8 +18,8 @@
         "type": "node-terminal",
         "request": "launch",
         "cwd": "${workspaceFolder}/packages/lit-analyzer",
-        // "command": "npm run test -- -s --fail-fast ./out/test/rules/no-noncallable-event-binding.js",
-        "command": "npm run test -- -s --fail-fast"
+        "command": "npm run test -- -s --fail-fast ./out/test/rules/no-boolean-in-attribute-binding.js",
+        // "command": "npm run test -- -s --fail-fast"
       }
     ]
   }
