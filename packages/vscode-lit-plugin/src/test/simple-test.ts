@@ -132,7 +132,12 @@ suite("Extension Test Suite", () => {
     );
 
     async function getCompletions(expected: string) {
-      for (let i = 0; i < 1000; i++) {
+      const TIMEOUT = 3 * 1_000;
+      const INTERVAL = 100;
+
+      const start = Date.now();
+
+      while (Date.now() - start < TIMEOUT) {
         const completions =
           await vscode.commands.executeCommand<vscode.CompletionList>(
             "vscode.executeCompletionItemProvider",
@@ -148,8 +153,11 @@ suite("Extension Test Suite", () => {
         }
         // Is there a better way to wait for the ts server to be ready?
         // Maybe we can listen for the event that displays and hides the "initializing TS/JS language features" message?
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise<void>((resolve) =>
+          setTimeout(() => resolve(), INTERVAL),
+        );
       }
+
       throw new Error("No completions found");
     }
 

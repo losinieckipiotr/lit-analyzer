@@ -1,4 +1,5 @@
 import { Node, Type, TypeChecker } from "typescript";
+import { isMyUnionType, MyUnionType } from "../analyze/my-union-type.js";
 import { RuleModuleContext } from "../analyze/rule-collection.js";
 import { RuleModule } from "../analyze/types/rule/rule-module.js";
 import { joinArray } from "../analyze/util/array-util.js";
@@ -36,11 +37,18 @@ const rule: RuleModule = {
 };
 
 function isAssignableTo(
-  typeToCheckOptional: Type,
+  typeToCheckOptional: Type | MyUnionType,
   configType: Type,
   checker: TypeChecker,
 ): boolean {
-  // allow optional properties
+  if (isMyUnionType(typeToCheckOptional)) {
+    const typesToCheck = typeToCheckOptional.types.map((t) =>
+      checker.getNonNullableType(t),
+    );
+
+    return typesToCheck.every((t) => checker.isTypeAssignableTo(t, configType));
+  }
+
   const typeToCheck = checker.getNonNullableType(typeToCheckOptional);
 
   return checker.isTypeAssignableTo(typeToCheck, configType);
@@ -54,7 +62,7 @@ function validateLitPropertyConfig(
   node: Node,
   litConfig: LitElementPropertyConfig,
   propName: string,
-  typeToCheck: Type,
+  typeToCheck: Type | MyUnionType,
   context: RuleModuleContext,
 ) {
   const location = rangeFromNode(node);
@@ -84,7 +92,7 @@ function validateLitPropertyConfig(
   const checker = context.program.getTypeChecker();
 
   // Collect type kinds that can be used in as "type" in the @property decorator
-  function getAcceptedTypeKinds(typeToCheck: Type): string[] {
+  function getAcceptedTypeKinds(typeToCheck: Type) {
     const results: string[] = [];
 
     const stringType = checker.getStringType();
@@ -116,6 +124,35 @@ function validateLitPropertyConfig(
     return results;
   }
 
+  function getAcceptedTypeKindsUnion(typeToCheck: MyUnionType) {
+    // FIXME: path not tested in unit tests
+    const acceptedTypeKindsList: string[] = [];
+
+    const acceptedTypeKindsListForEachType = typeToCheck.types.map((t) =>
+      getAcceptedTypeKinds(checker.getNonNullableType(t)),
+    );
+
+    const uniqueAcceptedTypeKinds = Array.from(
+      new Set<string>(...acceptedTypeKindsListForEachType.flat()),
+    );
+
+    for (const acceptedType of uniqueAcceptedTypeKinds) {
+      const isTypeAcceptedForEveryType = acceptedTypeKindsListForEachType.every(
+        (list) => list.includes(acceptedType),
+      );
+
+      if (isTypeAcceptedForEveryType) {
+        acceptedTypeKindsList.push(acceptedType);
+      }
+    }
+
+    return acceptedTypeKindsList;
+  }
+
+  function unionTypeToString(type: MyUnionType) {
+    return type.types.map((t) => checker.typeToString(t)).join(" | ");
+  }
+
   const configType = litConfig.type;
 
   // Test the @property type against the actual type if a type has been provided
@@ -127,7 +164,9 @@ function validateLitPropertyConfig(
     }
 
     // Suggest what to use instead
-    const acceptedTypeKindsList = getAcceptedTypeKinds(typeToCheck);
+    const acceptedTypeKindsList = isMyUnionType(typeToCheck)
+      ? getAcceptedTypeKindsUnion(typeToCheck)
+      : getAcceptedTypeKinds(typeToCheck);
 
     // Report error if the @property type is not assignable to the actual type
     let message: string;
@@ -150,7 +189,9 @@ function validateLitPropertyConfig(
       // }
 
       const configTypeString = checker.typeToString(configType);
-      const typeToCheckString = checker.typeToString(typeToCheck);
+      const typeToCheckString = isMyUnionType(typeToCheck)
+        ? unionTypeToString(typeToCheck)
+        : checker.typeToString(typeToCheck);
 
       message = `@property type '${configTypeString}' is not assignable to the actual type '${typeToCheckString}'`;
     }
@@ -163,7 +204,9 @@ function validateLitPropertyConfig(
 
   // continue validation if the attribute is not disabled
   if (litConfig.attribute !== false) {
-    const acceptedTypeKindsList = getAcceptedTypeKinds(typeToCheck);
+    const acceptedTypeKindsList = isMyUnionType(typeToCheck)
+      ? getAcceptedTypeKindsUnion(typeToCheck)
+      : getAcceptedTypeKinds(typeToCheck);
 
     // Don't report errors because String conversion is default
     if (isAssignableTo(typeToCheck, checker.getStringType(), checker)) {
@@ -182,12 +225,17 @@ function validateLitPropertyConfig(
         (kind) => `'{type: ${kind}}'`,
       );
 
-      const isAssignableToArray = checker.isArrayLikeType(typeToCheck);
+      const isAssignableToArray = isMyUnionType(typeToCheck)
+        ? typeToCheck.types.every((t) => checker.isArrayLikeType(t))
+        : checker.isArrayLikeType(typeToCheck);
 
-      const isAssignableToObject = checker.isTypeAssignableTo(
-        typeToCheck,
-        checker.getNonPrimitiveType(),
-      );
+      const nonPrimitiveType = checker.getNonPrimitiveType();
+
+      const isAssignableToObject = isMyUnionType(typeToCheck)
+        ? typeToCheck.types.every((t) =>
+            checker.isTypeAssignableTo(t, nonPrimitiveType),
+          )
+        : checker.isTypeAssignableTo(typeToCheck, nonPrimitiveType);
 
       if (isAssignableToArray || isAssignableToObject) {
         textToJoin.push("'{attribute: false}'");
@@ -197,7 +245,9 @@ function validateLitPropertyConfig(
 
       message = `Missing ${acceptedTypeText} on @property decorator for '${propName}'`;
     } else {
-      const typeToCheckString = checker.typeToString(typeToCheck);
+      const typeToCheckString = isMyUnionType(typeToCheck)
+        ? unionTypeToString(typeToCheck)
+        : checker.typeToString(typeToCheck);
 
       message = `The built in converter doesn't handle the property type '${typeToCheckString}'.`;
       fixMessage = `Please add '{attribute: false}' on @property decorator for '${propName}'`;

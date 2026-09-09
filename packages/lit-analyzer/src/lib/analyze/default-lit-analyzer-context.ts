@@ -326,6 +326,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
     const analyzeResult = analyzeSourceFile(sourceFile, {
       program: this.program,
       ts: this.ts,
+      logger: this.logger,
       config: {
         features: ["event", "member", "slot", "csspart", "cssproperty"],
         analyzeGlobalFeatures: !isDefaultLibrary, // Don't analyze global features in lib.dom.d.ts
@@ -385,7 +386,7 @@ export class DefaultLitAnalyzerContext implements LitAnalyzerContext {
   private analyzeSubclassExtensions() {
     if (this.hasAnalyzedSubclassExtensions) return;
 
-    const result = analyzeHTMLElement(this.program, this.ts);
+    const result = analyzeHTMLElement(this.program, this.ts, this.logger);
     if (result != null) {
       const extension = convertComponentDeclarationToHtmlTag(
         result,

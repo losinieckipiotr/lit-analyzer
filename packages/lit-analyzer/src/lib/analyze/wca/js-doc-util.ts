@@ -8,6 +8,8 @@ import {
   Program,
   Type,
 } from "typescript";
+import { LitAnalyzerLogger } from "../lit-analyzer-logger.js";
+import { getUnionType, isMyUnionType, MyUnionType } from "../my-union-type.js";
 import { arrayDefined } from "../util/array-util.js";
 import { getLeadingCommentForNode } from "./ast-util.js";
 import { JsDoc, JSDocTagInternal, JsDocTagParsed } from "./wca-types.js";
@@ -130,9 +132,10 @@ export function getJsDoc(
 export function parseSimpleJsDocTypeExpression(
   tagNode: JSDocTag,
   str: string,
-  context: { program: Program; ts: typeof tsMod },
-): Type {
+  context: { program: Program; ts: typeof tsMod; logger: LitAnalyzerLogger },
+): Type | MyUnionType {
   const checker = context.program.getTypeChecker();
+  const logger = context.logger;
 
   // Fail safe if "str" is somehow undefined
   if (!str) {
@@ -175,33 +178,34 @@ export function parseSimpleJsDocTypeExpression(
   // Match:
   //   {string|number}
   if (str.includes("|")) {
-    // FIXME
+    logger.debug(`Parsing union type: ${str}`);
 
-    throw new Error(
-      "parseSimpleJsDocTypeExpression string with '|' not implemented",
-    );
+    const { ts } = context;
 
-    // const types = str.split("|").map((str) => {
-    //   const childType = parseSimpleJsDocTypeExpression(tagNode, str, context);
+    // FIXME: why?
+    // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
+    function anyToStrLit(t: Type) {
+      if (t.flags === ts.TypeFlags.Any) {
+        return checker.getStringLiteralType(str);
+      }
 
-    //   // TODO: test if this is even possible, if not remove or throw an error
-    //   // we get union from parsing types? it should not happen here, but if it
-    //   // does, we fallback to ANY
-    //   if (isMyUnionType(childType)) {
-    //     return checker.getAnyType();
-    //   }
+      return t;
+    }
 
-    //   // Convert ANY types to string literals so that {on|off} is "on"|"off" and not ANY|ANY
-    //   const { ts } = context;
+    const types = str
+      .split("|")
+      .map((str) => {
+        const childType = parseSimpleJsDocTypeExpression(tagNode, str, context);
 
-    //   if (childType.flags === ts.TypeFlags.Any) {
-    //     return checker.getStringLiteralType(str);
-    //   }
+        if (isMyUnionType(childType)) {
+          return childType.types.map((t) => anyToStrLit(t));
+        }
 
-    //   return childType;
-    // });
+        return anyToStrLit(childType);
+      })
+      .flat();
 
-    // return getUnionType(types);
+    return getUnionType(types);
   }
 
   // Match:
@@ -324,8 +328,8 @@ export function parseSimpleJsDocTypeExpression(
  */
 export function getJsDocType(
   jsDoc: JsDoc,
-  context: { program: Program; ts: typeof tsMod },
-): Type | undefined {
+  context: { program: Program; ts: typeof tsMod; logger: LitAnalyzerLogger },
+): Type | MyUnionType | undefined {
   if (jsDoc.tags != null) {
     const typeJsDocTag = jsDoc.tags.find((t) => t.tag === "type");
 

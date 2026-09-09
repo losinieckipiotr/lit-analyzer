@@ -28,8 +28,9 @@
 	},
 	"wireit": {
 		"build": {
+			"dependencies": ["../lit-analyzer:build"],
 			"clean": true,
-			"command": "tsc --pretty",
+			"command": "npm i && tsc --pretty",
 			"output": [
 				"lib"
 			]

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { appendFileSync, writeFileSync } from "fs";
 import { DefaultLitAnalyzerLogger, LitAnalyzerLoggerLevel } from "lit-analyzer";
-import { join } from "path";
+import { resolve } from "path";
 import * as tsServer from "typescript";
 import { inspect } from "util";
 
@@ -57,10 +57,11 @@ export class Logger extends DefaultLitAnalyzerLogger {
     this.appendLogWithLevel(LitAnalyzerLoggerLevel.VERBOSE, ...args);
   }
 
-  private logPath = join(process.cwd(), LOG_FILE_NAME);
+  private logPath = resolve(LOG_FILE_NAME);
 
   set cwd(cwd: string) {
-    this.logPath = join(cwd, LOG_FILE_NAME);
+    // FIXME:
+    // this.logPath = resolve(join(cwd, LOG_FILE_NAME));
   }
 
   /**

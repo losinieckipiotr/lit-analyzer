@@ -84,13 +84,13 @@ export class DefaultLitAnalyzerLogger implements LitAnalyzerLogger {
   protected severityPrefix(level: LitAnalyzerLoggerLevel): string {
     switch (level) {
       case LitAnalyzerLoggerLevel.VERBOSE:
-        return "\x1b[36mVERBOSE\x1b[0m"; // CYAN
+        return "VERBOSE";
       case LitAnalyzerLoggerLevel.DEBUG:
-        return "\x1b[33mDEBUG\x1b[0m"; // YELLOW
+        return "DEBUG";
       case LitAnalyzerLoggerLevel.WARN:
-        return "\x1b[35mWARN\x1b[0m"; // PURPLE
+        return "WARN";
       case LitAnalyzerLoggerLevel.ERROR:
-        return "\x1b[31mERROR\x1b[0m"; // RED
+        return "ERROR";
       case LitAnalyzerLoggerLevel.OFF:
         return "";
     }

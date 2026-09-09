@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { JSDocTag, Node } from "typescript";
+import { isMyUnionType } from "../my-union-type.js";
 import { getNodeIdentifier, getNodeSourceFileLang } from "./ast-util.js";
 import { getJsDoc, parseSimpleJsDocTypeExpression } from "./js-doc-util.js";
 import {
@@ -134,6 +135,7 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
         context.ts.isClassDeclaration(node)
       ) {
         const { checker } = context;
+
         return parseJsDocForNode(
           node,
           ["event", "fires", "emits"],
@@ -186,6 +188,13 @@ const discoverFeatures: Partial<FeatureDiscoverVisitMap<AnalyzerVisitContext>> =
             const permittedTagNames: string[] | undefined = (() => {
               if (!permittedTagNameType) {
                 return undefined;
+              }
+
+              if (isMyUnionType(permittedTagNameType)) {
+                const { checker } = context;
+                return permittedTagNameType.types.map((t) =>
+                  t.isStringLiteral() ? t.value : checker.typeToString(t),
+                );
               }
 
               if (permittedTagNameType.isStringLiteral()) {

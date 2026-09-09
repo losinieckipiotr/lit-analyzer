@@ -1,5 +1,6 @@
 import * as tsMod from "typescript";
 import { Node, Program, SourceFile } from "typescript";
+import { LitAnalyzerLogger } from "../lit-analyzer-logger.js";
 import { CustomElementFlavor } from "./custom-element-flavor.js";
 import { JsDocFlavor } from "./js-doc-flavor.js";
 import { LitElementFlavor } from "./lit-element-flavor.js";
@@ -57,6 +58,7 @@ export const DEFAULT_COMPONENT_DECLARATION_CACHE = new WeakMap<
 export function analyzeHTMLElement(
   program: Program,
   ts: typeof tsMod = tsMod,
+  logger: LitAnalyzerLogger,
 ): ComponentDeclaration | undefined {
   const endsWithLibDom = "lib.dom.d.ts";
 
@@ -71,6 +73,7 @@ export function analyzeHTMLElement(
     ...makeContextFromConfig({
       program,
       ts,
+      logger,
       flavors: [new CustomElementFlavor()],
       config: {
         analyzeDefaultLib: true,
@@ -173,7 +176,13 @@ export function visitAllHeritageClauses(
 export function makeContextFromConfig(
   options: AnalyzerOptions,
 ): AnalyzerVisitContext {
-  const { ts = tsMod, flavors = DEFAULT_FLAVORS, program, config } = options;
+  const {
+    ts = tsMod,
+    flavors = DEFAULT_FLAVORS,
+    program,
+    config,
+    logger,
+  } = options;
 
   const checker = program.getTypeChecker();
 
@@ -182,6 +191,7 @@ export function makeContextFromConfig(
     checker,
     program,
     ts,
+    logger,
     flavors,
     cache: {
       featureCollection: DEFAULT_FEATURE_COLLECTION_CACHE,

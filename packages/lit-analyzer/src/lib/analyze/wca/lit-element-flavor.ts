@@ -22,7 +22,7 @@ import {
   hasModifier,
   resolveNodeValue,
 } from "./ast-util.js";
-import { getJsDoc, getJsDocType } from "./js-doc-util.js";
+import { getJsDoc } from "./js-doc-util.js";
 import {
   AnalyzerDeclarationVisitContext,
   AnalyzerFlavor,
@@ -395,9 +395,10 @@ function parseStaticProperties(
         type: () => {
           let result: Type | undefined = undefined;
 
-          if (jsDoc) {
-            result = getJsDocType(jsDoc, context);
-          }
+          // FIXME: not implemented
+          // if (jsDoc) {
+          //   result = getJsDocType(jsDoc, context);
+          // }
 
           if (!result && typeof litConfig.type === "object") {
             result = litConfig.type;

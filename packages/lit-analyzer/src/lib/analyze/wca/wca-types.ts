@@ -10,6 +10,8 @@ import type {
   TypeChecker,
 } from "typescript";
 import * as tsMod from "typescript";
+import { LitAnalyzerLogger } from "../lit-analyzer-logger.js";
+import { MyUnionType } from "../my-union-type.js";
 
 export interface LitElementPropertyConfig {
   type?: Type;
@@ -71,7 +73,7 @@ interface ComponentMemberBase extends ComponentFeatureBase {
   priority?: PriorityKind;
 
   typeHint?: string;
-  type: undefined | (() => Type);
+  type: undefined | (() => Type | MyUnionType);
 
   meta?: LitElementPropertyConfig;
 
@@ -117,7 +119,7 @@ export interface ComponentMethod extends ComponentFeatureBase {
 export interface ComponentEvent extends ComponentFeatureBase {
   name: string;
   node: Node;
-  type?: () => Type;
+  type?: () => Type | MyUnionType;
   typeHint?: string;
   visibility?: VisibilityKind;
   deprecated?: boolean | string;
@@ -303,6 +305,7 @@ export interface AnalyzerVisitContext {
   checker: TypeChecker;
   program: Program;
   ts: typeof tsMod;
+  logger: LitAnalyzerLogger;
   config: AnalyzerConfig;
   flavors: AnalyzerFlavor[];
   emitContinue?(): void;
@@ -335,6 +338,7 @@ export type VisitFeatureEmitMap = {
  */
 export interface AnalyzerOptions {
   program: Program;
+  logger: LitAnalyzerLogger;
   ts?: typeof tsMod;
   flavors?: AnalyzerFlavor[];
   config?: AnalyzerConfig;
