@@ -27,8 +27,14 @@ export function isAssignableInAttributeBinding(
 
   if (assignment.kind === HtmlNodeAttrAssignmentKind.BOOLEAN) {
     if (isMyUnionType(typeA)) {
+      const typeAStr = typeA.types
+        .map((t) => checker.typeToString(t))
+        .join(" | ");
+
       // FIXME: log and return undefined instead of throwing an error
-      throw new Error("not implemented");
+      throw new Error(
+        `isAssignableInAttributeBinding: typeA is a MyUnionType: "${typeAStr}"`,
+      );
     }
 
     if (checker.isTypeAssignableTo(typeB, typeA)) {
@@ -254,5 +260,7 @@ export function isAssignableInAttributeBinding(
   }
 
   // FIXME: log and return undefined instead of throwing an error
-  throw new Error("not implemented");
+  throw new Error(
+    `isAssignableInAttributeBinding: unexpected assignment kind or type combination`,
+  );
 }

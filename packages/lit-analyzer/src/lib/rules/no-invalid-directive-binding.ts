@@ -47,22 +47,15 @@ const rule: RuleModule = {
             case HtmlNodeAttrKind.ATTRIBUTE: {
               // Make sure that only strings are passed in when using the live directive in attribute bindings
               const typeB = directive.actualType?.();
-              if (typeB) {
-                if (Array.isArray(typeB)) {
-                  // FIXME
-                  throw new Error(
-                    'The "live" directive received an array type in an attribute binding, which is not implemented.',
-                  );
-                }
 
-                if (
-                  !checker.isTypeAssignableTo(typeB, checker.getStringType())
-                ) {
-                  context.report({
-                    location: rangeFromHtmlNodeAttr(htmlAttr),
-                    message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`,
-                  });
-                }
+              if (
+                typeB &&
+                !checker.isTypeAssignableTo(typeB, checker.getStringType())
+              ) {
+                context.report({
+                  location: rangeFromHtmlNodeAttr(htmlAttr),
+                  message: `If you use the 'live' directive in an attribute binding, make sure that only strings are passed in, or the binding will update every render`,
+                });
               }
 
               break;
@@ -74,7 +67,6 @@ const rule: RuleModule = {
                 message: `The 'live' directive can only be used in attribute and property bindings`,
               });
           }
-
           break;
 
         case "classMap":
@@ -121,7 +113,7 @@ const rule: RuleModule = {
       // Now we have an unknown (user defined) directive.
       // This needs no further type checking, so break the chain
       // Don't break if the "actualType" was found. Then we can do further type checking.
-      if (directive.actualType == null) {
+      if (!directive.actualType) {
         context.break();
       }
     }

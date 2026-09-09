@@ -125,6 +125,10 @@ export function isHtmlEvent(target: HtmlAttrTarget): target is HtmlEvent {
   return !isHtmlMember(target);
 }
 
+/**
+ * TODO: what this function does? is it possible to get `MyUnionType` from the
+ * target?
+ */
 export function litAttributeModifierForTarget(
   target: HtmlAttrTarget,
   checker: TypeChecker,
@@ -132,17 +136,11 @@ export function litAttributeModifierForTarget(
   if (isHtmlAttr(target)) {
     const targetType = target.getType();
 
-    if (isMyUnionType(targetType)) {
-      throw new Error("not implemented");
+    if (!isMyUnionType(targetType)) {
+      if (checker.isTypeAssignableTo(checker.getBooleanType(), targetType)) {
+        return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
+      }
     }
-
-    if (checker.isTypeAssignableTo(checker.getBooleanType(), targetType)) {
-      return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
-    }
-
-    // if (isAssignableToSimpleTypeKind(targetType, SimpleTypeKind.BOOLEAN)) {
-    //   return LIT_HTML_BOOLEAN_ATTRIBUTE_MODIFIER;
-    // }
 
     return "";
   } else if (isHtmlProp(target)) {

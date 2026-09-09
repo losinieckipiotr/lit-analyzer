@@ -135,7 +135,7 @@ export function parseSimpleJsDocTypeExpression(
   const checker = context.program.getTypeChecker();
 
   // Fail safe if "str" is somehow undefined
-  if (str == null) {
+  if (!str) {
     return checker.getAnyType();
   }
 
@@ -153,7 +153,9 @@ export function parseSimpleJsDocTypeExpression(
       return checker.getBooleanType();
     case "array":
       // FIXME
-      throw new Error("not implemented");
+      throw new Error(
+        "parseSimpleJsDocTypeExpression string 'array' not implemented",
+      );
     // maybe we should represent this type differently?
     // is type returned is valid?
     // return checker.getTypeAtLocation(tagNode);
@@ -175,7 +177,9 @@ export function parseSimpleJsDocTypeExpression(
   if (str.includes("|")) {
     // FIXME
 
-    throw new Error("not implemented");
+    throw new Error(
+      "parseSimpleJsDocTypeExpression string with '|' not implemented",
+    );
 
     // const types = str.split("|").map((str) => {
     //   const childType = parseSimpleJsDocTypeExpression(tagNode, str, context);
@@ -215,7 +219,9 @@ export function parseSimpleJsDocTypeExpression(
     // );
 
     // FIXME ?
-    throw new Error("not implemented");
+    throw new Error(
+      "parseSimpleJsDocTypeExpression string with prefix modifier not implemented",
+    );
 
     // switch (modifier) {
     //   case "?":
@@ -257,7 +263,9 @@ export function parseSimpleJsDocTypeExpression(
   const arrayMatch = str.match(/^\[(.+)]$/);
   if (arrayMatch != null) {
     // FIXME ?
-    throw new Error("not implemented");
+    throw new Error(
+      "parseSimpleJsDocTypeExpression string with array notation not implemented",
+    );
     // return {
     //   kind: SimpleTypeKind.ARRAY,
     //   type: toSimpleType(
@@ -288,7 +296,9 @@ export function parseSimpleJsDocTypeExpression(
     }
 
     // FIXME ?
-    throw new Error("not implemented");
+    throw new Error(
+      "parseSimpleJsDocTypeExpression string with generic arguments not implemented",
+    );
 
     // return {
     //   kind: SimpleTypeKind.GENERIC_ARGUMENTS,

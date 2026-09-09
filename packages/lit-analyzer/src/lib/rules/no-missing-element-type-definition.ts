@@ -23,29 +23,33 @@ const rule: RuleModule = {
 
     const { declaration, tagName } = definition;
 
-    // FIXME: log and return undefined instead of throwing an error
-
     if (!declaration) {
-      throw new Error("No declaration found for this custom element");
+      // TODO: log
+      // throw new Error("No declaration found for this custom element");
+      return;
     }
 
     // get custom element class name
     const componentClassName = getNodeIdentifier(declaration.node, context.ts);
 
     if (!componentClassName) {
-      throw new Error("No class name found for this custom element");
+      // TODO: log
+      // throw new Error("No class name found for this custom element");
+      return;
     }
 
     const componentClassNameText = componentClassName.text;
 
     function validatePropertySignature(declaration: PropertySignature) {
       const { type } = declaration;
-      const declarationName = declaration.name.getText();
 
       if (!type) {
-        throw new Error(
-          `Expected a type for member '${declarationName}' in HTMLElementTagNameMap`,
-        );
+        // TODO: log
+        // const declarationName = declaration.name.getText();
+        // throw new Error(
+        // `Expected a type for member '${declarationName}' in HTMLElementTagNameMap`,
+        // );
+        return;
       }
 
       const declarationTypeName = type.getText();
@@ -101,15 +105,19 @@ const rule: RuleModule = {
     );
 
     if (!resolvedName) {
-      throw new Error("HTMLElementTagNameMap interface not found");
+      // TODO: log
+      // throw new Error("HTMLElementTagNameMap interface not found");
+      return;
     }
 
     const { members: htmlElementsTagMap } = resolvedName;
 
     if (!htmlElementsTagMap) {
-      throw new Error(
-        "Members of HTMLElementTagNameMap interface are undefined",
-      );
+      // TODO: log
+      // throw new Error(
+      // "Members of HTMLElementTagNameMap interface are undefined",
+      // );
+      return;
     }
 
     // find the corresponding entry in HTMLElementTagNameMap for this custom element
@@ -126,23 +134,29 @@ const rule: RuleModule = {
       const { declarations } = member;
 
       if (!declarations) {
-        throw new Error(
-          `Expected declarations for member '${keyStr}' in HTMLElementTagNameMap`,
-        );
+        // TODO: log
+        // throw new Error(
+        //   `Expected declarations for member '${keyStr}' in HTMLElementTagNameMap`,
+        // );
+        return;
       }
 
       if (declarations.length !== 1) {
-        throw new Error(
-          `Expected exactly one declaration for member '${keyStr}' in HTMLElementTagNameMap`,
-        );
+        // TODO: log
+        // throw new Error(
+        //   `Expected exactly one declaration for member '${keyStr}' in HTMLElementTagNameMap`,
+        // );
+        return;
       }
 
       const declaration = declarations[0];
 
       if (!context.ts.isPropertySignature(declaration)) {
-        throw new Error(
-          `Expected a property signature for member '${keyStr}' in HTMLElementTagNameMap`,
-        );
+        // TODO: log
+        // throw new Error(
+        // `Expected a property signature for member '${keyStr}' in HTMLElementTagNameMap`,
+        // );
+        return;
       }
 
       if (validatePropertySignature(declaration)) {

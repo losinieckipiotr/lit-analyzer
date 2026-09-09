@@ -173,19 +173,14 @@ export function visitAllHeritageClauses(
 export function makeContextFromConfig(
   options: AnalyzerOptions,
 ): AnalyzerVisitContext {
-  if (options.program == null) {
-    throw new Error("A program is required when running 'analyzeSourceFile'");
-  }
+  const { ts = tsMod, flavors = DEFAULT_FLAVORS, program, config } = options;
 
-  // Assign defaults
-  const flavors = options.flavors || DEFAULT_FLAVORS;
-  const ts = options.ts || tsMod;
-  const checker = options.program.getTypeChecker();
+  const checker = program.getTypeChecker();
 
   // Create context
   return {
     checker,
-    program: options.program,
+    program,
     ts,
     flavors,
     cache: {
@@ -194,11 +189,11 @@ export function makeContextFromConfig(
       general: new Map(),
     },
     config: {
-      ...options.config,
-      analyzeDefaultLib: options.config?.analyzeDefaultLib ?? false,
-      analyzeDependencies: options.config?.analyzeDependencies ?? false,
-      excludedDeclarationNames: options.config?.excludedDeclarationNames ?? [],
-      features: options.config?.features ?? ALL_COMPONENT_FEATURES,
+      ...config,
+      analyzeDefaultLib: config?.analyzeDefaultLib ?? false,
+      analyzeDependencies: config?.analyzeDependencies ?? false,
+      excludedDeclarationNames: config?.excludedDeclarationNames ?? [],
+      features: config?.features ?? ALL_COMPONENT_FEATURES,
     },
   };
 }

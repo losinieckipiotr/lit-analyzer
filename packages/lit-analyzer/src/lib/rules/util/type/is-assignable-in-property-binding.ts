@@ -24,8 +24,14 @@ export function isAssignableInPropertyBinding(
   }
 
   if (isMyUnionType(typeA)) {
+    const typeAStr = typeA.types
+      .map((t) => checker.typeToString(t))
+      .join(" | ");
+
     // FIXME: log and return undefined instead of throwing an error
-    throw new Error("not implemented");
+    throw new Error(
+      `isAssignableInPropertyBinding: typeA is a MyUnionType: "${typeAStr}"`,
+    );
   }
 
   const isAssignable = checker.isTypeAssignableTo(typeB, typeA);
