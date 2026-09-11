@@ -66,8 +66,13 @@ export function getDiagnostics(
   inputFiles: TestFile[] | TestFile,
   config: Partial<LitAnalyzerConfig> = {},
   includeLib: boolean = false,
-): { diagnostics: LitDiagnostic[]; program: Program; sourceFile: SourceFile } {
-  const { analyzer, sourceFile, program } = prepareAnalyzer(
+): {
+  diagnostics: LitDiagnostic[];
+  program: Program;
+  sourceFile: SourceFile;
+  context: LitAnalyzerContext;
+} {
+  const { analyzer, sourceFile, program, context } = prepareAnalyzer(
     inputFiles,
     config,
     includeLib,
@@ -77,6 +82,7 @@ export function getDiagnostics(
     diagnostics: analyzer.getDiagnosticsInFile(sourceFile),
     program,
     sourceFile,
+    context,
   };
 }
 

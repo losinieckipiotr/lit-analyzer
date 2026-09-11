@@ -6,22 +6,25 @@ export function hasDiagnostic(
   t: ExecutionContext,
   diagnostics: LitDiagnostic[],
   ruleName: LitAnalyzerRuleId,
+  message?: string,
 ): void {
   if (diagnostics.length !== 1) {
     prettyLogDiagnostics(t, diagnostics);
   }
-  t.is(diagnostics.length, 1);
-  t.is(diagnostics[0].source, ruleName);
+
+  t.is(diagnostics.length, 1, "Expected exactly one diagnostic");
+  t.is(diagnostics[0].source, ruleName, message);
 }
 
 export function hasNoDiagnostics(
   t: ExecutionContext,
   diagnostics: LitDiagnostic[],
+  message?: string,
 ) {
   const diagnosticsPretty = diagnostics.map(
     (diagnostic) => `${diagnostic.source}: ${diagnostic.message}`,
   );
-  return t.deepEqual(diagnosticsPretty, []);
+  return t.deepEqual(diagnosticsPretty, [], message);
 }
 
 function prettyLogDiagnostics(
