@@ -33,9 +33,6 @@
 		"lint": "wireit",
 		"lint:fix": "wireit",
 		"build": "wireit",
-		"test": "wireit",
-		"test:headless": "wireit",
-		"test:headful": "wireit",
 		"prettier:check": "wireit",
 		"package": "wireit"
 	},
