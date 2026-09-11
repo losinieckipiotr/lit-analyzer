@@ -11,9 +11,6 @@ tsTest("jsdoc: Discovers custom elements with @element", (t) => {
       "",
       "render(html`<my-element></my-element>`, document.body);",
     ].join("\n"),
-    {
-      rules: { "no-unknown-tag-name": true },
-    },
   );
 
   const definitions =
@@ -37,9 +34,6 @@ tsTest("jsdoc: report 'no-unknown-tag-name' without @element", (t) => {
       "",
       "render(html`<my-element></my-element>`, document.body);",
     ].join("\n"),
-    {
-      rules: { "no-unknown-tag-name": true },
-    },
   );
 
   const definitions =
@@ -67,9 +61,6 @@ tsTest(
         "",
         "render(html`<my-element></my-element>`, document.body);",
       ].join("\n"),
-      {
-        rules: { "no-unknown-tag-name": true },
-      },
     );
 
     const definitions =
@@ -82,5 +73,25 @@ tsTest(
       "my-element",
       "Expected the tag name to be 'my-element'",
     );
+  },
+);
+
+tsTest(
+  "jsdoc: Discovers custom elements with @element but without tag name",
+  (t) => {
+    const { sourceFile, context } = getDiagnostics(`
+	/**
+	 * @element
+	 */
+	 class MyElement extends HTMLElement { 
+	 }
+	 `);
+
+    const definitions =
+      context.definitionStore.getAnalysisResultForFile(sourceFile)
+        ?.componentDefinitions ?? [];
+
+    t.is(definitions.length, 1);
+    t.is(definitions[0].tagName, "");
   },
 );
