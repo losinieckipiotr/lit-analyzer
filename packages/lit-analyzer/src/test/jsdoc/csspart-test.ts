@@ -1,0 +1,23 @@
+import { getDiagnostics } from "../helpers/analyze.js";
+import { tsTest } from "../helpers/ts-test.js";
+
+tsTest("jsdoc: Discovers css parts with @csspart", (t) => {
+  const { sourceFile, context } = getDiagnostics(`
+  /**
+   * @element
+   * @csspart thumb - This is a comment
+   */
+   class MyElement extends HTMLElement { 
+   }
+   `);
+
+  const definitions =
+    context.definitionStore.getAnalysisResultForFile(sourceFile)
+      ?.componentDefinitions ?? [];
+
+  const { cssParts } = definitions[0].declaration!;
+
+  t.is(cssParts.length, 1);
+  t.is(cssParts[0].name, "thumb");
+  t.is(cssParts[0].jsDoc?.description, "This is a comment");
+});
