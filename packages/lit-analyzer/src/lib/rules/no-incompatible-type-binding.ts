@@ -27,12 +27,12 @@ const rule: RuleModule = {
       // For element bindings we only care about the expression type
       const { typeB } = extractBindingTypes(assignment, context);
 
-      const { ts } = context;
+      const { ts, program } = context;
+      const checker = program.getTypeChecker();
 
       const isAny = (typeB.flags & ts.TypeFlags.Any) !== 0;
 
-      if (!isLitDirective(typeB) && !isAny) {
-        const checker = context.program.getTypeChecker();
+      if (!isAny && !isLitDirective(typeB)) {
         const typeBStr = checker.typeToString(typeB);
 
         context.report({

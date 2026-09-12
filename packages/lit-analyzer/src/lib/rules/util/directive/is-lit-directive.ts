@@ -1,11 +1,9 @@
 import { Type } from "typescript";
 
-/**
- * Checks whether a type is a lit-html 1.x or Lit 2 directive.
- */
 export function isLitDirective(type: Type): boolean {
-  // FIXME: not implemented
-  // return isLit1Directive(type) || isLit2Directive(type);
+  if (type.isClassOrInterface()) {
+    return type.symbol.name === "DirectiveResult";
+  }
 
   return false;
 }

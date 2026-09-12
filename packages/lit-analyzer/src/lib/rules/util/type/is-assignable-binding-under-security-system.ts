@@ -77,7 +77,8 @@ function checkClosureSecurityAssignability(
     return undefined;
   }
 
-  const { ts } = context;
+  const { ts, program } = context;
+
   const isAny = (typeB.flags & ts.TypeFlags.Any) !== 0;
 
   // `any` is allowed to bind to anything.
@@ -93,7 +94,7 @@ function checkClosureSecurityAssignability(
   const typeMatch = matchesAtLeastOneNominalType(overriddenTypes, typeB);
 
   if (typeMatch === false) {
-    const checker = context.program.getTypeChecker();
+    const checker = program.getTypeChecker();
     const typeBStr = checker.typeToString(typeB);
 
     context.report({

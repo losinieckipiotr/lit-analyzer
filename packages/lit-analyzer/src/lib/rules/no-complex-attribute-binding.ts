@@ -34,7 +34,8 @@ const rule: RuleModule = {
       return;
     }
 
-    const checker = context.program.getTypeChecker();
+    const { program } = context;
+    const checker = program.getTypeChecker();
 
     // lit atrribute types:
     // - string

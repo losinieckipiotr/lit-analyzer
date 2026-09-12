@@ -39,7 +39,7 @@ html\`<input \${ifDefined(10)} />\`
   hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
 });
 
-tsTest.skip("Element binding: Lit 2 directives are allowed", (t) => {
+tsTest("Element binding: Lit 2 directives are allowed", (t) => {
   const { diagnostics } = getDiagnostics(`
 
 ${lit2DirectiveSetup}
