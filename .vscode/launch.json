@@ -18,7 +18,7 @@
         "type": "node-terminal",
         "request": "launch",
         "cwd": "${workspaceFolder}/packages/lit-analyzer",
-        "command": "npm run test -- -s --fail-fast ./out/test/rules/no-incompatible-type-binding.js",
+        "command": "npm run test -- -s --fail-fast ./out/test/rules/no-complex-attribute-binding.js",
         // "command": "npm run test -- -s --fail-fast"
       }
     ]

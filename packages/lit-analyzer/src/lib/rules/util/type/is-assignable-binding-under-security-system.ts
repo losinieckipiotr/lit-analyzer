@@ -87,7 +87,7 @@ function checkClosureSecurityAssignability(
   }
 
   // Directives are responsible for their own security.
-  if (isLitDirective(typeB)) {
+  if (isLitDirective(typeB, ts)) {
     return undefined;
   }
 

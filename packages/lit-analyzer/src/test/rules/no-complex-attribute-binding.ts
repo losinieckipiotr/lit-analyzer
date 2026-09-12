@@ -3,6 +3,25 @@ import { hasDiagnostic, hasNoDiagnostics } from "../helpers/assert.js";
 import { makeElement } from "../helpers/generate-test-file.js";
 import { tsTest } from "../helpers/ts-test.js";
 
+const lit2DirectiveSetup = `
+	export class Directive { }
+
+	export interface DirectiveClass {
+		new (part: PartInfo): Directive;
+	}
+
+	export type DirectiveParameters<C extends Directive> = Parameters<C['render']>;
+
+	export interface DirectiveResult<C extends DirectiveClass = DirectiveClass> {
+		values: unknown[];
+	}
+
+  export const directive = <C extends DirectiveClass>(c: C) => (...values: DirectiveParameters<InstanceType<C>>): DirectiveResult<C> => ({
+    ['_$litDirective$']: c,
+    values,
+  });
+`;
+
 tsTest("Complex types are not assignable using an attribute binding", (t) => {
   const { diagnostics } = getDiagnostics(
     'html`<input placeholder="${{foo: "bar"}}" />`',
@@ -36,12 +55,21 @@ tsTest("Complex types are assignable using property binding", (t) => {
   hasNoDiagnostics(t, diagnostics);
 });
 
-// FIXME: old directives API
-tsTest.skip(
+tsTest(
   "Don't check for the assignability of complex types in attribute bindings if the type is a custom lit directive",
   (t) => {
     const { diagnostics } = getDiagnostics(
-      'type Part = {}; type ifExists = (val: any) => (part: Part) => void; html`<input maxlength="${ifExists(123)}" />`',
+      `
+      ${lit2DirectiveSetup}
+
+      class IfExists extends Directive {
+        render(): number {
+          return 42;
+        }
+      }
+      const ifExists = directive(IfExists);
+      
+      html\`<input maxlength="\${ifExists(123)}" />\``,
     );
     hasNoDiagnostics(t, diagnostics);
   },

@@ -12,12 +12,11 @@ const lit2DirectiveSetup = `
 
 	export type DirectiveParameters<C extends Directive> = Parameters<C['render']>;
 
-	// TODO (justinfagnani): ts-simple-type has a bug, so I remove the generic
-	export interface DirectiveResult {
+	export interface DirectiveResult<C extends DirectiveClass = DirectiveClass> {
 		values: unknown[];
 	}
 
-	export const directive = <C extends DirectiveClass>(c: C) => (...values: DirectiveParameters<InstanceType<C>>): DirectiveResult => ({
+  export const directive = <C extends DirectiveClass>(c: C) => (...values: DirectiveParameters<InstanceType<C>>): DirectiveResult<C> => ({
     ['_$litDirective$']: c,
     values,
   });
@@ -269,7 +268,7 @@ tsTest(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute binding: Union of 'string | Directive' type expression is assignable to string",
   (t) => {
     const { diagnostics } = getDiagnostics(
@@ -379,7 +378,7 @@ tsTest(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute binding: 'guard' directive correctly infers correct type from the callback 1",
   (t) => {
     const { diagnostics } = getDiagnostics(
@@ -389,30 +388,13 @@ tsTest.skip(
   },
 );
 
-tsTest.skip(
+tsTest(
   "Attribute binding: 'guard' directive correctly infers correct type from the callback 2",
   (t) => {
     const { diagnostics } = getDiagnostics(
       'type guard = Function; html`<input maxlength="${guard([""], () => ({} as string | number))}" />`',
     );
     hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
-  },
-);
-
-// FIXME: old lit directives will not be supported
-tsTest.skip(
-  "Attribute binding: using custom directive won't result in diagnostics",
-  (t) => {
-    const { diagnostics } = getDiagnostics(`
-export interface Part { }
-
-const ifDefined: (value: unknown) => (part: Part) => void
-
-const ifExists = (value: any) => ifDefined(value === null ? undefined : value);
-
-html\`<input step="\${ifExists(10)}" />\`
-	`);
-    hasNoDiagnostics(t, diagnostics);
   },
 );
 
@@ -432,39 +414,6 @@ tsTest(
   (t) => {
     const { diagnostics } =
       getDiagnostics(`html\`<div role="button foo"></div>\`
-	`);
-
-    hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");
-  },
-);
-
-function makeCustomDirective(name = "myDirective") {
-  return `
-type DirectiveFn<_T = unknown> = (part: Part) => void;
-const ${name} = {} as (<T>(arg: T) => DirectiveFn<T>);
-`;
-}
-
-// FIXME: old lit directives will not be supported
-tsTest.skip(
-  "Attribute binding: correctly infers type of generic directive function",
-  (t) => {
-    const { diagnostics } =
-      getDiagnostics(`${makeCustomDirective("myDirective")}
-html\`<input step="\${myDirective(10)}" /> \`
-	`);
-
-    hasNoDiagnostics(t, diagnostics);
-  },
-);
-
-// FIXME: old lit directives will not be supported
-tsTest.skip(
-  "Attribute binding: correctly infers type of generic directive function and fails type checking",
-  (t) => {
-    const { diagnostics } =
-      getDiagnostics(`${makeCustomDirective("myDirective")}
-html\`<input step="\${myDirective("foo")}" /> \`
 	`);
 
     hasDiagnostic(t, diagnostics, "no-incompatible-type-binding");

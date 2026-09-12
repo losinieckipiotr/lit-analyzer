@@ -32,7 +32,7 @@ const rule: RuleModule = {
 
       const isAny = (typeB.flags & ts.TypeFlags.Any) !== 0;
 
-      if (!isAny && !isLitDirective(typeB)) {
+      if (!isAny && !isLitDirective(typeB, ts)) {
         const typeBStr = checker.typeToString(typeB);
 
         context.report({

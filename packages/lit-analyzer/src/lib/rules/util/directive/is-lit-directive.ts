@@ -1,8 +1,16 @@
-import { Type } from "typescript";
+import * as tsMod from "typescript";
+import { ObjectType, Type } from "typescript";
 
-export function isLitDirective(type: Type): boolean {
-  if (type.isClassOrInterface()) {
-    return type.symbol.name === "DirectiveResult";
+export function isLitDirective(
+  type: Type,
+  ts: typeof tsMod,
+): type is ObjectType {
+  const isObject = (type.flags & ts.TypeFlags.Object) !== 0;
+
+  if (isObject) {
+    const { name } = type.symbol;
+
+    return name === "DirectiveResult";
   }
 
   return false;

@@ -1,4 +1,11 @@
-import { Expression, Type } from "typescript";
+import {
+  Expression,
+  MethodDeclaration,
+  ObjectType,
+  Symbol as TsSymbol,
+  Type,
+  TypeReference,
+} from "typescript";
 import { RuleModuleContext } from "../../../analyze/rule-collection.js";
 import {
   HtmlNodeAttrAssignment,
@@ -44,6 +51,8 @@ export function getDirective(
     const functionName = assignment.expression.expression.getText() as
       BuiltInDirectiveKind | string;
     const args = Array.from(assignment.expression.arguments);
+
+    // FIXME: custom handling of directives by name, can I get rid of that?
 
     switch (functionName) {
       case "ifDefined": {
@@ -147,27 +156,59 @@ export function getDirective(
             };
           }
 
-          if (isLitDirective(typeB)) {
-            // FIXME: Implement handling for Lit directives
-            throw new Error("Lit directive handling not implemented");
-            // Factories can mark which parameters might be assigned to the property with the generic type in DirectiveFn<T>
-            // Here we get the actual type of the directive if the it is a generic directive with type. Example: DirectiveFn<string>
-            // Read more: https://github.com/Polymer/lit-html/pull/1151
-            // const actualType =
-            //   typeB.kind === "GENERIC_ARGUMENTS" &&
-            //   typeB.target.name === "DirectiveFn" &&
-            //   typeB.typeArguments.length > 0 // && typeB.typeArguments[0].kind !== "UNKNOWN"
-            //     ? () => typeB.typeArguments[0]
-            //     : undefined;
+          // User defined directive
+          if (isLitDirective(typeB, ts)) {
+            function isReferenceType(type: ObjectType): type is TypeReference {
+              return (type.objectFlags & ts.ObjectFlags.Reference) !== 0;
+            }
 
-            // // Now we have an unknown (user defined) directive.
-            // return {
-            //   kind: {
-            //     name: functionName,
-            //   },
-            //   args,
-            //   actualType,
-            // };
+            let actualType: Type = checker.getAnyType();
+
+            if (isReferenceType(typeB)) {
+              const typeArguments = typeB.typeArguments || [];
+              const directiveClassType = typeArguments.at(0);
+
+              if (directiveClassType) {
+                const { symbol } = directiveClassType;
+                const { members } = symbol;
+
+                if (members) {
+                  let renderMember: TsSymbol | undefined;
+
+                  for (const [key, member] of members) {
+                    if (key === "render") {
+                      renderMember = member;
+                      break;
+                    }
+                  }
+
+                  if (renderMember) {
+                    const declarations = renderMember.getDeclarations() || [];
+                    const dec = declarations[0];
+
+                    if (dec) {
+                      if (dec.kind === ts.SyntaxKind.MethodDeclaration) {
+                        const sig = checker.getSignatureFromDeclaration(
+                          dec as MethodDeclaration,
+                        );
+
+                        if (sig) {
+                          actualType = sig.getReturnType();
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            return {
+              kind: {
+                name: typeBString,
+              },
+              args,
+              actualType: () => actualType,
+            };
           }
         }
     }

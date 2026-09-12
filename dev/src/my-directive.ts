@@ -1,5 +1,5 @@
 import { html, render } from "lit";
-import { directive, Directive, PartInfo } from "lit/directive.js";
+import { Directive, DirectiveClass, DirectiveParameters, PartInfo } from "lit/directive.js";
 
 class MyDirective extends Directive {
   constructor(partInfo: PartInfo) {
@@ -10,10 +10,21 @@ class MyDirective extends Directive {
     return value;
   }
 }
+export interface DirectiveResult<C extends DirectiveClass = DirectiveClass> {
+}
+
+export const directive = <C extends DirectiveClass>(c: C): DirectiveResult<C> => (...values: DirectiveParameters<InstanceType<C>>) => ({
+    // This property needs to remain unminified.
+    ['_$litDirective$']: c,
+    values,
+});
 
 const myDirective = directive(MyDirective);
 
+
 render(html`<input ${myDirective(42)}/>`, document.body)
+
+
 
 
 // interface MyDir {

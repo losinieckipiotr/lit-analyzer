@@ -29,8 +29,10 @@ const rule: RuleModule = {
 
     const { typeA, typeB } = extractBindingTypes(assignment, context);
 
+    const { ts } = context;
+
     // Don't validate directives in this rule, because they are assignable even though they are complex types (functions).
-    if (isLitDirective(typeB)) {
+    if (isLitDirective(typeB, ts)) {
       return;
     }
 
@@ -75,15 +77,15 @@ const rule: RuleModule = {
         return;
       }
 
-      // FIXME: handle directives ?
-      // const { ts } = context;
-      // const signatures = checker.getSignaturesOfType(
-      //   typeB,
-      //   ts.SignatureKind.Call,
-      // );
-      // if (signatures.length > 0) {
-      //   throw new Error("Binding a function is considered a complex type.");
-      // }
+      const { ts } = context;
+      const signatures = checker.getSignaturesOfType(
+        typeB,
+        ts.SignatureKind.Call,
+      );
+
+      if (signatures.length > 0) {
+        throw new Error("not implemented binding for functions");
+      }
 
       const typeBStr = checker.typeToString(typeB);
       const message = `You are binding a non-primitive type '${typeBStr}'. This could result in binding the string "[object Object]".`;
